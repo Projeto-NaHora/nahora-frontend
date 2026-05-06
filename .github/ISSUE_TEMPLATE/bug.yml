@@ -1,0 +1,64 @@
+name: "🐛 Bug Frontend"
+description: "Reportar um erro visual ou funcional no app mobile"
+labels: ["bug", "frontend"]
+body:
+  - type: dropdown
+    id: plataforma
+    attributes:
+      label: "Plataforma"
+      options:
+        - "iOS"
+        - "Android"
+        - "Ambas"
+    validations:
+      required: true
+
+  - type: input
+    id: tela
+    attributes:
+      label: "Tela afetada"
+      placeholder: "LoginScreen, HomeScreen, OrderDetailScreen..."
+
+  - type: dropdown
+    id: gravidade
+    attributes:
+      label: "Gravidade"
+      options:
+        - "🔴 Crítico — app crasha ou perde dados"
+        - "🟡 Moderado — funcionalidade não funciona mas app roda"
+        - "🟢 Baixo — visual incorreto ou inconveniente"
+    validations:
+      required: true
+
+  - type: textarea
+    id: descricao
+    attributes:
+      label: "Descrição do bug"
+      placeholder: "Ao tocar no botão 'Cadastrar', nada acontece..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: passos
+    attributes:
+      label: "Passos para reproduzir"
+      value: |
+        1. Abrir o app
+        2. 
+        3. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: esperado
+    attributes:
+      label: "Comportamento esperado"
+      placeholder: "O app deveria navegar para a tela Home"
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidencia
+    attributes:
+      label: "Screenshots / Vídeo"
+      description: "Arraste imagens ou grave a tela do celular"

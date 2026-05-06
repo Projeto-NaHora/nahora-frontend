@@ -1,0 +1,95 @@
+name: "📱 Tarefa Frontend"
+description: "Tarefa técnica de implementação no app mobile — vinculada a uma issue mãe no nahora-app"
+labels: ["feature", "frontend"]
+body:
+  - type: input
+    id: issue-mae
+    attributes:
+      label: "Issue mãe (nahora-app)"
+      description: "Número da issue central que originou esta tarefa"
+      placeholder: "nahora-app#42"
+    validations:
+      required: true
+
+  - type: input
+    id: caso-uso
+    attributes:
+      label: "Caso de Uso"
+      placeholder: "UC-01"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: onda
+    attributes:
+      label: "Onda"
+      options:
+        - "Onda 1 — Fundação"
+        - "Onda 2 — MVP Core"
+        - "Onda 3 — MVP Core"
+        - "Onda 4 — Busca e Feedback"
+        - "Onda 5 — Gestão de Pedidos"
+        - "Onda 6 — Interação Direta"
+        - "Onda 7 — Perfil e Históricos"
+        - "Onda 8+"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tipo-tarefa
+    attributes:
+      label: "Tipo de tarefa"
+      options:
+        - "Tela nova (screen)"
+        - "Componente reutilizável"
+        - "Integração com API"
+        - "Navegação / fluxo"
+        - "Estado global (store)"
+        - "Correção de UI/UX"
+    validations:
+      required: true
+
+  - type: textarea
+    id: descricao
+    attributes:
+      label: "O que implementar"
+      description: "Descreva a tarefa com referência às telas do protótipo"
+      placeholder: |
+        1. Criar RegisterScreen.jsx conforme protótipo (Tela C01)
+        2. Formulário com campos: nome, email, telefone, senha
+        3. Validação local antes de chamar a API
+        4. ...
+    validations:
+      required: true
+
+  - type: input
+    id: telas-figma
+    attributes:
+      label: "Telas do protótipo (referência)"
+      description: "Identificadores das telas no Figma ou no Catálogo de Telas"
+      placeholder: "C01, C02, C03"
+
+  - type: textarea
+    id: dependencias
+    attributes:
+      label: "Dependências"
+      placeholder: |
+        - Depende de: nahora-backend#13 (endpoint POST /api/v1/auth/register)
+        - Bloqueia: nahora-app#42 (precisa da tela pronta para fechar a feature)
+
+  - type: input
+    id: estimativa
+    attributes:
+      label: "Estimativa (story points)"
+      placeholder: "3"
+
+  - type: textarea
+    id: criterios
+    attributes:
+      label: "Definition of Done"
+      value: |
+        - [ ] Tela implementada conforme protótipo
+        - [ ] Responsiva em iOS e Android
+        - [ ] Integração com API funcionando
+        - [ ] Loading states e tratamento de erro
+        - [ ] PR aberto e revisado
