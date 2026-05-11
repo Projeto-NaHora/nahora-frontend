@@ -1,22 +1,20 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 
-export default function Phone() {
+import { PhoneContent } from "../../../features/auth/components/PhoneContent";
+import { useRegisterPhone } from "../../../features/auth/hooks/useRegisterPhone";
+
+export default function Screen() {
+  const router = useRouter();
+  const { form, onSubmit, isSubmitting } = useRegisterPhone({
+    onSuccess: () => router.push("/(auth)/(register)/otp"),
+  });
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>app/(auth)/(register)/phone.tsx</Text>
-    </View>
+    <PhoneContent
+      control={form.control}
+      isSubmitting={isSubmitting}
+      onSubmit={onSubmit}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});

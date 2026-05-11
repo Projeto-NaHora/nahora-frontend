@@ -1,0 +1,567 @@
+# NaHora! — Product Requirements Document
+
+> **Documento de referência para agentes de IA.** Toda implementação de tela deve começar consultando este arquivo. Leia as seções na ordem em que aparecem antes de escrever qualquer código.
+
+---
+
+## 1. Identidade do projeto
+
+O **NaHora!** é um marketplace mobile (iOS e Android) de serviços essenciais — elétrica, encanamento, pintura, pedreiro, ar-condicionado — que conecta clientes a profissionais autônomos verificados em tempo real.
+
+Este repositório contém **exclusivamente o app mobile**. O backend (Spring Boot) é externo e expõe:
+
+| Protocolo | Variável de ambiente | Uso |
+|---|---|---|
+| REST API | `EXPO_PUBLIC_API_URL` | Toda comunicação HTTP |
+| WebSocket STOMP | `EXPO_PUBLIC_WS_URL` | Chat em tempo real |
+| JWT | — | Access token 15 min (memória) · Refresh token 7 dias (SecureStore) |
+
+---
+
+## 2. Stack tecnológica
+
+> Não substitua nenhuma biblioteca sem aprovação explícita do operador.
+
+| Categoria | Tecnologia | Versão |
+|---|---|---|
+| Framework | React Native + Expo SDK | RN 0.81 · Expo 54 |
+| Roteamento | Expo Router (file-based) | v6 |
+| Linguagem | TypeScript | 5.9 |
+| Estado servidor | TanStack Query | v5 |
+| Estado cliente | Zustand | — |
+| HTTP | Axios | — |
+| WebSocket | @stomp/stompjs | — |
+| Formulários | React Hook Form + Zod | — |
+| Styling | Tailwind | — |
+| Storage seguro | expo-secure-store | — |
+| Notificações push | expo-notifications (FCM) | — |
+| Geolocalização | expo-location + react-native-maps | — |
+
+---
+
+## 3. Arquitetura em camadas
+
+```
+┌────────────────────────────────────────────────────────┐
+│  app/  —  Expo Router                                  │
+│  Telas FINAS: recebe dados de hooks, renderiza UI      │
+├────────────────────────────────────────────────────────┤
+│  features/  —  Domínios de negócio                     │
+│  components/ · hooks/ · service.ts · types.ts          │
+├───────────────────────┬────────────────────────────────┤
+│  TanStack Query       │  Zustand                       │
+│  Estado do servidor   │  Estado de UI (auth, notifs)   │
+├───────────────────────┴────────────────────────────────┤
+│  services/api/client.ts  —  Axios + interceptores JWT  │
+│  features/chat/stompClient.ts  —  WebSocket STOMP      │
+├────────────────────────────────────────────────────────┤
+│  NaHora! Backend  —  REST + WebSocket                  │
+└────────────────────────────────────────────────────────┘
+```
+
+### 3.1 Regra de ouro — telas são finas
+
+Arquivos em `app/` **nunca contêm lógica de negócio**. Uma tela deve apenas:
+1. Chamar um hook da `feature/` correspondente
+2. Renderizar o que o hook retorna
+3. Delegar ações de volta ao hook
+
+```typescript
+// ✅ CORRETO — tela fina
+export default function OrdersScreen() {
+  const { data, isLoading, error } = useOrders();
+  if (isLoading) return <Skeleton />;
+  if (error) return <ErrorView />;
+  return <FlatList data={data} renderItem={({ item }) => <OrderCard order={item} />} />;
+}
+
+// ❌ ERRADO — nunca faça chamadas HTTP ou useState de dados na tela
+export default function OrdersScreen() {
+  const [orders, setOrders] = useState([]);
+  useEffect(() => {
+    axios.get('/pedidos').then(r => setOrders(r.data));
+  }, []);
+}
+```
+
+### 3.2 Ordem de implementação de uma feature (bottom-up)
+
+```
+1. types.ts     → tipos TypeScript espelhando DTOs e enums do backend
+2. service.ts   → chamadas Axios usando services/api/client.ts
+3. hooks/       → hooks TanStack Query e mutations
+4. components/  → componentes da feature
+5. app/         → tela fina consumindo os hooks
+```
+
+---
+
+## 4. Estrutura de diretórios
+
+```
+nahora/
+├── app/                                  # Expo Router — apenas roteamento e telas finas
+│   ├── _layout.tsx                       # Root layout: providers globais + redirect por papel
+│   │
+│   ├── (auth)/                           # Grupo: Autenticação (telas A01–A16)
+│   │   ├── _layout.tsx                   # Stack layout de autenticação
+│   │   ├── index.tsx                     # A01 · Splash de boas-vindas
+│   │   ├── (login)/
+│   │   │   ├── index.tsx                 # A02 · Login
+│   │   │   ├── role.tsx                  # A05 · Escolha de perfil
+│   │   │   └── otp.tsx                   # A07 · Verificação OTP
+│   │   ├── (forgotpassword)/
+│   │   │   ├── email.tsx                 # A03 · Esqueci a senha — e-mail
+│   │   │   └── sms.tsx                   # A04 · Esqueci a senha — SMS
+│   │   └── (register)/
+│   │       ├── phone.tsx                 # A06 · Cadastro etapa 1 — telefone
+│   │       ├── name.tsx                  # A08 · Cadastro etapa 2 — nome
+│   │       ├── email.tsx                 # A09 · Cadastro etapa 3 — e-mail
+│   │       ├── password.tsx              # A10 · Cadastro etapa 4 — senha
+│   │       └── professional/
+│   │           ├── profession.tsx        # A11 · Profissão
+│   │           ├── docs.tsx              # A12 · Documentos
+│   │           ├── validation.tsx        # A13 · Validação em andamento
+│   │           ├── profile-1.tsx         # A14 · Perfil profissional etapa 1
+│   │           ├── profile-2.tsx         # A15 · Perfil profissional etapa 2
+│   │           └── profile-3.tsx         # A16 · Perfil profissional etapa 3
+│   │
+│   ├── (client)/                         # Grupo: Área do cliente (telas B01–F09)
+│   │   ├── _layout.tsx                   # ⚠️ Tab Bar do cliente — definida AQUI, não nas telas
+│   │   ├── (home)/
+│   │   │   ├── index.tsx                 # B01 · Home cliente
+│   │   │   ├── categories.tsx            # B02 · Todas as categorias
+│   │   │   ├── providers.tsx             # B03 · Lista de profissionais
+│   │   │   ├── notifications.tsx         # E06 · Notificações
+│   │   │   └── [providerId]/
+│   │   │       ├── index.tsx             # B04 · Perfil completo do profissional
+│   │   │       ├── schedule.tsx          # B05 · Agenda do profissional
+│   │   │       └── report.tsx            # B06 · Reportar profissional
+│   │   ├── (orders)/
+│   │   │   ├── index.tsx                 # C01 · Meus pedidos
+│   │   │   ├── new.tsx                   # C02 · Cadastrar novo pedido
+│   │   │   ├── success.tsx               # C03 · Pedido enviado
+│   │   │   └── [orderId]/
+│   │   │       ├── index.tsx             # C04 · Detalhe do pedido em aberto
+│   │   │       ├── active.tsx            # C07 · Pedido em andamento
+│   │   │       ├── validation.tsx        # C08 · Aguardando validação
+│   │   │       ├── complete.tsx          # D01 · Confirmar conclusão
+│   │   │       ├── rating.tsx            # D06 · Avaliação
+│   │   │       ├── proposals/
+│   │   │       │   ├── index.tsx         # C05 · Lista de propostas
+│   │   │       │   └── [proposalId].tsx  # C06 · Detalhe da proposta
+│   │   │       ├── issue/
+│   │   │       │   ├── index.tsx         # C101 · Tive um problema
+│   │   │       │   ├── reported.tsx      # C102 · Problema reportado
+│   │   │       │   ├── dispute.tsx       # C103 · Disputa em análise
+│   │   │       │   ├── resolution-client.tsx   # C104 · Resolução a favor do cliente
+│   │   │       │   └── resolution-provider.tsx # C105 · Resolução a favor do prestador
+│   │   │       └── payment/
+│   │   │           ├── index.tsx         # D02 · Opções de pagamento
+│   │   │           ├── pix.tsx           # D03 · Pagamento via Pix
+│   │   │           ├── card.tsx          # D04 · Pagamento via cartão
+│   │   │           └── receipt.tsx       # D05 · Comprovante
+│   │   ├── (chats)/
+│   │   │   ├── index.tsx                 # E01 · Lista de chats
+│   │   │   └── [chatId].tsx              # E02 · Canal de chat
+│   │   ├── (favs)/
+│   │   │   └── index.tsx                 # E03 · Meus favoritos
+│   │   └── (account)/
+│   │       ├── index.tsx                 # F01 · Conta / Menu
+│   │       ├── edit.tsx                  # F02 · Editar perfil
+│   │       ├── history.tsx               # E04 · Histórico de serviços
+│   │       ├── history-detail.tsx        # E05 · Detalhe do histórico
+│   │       ├── payment-methods/
+│   │       │   ├── index.tsx             # F03 · Formas de pagamento
+│   │       │   └── add.tsx               # F04 · Adicionar cartão
+│   │       ├── addresses/
+│   │       │   ├── index.tsx             # F05 · Endereços salvos
+│   │       │   └── add.tsx               # F06 · Adicionar endereço
+│   │       └── settings/
+│   │           ├── index.tsx             # F07 · Configurações
+│   │           ├── password.tsx          # F08 · Alterar senha
+│   │           ├── privacy.tsx           # F09 · Privacidade
+│   │           └── delete.tsx            # F09.1 · Excluir conta
+│   │
+│   └── (professional)/                   # Grupo: Área do profissional (telas G01–J03)
+│       ├── _layout.tsx                   # ⚠️ Tab Bar do profissional — definida AQUI, não nas telas
+│       ├── (home)/
+│       │   ├── index.tsx                 # G01 · Home profissional
+│       │   ├── schedule.tsx              # G07 · Agenda
+│       │   ├── notifications.tsx         # I04 · Notificações
+│       │   └── earnings.tsx              # H04 · Ganhos mensais
+│       ├── (orders)/
+│       │   ├── index.tsx                 # G08 · Aba de pedidos disponíveis
+│       │   ├── search.tsx                # G09 · Busca de pedidos
+│       │   └── [orderId]/
+│       │       ├── index.tsx             # G02 · Detalhe do pedido
+│       │       ├── proposal.tsx          # G03 · Enviar proposta
+│       │       ├── proposal-sent.tsx     # G04 · Proposta enviada
+│       │       └── client/[clientId]/
+│       │           ├── index.tsx         # G05 · Perfil do cliente
+│       │           ├── orders.tsx        # G06 · Pedidos do cliente
+│       │           └── report.tsx        # I05 · Reportar cliente
+│       ├── (chats)/
+│       │   ├── index.tsx                 # I01 · Lista de chats
+│       │   └── [chatId]/
+│       │       ├── index.tsx             # I02 · Chat com o cliente
+│       │       └── edit-proposal.tsx     # I03 · Editar proposta
+│       ├── (services)/
+│       │   ├── index.tsx                 # J01 · Serviços em andamento
+│       │   ├── history.tsx               # J01.1 · Histórico de serviços
+│       │   └── [serviceId]/
+│       │       ├── index.tsx             # J02 · Timeline do serviço
+│       │       ├── completion.tsx        # J02.1 · Conclusão
+│       │       ├── validation.tsx        # J02.2 · Validação
+│       │       ├── payment.tsx           # J02.3 · Pagamento
+│       │       ├── finished.tsx          # J02.4 · Processo finalizado
+│       │       ├── rating.tsx            # J03 · Avaliação do cliente
+│       │       └── issue/                # Fluxo compartilhado C101–C105
+│       │           ├── index.tsx         # C101 · Problema
+│       │           ├── reported.tsx      # C102 · Reportado
+│       │           ├── dispute.tsx       # C103 · Disputa
+│       │           ├── resolution-client.tsx   # C104
+│       │           └── resolution-provider.tsx # C105
+│       └── (account)/
+│           ├── index.tsx                 # H01 · Minha conta
+│           ├── edit.tsx                  # H02 · Editar perfil
+│           ├── public-profile-1.tsx      # H03 · Perfil público etapa 1
+│           ├── public-profile-2.tsx      # H03.1 · Perfil público etapa 2
+│           ├── addresses/
+│           │   ├── index.tsx             # H05 · Endereços
+│           │   └── add.tsx               # H06 · Adicionar endereço
+│           └── settings/
+│               ├── index.tsx             # H07 · Configurações
+│               ├── password.tsx          # H08 · Alterar senha
+│               ├── privacy.tsx           # H09 · Privacidade
+│               └── delete.tsx            # H09.1 · Excluir conta
+│
+├── features/                             # Lógica de negócio por domínio
+│   ├── auth/                             # OTP, login, cadastro, tokens
+│   ├── orders/                           # Pedidos + máquina de estados
+│   ├── proposals/                        # Propostas + aceite
+│   ├── chat/                             # WebSocket STOMP + histórico
+│   ├── payments/                         # Pix, cartão, escrow
+│   ├── profile/                          # Perfil cliente e profissional
+│   └── notifications/                    # Push FCM + in-app
+│
+├── components/                           # Design system compartilhado
+│   ├── ui/                               # Button, Input, Card, Avatar, Badge, Skeleton
+│   └── layout/                           # SafeView, KeyboardView
+│
+├── services/
+│   └── api/
+│       ├── client.ts                     # Axios + interceptores JWT e refresh silencioso
+│       └── endpoints.ts                  # Todos os paths da API centralizados aqui
+│
+├── store/
+│   ├── authStore.ts                      # Zustand: accessToken, user, tipo (CLIENTE | PROFISSIONAL)
+│   └── notifStore.ts                     # Zustand: contador de notificações não lidas
+│
+├── types/
+│   ├── enums.ts                          # Espelha todos os enums do backend Java
+│   └── api.ts                            # ApiError, PaginatedResponse, etc.
+│
+├── constants/
+│   └── theme.ts                          # Cores, tipografia, espaçamentos — única fonte de verdade
+│
+└── utils/
+    ├── formatters.ts                     # Moeda, data/hora, telefone
+    ├── apiError.ts                       # getApiErrorMessage()
+    └── storage.ts                        # Wrappers do expo-secure-store
+```
+
+---
+
+## 5. Mapeamento tela → feature
+
+> Use esta tabela para identificar qual `features/` consultar antes de implementar qualquer tela.
+
+| Telas | Feature | Diretório |
+|---|---|---|
+| A01–A16 | Autenticação | `features/auth/` |
+| B01–B06 | Perfil / Busca de profissionais | `features/profile/` |
+| C01–C08, C101–C105 | Pedidos + Moderação | `features/orders/` |
+| C05, C06, G02–G04, I03 | Propostas | `features/proposals/` |
+| D01–D06 | Pagamentos + Conclusão | `features/payments/` |
+| D06, J03 | Avaliações | `features/orders/` |
+| E01, E02, I01, I02 | Chat | `features/chat/` |
+| E03 | Favoritos | `features/profile/` |
+| E04, E05, J01, J01.1 | Histórico | `features/orders/` |
+| E06, I04 | Notificações | `features/notifications/` |
+| F01–F09.1 | Conta do cliente | `features/profile/` |
+| G01–G09 | Pedidos (profissional) | `features/orders/` |
+| H01–H09.1 | Conta do profissional | `features/profile/` |
+| J02–J03 | Serviços em andamento | `features/orders/` |
+
+---
+
+## 6. Estrutura interna de cada feature
+
+Toda feature segue **exatamente** este padrão:
+
+```
+features/<domínio>/
+├── components/       # Componentes exclusivos desta feature
+├── hooks/            # Hooks TanStack Query (queries e mutations)
+├── service.ts        # Funções Axios — importam de services/api/client.ts
+└── types.ts          # Tipos e enums do domínio
+```
+
+---
+
+## 7. Fluxos de navegação
+
+> Notação: `A → B` significa "navega para". `(X)` significa destino condicional. `|` separa bifurcações.
+
+### 7.1 Autenticação `(auth)`
+
+```
+A01 (Splash)
+ └─► A02 (Login) ──────────────────────────────────► (client)/ ou (professional)/
+      ├─► A03 (Esqueci senha - e-mail)
+      │    └─► A04 (Esqueci senha - SMS) ──────────► A01
+      └─► A05 (Escolha de perfil)
+           └─► A06 (Telefone) → A07 (OTP) → A08 → A09 → A10
+                ├── [CLIENTE]       ──────────────► (client)/
+                └── [PROFISSIONAL]  → A11 → A12 → A13 → A14 → A15 → A16 ► (professional)/
+```
+
+### 7.2 Área do cliente `(client)`
+
+**Tab: Home (B01)**
+```
+B01 ─► B02 (Categorias) ─► B03 (Lista de profissionais) ─► B04 (Perfil)
+                                                              ├─► B05 (Agenda)
+                                                              └─► B06 (Reportar)
+B01 ─► E06 (Notificações)
+```
+
+**Tab: Pedidos (C01)**
+```
+C01 ─► C02 (Novo pedido) ─► C03 (Pedido enviado) ─► C04 (Detalhe)
+                                                       └─► C05 (Propostas)
+                                                            └─► C06 (Detalhe proposta)
+                                                                 └─► B04 (Perfil profissional)
+                                                                 └─► E02 (Chat)
+                                                                      └─► C07 (Em andamento)
+                                                                           └─► C08 (Aguardando validação)
+                                                                                ├─► C101 ─► C102 ─► C103 ─► C104 | C105
+                                                                                └─► D01 (Confirmar conclusão)
+                                                                                     └─► D02 (Pagamento)
+                                                                                          ├─► D03 (Pix)
+                                                                                          ├─► D04 (Cartão)
+                                                                                          └─► D05 (Comprovante) ─► D06 (Avaliação) ─► B01
+```
+
+**Tab: Chats (E01)**
+```
+E01 ─► E02 (Chat) ─► B04 (Perfil profissional)
+```
+
+**Tab: Favoritos (E03)**
+```
+E03 ─► B04 (Perfil profissional)
+```
+
+**Tab: Conta (F01)**
+```
+F01 ─► F02 (Editar perfil)
+     ─► E04 (Histórico) ─► E05 (Detalhe)
+     ─► F03 (Pagamentos) ─► F04 (Adicionar cartão)
+     ─► F05 (Endereços)  ─► F06 (Adicionar)
+     ─► F07 (Config.)    ─► F08 (Senha)
+     ─► F09 (Privacidade) ─► F09.1 (Excluir conta) ─► A01
+     ─► [Logout] ─► A02
+```
+
+### 7.3 Área do profissional `(professional)`
+
+**Tab: Home (G01)**
+```
+G01 ─► G07 (Agenda) ─► J02 (Timeline)
+     ─► I04 (Notificações)
+     ─► G02 (Detalhe pedido) ─► G05 (Perfil cliente) ─► I05 (Reportar) | G06 (Pedidos do cliente)
+                               └─► G03 (Enviar proposta) ─► G04 (Proposta enviada)
+```
+
+**Tab: Pedidos (G08)**
+```
+G08 ─► G09 (Busca) ─► G02 ─► G04
+     ─► G02 ─► G04
+```
+
+**Tab: Chats (I01)**
+```
+I01 ─► I02 (Chat) ─► I03 (Editar proposta)
+```
+
+**Tab: Serviços (J01)**
+```
+J01 ─► J01.1 (Histórico) ─► J02.4 (Finalizado)
+     ─► J02 (Timeline)
+          ├─► C101 ─► C102 ─► C103 ─► C104 | C105
+          └─► J02.1 (Conclusão) ─► J02.2 (Validação) ─► J02.3 (Pagamento)
+               └─► J02.4 (Finalizado) ─► J03 (Avaliação) | I02 (Chat)
+```
+
+**Tab: Conta (H01)**
+```
+H01 ─► H02 (Editar perfil)
+     ─► H03 (Perfil público) ─► H03.1
+     ─► H04 (Ganhos mensais)
+     ─► H05 (Endereços) ─► H06 (Adicionar)
+     ─► H07 (Config.)   ─► H08 (Senha)
+     ─► H09 (Privacidade) ─► H09.1 (Excluir conta) ─► A01
+     ─► [Logout] ─► A02
+```
+
+---
+
+## 8. Fluxo de autenticação e regras de OTP
+
+O backend exige a sequência exata abaixo. A navegação do app **deve** respeitá-la.
+
+```
+A05 → A06 (telefone) → POST /auth/send-otp
+                 ↓
+       A07 (OTP 6 dígitos) → POST /auth/verify-otp
+       [Redis: phone_verified:{tel} = true · TTL 30 min]
+                 ↓
+   ┌─ CLIENTE      → A08–A10 → POST /auth/register/cliente      → (client)/
+   └─ PROFISSIONAL → A08–A10 + A11–A16 → POST /auth/register/profissional → (professional)/
+```
+
+**Comportamento obrigatório da tela A07 (OTP):**
+
+| Situação | Comportamento |
+|---|---|
+| OTP inválido — 1ª ou 2ª tentativa | Exibir erro, manter na tela A07 |
+| OTP inválido — 3ª tentativa | Bloquear tela por 15 min, timer regressivo, "Reenviar" desabilitado |
+| OTP expirado (TTL 5 min) | Exibir "Código expirado", habilitar reenvio |
+| Telefone bloqueado (`otp_lock`) | Exibir contador regressivo de 15 min |
+| Verificação expirou antes do cadastro (30 min) | Redirecionar para A06, solicitar novo OTP |
+
+---
+
+## 9. Camada de API
+
+### 9.1 Cliente Axios (`services/api/client.ts`)
+
+- Centraliza **toda** comunicação HTTP.
+- Interceptor de **request**: injeta o JWT automaticamente.
+- Interceptor de **response**: detecta `401`, tenta refresh silencioso, propaga o erro apenas se o refresh falhar.
+- Nunca importe Axios diretamente nas features; use sempre o client centralizado.
+
+### 9.2 Endpoints (`services/api/endpoints.ts`)
+
+Todos os paths da API ficam aqui. **Nunca escreva uma URL hardcoded fora deste arquivo.**
+
+### 9.3 Tratamento de erros
+
+O backend retorna `{ status, error, message }`. Use sempre o helper abaixo:
+
+```typescript
+// utils/apiError.ts
+export function getApiErrorMessage(error: unknown, fallback = 'Algo deu errado'): string {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data?.message ?? fallback;
+  }
+  return fallback;
+}
+```
+
+---
+
+## 10. Chat em tempo real (WebSocket STOMP)
+
+- Lógica de conexão e subscrição centralizada em `features/chat/stompClient.ts`.
+- Endpoint: `EXPO_PUBLIC_WS_URL` (`/ws`).
+- **Canal por proposta, não por pedido.** O `conversaId` vem do response de `POST /proposals`.
+- Nunca crie uma nova instância STOMP fora de `stompClient.ts`.
+
+---
+
+## 11. Estado global
+
+### 11.1 Zustand (`store/`)
+
+| Store | Conteúdo |
+|---|---|
+| `authStore.ts` | `accessToken` (em memória), `user`, `tipo: CLIENTE \| PROFISSIONAL` |
+| `notifStore.ts` | Contador de notificações não lidas |
+
+**Access token** → memória (Zustand). TTL de 15 min, não precisa persistir.  
+**Refresh token** → `expo-secure-store`. Sobrevive a reinicializações. Nunca inverta essa decisão.
+
+O redirect pós-login ocorre em `app/_layout.tsx` com base no campo `tipo` do JWT. Nenhuma tela individual deve conter lógica de redirect por papel.
+
+### 11.2 TanStack Query
+
+Gerencia todo dado que vem da API (cache, revalidação, mutations otimistas). Cada feature define seu próprio objeto de query keys com sufixo `Keys` (ex.: `ordersKeys`).
+
+---
+
+## 12. Tipos e enums compartilhados
+
+- `types/enums.ts` — espelha **todos** os enums do backend Java.
+- `types/api.ts` — tipos globais: `ApiError`, `PaginatedResponse`, etc.
+- Cada feature pode ter seu próprio `types.ts` para DTOs locais.
+- Nunca use strings literais onde existe um enum definido.
+
+---
+
+## 13. Convenções de código
+
+### 13.1 Nomenclatura
+
+| Artefato | Convenção | Exemplo |
+|---|---|---|
+| Componentes | PascalCase | `OrderCard.tsx` |
+| Hooks | camelCase + prefixo `use` | `useOrders.ts` |
+| Services | camelCase + sufixo `Service` | `orderService` |
+| Stores Zustand | camelCase + sufixo `Store` | `authStore` |
+| Query keys | objeto constante + sufixo `Keys` | `ordersKeys` |
+| Arquivos de tipo | camelCase | `types.ts`, `enums.ts` |
+| Telas (`app/`) | kebab-case | `forgot-password.tsx` |
+
+### 13.2 Styling
+
+- Use sempre Tailwind em stylesheets para cada tela, salvo em casos justificados e documentados.
+- Tokens de cor, tipografia e espaçamento ficam em `constants/theme.ts`. Nunca hardcode valores.
+
+### 13.3 Formulários
+
+- Todo formulário usa **React Hook Form** + **Zod**.
+- O schema Zod deve espelhar as validações `@Valid` do backend.
+
+---
+
+## 14. Variáveis de ambiente (`.env`)
+
+```env
+# URL base da API — use o IP da máquina, não localhost (app roda no dispositivo)
+EXPO_PUBLIC_API_URL=http://192.168.x.x:8080/api/v1
+
+# Endpoint STOMP — sem /api/v1
+EXPO_PUBLIC_WS_URL=ws://192.168.x.x:8080/ws
+
+# Firebase
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=nahora-app
+```
+
+---
+
+## 15. Funcionalidades do produto
+
+| # | Funcionalidade |
+|---|---|
+| 1 | Cadastro com verificação de telefone por OTP; login por e-mail ou telefone |
+| 2 | Criação e acompanhamento de pedidos (máx. 3 abertos simultâneos) |
+| 3 | Envio e avaliação de propostas com agenda de horários |
+| 4 | Chat em tempo real por proposta (WebSocket STOMP) |
+| 5 | Pagamento via Pix (QR Code) ou cartão, com escrow via Pagar.me |
+| 6 | Avaliação bilateral após conclusão do serviço |
+| 7 | Notificações push via Firebase Cloud Messaging |
+| 8 | Sistema de disputa e moderação de problemas |
+| 9 | Busca de profissionais por categoria e raio geográfico |

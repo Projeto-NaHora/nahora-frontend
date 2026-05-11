@@ -1,22 +1,23 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 
-export default function Password() {
+import { PasswordContent } from "../../../features/auth/components/PasswordContent";
+import { useRegisterPassword } from "../../../features/auth/hooks/useRegisterPassword";
+
+export default function Screen() {
+  const router = useRouter();
+  const { form, onSubmit, isSubmitting } = useRegisterPassword({
+    onClientSuccess: () => router.replace("/(client)/(home)"),
+    onProfessional: () =>
+      router.push("/(auth)/(register)/professional/profession"),
+    onMissingRole: () => router.replace("/(auth)/(register)/role"),
+  });
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>app/(auth)/(register)/password.tsx</Text>
-    </View>
+    <PasswordContent
+      control={form.control}
+      isSubmitting={isSubmitting}
+      onSubmit={onSubmit}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});

@@ -57,3 +57,5 @@ export type MotivoDenuncia =
   | "OUTRO";
 
 export type TipoUsuario = "CLIENTE" | "PROFISSIONAL" | "ADMIN";
+
+export type TipoUsuarioApp = Exclude<TipoUsuario, "ADMIN">;

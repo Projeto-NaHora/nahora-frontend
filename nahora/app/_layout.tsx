@@ -18,8 +18,8 @@ export default function RootLayout() {
   const navigationState = useRootNavigationState();
 
   useEffect(() => {
-    // Wait until the navigator is fully mounted AND not stale
-    if (!navigationState?.key || navigationState.stale !== false) return;
+    // Wait until the navigator is fully mounted
+    if (!navigationState?.key) return;
     if (!segments[0]) return;
 
     const inAuthGroup = segments[0] === "(auth)";
@@ -32,14 +32,14 @@ export default function RootLayout() {
       }
     } else if (user.tipo === "CLIENTE") {
       if (!inClientGroup) {
-        router.replace("/(client)");
+        router.replace("/(client)/(home)");
       }
     } else if (user.tipo === "PROFISSIONAL") {
       if (!inProfGroup) {
-        router.replace("/(professional)");
+        router.replace("/(professional)/(home)");
       }
     }
-  }, [user, accessToken, segments, router, navigationState]);
+  }, [user, accessToken, segments, router, navigationState?.key]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

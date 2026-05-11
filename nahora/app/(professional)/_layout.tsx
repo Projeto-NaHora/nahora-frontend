@@ -12,17 +12,37 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: "#F26F21",
+        tabBarInactiveTintColor: "#737373",
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarStyle: {
+          backgroundColor: Colors[colorScheme ?? "light"].background,
+          borderTopColor: "#e5e5e5",
+          borderTopWidth: 1,
+          height: 90,
+          paddingTop: 12,
+          paddingBottom: 32,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.03,
+          shadowRadius: 20,
+          elevation: 5,
+        },
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontFamily: "Inter",
+          fontWeight: "500",
+          marginTop: 4,
+        },
       }}
     >
       <Tabs.Screen
         name="(home)"
         options={{
-          title: "Home",
+          title: "Início",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol size={26} name="house.fill" color={color} />
           ),
         }}
       />
@@ -31,25 +51,29 @@ export default function TabLayout() {
         options={{
           title: "Pedidos",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol size={26} name="doc.text.fill" color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="(chat)"
+        name="(chats)"
         options={{
           title: "Chat",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol
+              size={26}
+              name="bubble.left.and.bubble.right.fill"
+              color={color}
+            />
           ),
         }}
       />
       <Tabs.Screen
-        name="(favs)"
+        name="(services)"
         options={{
-          title: "Favoritos",
+          title: "Serviços",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol size={26} name="briefcase.fill" color={color} />
           ),
         }}
       />
@@ -58,7 +82,7 @@ export default function TabLayout() {
         options={{
           title: "Conta",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+            <IconSymbol size={26} name="person.fill" color={color} />
           ),
         }}
       />

@@ -1,5 +1,8 @@
 // services/api/endpoints.ts
 export const ENDPOINTS = {
+  // Upload de arquivos
+  UPLOAD_DOCUMENTO: "/files/upload",
+
   // Auth (público — sem JWT)
   SEND_OTP: "/auth/send-otp",
   VERIFY_OTP: "/auth/verify-otp",
