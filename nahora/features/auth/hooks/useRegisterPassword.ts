@@ -64,31 +64,20 @@ export function useRegisterPassword({
   });
 
   const onSubmit = form.handleSubmit((values) => {
-    console.log("✅ handleSubmit callback called", {
-      role,
-      phone,
-      firstName,
-      lastName,
-      email,
-    });
-
     setPassword(values.password);
 
     if (!role) {
-      console.log("❌ role is null");
       Alert.alert("Erro", "Selecione seu perfil para continuar.");
       onMissingRole?.();
       return;
     }
 
     if (role === "PROFISSIONAL") {
-      console.log("➡️ role is PROFISSIONAL, redirecting");
       onProfessional();
       return;
     }
 
     if (!phone || !firstName || !lastName || !email) {
-      console.log("❌ missing fields", { phone, firstName, lastName, email });
       Alert.alert(
         "Erro",
         "Complete as etapas anteriores antes de finalizar o cadastro.",
@@ -96,7 +85,6 @@ export function useRegisterPassword({
       return;
     }
 
-    console.log("🚀 calling mutation.mutate");
     mutation.mutate(values);
   });
 
