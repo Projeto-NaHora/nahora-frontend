@@ -85,7 +85,7 @@ export default function Profile3() {
   const { submit, isSubmitting } = useRegisterProfessional({
     onSuccess: () => {
       // Navigate to the professional home after successful registration
-      router.replace("/(professional)/(tabs)/home");
+      router.replace("/(professional)/(home)");
     },
   });
 
