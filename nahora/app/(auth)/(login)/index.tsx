@@ -1,30 +1,20 @@
 import React from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
 import { useRouter } from "expo-router";
+
+import { LoginContent } from "../../../features/auth/components/LoginContent";
+import { useLogin } from "../../../features/auth/hooks/useLogin";
 
 export default function Screen() {
   const router = useRouter();
+  const { form, onSubmit, isSubmitting } = useLogin();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>app/(auth)/(login)/index.tsx</Text>
-      <Button
-        title="Go to Home"
-        onPress={() => router.push("/(client)/(home)")}
-      />
-    </View>
+    <LoginContent
+      control={form.control}
+      isSubmitting={isSubmitting}
+      onSubmit={onSubmit}
+      onForgotPassword={() => router.push("/(auth)/(forgotpassword)/email")}
+      onRegister={() => router.push("/(auth)/(register)/role")}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-    marginBottom: 20,
-  },
-});

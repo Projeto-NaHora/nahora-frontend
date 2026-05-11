@@ -1,22 +1,20 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 
-export default function Email() {
+import { EmailContent } from "../../../features/auth/components/EmailContent";
+import { useRegisterEmail } from "../../../features/auth/hooks/useRegisterEmail";
+
+export default function Screen() {
+  const router = useRouter();
+  const { form, onSubmit, isSubmitting } = useRegisterEmail({
+    onSuccess: () => router.push("/(auth)/(register)/password"),
+  });
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>app/(auth)/(register)/email.tsx</Text>
-    </View>
+    <EmailContent
+      control={form.control}
+      isSubmitting={isSubmitting}
+      onSubmit={onSubmit}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});

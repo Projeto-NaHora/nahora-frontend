@@ -25,6 +25,7 @@ const MAPPING = {
   "bubble.left.and.bubble.right.fill": "chat",
   "heart.fill": "favorite",
   "person.fill": "person",
+  "briefcase.fill": "work",
 } as Partial<IconMapping>;
 
 /**

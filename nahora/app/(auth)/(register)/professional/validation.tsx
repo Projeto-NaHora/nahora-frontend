@@ -1,24 +1,25 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
+
+import { ValidationContent } from "@/features/auth/components/ValidationContent";
+import { useRegisterStore } from "@/store/registerStore";
 
 export default function Validation() {
+  const router = useRouter();
+  const profession = useRegisterStore((state) => state.profession);
+
+  const professionLabel = profession
+    ? `${profession.label} · Em validação`
+    : "Em validação";
+
+  const handleGoToProfile = () => {
+    router.push("/(auth)/(register)/professional/profile-1");
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>
-        app/(auth)/(register)/professional/validation.tsx
-      </Text>
-    </View>
+    <ValidationContent
+      professionLabel={professionLabel}
+      onGoToProfile={handleGoToProfile}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});
