@@ -14,6 +14,7 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { PasswordInput } from "@/components/ui/password-input";
 import { AuthScreenShell } from "./AuthScreenShell";
 import type { LoginFormValues } from "../types";
 
@@ -80,7 +81,7 @@ export function LoginContent({
           control={control}
           name="password"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
+            <PasswordInput
               style={[
                 styles.input,
                 {
@@ -91,13 +92,10 @@ export function LoginContent({
               ]}
               placeholder="Senha"
               placeholderTextColor={colors.placeholder}
-              autoCapitalize="none"
-              autoCorrect={false}
-              secureTextEntry
+              textContentType="password"
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              textContentType="password"
             />
           )}
         />
