@@ -1,6 +1,9 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+
 const STEPS = [
   { number: 1, label: "Info Básica" },
   { number: 2, label: "Especialidades" },
@@ -22,58 +25,70 @@ function getStepStatus(stepNumber: number, currentStep: number): StepStatus {
 export function ProfileStepIndicator({
   currentStep,
 }: ProfileStepIndicatorProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+
   return (
     <View style={styles.container}>
       {STEPS.map((step, index) => {
         const status = getStepStatus(step.number, currentStep);
 
+        const circleStyle = [
+          styles.circle,
+          status === "active" && {
+            backgroundColor: colors.brand,
+            borderColor: colors.brand,
+          },
+          status === "completed" && {
+            backgroundColor: colors.brand,
+            borderColor: colors.brand,
+          },
+          status === "pending" && {
+            backgroundColor: "transparent",
+            borderColor: colors.border,
+          },
+        ];
+
+        const stepNumberStyle = [
+          styles.stepNumber,
+          (status === "active" || status === "completed") && {
+            color: colors.onBrand,
+          },
+          status === "pending" && { color: colors.textSecondary },
+        ];
+
+        const labelStyle = [
+          styles.label,
+          (status === "active" || status === "completed") && {
+            color: colors.textPrimary,
+          },
+          status === "pending" && { color: colors.textSecondary },
+        ];
+
+        const connectorStyle = [
+          styles.connector,
+          status === "completed" && { backgroundColor: colors.brand },
+          status !== "completed" && { backgroundColor: colors.border },
+        ];
+
         return (
           <React.Fragment key={step.number}>
             <View style={styles.stepItem}>
               {/* Circle */}
-              <View
-                style={[
-                  styles.circle,
-                  status === "active" && styles.circleActive,
-                  status === "completed" && styles.circleCompleted,
-                  status === "pending" && styles.circlePending,
-                ]}
-              >
+              <View style={circleStyle}>
                 {status === "completed" ? (
-                  <Text style={styles.checkMark}>✓</Text>
-                ) : (
-                  <Text
-                    style={[
-                      styles.stepNumber,
-                      status === "active" && styles.stepNumberActive,
-                      status === "pending" && styles.stepNumberPending,
-                    ]}
-                  >
-                    {step.number}
+                  <Text style={[styles.checkMark, { color: colors.onBrand }]}>
+                    ✓
                   </Text>
+                ) : (
+                  <Text style={stepNumberStyle}>{step.number}</Text>
                 )}
               </View>
               {/* Label */}
-              <Text
-                style={[
-                  styles.label,
-                  (status === "active" || status === "completed") &&
-                    styles.labelActive,
-                  status === "pending" && styles.labelPending,
-                ]}
-              >
-                {step.label}
-              </Text>
+              <Text style={labelStyle}>{step.label}</Text>
             </View>
             {/* Connector line */}
-            {index < STEPS.length - 1 && (
-              <View
-                style={[
-                  styles.connector,
-                  status === "completed" && styles.connectorActive,
-                ]}
-              />
-            )}
+            {index < STEPS.length - 1 && <View style={connectorStyle} />}
           </React.Fragment>
         );
       })}
@@ -99,56 +114,25 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-  },
-  circleActive: {
-    backgroundColor: "#f27a24",
     borderWidth: 2,
-    borderColor: "#f27a24",
-  },
-  circleCompleted: {
-    backgroundColor: "#f27a24",
-    borderWidth: 2,
-    borderColor: "#f27a24",
-  },
-  circlePending: {
-    backgroundColor: "#ffffff",
-    borderWidth: 2,
-    borderColor: "#e5e7eb",
   },
   checkMark: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#ffffff",
   },
   stepNumber: {
     fontSize: 14,
     fontWeight: "700",
-  },
-  stepNumberActive: {
-    color: "#ffffff",
-  },
-  stepNumberPending: {
-    color: "#6b7280",
   },
   label: {
     fontSize: 12,
     fontWeight: "500",
     textAlign: "center",
   },
-  labelActive: {
-    color: "#1f2937",
-  },
-  labelPending: {
-    color: "#6b7280",
-  },
   connector: {
     flex: 1,
     height: 2,
-    backgroundColor: "#e5e7eb",
     marginHorizontal: 4,
     marginBottom: 32,
-  },
-  connectorActive: {
-    backgroundColor: "#f27a24",
   },
 });

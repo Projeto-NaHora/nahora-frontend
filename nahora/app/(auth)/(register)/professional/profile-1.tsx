@@ -1,5 +1,10 @@
 import React from "react";
-import { Alert, ScrollView } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -105,25 +110,31 @@ export default function Profile1() {
       style={{ flex: 1, backgroundColor: colors.background }}
       edges={["top"]}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
       >
-        <Profile1Content
-          cpf={cpf}
-          cargo={cargo}
-          location={location}
-          experienceYears={experienceYears}
-          profilePhotoUri={profilePhotoUri}
-          onChangeCpf={setCpf}
-          onChangeCargo={setCargo}
-          onChangeLocation={setLocation}
-          onChangeExperienceYears={setExperienceYears}
-          onPickPhoto={handlePickPhoto}
-          onContinue={handleContinue}
-        />
-      </ScrollView>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+        >
+          <Profile1Content
+            cpf={cpf}
+            cargo={cargo}
+            location={location}
+            experienceYears={experienceYears}
+            profilePhotoUri={profilePhotoUri}
+            onChangeCpf={setCpf}
+            onChangeCargo={setCargo}
+            onChangeLocation={setLocation}
+            onChangeExperienceYears={setExperienceYears}
+            onPickPhoto={handlePickPhoto}
+            onContinue={handleContinue}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

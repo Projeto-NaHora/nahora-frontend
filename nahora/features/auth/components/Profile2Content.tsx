@@ -64,7 +64,10 @@ export function Profile2Content({
           <View
             style={[
               styles.textAreaWrapper,
-              { borderColor: "#e5e7eb", backgroundColor: "#ffffff" },
+              {
+                borderColor: colors.border,
+                backgroundColor: colors.surface,
+              },
             ]}
           >
             <TextInput
@@ -86,13 +89,24 @@ export function Profile2Content({
             Adicionar Especialidades (Tags)
           </Text>
           <View style={styles.inputWrapper}>
-            <View style={styles.inputIconContainer}>
-              <Text style={styles.inputIcon}>+</Text>
+            <View
+              style={[
+                styles.inputIconContainer,
+                { borderColor: colors.textSecondary },
+              ]}
+            >
+              <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>
+                +
+              </Text>
             </View>
             <TextInput
               style={[
                 styles.input,
-                { color: colors.textPrimary, borderColor: "#e5e7eb" },
+                {
+                  color: colors.textPrimary,
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
               ]}
               placeholder="Digite um serviço e pressione enter"
               placeholderTextColor={colors.placeholder}
@@ -130,6 +144,7 @@ export function Profile2Content({
           onPress={onBack}
           style={({ pressed }) => [
             styles.outlineButton,
+            { borderColor: colors.border },
             pressed && styles.buttonPressed,
           ]}
         >
@@ -145,14 +160,16 @@ export function Profile2Content({
           onPress={onContinue}
           style={({ pressed }) => [
             styles.primaryButton,
-            { backgroundColor: isValid ? colors.brand : "#e5e7eb" },
+            {
+              backgroundColor: isValid ? colors.brand : colors.surface,
+            },
             pressed && styles.buttonPressed,
           ]}
         >
           <Text
             style={[
               styles.primaryButtonText,
-              { color: isValid ? colors.onBrand : "#9ca3af" },
+              { color: isValid ? colors.onBrand : colors.textSecondary },
             ]}
           >
             Próximo Passo
@@ -160,7 +177,7 @@ export function Profile2Content({
           <Text
             style={[
               styles.arrowIcon,
-              { color: isValid ? colors.onBrand : "#9ca3af" },
+              { color: isValid ? colors.onBrand : colors.textSecondary },
             ]}
           >
             →
@@ -224,14 +241,12 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: "#6b7280",
     alignItems: "center",
     justifyContent: "center",
   },
   inputIcon: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#6b7280",
     lineHeight: 16,
   },
   input: {
@@ -244,7 +259,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "400",
     lineHeight: 24,
-    backgroundColor: "#ffffff",
   },
   tagsContainer: {
     flexDirection: "row",
@@ -283,7 +297,6 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
     alignItems: "center",
     justifyContent: "center",
   },

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -8,7 +8,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 import {
   Colors,
@@ -38,19 +41,35 @@ export function AuthScreenShell({
 }: AuthScreenShellProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
+  const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+
+  /**
+   * On iOS, the KeyboardAvoidingView sits inside the SafeAreaView,
+   * so the vertical offset from the top of the screen is the safe-area top inset.
+   * On Android with edge-to-edge, the offset also accounts for the status bar.
+   */
+  const keyboardVerticalOffset = Platform.select({
+    ios: insets.top,
+    android: insets.top + 8, // small extra breathing room on Android
+    default: 0,
+  });
 
   return (
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: colors.background }]}
     >
       <KeyboardAvoidingView
-        behavior={Platform.select({ ios: "padding", android: undefined })}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={keyboardVerticalOffset}
         style={styles.container}
       >
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          bounces={false}
         >
           <Image
             source={require("../../../assets/images/LogoSimple.png")}
