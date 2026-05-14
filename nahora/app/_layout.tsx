@@ -1,24 +1,59 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { useEffect } from "react";
+import {
+  Stack,
+  useRouter,
+  useSegments,
+  useRootNavigationState,
+} from "expo-router";
+import { SWRConfig } from "swr";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useAuthStore } from "@/store/authStore";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const { user, accessToken } = useAuthStore();
+  const segments = useSegments();
+  const router = useRouter();
+  const navigationState = useRootNavigationState();
+
+  useEffect(() => {
+    // Wait until the navigator is fully mounted
+    if (!navigationState?.key) return;
+    if (!segments[0]) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+    const inClientGroup = segments[0] === "(client)";
+    const inProfGroup = segments[0] === "(professional)";
+
+    if (!user || !accessToken) {
+      if (!inAuthGroup) {
+        router.replace("/(auth)/(login)");
+      }
+    } else if (user.tipo === "CLIENTE") {
+      if (!inClientGroup) {
+        router.replace("/(client)/(home)");
+      }
+    } else if (user.tipo === "PROFISSIONAL") {
+      if (!inProfGroup) {
+        router.replace("/(professional)/(home)");
+      }
+    }
+  }, [user, accessToken, segments, router, navigationState?.key]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SWRConfig
+        value={{
+          dedupingInterval: 2000,
+          errorRetryInterval: 5000,
+          revalidateOnFocus: false,
+        }}
+      >
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(client)" />
+          <Stack.Screen name="(professional)" />
+        </Stack>
+      </SWRConfig>
+    </GestureHandlerRootView>
   );
 }
