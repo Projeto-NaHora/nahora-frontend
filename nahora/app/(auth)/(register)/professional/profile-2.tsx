@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -43,21 +43,27 @@ export default function Profile2() {
       style={{ flex: 1, backgroundColor: colors.background }}
       edges={["top"]}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
       >
-        <Profile2Content
-          about={about}
-          especialidades={especialidades}
-          onChangeAbout={setAbout}
-          onAddTag={handleAddTag}
-          onRemoveTag={handleRemoveTag}
-          onBack={handleBack}
-          onContinue={handleContinue}
-        />
-      </ScrollView>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+        >
+          <Profile2Content
+            about={about}
+            especialidades={especialidades}
+            onChangeAbout={setAbout}
+            onAddTag={handleAddTag}
+            onRemoveTag={handleRemoveTag}
+            onBack={handleBack}
+            onContinue={handleContinue}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

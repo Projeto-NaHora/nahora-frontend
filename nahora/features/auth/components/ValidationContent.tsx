@@ -18,12 +18,19 @@ type ValidationRowProps = {
 };
 
 function ValidationRow({ icon, title, subtitle }: ValidationRowProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+
   return (
     <View style={styles.statusRow}>
       <View style={styles.statusIconContainer}>{icon}</View>
       <View style={styles.statusTextBlock}>
-        <Text style={styles.statusTitle}>{title}</Text>
-        <Text style={styles.statusSubtitle}>{subtitle}</Text>
+        <Text style={[styles.statusTitle, { color: colors.textPrimary }]}>
+          {title}
+        </Text>
+        <Text style={[styles.statusSubtitle, { color: colors.textSecondary }]}>
+          {subtitle}
+        </Text>
       </View>
     </View>
   );
@@ -50,52 +57,79 @@ export function ValidationContent({
       <View style={styles.statusList}>
         <ValidationRow
           icon={
-            <View style={[styles.checkCircle, { backgroundColor: "#e6f7ec" }]}>
+            <View
+              style={[
+                styles.checkCircle,
+                { backgroundColor: colors.brand + "30" },
+              ]}
+            >
               <Text style={styles.checkIcon}>✓</Text>
             </View>
           }
           title="Dados pessoais"
           subtitle="Nome, telefone e e-mail verificados"
         />
-        <View style={[styles.separator, { borderColor: "#e5e7eb" }]} />
+        <View style={[styles.separator, { borderColor: colors.border }]} />
         <ValidationRow
           icon={
-            <View style={[styles.checkCircle, { backgroundColor: "#e6f7ec" }]}>
+            <View
+              style={[
+                styles.checkCircle,
+                { backgroundColor: colors.brand + "30" },
+              ]}
+            >
               <Text style={styles.checkIcon}>✓</Text>
             </View>
           }
           title="Profissão e áreas"
           subtitle={professionLabel}
         />
-        <View style={[styles.separator, { borderColor: "#e5e7eb" }]} />
+        <View style={[styles.separator, { borderColor: colors.border }]} />
         <ValidationRow
           icon={
             <View
-              style={[styles.pendingCircle, { backgroundColor: "#fdf5df" }]}
+              style={[
+                styles.pendingCircle,
+                { backgroundColor: colors.surface },
+              ]}
             >
               <View style={styles.pendingDots}>
-                <View style={[styles.dot, { backgroundColor: "#eb7a23" }]} />
-                <View style={[styles.dot, { backgroundColor: "#eb7a23" }]} />
-                <View style={[styles.dot, { backgroundColor: "#eb7a23" }]} />
+                <View style={[styles.dot, { backgroundColor: colors.brand }]} />
+                <View style={[styles.dot, { backgroundColor: colors.brand }]} />
+                <View style={[styles.dot, { backgroundColor: colors.brand }]} />
               </View>
             </View>
           }
           title="Documentos (RG)"
           subtitle="Analisando frente, verso e selfie"
         />
-        <View style={styles.statusRow}>
-          <View style={[styles.pendingCircle, { backgroundColor: "#f3f4f6" }]}>
-            <Text style={styles.stepNumber}>4</Text>
-          </View>
-          <View style={styles.statusTextBlock}>
-            <Text style={styles.statusTitle}>Verificação final</Text>
-            <Text style={styles.statusSubtitle}>Aguardando etapa anterior</Text>
-          </View>
-        </View>
+        <ValidationRow
+          icon={
+            <View
+              style={[
+                styles.pendingCircle,
+                { backgroundColor: colors.surface },
+              ]}
+            >
+              <Text
+                style={[styles.stepNumber, { color: colors.textSecondary }]}
+              >
+                4
+              </Text>
+            </View>
+          }
+          title="Verificação final"
+          subtitle="Aguardando etapa anterior"
+        />
       </View>
 
       {/* Info banner */}
-      <View style={[styles.infoBox, { borderColor: "#e5e7eb" }]}>
+      <View
+        style={[
+          styles.infoBox,
+          { borderColor: colors.border, backgroundColor: colors.surface },
+        ]}
+      >
         <Text style={styles.infoIcon}>📱</Text>
         <Text style={[styles.infoText, { color: colors.textSecondary }]}>
           Você receberá uma notificação quando a verificação for concluída. Crie
@@ -110,7 +144,7 @@ export function ValidationContent({
           onPress={onGoToProfile}
           style={({ pressed }) => [
             styles.profileButton,
-            { backgroundColor: "#f3f4f6" },
+            { backgroundColor: colors.surface },
             pressed && styles.buttonPressed,
           ]}
         >
@@ -119,7 +153,9 @@ export function ValidationContent({
           >
             Criar Perfil Profissional
           </Text>
-          <Text style={styles.arrowIcon}>→</Text>
+          <Text style={[styles.arrowIcon, { color: colors.textPrimary }]}>
+            →
+          </Text>
         </Pressable>
       </View>
     </AuthScreenShell>
@@ -150,7 +186,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     letterSpacing: LetterSpacing.body,
     fontWeight: "700",
-    color: "#111827",
   },
   statusSubtitle: {
     fontFamily: Fonts?.sans,
@@ -158,7 +193,6 @@ const styles = StyleSheet.create({
     lineHeight: LineHeights.body,
     letterSpacing: LetterSpacing.body,
     fontWeight: "400",
-    color: "#6b7280",
   },
   separator: {
     borderTopWidth: 1,
@@ -196,7 +230,6 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.body,
     lineHeight: LineHeights.body,
     fontWeight: "600",
-    color: "#6b7280",
   },
   infoBox: {
     flexDirection: "row",
@@ -244,6 +277,5 @@ const styles = StyleSheet.create({
   arrowIcon: {
     fontSize: 18,
     lineHeight: 20,
-    color: "#111827",
   },
 });

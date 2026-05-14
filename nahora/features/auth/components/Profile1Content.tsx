@@ -73,7 +73,9 @@ export function Profile1Content({
 
       <View style={styles.photoSection}>
         <View style={styles.photoWrapper}>
-          <View style={[styles.photoCircle, { backgroundColor: "#fff7ed" }]}>
+          <View
+            style={[styles.photoCircle, { backgroundColor: colors.surface }]}
+          >
             {profilePhotoUri ? (
               <Image
                 source={{ uri: profilePhotoUri }}
@@ -81,8 +83,12 @@ export function Profile1Content({
               />
             ) : (
               <View style={styles.userIconContainer}>
-                <View style={styles.userIconHead} />
-                <View style={styles.userIconBody} />
+                <View
+                  style={[styles.userIconHead, { borderColor: colors.brand }]}
+                />
+                <View
+                  style={[styles.userIconBody, { borderColor: colors.brand }]}
+                />
               </View>
             )}
           </View>
@@ -91,6 +97,7 @@ export function Profile1Content({
             onPress={onPickPhoto}
             style={({ pressed }) => [
               styles.cameraButton,
+              { backgroundColor: colors.brand, borderColor: colors.background },
               pressed && styles.buttonPressed,
             ]}
           >
@@ -98,7 +105,9 @@ export function Profile1Content({
           </Pressable>
         </View>
         <Pressable accessibilityRole="button" onPress={onPickPhoto}>
-          <Text style={styles.addPhotoText}>Adicionar Foto</Text>
+          <Text style={[styles.addPhotoText, { color: colors.brand }]}>
+            Adicionar Foto
+          </Text>
         </Pressable>
       </View>
 
@@ -110,7 +119,14 @@ export function Profile1Content({
               <Text style={styles.inputIcon}>🪪</Text>
             </View>
             <TextInput
-              style={[styles.input, { color: colors.textPrimary }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.textPrimary,
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
               placeholder="ex. 999.999.999-00"
               placeholderTextColor={colors.placeholder}
               value={formattedCpf}
@@ -130,7 +146,14 @@ export function Profile1Content({
               <Text style={styles.inputIcon}>💼</Text>
             </View>
             <TextInput
-              style={[styles.input, { color: colors.textPrimary }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.textPrimary,
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
               placeholder="ex. Eletricista"
               placeholderTextColor={colors.placeholder}
               value={cargo}
@@ -148,7 +171,14 @@ export function Profile1Content({
               <Text style={styles.inputIcon}>📍</Text>
             </View>
             <TextInput
-              style={[styles.input, { color: colors.textPrimary }]}
+              style={[
+                styles.input,
+                {
+                  color: colors.textPrimary,
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                },
+              ]}
               placeholder="Cidade, Estado"
               placeholderTextColor={colors.placeholder}
               value={location}
@@ -167,7 +197,14 @@ export function Profile1Content({
                 <Text style={styles.inputIcon}>⏱️</Text>
               </View>
               <TextInput
-                style={[styles.input, { color: colors.textPrimary }]}
+                style={[
+                  styles.input,
+                  {
+                    color: colors.textPrimary,
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
+                ]}
                 placeholder="ex. 8"
                 placeholderTextColor={colors.placeholder}
                 value={experienceYears}
@@ -186,14 +223,16 @@ export function Profile1Content({
           onPress={onContinue}
           style={({ pressed }) => [
             styles.continueButton,
-            { backgroundColor: isValid ? colors.brand : "#e5e7eb" },
+            {
+              backgroundColor: isValid ? colors.brand : colors.surface,
+            },
             pressed && styles.buttonPressed,
           ]}
         >
           <Text
             style={[
               styles.continueText,
-              { color: isValid ? colors.onBrand : "#9ca3af" },
+              { color: isValid ? colors.onBrand : colors.textSecondary },
             ]}
           >
             Próximo Passo
@@ -201,7 +240,7 @@ export function Profile1Content({
           <Text
             style={[
               styles.arrowIcon,
-              { color: isValid ? colors.onBrand : "#9ca3af" },
+              { color: isValid ? colors.onBrand : colors.textSecondary },
             ]}
           >
             →
@@ -245,7 +284,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: "#ffffff",
+    borderColor: "transparent",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -265,7 +304,6 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2.5,
-    borderColor: "#f27a24",
     marginBottom: 2,
   },
   userIconBody: {
@@ -273,7 +311,6 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 15,
     borderWidth: 2.5,
-    borderColor: "#f27a24",
   },
   cameraButton: {
     position: "absolute",
@@ -282,11 +319,9 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#f27a24",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: "#ffffff",
   },
   cameraIcon: {
     fontSize: 14,
@@ -294,7 +329,6 @@ const styles = StyleSheet.create({
   addPhotoText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#f27a24",
   },
   form: {
     gap: 20,
@@ -331,14 +365,12 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
     borderRadius: 12,
     paddingLeft: 44,
     paddingRight: 14,
     fontSize: 16,
     fontWeight: "400",
     lineHeight: 24,
-    backgroundColor: "#ffffff",
   },
   bottomBar: {
     marginTop: 32,
