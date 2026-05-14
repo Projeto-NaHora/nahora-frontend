@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import useSWRMutation from "swr/mutation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "react-native";
 import { useForm } from "react-hook-form";
@@ -21,18 +21,23 @@ export function useLogin() {
 
   const setTokens = useAuthStore((state) => state.setTokens);
 
-  const mutation = useMutation({
-    mutationFn: (payload: LoginPayload) => authService.login(payload),
-    onSuccess: async (data) => {
-      await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
+  const { trigger, isMutating } = useSWRMutation(
+    "login",
+    async (_key: string, { arg }: { arg: LoginPayload }) => {
+      return authService.login(arg);
     },
-    onError: (error) => {
-      Alert.alert("Erro", getApiErrorMessage(error));
+    {
+      onSuccess: async (data) => {
+        await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
+      },
+      onError: (error) => {
+        Alert.alert("Erro", getApiErrorMessage(error));
+      },
     },
-  });
+  );
 
   const onSubmit = form.handleSubmit((values) => {
-    mutation.mutate({
+    trigger({
       identificador: values.identificador,
       senha: values.password,
     });
@@ -41,6 +46,6 @@ export function useLogin() {
   return {
     form,
     onSubmit,
-    isSubmitting: mutation.isPending,
+    isSubmitting: isMutating,
   };
 }

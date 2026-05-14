@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import useSWRMutation from "swr/mutation";
 import { Alert } from "react-native";
 
 import { useRegisterStore } from "@/store/registerStore";
@@ -15,22 +15,25 @@ export function useRegisterOtp({ onSuccess }: UseRegisterOtpOptions) {
   const phone = useRegisterStore((state) => state.phone);
   const [code, setCode] = useState("");
 
-  const mutation = useMutation({
-    mutationFn: () => authService.verifyOtp({ telefone: phone, codigo: code }),
-    onSuccess: () => {
-      onSuccess();
+  const { trigger, isMutating, error } = useSWRMutation(
+    "register-otp",
+    async () => authService.verifyOtp({ telefone: phone, codigo: code }),
+    {
+      onSuccess: () => {
+        onSuccess();
+      },
+      onError: (error) => {
+        Alert.alert("Erro", getApiErrorMessage(error));
+      },
     },
-    onError: (error) => {
-      Alert.alert("Erro", getApiErrorMessage(error));
-    },
-  });
+  );
 
   const onSubmit = () => {
     if (code.length !== 6) {
       Alert.alert("Código incompleto", "Digite os 6 dígitos do código.");
       return;
     }
-    mutation.mutate();
+    trigger();
   };
 
   return {
@@ -38,7 +41,7 @@ export function useRegisterOtp({ onSuccess }: UseRegisterOtpOptions) {
     code,
     onChangeCode: setCode,
     onSubmit,
-    isSubmitting: mutation.isPending,
-    error: mutation.error ? getApiErrorMessage(mutation.error) : undefined,
+    isSubmitting: isMutating,
+    error: error ? getApiErrorMessage(error) : undefined,
   };
 }

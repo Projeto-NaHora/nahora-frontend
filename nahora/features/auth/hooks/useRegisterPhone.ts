@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import useSWRMutation from "swr/mutation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "react-native";
 import { useForm } from "react-hook-form";
@@ -25,25 +25,29 @@ export function useRegisterPhone({ onSuccess }: UseRegisterPhoneOptions) {
     mode: "onTouched",
   });
 
-  const mutation = useMutation({
-    mutationFn: (telefone: string) => authService.sendOtp({ telefone }),
-    onSuccess: () => {
-      onSuccess();
+  const { trigger, isMutating } = useSWRMutation(
+    "register-phone",
+    async (_key: string, { arg }: { arg: string }) =>
+      authService.sendOtp({ telefone: arg }),
+    {
+      onSuccess: () => {
+        onSuccess();
+      },
+      onError: (error) => {
+        Alert.alert("Erro", getApiErrorMessage(error));
+      },
     },
-    onError: (error) => {
-      Alert.alert("Erro", getApiErrorMessage(error));
-    },
-  });
+  );
 
   const onSubmit = form.handleSubmit((values) => {
     const digits = unformatPhone(values.phone);
     setPhone(digits);
-    mutation.mutate(digits);
+    trigger(digits);
   });
 
   return {
     form,
     onSubmit,
-    isSubmitting: mutation.isPending,
+    isSubmitting: isMutating,
   };
 }

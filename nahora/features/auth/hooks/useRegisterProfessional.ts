@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import { useMutation } from "@tanstack/react-query";
+import useSWRMutation from "swr/mutation";
 
 import { useAuthStore } from "@/store/authStore";
 import { useRegisterStore } from "@/store/registerStore";
@@ -29,8 +29,9 @@ export function useRegisterProfessional({
   const reset = useRegisterStore((state) => state.reset);
   const setTokens = useAuthStore((state) => state.setTokens);
 
-  const mutation = useMutation({
-    mutationFn: async () => {
+  const { trigger, isMutating } = useSWRMutation(
+    "register-professional",
+    async () => {
       const anosExperiencia = parseInt(experienceYears, 10) || 0;
 
       const payload = {
@@ -51,18 +52,20 @@ export function useRegisterProfessional({
       // Cadastro profissional (já retorna accessToken, refreshToken e tipoUsuario)
       return authService.registerProfessional(payload);
     },
-    onSuccess: async (data) => {
-      await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
-      reset();
-      onSuccess();
+    {
+      onSuccess: async (data) => {
+        await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
+        reset();
+        onSuccess();
+      },
+      onError: (error) => {
+        Alert.alert("Erro", getApiErrorMessage(error));
+      },
     },
-    onError: (error) => {
-      Alert.alert("Erro", getApiErrorMessage(error));
-    },
-  });
+  );
 
   return {
-    submit: mutation.mutate,
-    isSubmitting: mutation.isPending,
+    submit: trigger,
+    isSubmitting: isMutating,
   };
 }

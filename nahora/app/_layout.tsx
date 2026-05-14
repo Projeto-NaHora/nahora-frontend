@@ -5,11 +5,9 @@ import {
   useSegments,
   useRootNavigationState,
 } from "expo-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SWRConfig } from "swr";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuthStore } from "@/store/authStore";
-
-const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const { user, accessToken } = useAuthStore();
@@ -43,13 +41,19 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
+      <SWRConfig
+        value={{
+          dedupingInterval: 2000,
+          errorRetryInterval: 5000,
+          revalidateOnFocus: false,
+        }}
+      >
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(client)" />
           <Stack.Screen name="(professional)" />
         </Stack>
-      </QueryClientProvider>
+      </SWRConfig>
     </GestureHandlerRootView>
   );
 }

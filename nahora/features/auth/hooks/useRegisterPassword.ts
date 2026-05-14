@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import { useMutation } from "@tanstack/react-query";
+import useSWRMutation from "swr/mutation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -42,26 +42,29 @@ export function useRegisterPassword({
     mode: "onTouched",
   });
 
-  const mutation = useMutation({
-    mutationFn: async (values: RegisterPasswordFormValues) => {
+  const { trigger, isMutating } = useSWRMutation(
+    "register-password",
+    async (_key: string, { arg }: { arg: RegisterPasswordFormValues }) => {
       const nomeCompleto = `${firstName} ${lastName}`.trim();
 
       return authService.registerClient({
         telefone: phone,
         nome: nomeCompleto,
         email,
-        senha: values.password,
+        senha: arg.password,
       });
     },
-    onSuccess: async (data) => {
-      await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
-      onClientSuccess();
-      resetRegister();
+    {
+      onSuccess: async (data) => {
+        await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
+        onClientSuccess();
+        resetRegister();
+      },
+      onError: (error) => {
+        Alert.alert("Erro", getApiErrorMessage(error));
+      },
     },
-    onError: (error) => {
-      Alert.alert("Erro", getApiErrorMessage(error));
-    },
-  });
+  );
 
   const onSubmit = form.handleSubmit((values) => {
     setPassword(values.password);
@@ -85,12 +88,12 @@ export function useRegisterPassword({
       return;
     }
 
-    mutation.mutate(values);
+    trigger(values);
   });
 
   return {
     form,
     onSubmit,
-    isSubmitting: mutation.isPending,
+    isSubmitting: isMutating,
   };
 }
