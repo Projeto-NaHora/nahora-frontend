@@ -1,22 +1,36 @@
+// app/(client)/(orders)/index.tsx
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Screen() {
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+
+import OrdersHeader from "@/features/orders/components/OrdersHeader";
+import OrdersListContent from "@/features/orders/components/OrdersListContent";
+
+export default function OrdersScreen() {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>app/(client)/(orders)/index.tsx</Text>
-    </View>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
+      edges={[]}
+    >
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <OrdersHeader />
+        <OrdersListContent />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
   },
 });
