@@ -55,6 +55,11 @@ export function AuthScreenShell({
     default: 0,
   });
 
+  const logoSource =
+    theme === "dark"
+      ? require("../../../assets/images/LogoDark.png")
+      : require("../../../assets/images/LogoSimple.png");
+
   return (
     <SafeAreaView
       style={[styles.safeArea, { backgroundColor: colors.background }]}
@@ -72,7 +77,7 @@ export function AuthScreenShell({
           bounces={false}
         >
           <Image
-            source={require("../../../assets/images/LogoSimple.png")}
+            source={logoSource}
             style={styles.logoImage}
             resizeMode="contain"
             accessibilityLabel="NaHora"
