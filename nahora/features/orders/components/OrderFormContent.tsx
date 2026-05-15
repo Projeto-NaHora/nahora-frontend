@@ -1,0 +1,822 @@
+import React, { useState } from "react";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  Modal,
+  FlatList,
+} from "react-native";
+import { Controller, type Control, type FieldErrors } from "react-hook-form";
+
+import { Borders, Colors, Fonts, Radii } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import {
+  CATEGORIA_LABEL,
+  TURNO_OPTIONS,
+  type CriarPedidoFormValues,
+} from "../types";
+
+type OrderFormContentProps = {
+  control: Control<CriarPedidoFormValues>;
+  isSubmitting: boolean;
+  enderecoDiferente: boolean;
+  errorMessage: string | null;
+  /** Erros de validação do react-hook-form (Zod + backend) */
+  errors: FieldErrors<CriarPedidoFormValues>;
+  /** URIs locais das mídias selecionadas (para preview) */
+  mediaUris: string[];
+  /** Se true, está fazendo upload para o servidor */
+  isUploadingMedia: boolean;
+  /** Mensagem de erro de permissão ou upload */
+  uploadError: string | null;
+  /** Abre a câmera */
+  onPickFromCamera: () => void;
+  /** Abre a galeria */
+  onPickFromGallery: () => void;
+  /** Remove mídia pelo índice */
+  onRemoveMedia: (index: number) => void;
+  onSubmit: () => void;
+  onClear: () => void;
+};
+
+/** Dropdown/picker for Tipo */
+function CategoriaPicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [visible, setVisible] = useState(false);
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+
+  const categorias = Object.entries(CATEGORIA_LABEL);
+
+  return (
+    <>
+      <Pressable
+        style={[
+          styles.pickerField,
+          {
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+          },
+        ]}
+        onPress={() => setVisible(true)}
+      >
+        <Text
+          style={[
+            styles.pickerText,
+            value
+              ? { color: colors.textPrimary }
+              : { color: colors.placeholder },
+          ]}
+        >
+          {value ? (CATEGORIA_LABEL[value] ?? value) : "Ex: encanador"}
+        </Text>
+        <IconSymbol
+          name="chevron.down"
+          size={18}
+          color={colors.textSecondary}
+        />
+      </Pressable>
+
+      <Modal visible={visible} transparent animationType="fade">
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setVisible(false)}
+        >
+          <View
+            style={[
+              styles.modalContent,
+              { backgroundColor: colors.background },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Tipo de Serviço
+            </Text>
+            <FlatList
+              data={categorias}
+              keyExtractor={([key]) => key}
+              renderItem={({ item: [key, label] }) => (
+                <Pressable
+                  style={[
+                    styles.modalItem,
+                    key === value && {
+                      backgroundColor: colors.brand + "15",
+                    },
+                  ]}
+                  onPress={() => {
+                    onChange(key);
+                    setVisible(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.modalItemText,
+                      { color: colors.textPrimary },
+                      key === value && { color: colors.brand },
+                    ]}
+                  >
+                    {label}
+                  </Text>
+                </Pressable>
+              )}
+            />
+          </View>
+        </Pressable>
+      </Modal>
+    </>
+  );
+}
+
+/** Endereço field — shown only when toggle is on */
+function EnderecoField({
+  control,
+  errorMessage,
+}: {
+  control: Control<CriarPedidoFormValues>;
+  errorMessage?: string;
+}) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+
+  return (
+    <View style={styles.enderecoSection}>
+      <View style={styles.fieldLabelRow}>
+        <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+          Endereço
+        </Text>
+        <IconSymbol
+          name="chevron.down"
+          size={16}
+          color={colors.textSecondary}
+        />
+      </View>
+      <Controller
+        control={control}
+        name="enderecoId"
+        render={({ field: { onChange, value } }) => (
+          <Pressable
+            style={[
+              styles.pickerField,
+              {
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+              },
+            ]}
+            onPress={() => {
+              // TODO: abrir seletor de endereços salvos
+            }}
+          >
+            <Text
+              style={[
+                styles.pickerText,
+                value
+                  ? { color: colors.textPrimary }
+                  : { color: colors.placeholder },
+              ]}
+            >
+              {value ? `Endereço #${value}` : "Selecionar endereço"}
+            </Text>
+            <IconSymbol
+              name="chevron.down"
+              size={18}
+              color={colors.textSecondary}
+            />
+          </Pressable>
+        )}
+      />
+      {errorMessage && (
+        <Text style={[styles.fieldError, { color: colors.error }]}>
+          {errorMessage}
+        </Text>
+      )}
+    </View>
+  );
+}
+
+export function OrderFormContent({
+  control,
+  isSubmitting,
+  enderecoDiferente,
+  errorMessage,
+  errors,
+  mediaUris,
+  isUploadingMedia,
+  uploadError,
+  onPickFromCamera,
+  onPickFromGallery,
+  onRemoveMedia,
+  onSubmit,
+  onClear,
+}: OrderFormContentProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+
+  return (
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
+      {/* Header title */}
+      <View style={styles.headerSection}>
+        <Text style={[styles.mainTitle, { color: colors.textPrimary }]}>
+          Cadastro Pedido
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          Preencha as informações do seu pedido
+        </Text>
+      </View>
+
+      {/* Tipo */}
+      <View style={styles.fieldGroup}>
+        <View style={styles.fieldLabelRow}>
+          <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+            Tipo
+          </Text>
+          <IconSymbol
+            name="chevron.down"
+            size={16}
+            color={colors.textSecondary}
+          />
+        </View>
+        <Controller
+          control={control}
+          name="categoria"
+          render={({ field: { onChange, value } }) => (
+            <CategoriaPicker value={value} onChange={onChange} />
+          )}
+        />
+        {errors.categoria?.message && (
+          <Text style={[styles.fieldError, { color: colors.error }]}>
+            {errors.categoria.message}
+          </Text>
+        )}
+      </View>
+
+      {/* Endereço toggle */}
+      <View
+        style={[
+          styles.addressToggleCard,
+          {
+            backgroundColor: colors.surface + "50",
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        {/* Checkbox toggle */}
+        <Controller
+          control={control}
+          name="enderecoDiferente"
+          render={({ field: { onChange, value } }) => (
+            <Pressable
+              style={styles.checkboxRow}
+              onPress={() => onChange(!value)}
+            >
+              <View
+                style={[
+                  styles.checkbox,
+                  value
+                    ? {
+                        backgroundColor: colors.brand,
+                        borderColor: colors.brand,
+                      }
+                    : {
+                        backgroundColor: colors.background,
+                        borderColor: colors.border,
+                      },
+                ]}
+              >
+                {value && (
+                  <IconSymbol name="chevron.left" size={14} color="#fff" />
+                )}
+              </View>
+              <Text
+                style={[styles.checkboxLabel, { color: colors.textPrimary }]}
+              >
+                Usar endereço diferente do meu{"\n"}endereço padrão
+              </Text>
+            </Pressable>
+          )}
+        />
+
+        {/* Endereço dropdown (shown if toggle is on) */}
+        {enderecoDiferente && (
+          <View style={{ opacity: 1 }}>
+            <EnderecoField
+              control={control}
+              errorMessage={errors.enderecoId?.message}
+            />
+          </View>
+        )}
+      </View>
+
+      {/* Descrição */}
+      <View style={styles.fieldGroup}>
+        <View style={styles.fieldLabelRow}>
+          <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+            Descrição
+          </Text>
+          <IconSymbol
+            name="square.and.pencil"
+            size={16}
+            color={colors.textSecondary}
+          />
+        </View>
+        <Controller
+          control={control}
+          name="descricao"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={[
+                styles.textArea,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                  color: colors.textPrimary,
+                },
+              ]}
+              placeholder="Ex: Necessito um pintor para pintar meu muro."
+              placeholderTextColor={colors.placeholder}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+            />
+          )}
+        />
+        {errors.descricao?.message && (
+          <Text style={[styles.fieldError, { color: colors.error }]}>
+            {errors.descricao.message}
+          </Text>
+        )}
+      </View>
+
+      {/* Imagem/Vídeo (Opcional) */}
+      <View style={styles.fieldGroup}>
+        <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+          Imagem/Vídeo (Opcional)
+        </Text>
+        <View style={styles.mediaRow}>
+          <Pressable
+            style={[styles.mediaButton, { backgroundColor: "#FCE8D5" }]}
+            onPress={onPickFromCamera}
+            disabled={isSubmitting || isUploadingMedia}
+          >
+            <IconSymbol name="camera.fill" size={22} color={colors.brand} />
+            <Text style={[styles.mediaButtonText, { color: colors.brand }]}>
+              Câmera
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.mediaButton, { backgroundColor: "#FCE8D5" }]}
+            onPress={onPickFromGallery}
+            disabled={isSubmitting || isUploadingMedia}
+          >
+            <IconSymbol
+              name="photo.on.rectangle"
+              size={22}
+              color={colors.brand}
+            />
+            <Text style={[styles.mediaButtonText, { color: colors.brand }]}>
+              Galeria
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Preview das mídias selecionadas */}
+        {mediaUris.length > 0 && (
+          <View style={styles.mediaPreviewRow}>
+            {mediaUris.map((uri, index) => (
+              <View key={uri} style={styles.mediaPreviewItem}>
+                <Image source={{ uri }} style={styles.mediaPreviewImage} />
+                <Pressable
+                  style={[
+                    styles.mediaRemoveBadge,
+                    { backgroundColor: colors.error },
+                  ]}
+                  onPress={() => onRemoveMedia(index)}
+                  disabled={isSubmitting || isUploadingMedia}
+                >
+                  <IconSymbol name="xmark" size={12} color="#fff" />
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Estado de upload */}
+        {isUploadingMedia && (
+          <Text style={[styles.mediaStatusText, { color: colors.brand }]}>
+            Enviando imagens...
+          </Text>
+        )}
+
+        {/* Erro de permissão/upload */}
+        {uploadError && (
+          <Text style={[styles.mediaStatusText, { color: colors.error }]}>
+            {uploadError}
+          </Text>
+        )}
+      </View>
+
+      {/* Turno disponível */}
+      <View style={styles.fieldGroup}>
+        <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+          Turno disponível
+        </Text>
+        <Controller
+          control={control}
+          name="turno"
+          render={({ field: { onChange, value } }) => (
+            <View style={styles.turnoRow}>
+              {TURNO_OPTIONS.map((opt) => {
+                const selected = value === opt.value;
+                return (
+                  <Pressable
+                    key={opt.value}
+                    style={[
+                      styles.turnoChip,
+                      selected
+                        ? {
+                            backgroundColor: "#FCE8D5",
+                            borderColor: colors.brand,
+                          }
+                        : {
+                            backgroundColor: colors.background,
+                            borderColor: colors.border,
+                          },
+                    ]}
+                    onPress={() => onChange(opt.value)}
+                  >
+                    <View
+                      style={[
+                        styles.radio,
+                        selected
+                          ? { borderColor: colors.brand }
+                          : {
+                              borderColor: colors.textSecondary + "80",
+                            },
+                      ]}
+                    >
+                      {selected && (
+                        <View
+                          style={[
+                            styles.radioDot,
+                            { backgroundColor: colors.brand },
+                          ]}
+                        />
+                      )}
+                    </View>
+                    <Text
+                      style={[
+                        styles.turnoLabel,
+                        {
+                          color: selected ? colors.brand : colors.textSecondary,
+                        },
+                      ]}
+                    >
+                      {opt.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        />
+        {errors.turno?.message && (
+          <Text style={[styles.fieldError, { color: colors.error }]}>
+            {errors.turno.message}
+          </Text>
+        )}
+      </View>
+
+      {/* Error */}
+      {errorMessage ? (
+        <Text style={[styles.errorText, { color: colors.error }]}>
+          {errorMessage}
+        </Text>
+      ) : null}
+
+      {/* Action buttons */}
+      <View style={styles.actionsRow}>
+        <Pressable
+          style={[
+            styles.actionButton,
+            styles.actionOutline,
+            { borderColor: colors.border },
+          ]}
+          onPress={onClear}
+        >
+          <Text
+            style={[styles.actionButtonText, { color: colors.textSecondary }]}
+          >
+            Limpar
+          </Text>
+        </Pressable>
+        <Pressable
+          style={[
+            styles.actionButton,
+            { backgroundColor: colors.brand },
+            isSubmitting && styles.buttonDisabled,
+          ]}
+          onPress={onSubmit}
+          disabled={isSubmitting}
+        >
+          <Text style={[styles.actionButtonText, { color: colors.onBrand }]}>
+            {isSubmitting ? "Criando..." : "Criar Pedido"}
+          </Text>
+        </Pressable>
+      </View>
+
+      {/* Privacy */}
+      <Text style={[styles.privacyText, { color: colors.textSecondary }]}>
+        Política de Privacidade
+      </Text>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 18,
+    paddingBottom: 40,
+  },
+  // Header
+  headerSection: {
+    marginTop: 27,
+    marginBottom: 24,
+  },
+  mainTitle: {
+    fontSize: 27,
+    fontFamily: Fonts?.sans,
+    fontWeight: "700",
+    lineHeight: 37,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: Fonts?.sans,
+    fontWeight: "400",
+    lineHeight: 23,
+    marginTop: 4,
+  },
+  // Field group
+  fieldGroup: {
+    marginBottom: 24,
+  },
+  fieldLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  fieldLabel: {
+    fontSize: 15,
+    fontFamily: Fonts?.sans,
+    fontWeight: "700",
+    lineHeight: 23,
+  },
+  // Picker / Dropdown field
+  pickerField: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    height: 58,
+    borderRadius: Radii.lg,
+    borderWidth: Borders.thin,
+    paddingHorizontal: 18,
+  },
+  pickerText: {
+    fontSize: 18,
+    fontFamily: Fonts?.sans,
+    fontWeight: "400",
+    lineHeight: 27,
+    flex: 1,
+  },
+  // Address toggle card
+  addressToggleCard: {
+    borderRadius: Radii.lg,
+    borderWidth: Borders.thin,
+    padding: 18,
+    marginBottom: 24,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  checkbox: {
+    width: 22,
+    height: 27,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  checkboxLabel: {
+    fontSize: 15,
+    fontFamily: Fonts?.sans,
+    fontWeight: "700",
+    lineHeight: 23,
+    flex: 1,
+  },
+  // Endereço (inside card)
+  enderecoSection: {
+    marginTop: 18,
+  },
+  // TextArea
+  textArea: {
+    borderRadius: Radii.lg,
+    borderWidth: Borders.thin,
+    paddingHorizontal: 18,
+    paddingTop: 14,
+    paddingBottom: 66,
+    fontSize: 18,
+    fontFamily: Fonts?.sans,
+    fontWeight: "400",
+    lineHeight: 27,
+    minHeight: 140,
+  },
+  // Media buttons
+  mediaRow: {
+    flexDirection: "row",
+    gap: 18,
+    marginTop: 14,
+  },
+  mediaButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 9,
+    height: 70,
+    borderRadius: Radii.lg,
+  },
+  mediaButtonText: {
+    fontSize: 16,
+    fontFamily: Fonts?.sans,
+    fontWeight: "600",
+    lineHeight: 20,
+  },
+  // Turno chips
+  turnoRow: {
+    flexDirection: "row",
+    gap: 14,
+    marginTop: 12,
+  },
+  turnoChip: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 55,
+    borderRadius: Radii.lg,
+    borderWidth: 2,
+    gap: 9,
+    paddingHorizontal: 9,
+  },
+  radio: {
+    width: 18,
+    height: 18,
+    borderRadius: 999,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  turnoLabel: {
+    fontSize: 15,
+    fontFamily: Fonts?.sans,
+    fontWeight: "600",
+    lineHeight: 23,
+  },
+  // Media preview
+  mediaPreviewRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 14,
+  },
+  mediaPreviewItem: {
+    position: "relative",
+  },
+  mediaPreviewImage: {
+    width: 80,
+    height: 80,
+    borderRadius: Radii.md,
+  },
+  mediaRemoveBadge: {
+    position: "absolute",
+    top: -6,
+    right: -6,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mediaStatusText: {
+    fontSize: 14,
+    fontFamily: Fonts?.sans,
+    fontWeight: "500",
+    marginTop: 10,
+  },
+  // Error
+  errorText: {
+    fontSize: 14,
+    fontFamily: Fonts?.sans,
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  fieldError: {
+    fontSize: 13,
+    fontFamily: Fonts?.sans,
+    fontWeight: "500",
+    marginTop: 6,
+  },
+  // Action buttons
+  actionsRow: {
+    flexDirection: "row",
+    gap: 18,
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  actionButton: {
+    flex: 1,
+    height: 57,
+    borderRadius: Radii.lg,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionOutline: {
+    borderWidth: 1,
+  },
+  actionButtonText: {
+    fontSize: 16,
+    fontFamily: Fonts?.sans,
+    fontWeight: "700",
+    lineHeight: 27,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  // Privacy
+  privacyText: {
+    fontSize: 14,
+    fontFamily: Fonts?.sans,
+    fontWeight: "400",
+    lineHeight: 18,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  // Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "85%",
+    maxHeight: "60%",
+    borderRadius: Radii.lg,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: Fonts?.sans,
+    fontWeight: "700",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  modalItem: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: Radii.md,
+    marginBottom: 4,
+  },
+  modalItemText: {
+    fontSize: 16,
+    fontFamily: Fonts?.sans,
+    fontWeight: "500",
+  },
+});

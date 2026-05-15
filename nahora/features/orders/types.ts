@@ -36,6 +36,16 @@ export interface CriarPedidoPayload {
   categoria: string;
   urgencia: string;
   enderecoId: number;
+  /** URLs das imagens/vídeos enviadas pelo upload */
+  midias?: string[];
+}
+
+export interface CriarPedidoFormValues {
+  categoria: string;
+  descricao: string;
+  enderecoDiferente: boolean;
+  enderecoId?: number;
+  turno: string;
 }
 
 // Labels em português para exibição
@@ -56,6 +66,18 @@ export const STATUS_LABEL: Record<string, string> = {
   CANCELADO: "Cancelado",
   EM_DISPUTA: "Em disputa",
 };
+
+export const TURNO_LABEL: Record<string, string> = {
+  MANHA: "Manhã",
+  TARDE: "Tarde",
+  NOITE: "Noite",
+};
+
+export const TURNO_OPTIONS = [
+  { value: "MANHA", label: "Manhã" },
+  { value: "TARDE", label: "Tarde" },
+  { value: "NOITE", label: "Noite" },
+];
 
 export const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   ABERTO: { bg: "#FEF0E8", text: "#F26F21" },
