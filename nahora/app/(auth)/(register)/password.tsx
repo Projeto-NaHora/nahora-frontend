@@ -6,18 +6,21 @@ import { useRegisterPassword } from "../../../features/auth/hooks/useRegisterPas
 
 export default function Screen() {
   const router = useRouter();
-  const { form, onSubmit, isSubmitting } = useRegisterPassword({
-    onClientSuccess: () => router.replace("/(client)/(home)"),
-    onProfessional: () =>
-      router.push("/(auth)/(register)/professional/profession"),
-    onMissingRole: () => router.replace("/(auth)/(register)/role"),
-  });
+  const { form, onSubmit, isSubmitting, errorMessage, errorStatus } =
+    useRegisterPassword({
+      onClientSuccess: () => router.replace("/(client)/(home)"),
+      onProfessional: () =>
+        router.push("/(auth)/(register)/professional/profession"),
+      onMissingRole: () => router.replace("/(auth)/(register)/role"),
+    });
 
   return (
     <PasswordContent
       control={form.control}
       isSubmitting={isSubmitting}
       onSubmit={onSubmit}
+      error={errorMessage}
+      errorStatus={errorStatus}
     />
   );
 }

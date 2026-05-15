@@ -1,15 +1,18 @@
+import { useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert } from "react-native";
 import { useForm } from "react-hook-form";
 
 import { useAuthStore } from "@/store/authStore";
-import { getApiErrorMessage } from "@/utils/apiError";
+import { parseApiError } from "@/utils/apiError";
 import { authService } from "../service";
 import type { LoginFormValues, LoginPayload } from "../types";
 import { loginSchema } from "../types";
 
 export function useLogin() {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
+
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -31,12 +34,16 @@ export function useLogin() {
         await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
       },
       onError: (error) => {
-        Alert.alert("Erro", getApiErrorMessage(error));
+        const parsed = parseApiError(error);
+        setErrorMessage(parsed.message);
+        setErrorStatus(parsed.statusCode ?? null);
       },
     },
   );
 
   const onSubmit = form.handleSubmit((values) => {
+    setErrorMessage(null);
+    setErrorStatus(null);
     trigger({
       identificador: values.identificador,
       senha: values.password,
@@ -47,5 +54,7 @@ export function useLogin() {
     form,
     onSubmit,
     isSubmitting: isMutating,
+    errorMessage,
+    errorStatus,
   };
 }

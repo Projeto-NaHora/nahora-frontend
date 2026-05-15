@@ -15,6 +15,7 @@ import {
 } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { PasswordInput } from "@/components/ui/password-input";
+import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { AuthScreenShell } from "./AuthScreenShell";
 import type { RegisterPasswordFormValues } from "../types";
 
@@ -22,12 +23,17 @@ type PasswordContentProps = {
   control: Control<RegisterPasswordFormValues>;
   isSubmitting: boolean;
   onSubmit: () => void;
+  error?: string | null;
+  /** Código HTTP do erro (ex.: 401) para exibir como badge no banner */
+  errorStatus?: number | null;
 };
 
 export function PasswordContent({
   control,
   isSubmitting,
   onSubmit,
+  error,
+  errorStatus,
 }: PasswordContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -40,6 +46,13 @@ export function PasswordContent({
       }
     >
       <View style={styles.formStack}>
+        {error && (
+          <ServerErrorBanner
+            title="Erro ao cadastrar"
+            message={error}
+            statusCode={errorStatus ?? undefined}
+          />
+        )}
         <View style={styles.formFields}>
           <Controller
             control={control}

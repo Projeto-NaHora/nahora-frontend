@@ -2,11 +2,13 @@ import { useCallback, useState } from "react";
 import { Alert } from "react-native";
 
 import { useRegisterStore } from "@/store/registerStore";
-import { getApiErrorMessage } from "@/utils/apiError";
+import { parseApiError } from "@/utils/apiError";
 import { authService } from "../service";
 
 export function useUploadDocuments() {
   const [isUploading, setIsUploading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
   const rgFrontUri = useRegisterStore((state) => state.rgFrontUri);
   const rgBackUri = useRegisterStore((state) => state.rgBackUri);
@@ -17,10 +19,15 @@ export function useUploadDocuments() {
 
   const upload = useCallback(async (): Promise<boolean> => {
     if (!rgFrontUri || !rgBackUri || !selfieUri) {
-      Alert.alert("Atenção", "Selecione todos os documentos antes de continuar.");
+      Alert.alert(
+        "Atenção",
+        "Selecione todos os documentos antes de continuar.",
+      );
       return false;
     }
 
+    setErrorMessage(null);
+    setErrorStatus(null);
     setIsUploading(true);
 
     try {
@@ -36,12 +43,21 @@ export function useUploadDocuments() {
 
       return true;
     } catch (error) {
-      Alert.alert("Erro no upload", getApiErrorMessage(error));
+      const parsed = parseApiError(error);
+      setErrorMessage(parsed.message);
+      setErrorStatus(parsed.statusCode ?? null);
       return false;
     } finally {
       setIsUploading(false);
     }
-  }, [rgFrontUri, rgBackUri, selfieUri, setRgFrontUrl, setRgBackUrl, setSelfieUrl]);
+  }, [
+    rgFrontUri,
+    rgBackUri,
+    selfieUri,
+    setRgFrontUrl,
+    setRgBackUrl,
+    setSelfieUrl,
+  ]);
 
-  return { upload, isUploading };
+  return { upload, isUploading, errorMessage, errorStatus };
 }
