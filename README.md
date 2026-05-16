@@ -46,7 +46,7 @@ Este repositório contém o **app mobile** (iOS e Android). O backend em Spring 
 | **Framework** | React Native 0.81 + Expo SDK 54 | Suporte iOS/Android unificado com acesso a APIs nativas |
 | **Roteamento** | Expo Router v6 (file-based) | Grupos de rota isolam os dois papéis (cliente/profissional) sem lógica condicional espalhada |
 | **Linguagem** | TypeScript 5.9 | Tipos espelham os enums e DTOs do backend Java, eliminando erros de contrato |
-| **Estado servidor** | SWR | Cache automático, revalidação, mutations otimistas — sem re-fetch desnecessário |
+| **Estado servidor** | SWR | Cache automático, revalidação em foco, deduplicação de requisições e updates otimistas via `mutate` |
 | **Estado cliente** | Zustand | Leve, sem boilerplate; guarda apenas token JWT, papel do usuário e notificações não lidas |
 | **HTTP** | Axios | Interceptores para injeção de JWT e refresh silencioso do access token |
 | **WebSocket** | @stomp/stompjs | Protocolo STOMP que o backend Spring usa; suporte nativo a WebSocket do React Native |
