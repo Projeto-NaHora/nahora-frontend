@@ -1,0 +1,46 @@
+# EAS Build — arquivos e pastas ignorados no upload
+
+# Agentes e docs internos (não necessários para o build)
+.agents/
+.claude/
+.docs/
+skills-lock.json
+
+# Dependências
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native (gerado no build)
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+ios/
+android/
+
+# Metro
+.metro-health-check*
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# Envs locais
+.env*.local
+.env
+
+# TypeScript
+*.tsbuildinfo
