@@ -57,6 +57,10 @@ export function PasswordInput({
       onChangeText={handleChangeText}
       autoCapitalize="none"
       autoCorrect={false}
+      keyboardType="visible-password"
+      autoComplete="off"
+      textContentType="none"
+      spellCheck={false}
       {...props}
     />
   );
