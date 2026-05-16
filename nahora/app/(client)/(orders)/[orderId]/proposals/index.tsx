@@ -1,27 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { View, Text } from "react-native";
 
-export default function Screen() {
-  const params = useLocalSearchParams();
-
+export default function ProposalsIndexScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>
+    <View className="flex-1 justify-center items-center bg-white">
+      <Text className="text-base text-gray-900">
         app/(client)/(orders)/[orderId]/proposals/index.tsx
       </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});
