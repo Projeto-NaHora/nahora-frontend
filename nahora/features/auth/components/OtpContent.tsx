@@ -93,6 +93,7 @@ export function OtpContent({
               maxLength={1}
               textContentType={index === 0 ? "oneTimeCode" : "none"}
               autoCorrect={false}
+              aria-label={`OTP digit ${index + 1}`}
               value={code[index] || ""}
               onChangeText={(text) => handleChange(text, index)}
               onKeyPress={({ nativeEvent }) =>
