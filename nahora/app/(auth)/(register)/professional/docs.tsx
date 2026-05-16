@@ -86,7 +86,8 @@ export default function Docs() {
   const setRgBackUrl = useRegisterStore((state) => state.setRgBackUrl);
   const setSelfieUrl = useRegisterStore((state) => state.setSelfieUrl);
 
-  const { upload, isUploading } = useUploadDocuments();
+  const { upload, isUploading, errorMessage, errorStatus } =
+    useUploadDocuments();
 
   const handlePick = (docType: DocType) => {
     const uriSetters: Record<DocType, (uri: string | null) => void> = {
@@ -124,6 +125,8 @@ export default function Docs() {
       onPickSelfie={() => handlePick("selfie")}
       onContinue={handleContinue}
       isUploading={isUploading}
+      error={errorMessage}
+      errorStatus={errorStatus}
     />
   );
 }

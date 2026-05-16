@@ -6,10 +6,17 @@ import { useRegisterOtp } from "../../../features/auth/hooks/useRegisterOtp";
 
 export default function Screen() {
   const router = useRouter();
-  const { phoneLabel, code, onChangeCode, onSubmit, isSubmitting, error } =
-    useRegisterOtp({
-      onSuccess: () => router.push("/(auth)/(register)/name"),
-    });
+  const {
+    phoneLabel,
+    code,
+    onChangeCode,
+    onSubmit,
+    isSubmitting,
+    error,
+    errorStatus,
+  } = useRegisterOtp({
+    onSuccess: () => router.push("/(auth)/(register)/name"),
+  });
 
   return (
     <OtpContent
@@ -19,6 +26,7 @@ export default function Screen() {
       onSubmit={onSubmit}
       isSubmitting={isSubmitting}
       error={error}
+      errorStatus={errorStatus}
     />
   );
 }

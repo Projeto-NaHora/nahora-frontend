@@ -13,6 +13,7 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { AuthScreenShell } from "./AuthScreenShell";
 
 type OtpContentProps = {
@@ -22,6 +23,8 @@ type OtpContentProps = {
   onChangeCode: (code: string) => void;
   error?: string;
   isSubmitting: boolean;
+  /** Código HTTP do erro (ex.: 401) para exibir como badge no banner */
+  errorStatus?: number | null;
 };
 
 export function OtpContent({
@@ -31,6 +34,7 @@ export function OtpContent({
   onChangeCode,
   error,
   isSubmitting,
+  errorStatus,
 }: OtpContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -98,9 +102,11 @@ export function OtpContent({
           ))}
         </View>
         {error && (
-          <Text style={[styles.errorText, { color: colors.error }]}>
-            {error}
-          </Text>
+          <ServerErrorBanner
+            title="Erro ao verificar código"
+            message={error}
+            statusCode={errorStatus ?? undefined}
+          />
         )}
         <Pressable
           accessibilityRole="button"
@@ -142,12 +148,7 @@ const styles = StyleSheet.create({
     letterSpacing: LetterSpacing.body,
     textAlign: "center",
   },
-  errorText: {
-    fontSize: FontSizes.caption,
-    lineHeight: LineHeights.body,
-    textAlign: "center",
-    fontFamily: Fonts?.sans,
-  },
+
   button: {
     height: Sizes.buttonHeight,
     borderRadius: Radii.pill,
