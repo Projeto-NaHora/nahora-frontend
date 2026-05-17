@@ -23,7 +23,4 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  highlightWrapper: {
-    paddingVertical: 16,
-  },
 });

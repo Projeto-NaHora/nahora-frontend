@@ -1,5 +1,7 @@
 import React from "react";
 import { render, screen } from "@tests/test-utils";
+import { useAuthStore } from "@/store/authStore";
+import { createMockUser } from "@tests/factories/auth";
 
 jest.mock("@/hooks/use-color-scheme", () => ({
   useColorScheme: () => "light",
@@ -62,9 +64,21 @@ jest.mock("@/features/professional/hooks/usePedidosDisponiveis", () => ({
 import ProfessionalHomeScreen from "@/app/(professional)/(home)/index";
 
 describe("ProfessionalHomeScreen", () => {
-  test("renders greeting", () => {
+  beforeEach(() => {
+    useAuthStore.setState({
+      user: createMockUser({ nome: "Maria Oliveira", tipo: "PROFISSIONAL" }),
+    });
+  });
+
+  test("renders greeting with authenticated user name", () => {
     render(<ProfessionalHomeScreen />);
     expect(screen.getByText(/Olá/)).toBeOnTheScreen();
+    expect(screen.getByText("Maria Oliveira!")).toBeOnTheScreen();
+  });
+
+  test("renders avatar with authenticated user initials", () => {
+    render(<ProfessionalHomeScreen />);
+    expect(screen.getByText("MO")).toBeOnTheScreen();
   });
 
   test("renders Home tab as active", () => {

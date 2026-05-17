@@ -4,11 +4,20 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useAuthStore } from "@/store/authStore";
+
+function getInitials(nome?: string): string {
+  if (!nome) return "?";
+  const parts = nome.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
 
 export function ProfessionalHeader() {
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
+  const user = useAuthStore((s) => s.user);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 48, backgroundColor: colors.brand }]}>
@@ -16,12 +25,12 @@ export function ProfessionalHeader() {
       <View style={styles.topRow}>
         <View style={styles.greetingRow}>
           <View style={[styles.avatar, { borderColor: "rgba(255,255,255,0.3)" }]}>
-            <Text style={styles.avatarText}>RO</Text>
+            <Text style={styles.avatarText}>{getInitials(user?.nome)}</Text>
           </View>
           <View style={styles.greetingText}>
             <Text style={styles.hello}>Olá,</Text>
             <View style={styles.nameRow}>
-              <Text style={styles.name}>Roberto!</Text>
+              <Text style={styles.name}>{user?.nome ?? "?"}!</Text>
               <Text style={styles.wave}>👋</Text>
             </View>
             <Text style={styles.subtitle}>Boas vendas hoje!</Text>
