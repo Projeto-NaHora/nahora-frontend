@@ -16,6 +16,8 @@ export const ENDPOINTS = {
   // Pedidos (requer JWT)
   PEDIDOS: "/pedidos",
   PEDIDO: (id: number) => `/pedidos/${id}`,
+  MEUS_PEDIDOS: "/pedidos/meus",
+  PEDIDOS_DISPONIVEIS: "/pedidos/disponiveis",
 
   // Propostas
   PROPOSTAS: (pedidoId: number) => `/pedidos/${pedidoId}/propostas`,

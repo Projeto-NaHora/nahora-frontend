@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { storage } from "@/utils/storage";
 import { decodeJwtPayload } from "@/utils/jwt";
+import { disconnectStomp } from "@/features/chat/stompClient";
+import { useNotifStore } from "@/store/notifStore";
 
 import type { TipoUsuarioApp } from "@/types/enums";
 
@@ -18,6 +20,7 @@ interface AuthState {
     refresh: string,
     tipoUsuario?: string,
   ) => Promise<void>;
+  restoreSession: () => Promise<boolean>;
   logout: () => void;
 }
 
@@ -79,8 +82,31 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ accessToken: access, user });
   },
 
+  restoreSession: async () => {
+    try {
+      const refreshToken = await storage.get("refreshToken");
+      if (!refreshToken) return false;
+
+      const { default: axios } = await import("axios");
+      const { data } = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/auth/refresh`,
+        { refreshToken },
+      );
+
+      await storage.set("refreshToken", data.refreshToken);
+      const user = extractUserFromToken(data.accessToken, data.tipoUsuario);
+      set({ accessToken: data.accessToken, user });
+      return true;
+    } catch {
+      await storage.delete("refreshToken");
+      return false;
+    }
+  },
+
   logout: async () => {
     await storage.delete("refreshToken");
+    disconnectStomp();
+    useNotifStore.getState().clear();
     set({ accessToken: null, user: null });
   },
 }));
