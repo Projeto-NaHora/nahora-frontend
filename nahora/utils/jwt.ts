@@ -28,5 +28,5 @@ export function getTokenExp(token: string): number | null {
 export function isTokenExpired(token: string): boolean {
   const exp = getTokenExp(token);
   if (!exp) return true;
-  return Date.now() / 1000 > exp;
+  return Date.now() / 1000 >= exp;
 }
