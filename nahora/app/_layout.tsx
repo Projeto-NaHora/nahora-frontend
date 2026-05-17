@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Stack,
   useRouter,
@@ -10,12 +10,18 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuthStore } from "@/store/authStore";
 
 export default function RootLayout() {
-  const { user, accessToken } = useAuthStore();
+  const { user, accessToken, restoreSession } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
   const navigationState = useRootNavigationState();
+  const [restoring, setRestoring] = useState(true);
 
   useEffect(() => {
+    restoreSession().finally(() => setRestoring(false));
+  }, []);
+
+  useEffect(() => {
+    if (restoring) return;
     // Wait until the navigator is fully mounted
     if (!navigationState?.key) return;
     if (!segments[0]) return;
@@ -37,15 +43,15 @@ export default function RootLayout() {
         router.replace("/(professional)/(home)");
       }
     }
-  }, [user, accessToken, segments, router, navigationState?.key]);
+  }, [user, accessToken, segments, router, navigationState?.key, restoring]);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SWRConfig
         value={{
-          dedupingInterval: 2000,
+          dedupingInterval: 30_000,
           errorRetryInterval: 5000,
-          revalidateOnFocus: false,
+          revalidateOnFocus: true,
         }}
       >
         <Stack screenOptions={{ headerShown: false }}>

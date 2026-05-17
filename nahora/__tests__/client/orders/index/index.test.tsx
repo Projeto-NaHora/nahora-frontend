@@ -7,7 +7,16 @@ jest.mock('@/hooks/use-color-scheme', () => ({
 
 jest.mock('@/features/orders/hooks/useOrders', () => ({
   useOrders: () => ({
-    data: [],
+    data: {
+      content: [],
+      totalElements: 0,
+      totalPages: 0,
+      number: 0,
+      size: 20,
+      first: true,
+      last: true,
+      empty: true,
+    },
     isLoading: false,
     isValidating: false,
     error: undefined,

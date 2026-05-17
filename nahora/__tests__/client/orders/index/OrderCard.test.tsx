@@ -22,6 +22,15 @@ describe('OrderCard', () => {
     expect(screen.getByText('Em aberto')).toBeOnTheScreen();
   });
 
+  test('renders dataDesejada formatted with period', () => {
+    // 17:00 UTC = 14:00 BRT = Tarde
+    const pedido = createMockPedido({ dataDesejada: '2026-05-22T17:00:00Z' });
+    render(<OrderCard pedido={pedido} onPress={jest.fn()} />);
+
+    expect(screen.getByText(/22\/05\/2026/)).toBeOnTheScreen();
+    expect(screen.getByText(/Tarde/)).toBeOnTheScreen();
+  });
+
   test('renders description text', () => {
     const pedido = createMockPedido({
       descricao: 'A torradeira não liga mais.',
@@ -33,9 +42,9 @@ describe('OrderCard', () => {
     ).toBeOnTheScreen();
   });
 
-  test('renders address for open order', () => {
+  test('renders address when present', () => {
     const pedido = createMockPedido({
-      status: 'ABERTO',
+      status: 'EM_ANDAMENTO',
       endereco: {
         logradouro: 'Rua das Flores',
         numero: '123',
@@ -51,19 +60,10 @@ describe('OrderCard', () => {
     ).toBeOnTheScreen();
   });
 
-  test('does not render address for non-open order', () => {
-    const pedido = createMockPedido({
-      status: 'EM_ANDAMENTO',
-      endereco: {
-        logradouro: 'Rua X',
-        numero: '1',
-        bairro: 'B',
-        cidade: 'C',
-        cep: '00000000',
-      },
-    });
+  test('does not render address when endereco is null', () => {
+    const pedido = createMockPedido({ endereco: null });
     render(<OrderCard pedido={pedido} onPress={jest.fn()} />);
 
-    expect(screen.queryByText(/Rua X/)).not.toBeOnTheScreen();
+    expect(screen.queryByText(/Rua/)).not.toBeOnTheScreen();
   });
 });

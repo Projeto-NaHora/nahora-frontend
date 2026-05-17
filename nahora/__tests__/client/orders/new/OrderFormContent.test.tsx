@@ -187,6 +187,74 @@ describe('OrderFormContent', () => {
     expect(screen.getByText('Selecione a urgencia')).toBeOnTheScreen();
   });
 
+  describe('address validation', () => {
+    test('shows CEP format error', () => {
+      render(
+        <TestHarness
+          enderecoDiferente={true}
+          errors={{ cep: { message: 'CEP inválido' } }}
+        />,
+      );
+
+      expect(screen.getByText('CEP inválido')).toBeOnTheScreen();
+    });
+
+    test('shows required logradouro error', () => {
+      render(
+        <TestHarness
+          enderecoDiferente={true}
+          errors={{ logradouro: { message: 'Informe o logradouro' } }}
+        />,
+      );
+
+      expect(screen.getByText('Informe o logradouro')).toBeOnTheScreen();
+    });
+
+    test('shows required numero error', () => {
+      render(
+        <TestHarness
+          enderecoDiferente={true}
+          errors={{ numero: { message: 'Informe o número' } }}
+        />,
+      );
+
+      expect(screen.getByText('Informe o número')).toBeOnTheScreen();
+    });
+
+    test('shows required bairro error', () => {
+      render(
+        <TestHarness
+          enderecoDiferente={true}
+          errors={{ bairro: { message: 'Informe o bairro' } }}
+        />,
+      );
+
+      expect(screen.getByText('Informe o bairro')).toBeOnTheScreen();
+    });
+
+    test('shows required cidade error', () => {
+      render(
+        <TestHarness
+          enderecoDiferente={true}
+          errors={{ cidade: { message: 'Informe a cidade' } }}
+        />,
+      );
+
+      expect(screen.getByText('Informe a cidade')).toBeOnTheScreen();
+    });
+
+    test('shows estado format error', () => {
+      render(
+        <TestHarness
+          enderecoDiferente={true}
+          errors={{ estado: { message: 'Selecione um estado válido' } }}
+        />,
+      );
+
+      expect(screen.getByText('Selecione um estado válido')).toBeOnTheScreen();
+    });
+  });
+
   test('shows upload error', () => {
     render(<TestHarness uploadError="Permissão de câmera não concedida." />);
 

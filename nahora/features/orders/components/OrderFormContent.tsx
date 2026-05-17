@@ -417,24 +417,32 @@ export function OrderFormContent({
               <Controller
                 control={control}
                 name="cep"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={[
-                      styles.textInput,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
-                        color: colors.textPrimary,
-                      },
-                    ]}
-                    placeholder="00000-000"
-                    placeholderTextColor={colors.placeholder}
-                    keyboardType="numeric"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
+                render={({ field: { onChange, onBlur, value } }) => {
+                  const digits = (value || "").replace(/\D/g, "");
+                  const display = digits.length > 5
+                    ? `${digits.slice(0, 5)}-${digits.slice(5, 8)}`
+                    : digits;
+
+                  return (
+                    <TextInput
+                      style={[
+                        styles.textInput,
+                        {
+                          backgroundColor: colors.surface,
+                          borderColor: colors.border,
+                          color: colors.textPrimary,
+                        },
+                      ]}
+                      placeholder="00000-000"
+                      placeholderTextColor={colors.placeholder}
+                      keyboardType="numeric"
+                      maxLength={9}
+                      onBlur={onBlur}
+                      onChangeText={(text) => onChange(text.replace(/\D/g, ""))}
+                      value={display}
+                    />
+                  );
+                }}
               />
               {errors.cep?.message && (
                 <Text style={[styles.fieldError, { color: colors.error }]}>

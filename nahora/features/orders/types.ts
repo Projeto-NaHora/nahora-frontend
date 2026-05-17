@@ -11,25 +11,30 @@ export interface EnderecoDTO {
   cep?: string;
 }
 
-export interface ProfissionalDTO {
-  id: number;
-  nome: string;
-  avatarUrl?: string;
-}
-
 export interface Pedido {
   id: number;
-  titulo: string;
-  descricao: string;
-  categoria: string;
-  urgencia: string;
-  status: string;
   clienteId: number;
-  profissionalId?: number | null;
-  profissional?: ProfissionalDTO | null;
+  clienteNome: string;
+  categoria: string;
+  descricao: string;
+  fotos: string[];
   endereco?: EnderecoDTO | null;
+  urgencia: string;
+  orcamentoEstimado?: number | null;
+  dataDesejada: string;
+  status: string;
   criadoEm: string;
-  atualizadoEm: string;
+}
+
+export interface Page<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
 }
 
 /** Espelha com.nahora.dto.request.EnderecoRequest */
@@ -171,3 +176,11 @@ export const FILTRO_OPTIONS: { value: FiltroStatus; label: string }[] = [
   { value: "EM_ANDAMENTO", label: "Em andamento" },
   { value: "CONCLUIDOS", label: "Concluídos" },
 ];
+
+/** Mapeia filtros da interface para valores do query param `status` do backend */
+export const STATUS_FILTER_MAP: Record<FiltroStatus, string> = {
+  TODOS: "",
+  ABERTO: "ABERTO",
+  EM_ANDAMENTO: "EM_ANDAMENTO,AGUARDANDO_VALIDACAO",
+  CONCLUIDOS: "CONCLUIDO,CANCELADO,EM_DISPUTA",
+};

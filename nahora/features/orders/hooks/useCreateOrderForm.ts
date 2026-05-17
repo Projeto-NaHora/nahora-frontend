@@ -28,25 +28,52 @@ const schema = z
     urgencia: z.string().min(1, "Selecione a urgencia"),
     turno: z.string().min(1, "Selecione um turno"),
   })
-  .refine(
-    (data) => {
-      if (!data.enderecoDiferente) return true;
-      const cepOk = /^\d{5}-?\d{3}$/.test(data.cep);
-      const estadoOk = data.estado.length === 2;
-      return (
-        cepOk &&
-        estadoOk &&
-        data.logradouro.trim().length > 0 &&
-        data.numero.trim().length > 0 &&
-        data.bairro.trim().length > 0 &&
-        data.cidade.trim().length > 0
-      );
-    },
-    {
-      message: "Preencha todos os campos de endereco corretamente",
-      path: ["cep"],
-    },
-  );
+  .superRefine((data, ctx) => {
+    if (!data.enderecoDiferente) return;
+
+    if (!/^\d{5}-?\d{3}$/.test(data.cep)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CEP inválido",
+        path: ["cep"],
+      });
+    }
+    if (data.logradouro.trim().length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Informe o logradouro",
+        path: ["logradouro"],
+      });
+    }
+    if (data.numero.trim().length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Informe o número",
+        path: ["numero"],
+      });
+    }
+    if (data.bairro.trim().length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Informe o bairro",
+        path: ["bairro"],
+      });
+    }
+    if (data.cidade.trim().length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Informe a cidade",
+        path: ["cidade"],
+      });
+    }
+    if (data.estado.length !== 2) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Selecione um estado válido",
+        path: ["estado"],
+      });
+    }
+  });
 
 export function useCreateOrderForm() {
   const router = useRouter();
