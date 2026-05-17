@@ -700,7 +700,7 @@ O projeto segue TDD com o padrão de 3 arquivos por página e mocks globais para
 |---|---|---|
 | Config | `jest.config.js` | Preset `jest-expo`, aliases (`@/`, `@tests/`), moduleNameMapper para módulos nativos |
 | Setup | `jest.setup.ts` | Bootstrap do React Native, gesture-handler, reanimated, stub do expo-modules-core |
-| Mocks globais | `__mocks__/` (5 arquivos) | Substituem módulos nativos inacessíveis no Node.js |
+| Mocks globais | `__mocks__/` (6 arquivos) | Substituem módulos nativos inacessíveis no Node.js |
 | Utilities | `__tests__/test-utils.tsx` | `render()` customizado com provider SWR; re-exporta tudo do RNTL |
 | Factories | `__tests__/factories/` | Funções geradoras de dados de teste (`createMockPedido`, `createMockUser`) |
 
