@@ -1,6 +1,8 @@
 // features/orders/types.ts
 // DTOs que espelham o retorno do backend (Spring Boot)
 
+import type { CategoriaServico, Urgencia } from "@/types/enums";
+
 export interface EnderecoDTO {
   logradouro: string;
   numero: string;
@@ -30,21 +32,50 @@ export interface Pedido {
   atualizadoEm: string;
 }
 
-export interface CriarPedidoPayload {
-  titulo: string;
-  descricao: string;
-  categoria: string;
-  urgencia: string;
-  enderecoId: number;
-  /** URLs das imagens/vídeos enviadas pelo upload */
-  midias?: string[];
+/** Espelha com.nahora.dto.request.EnderecoRequest */
+export interface EnderecoRequest {
+  logradouro: string;
+  numero: string;
+  complemento?: string;
+  bairro: string;
+  cidade: string;
+  /** UF com 2 caracteres (ex.: "SP", "RJ") */
+  estado: string;
+  /** CEP com ou sem hifen (ex.: "12345678" ou "12345-678") */
+  cep: string;
+  latitude?: number;
+  longitude?: number;
 }
 
+/** Espelha com.nahora.dto.request.PedidoRequest */
+export interface CriarPedidoPayload {
+  categoria: CategoriaServico;
+  descricao: string;
+  /** Indice do endereco salvo (preferivel a endereco quando ja existe) */
+  enderecoSalvoIndex?: number;
+  /** Objeto de endereco completo (usado quando enderecoSalvoIndex nao e informado) */
+  endereco?: EnderecoRequest;
+  /** URLs das fotos enviadas (maximo 5) */
+  fotos?: string[];
+  urgencia: Urgencia;
+  orcamentoEstimado?: number;
+  /** ISO datetime string (LocalDateTime no backend) */
+  dataDesejada: string;
+}
+
+/** Valores do formulario de criacao de pedido */
 export interface CriarPedidoFormValues {
   categoria: string;
   descricao: string;
   enderecoDiferente: boolean;
-  enderecoId?: number;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  urgencia: string;
   turno: string;
 }
 
@@ -68,15 +99,58 @@ export const STATUS_LABEL: Record<string, string> = {
 };
 
 export const TURNO_LABEL: Record<string, string> = {
-  MANHA: "Manhã",
+  MANHA: "Manha",
   TARDE: "Tarde",
   NOITE: "Noite",
 };
 
 export const TURNO_OPTIONS = [
-  { value: "MANHA", label: "Manhã" },
+  { value: "MANHA", label: "Manha" },
   { value: "TARDE", label: "Tarde" },
   { value: "NOITE", label: "Noite" },
+];
+
+export const URGENCIA_LABEL: Record<string, string> = {
+  BAIXA: "Baixa",
+  NORMAL: "Normal",
+  URGENTE: "Urgente",
+};
+
+export const URGENCIA_OPTIONS = [
+  { value: "NORMAL", label: "Normal" },
+  { value: "BAIXA", label: "Baixa" },
+  { value: "URGENTE", label: "Urgente" },
+];
+
+/** UFs brasileiras — opcoes para o select de estado */
+export const ESTADO_OPTIONS = [
+  { value: "AC", label: "AC" },
+  { value: "AL", label: "AL" },
+  { value: "AP", label: "AP" },
+  { value: "AM", label: "AM" },
+  { value: "BA", label: "BA" },
+  { value: "CE", label: "CE" },
+  { value: "DF", label: "DF" },
+  { value: "ES", label: "ES" },
+  { value: "GO", label: "GO" },
+  { value: "MA", label: "MA" },
+  { value: "MT", label: "MT" },
+  { value: "MS", label: "MS" },
+  { value: "MG", label: "MG" },
+  { value: "PA", label: "PA" },
+  { value: "PB", label: "PB" },
+  { value: "PR", label: "PR" },
+  { value: "PE", label: "PE" },
+  { value: "PI", label: "PI" },
+  { value: "RJ", label: "RJ" },
+  { value: "RN", label: "RN" },
+  { value: "RS", label: "RS" },
+  { value: "RO", label: "RO" },
+  { value: "RR", label: "RR" },
+  { value: "SC", label: "SC" },
+  { value: "SP", label: "SP" },
+  { value: "SE", label: "SE" },
+  { value: "TO", label: "TO" },
 ];
 
 export const STATUS_COLORS: Record<string, { bg: string; text: string }> = {

@@ -37,10 +37,12 @@ export function parseApiError(
       }
 
       // Formato 2: { errors: [{ field: "campo", message: "mensagem" }, ...] }
+      // Spring Boot MethodArgumentNotValidException usa "defaultMessage" em vez de "message"
       if (Array.isArray(data.errors)) {
         for (const err of data.errors) {
-          if (err.field && typeof err.message === "string") {
-            fieldErrors[err.field] = err.message;
+          const msg = err.message ?? err.defaultMessage;
+          if (err.field && typeof msg === "string") {
+            fieldErrors[err.field] = msg;
           }
         }
       }

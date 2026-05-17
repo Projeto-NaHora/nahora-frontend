@@ -73,11 +73,14 @@ export function useMidiasPicker() {
 
     try {
       const urls = await Promise.all(
-        mediaUris.map((uri) => orderService.uploadMidia(uri)),
+        mediaUris.map((uri) => orderService.uploadMidia(uri, "PEDIDO")),
       );
       return urls;
     } catch (err) {
-      const message = getApiErrorMessage(err, "Erro ao fazer upload das imagens.");
+      const message = getApiErrorMessage(
+        err,
+        "Erro ao fazer upload das imagens.",
+      );
       setUploadError(message);
       throw err;
     } finally {

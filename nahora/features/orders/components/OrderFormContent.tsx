@@ -18,6 +18,8 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import {
   CATEGORIA_LABEL,
   TURNO_OPTIONS,
+  URGENCIA_OPTIONS,
+  ESTADO_OPTIONS,
   type CriarPedidoFormValues,
 } from "../types";
 
@@ -136,69 +138,93 @@ function CategoriaPicker({
   );
 }
 
-/** Endereço field — shown only when toggle is on */
-function EnderecoField({
-  control,
-  errorMessage,
+/** Dropdown/picker para Estado (UF) */
+function EstadoPicker({
+  value,
+  onChange,
 }: {
-  control: Control<CriarPedidoFormValues>;
-  errorMessage?: string;
+  value: string;
+  onChange: (v: string) => void;
 }) {
+  const [visible, setVisible] = useState(false);
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
   return (
-    <View style={styles.enderecoSection}>
-      <View style={styles.fieldLabelRow}>
-        <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
-          Endereço
+    <>
+      <Pressable
+        style={[
+          styles.pickerField,
+          {
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+          },
+        ]}
+        onPress={() => setVisible(true)}
+      >
+        <Text
+          style={[
+            styles.pickerText,
+            value
+              ? { color: colors.textPrimary }
+              : { color: colors.placeholder },
+          ]}
+        >
+          {value || "UF"}
         </Text>
         <IconSymbol
           name="chevron.down"
-          size={16}
+          size={18}
           color={colors.textSecondary}
         />
-      </View>
-      <Controller
-        control={control}
-        name="enderecoId"
-        render={({ field: { onChange, value } }) => (
-          <Pressable
+      </Pressable>
+
+      <Modal visible={visible} transparent animationType="fade">
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setVisible(false)}
+        >
+          <View
             style={[
-              styles.pickerField,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-              },
+              styles.modalContent,
+              { backgroundColor: colors.background },
             ]}
-            onPress={() => {
-              // TODO: abrir seletor de endereços salvos
-            }}
           >
-            <Text
-              style={[
-                styles.pickerText,
-                value
-                  ? { color: colors.textPrimary }
-                  : { color: colors.placeholder },
-              ]}
-            >
-              {value ? `Endereço #${value}` : "Selecionar endereço"}
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Estado
             </Text>
-            <IconSymbol
-              name="chevron.down"
-              size={18}
-              color={colors.textSecondary}
+            <FlatList
+              data={ESTADO_OPTIONS}
+              keyExtractor={(item) => item.value}
+              renderItem={({ item }) => (
+                <Pressable
+                  style={[
+                    styles.modalItem,
+                    item.value === value && {
+                      backgroundColor: colors.brand + "15",
+                    },
+                  ]}
+                  onPress={() => {
+                    onChange(item.value);
+                    setVisible(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.modalItemText,
+                      { color: colors.textPrimary },
+                      item.value === value && { color: colors.brand },
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                </Pressable>
+              )}
             />
-          </Pressable>
-        )}
-      />
-      {errorMessage && (
-        <Text style={[styles.fieldError, { color: colors.error }]}>
-          {errorMessage}
-        </Text>
-      )}
-    </View>
+          </View>
+        </Pressable>
+      </Modal>
+    </>
   );
 }
 
@@ -263,6 +289,77 @@ export function OrderFormContent({
         )}
       </View>
 
+      {/* Urgência */}
+      <View style={styles.fieldGroup}>
+        <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+          Urgência
+        </Text>
+        <Controller
+          control={control}
+          name="urgencia"
+          render={({ field: { onChange, value } }) => (
+            <View style={styles.turnoRow}>
+              {URGENCIA_OPTIONS.map((opt) => {
+                const selected = value === opt.value;
+                return (
+                  <Pressable
+                    key={opt.value}
+                    style={[
+                      styles.turnoChip,
+                      selected
+                        ? {
+                            backgroundColor: "#FCE8D5",
+                            borderColor: colors.brand,
+                          }
+                        : {
+                            backgroundColor: colors.background,
+                            borderColor: colors.border,
+                          },
+                    ]}
+                    onPress={() => onChange(opt.value)}
+                  >
+                    <View
+                      style={[
+                        styles.radio,
+                        selected
+                          ? { borderColor: colors.brand }
+                          : {
+                              borderColor: colors.textSecondary + "80",
+                            },
+                      ]}
+                    >
+                      {selected && (
+                        <View
+                          style={[
+                            styles.radioDot,
+                            { backgroundColor: colors.brand },
+                          ]}
+                        />
+                      )}
+                    </View>
+                    <Text
+                      style={[
+                        styles.turnoLabel,
+                        {
+                          color: selected ? colors.brand : colors.textSecondary,
+                        },
+                      ]}
+                    >
+                      {opt.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        />
+        {errors.urgencia?.message && (
+          <Text style={[styles.fieldError, { color: colors.error }]}>
+            {errors.urgencia.message}
+          </Text>
+        )}
+      </View>
+
       {/* Endereço toggle */}
       <View
         style={[
@@ -309,13 +406,221 @@ export function OrderFormContent({
           )}
         />
 
-        {/* Endereço dropdown (shown if toggle is on) */}
+        {/* Endereço fields (shown if toggle is on) */}
         {enderecoDiferente && (
-          <View style={{ opacity: 1 }}>
-            <EnderecoField
-              control={control}
-              errorMessage={errors.enderecoId?.message}
-            />
+          <View style={styles.enderecoSection}>
+            {/* CEP */}
+            <View style={styles.fieldGroup}>
+              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+                CEP
+              </Text>
+              <Controller
+                control={control}
+                name="cep"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[
+                      styles.textInput,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
+                      },
+                    ]}
+                    placeholder="00000-000"
+                    placeholderTextColor={colors.placeholder}
+                    keyboardType="numeric"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+              {errors.cep?.message && (
+                <Text style={[styles.fieldError, { color: colors.error }]}>
+                  {errors.cep.message}
+                </Text>
+              )}
+            </View>
+
+            {/* Logradouro */}
+            <View style={styles.fieldGroup}>
+              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+                Logradouro
+              </Text>
+              <Controller
+                control={control}
+                name="logradouro"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[
+                      styles.textInput,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
+                      },
+                    ]}
+                    placeholder="Rua..."
+                    placeholderTextColor={colors.placeholder}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+              {errors.logradouro?.message && (
+                <Text style={[styles.fieldError, { color: colors.error }]}>
+                  {errors.logradouro.message}
+                </Text>
+              )}
+            </View>
+
+            {/* Número */}
+            <View style={styles.fieldGroup}>
+              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+                Número
+              </Text>
+              <Controller
+                control={control}
+                name="numero"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[
+                      styles.textInput,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
+                      },
+                    ]}
+                    placeholder="123"
+                    placeholderTextColor={colors.placeholder}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+              {errors.numero?.message && (
+                <Text style={[styles.fieldError, { color: colors.error }]}>
+                  {errors.numero.message}
+                </Text>
+              )}
+            </View>
+
+            {/* Complemento */}
+            <View style={styles.fieldGroup}>
+              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+                Complemento
+              </Text>
+              <Controller
+                control={control}
+                name="complemento"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[
+                      styles.textInput,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
+                      },
+                    ]}
+                    placeholder="Apto, bloco..."
+                    placeholderTextColor={colors.placeholder}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+            </View>
+
+            {/* Bairro */}
+            <View style={styles.fieldGroup}>
+              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+                Bairro
+              </Text>
+              <Controller
+                control={control}
+                name="bairro"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[
+                      styles.textInput,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
+                      },
+                    ]}
+                    placeholder="Centro"
+                    placeholderTextColor={colors.placeholder}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+              {errors.bairro?.message && (
+                <Text style={[styles.fieldError, { color: colors.error }]}>
+                  {errors.bairro.message}
+                </Text>
+              )}
+            </View>
+
+            {/* Cidade */}
+            <View style={styles.fieldGroup}>
+              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+                Cidade
+              </Text>
+              <Controller
+                control={control}
+                name="cidade"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    style={[
+                      styles.textInput,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
+                      },
+                    ]}
+                    placeholder="São Paulo"
+                    placeholderTextColor={colors.placeholder}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                  />
+                )}
+              />
+              {errors.cidade?.message && (
+                <Text style={[styles.fieldError, { color: colors.error }]}>
+                  {errors.cidade.message}
+                </Text>
+              )}
+            </View>
+
+            {/* Estado */}
+            <View style={styles.fieldGroup}>
+              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+                Estado
+              </Text>
+              <Controller
+                control={control}
+                name="estado"
+                render={({ field: { onChange, value } }) => (
+                  <EstadoPicker value={value} onChange={onChange} />
+                )}
+              />
+              {errors.estado?.message && (
+                <Text style={[styles.fieldError, { color: colors.error }]}>
+                  {errors.estado.message}
+                </Text>
+              )}
+            </View>
           </View>
         )}
       </View>
@@ -650,6 +955,17 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     lineHeight: 27,
     minHeight: 140,
+  },
+  // TextInput single-line (endereço fields)
+  textInput: {
+    borderRadius: Radii.lg,
+    borderWidth: Borders.thin,
+    height: 58,
+    paddingHorizontal: 18,
+    fontSize: 18,
+    fontFamily: Fonts?.sans,
+    fontWeight: "400",
+    lineHeight: 27,
   },
   // Media buttons
   mediaRow: {

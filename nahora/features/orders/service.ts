@@ -53,7 +53,7 @@ export const orderService = {
   /**
    * Faz upload de um arquivo de mídia (imagem/vídeo) e retorna a URL pública.
    */
-  uploadMidia: async (uri: string): Promise<string> => {
+  uploadMidia: async (uri: string, tipo: string): Promise<string> => {
     const formData = new FormData();
     const filename = uri.split("/").pop() ?? "upload.jpg";
     const mimeType = mimeTypeFromUri(uri);
@@ -63,6 +63,7 @@ export const orderService = {
       name: filename,
       type: mimeType,
     } as unknown as Blob);
+    formData.append("tipo", tipo);
 
     const { data } = await api.post<{ url: string }>(
       ENDPOINTS.UPLOAD_DOCUMENTO,

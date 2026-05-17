@@ -7,17 +7,46 @@ import { z } from "zod";
 import { orderService } from "../service";
 import { useMidiasPicker } from "./useMidiasPicker";
 import { parseApiError } from "@/utils/apiError";
-import type { CriarPedidoFormValues } from "../types";
+import type { CriarPedidoFormValues, EnderecoRequest } from "../types";
+import type { CategoriaServico, Urgencia } from "@/types/enums";
 
-const schema = z.object({
-  categoria: z.string().min(1, "Selecione um tipo de serviço"),
-  descricao: z
-    .string()
-    .min(10, "Descreva o serviço com pelo menos 10 caracteres"),
-  enderecoDiferente: z.boolean(),
-  enderecoId: z.number().optional(),
-  turno: z.string().min(1, "Selecione um turno"),
-});
+const schema = z
+  .object({
+    categoria: z.string().min(1, "Selecione um tipo de servico"),
+    descricao: z
+      .string()
+      .min(20, "Descreva o servico com pelo menos 20 caracteres")
+      .max(500, "Maximo de 500 caracteres"),
+    enderecoDiferente: z.boolean(),
+    cep: z.string(),
+    logradouro: z.string(),
+    numero: z.string(),
+    complemento: z.string(),
+    bairro: z.string(),
+    cidade: z.string(),
+    estado: z.string(),
+    urgencia: z.string().min(1, "Selecione a urgencia"),
+    turno: z.string().min(1, "Selecione um turno"),
+  })
+  .refine(
+    (data) => {
+      if (!data.enderecoDiferente) return true;
+      const cepOk = /^\d{5}-?\d{3}$/.test(data.cep);
+      const estadoOk = data.estado.length === 2;
+      return (
+        cepOk &&
+        estadoOk &&
+        data.logradouro.trim().length > 0 &&
+        data.numero.trim().length > 0 &&
+        data.bairro.trim().length > 0 &&
+        data.cidade.trim().length > 0
+      );
+    },
+    {
+      message: "Preencha todos os campos de endereco corretamente",
+      path: ["cep"],
+    },
+  );
 
 export function useCreateOrderForm() {
   const router = useRouter();
@@ -32,7 +61,14 @@ export function useCreateOrderForm() {
       categoria: "",
       descricao: "",
       enderecoDiferente: false,
-      enderecoId: undefined,
+      cep: "",
+      logradouro: "",
+      numero: "",
+      complemento: "",
+      bairro: "",
+      cidade: "",
+      estado: "",
+      urgencia: "NORMAL",
       turno: "MANHA",
     },
   });
@@ -47,30 +83,61 @@ export function useCreateOrderForm() {
 
   const enderecoDiferente = watch("enderecoDiferente");
 
+  /** Data desejada = 1 semana a partir de hoje + hora do turno */
+  const buildDataDesejada = useCallback((turno: string): string => {
+    const horaMap: Record<string, string> = {
+      MANHA: "08:00:00",
+      TARDE: "14:00:00",
+      NOITE: "19:00:00",
+    };
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    const data = nextWeek.toISOString().slice(0, 10);
+    const hora = horaMap[turno] ?? "08:00:00";
+    return `${data}T${hora}`;
+  }, []);
+
   const onSubmit = useCallback(
     async (data: CriarPedidoFormValues) => {
       setIsSubmitting(true);
       setErrorMessage(null);
 
       try {
-        // 1. Faz upload das mídias (se houver) e obtém as URLs
-        let midiasUrls: string[] | undefined;
+        // 1. Faz upload das midias e obtem as URLs
+        let fotosUrls: string[] | undefined;
         if (midiasPicker.mediaUris.length > 0) {
-          midiasUrls = await midiasPicker.uploadAll();
+          fotosUrls = await midiasPicker.uploadAll();
         }
 
-        // 2. Cria o pedido com as URLs das mídias anexadas
+        // 2. Monta objeto EnderecoRequest se o toggle estiver ativo
+        let endereco: EnderecoRequest | undefined;
+        if (data.enderecoDiferente) {
+          endereco = {
+            cep: data.cep,
+            logradouro: data.logradouro,
+            numero: data.numero,
+            complemento: data.complemento || undefined,
+            bairro: data.bairro,
+            cidade: data.cidade,
+            estado: data.estado,
+          };
+        }
+
+        // 3. Monta dataDesejada = 1 semana a partir de hoje + turno
+        const dataDesejada = buildDataDesejada(data.turno);
+
+        // 4. Cria o pedido
         await orderService.criar({
-          titulo: data.categoria,
+          categoria: data.categoria as CategoriaServico,
           descricao: data.descricao,
-          categoria: data.categoria,
-          urgencia: "NORMAL",
-          enderecoId:
-            data.enderecoDiferente && data.enderecoId ? data.enderecoId : 0,
-          midias: midiasUrls,
+          endereco,
+          fotos: fotosUrls,
+          urgencia: data.urgencia as Urgencia,
+          orcamentoEstimado: 0,
+          dataDesejada,
         });
 
-        // 3. Limpa o estado de mídias e redireciona
+        // 5. Limpa o estado e redireciona
         midiasPicker.reset();
         router.push("/(client)/(orders)/success");
       } catch (error) {
@@ -93,7 +160,7 @@ export function useCreateOrderForm() {
         setIsSubmitting(false);
       }
     },
-    [router, midiasPicker, setError],
+    [router, midiasPicker, setError, buildDataDesejada],
   );
 
   const handleClear = useCallback(() => {
@@ -101,7 +168,14 @@ export function useCreateOrderForm() {
       categoria: "",
       descricao: "",
       enderecoDiferente: false,
-      enderecoId: undefined,
+      cep: "",
+      logradouro: "",
+      numero: "",
+      complemento: "",
+      bairro: "",
+      cidade: "",
+      estado: "",
+      urgencia: "NORMAL",
       turno: "MANHA",
     });
     midiasPicker.reset();
