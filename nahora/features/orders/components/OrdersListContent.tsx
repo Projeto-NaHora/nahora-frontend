@@ -1,5 +1,5 @@
 // features/orders/components/OrdersListContent.tsx
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -19,27 +19,15 @@ import FilterChips from "./FilterChips";
 import EmptyOrders from "./EmptyOrders";
 import type { Pedido, FiltroStatus } from "../types";
 
-const STATUS_FILTER_MAP: Record<FiltroStatus, string[]> = {
-  TODOS: [],
-  ABERTO: ["ABERTO"],
-  EM_ANDAMENTO: ["EM_ANDAMENTO", "AGUARDANDO_VALIDACAO"],
-  CONCLUIDOS: ["CONCLUIDO", "CANCELADO", "EM_DISPUTA"],
-};
-
 export default function OrdersListContent() {
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
-  const { data: pedidos, isLoading, isValidating, error, mutate } = useOrders();
   const [filtro, setFiltro] = useState<FiltroStatus>("TODOS");
   const [refreshing, setRefreshing] = useState(false);
-
-  const filtered = useMemo(() => {
-    if (!pedidos) return [];
-    const statusFilter = STATUS_FILTER_MAP[filtro];
-    if (statusFilter.length === 0) return pedidos;
-    return pedidos.filter((p) => statusFilter.includes(p.status));
-  }, [pedidos, filtro]);
+  const { data, isLoading, isValidating, error, mutate } = useOrders({
+    status: filtro,
+  });
 
   const handleOrderPress = (pedido: Pedido) => {
     router.push(`/(client)/(orders)/${pedido.id}`);
@@ -80,7 +68,7 @@ export default function OrdersListContent() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
-        data={filtered}
+        data={data?.content ?? []}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={{
           paddingHorizontal: 24,

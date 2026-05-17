@@ -1,7 +1,8 @@
 // features/orders/service.ts
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
-import type { Pedido, CriarPedidoPayload } from "./types";
+import type { Pedido, CriarPedidoPayload, Page } from "./types";
+import type { PedidoResumoResponse } from "@/features/professional/types";
 
 /** Helper para extrair o tipo MIME a partir da extensão do arquivo */
 function mimeTypeFromUri(uri: string): string {
@@ -20,10 +21,18 @@ function mimeTypeFromUri(uri: string): string {
 
 export const orderService = {
   /**
-   * Lista todos os pedidos associados ao usuário logado (cliente ou profissional).
+   * Lista os pedidos do cliente autenticado (GET /pedidos/meus).
    */
-  listar: async (): Promise<Pedido[]> => {
-    const { data } = await api.get<Pedido[]>(ENDPOINTS.PEDIDOS);
+  listarMeusPedidos: async (
+    status?: string,
+    page: number = 0,
+    size: number = 20,
+  ): Promise<Page<Pedido>> => {
+    const params: Record<string, string | number> = { page, size };
+    if (status) params.status = status;
+    const { data } = await api.get<Page<Pedido>>(ENDPOINTS.MEUS_PEDIDOS, {
+      params,
+    });
     return data;
   },
 
@@ -48,6 +57,20 @@ export const orderService = {
    */
   cancelar: async (id: number): Promise<void> => {
     await api.patch(`${ENDPOINTS.PEDIDO(id)}/cancelar`);
+  },
+
+  /**
+   * Lista pedidos disponíveis para profissionais aceitarem.
+   */
+  listarDisponiveis: async (
+    page: number = 0,
+    size: number = 20,
+  ): Promise<Page<PedidoResumoResponse>> => {
+    const { data } = await api.get<Page<PedidoResumoResponse>>(
+      ENDPOINTS.PEDIDOS_DISPONIVEIS,
+      { params: { page, size } },
+    );
+    return data;
   },
 
   /**

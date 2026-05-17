@@ -38,8 +38,6 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
   const categoryLabel = CATEGORIA_LABEL[pedido.categoria] ?? pedido.categoria;
   const statusLabel = STATUS_LABEL[pedido.status] ?? pedido.status;
 
-  const isOpen = pedido.status === "ABERTO";
-
   return (
     <TouchableOpacity
       style={[
@@ -67,21 +65,11 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
         </View>
       </View>
 
-      {/* Data / profissional + data */}
+      {/* Data desejada + período */}
       <View style={styles.dateRow}>
-        {isOpen ? (
-          <Text style={[styles.dateText, { color: colors.textSecondary }]}>
-            {formatDate(pedido.criadoEm)} - {getPeriodo(pedido.criadoEm)}
-          </Text>
-        ) : (
-          <Text
-            style={[styles.dateText, { color: colors.textSecondary }]}
-            numberOfLines={1}
-          >
-            {pedido.profissional?.nome ?? "Profissional"} ·{" "}
-            {formatDate(pedido.criadoEm)}
-          </Text>
-        )}
+        <Text style={[styles.dateText, { color: colors.textSecondary }]}>
+          {formatDate(pedido.dataDesejada)} - {getPeriodo(pedido.dataDesejada)}
+        </Text>
       </View>
 
       {/* Descrição */}
@@ -94,8 +82,8 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
         </Text>
       </View>
 
-      {/* Endereço (apenas para pedidos abertos) */}
-      {isOpen && pedido.endereco && (
+      {/* Endereço */}
+      {pedido.endereco && (
         <View style={styles.addressRow}>
           <Text
             style={[styles.addressText, { color: colors.textSecondary }]}
