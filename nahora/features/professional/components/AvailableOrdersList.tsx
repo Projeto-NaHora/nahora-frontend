@@ -14,18 +14,13 @@ export function AvailableOrdersList() {
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
-  const [page, setPage] = useState(0);
-  const { data, isLoading, error, mutate } = usePedidosDisponiveis(page);
+  const { pedidos, isLoading, isLoadingMore, hasMore, error, refresh, loadMore } =
+    usePedidosDisponiveis();
   const [categoriaFilter, setCategoriaFilter] = useState<CategoriaFilter>("TODAS");
   const [urgenciaFilter, setUrgenciaFilter] = useState<UrgenciaFilter>("TODAS");
   const [refreshing, setRefreshing] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
 
-  const pedidosResumo = data?.content;
-  const totalPages = data?.totalPages ?? 0;
-  const hasMore = page < totalPages - 1;
-
-  const enriched = useMemo(() => enrichWithMockData(pedidosResumo), [pedidosResumo]);
+  const enriched = useMemo(() => enrichWithMockData(pedidos), [pedidos]);
 
   const filtered = useMemo(() => {
     let result = enriched;
@@ -42,20 +37,11 @@ export function AvailableOrdersList() {
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    setPage(0);
-    await mutate();
+    await refresh();
     setRefreshing(false);
-  }, [mutate]);
+  }, [refresh]);
 
-  const handleLoadMore = useCallback(async () => {
-    if (!hasMore || loadingMore || isLoading) return;
-    setLoadingMore(true);
-    setPage((prev) => prev + 1);
-    await mutate();
-    setLoadingMore(false);
-  }, [hasMore, loadingMore, isLoading, mutate]);
-
-  if (isLoading && !data) {
+  if (isLoading) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color={colors.brand} />
@@ -63,7 +49,7 @@ export function AvailableOrdersList() {
     );
   }
 
-  if (error && !data) {
+  if (error && pedidos.length === 0) {
     const message = getApiErrorMessage(error, "Erro ao carregar pedidos");
     return (
       <View style={styles.centered}>
@@ -85,7 +71,7 @@ export function AvailableOrdersList() {
         showsVerticalScrollIndicator={false}
         refreshing={refreshing}
         onRefresh={handleRefresh}
-        onEndReached={handleLoadMore}
+        onEndReached={loadMore}
         onEndReachedThreshold={0.3}
         ListHeaderComponent={
           <View>
@@ -102,7 +88,7 @@ export function AvailableOrdersList() {
           </View>
         }
         ListFooterComponent={
-          loadingMore ? (
+          isLoadingMore ? (
             <View style={styles.footerLoader}>
               <ActivityIndicator size="small" color={colors.brand} />
             </View>

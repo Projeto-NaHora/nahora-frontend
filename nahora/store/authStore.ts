@@ -20,7 +20,7 @@ interface AuthState {
     refresh: string,
     tipoUsuario?: string,
   ) => Promise<void>;
-  restoreSession: () => Promise<boolean>;
+  restoreSession: () => Promise<void>;
   logout: () => void;
 }
 
