@@ -25,9 +25,12 @@ describe("usePedidosDisponiveis", () => {
     expect(orderService.listarDisponiveis).toHaveBeenCalledWith(0, 20);
   });
 
-  test("passes page and size params", () => {
+  test("passes page and size params", async () => {
     renderHook(() => usePedidosDisponiveis(2, 10));
-    expect(orderService.listarDisponiveis).toHaveBeenCalledWith(2, 10);
+
+    await waitFor(() => {
+      expect(orderService.listarDisponiveis).toHaveBeenCalledWith(2, 10);
+    });
   });
 });
 
