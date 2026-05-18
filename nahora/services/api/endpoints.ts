@@ -21,6 +21,7 @@ export const ENDPOINTS = {
 
   // Propostas
   PROPOSTAS: (pedidoId: number) => `/pedidos/${pedidoId}/propostas`,
+  CRIAR_PROPOSTA: (pedidoId: number) => `/pedidos/${pedidoId}/propostas`,
   PROPOSTA: (id: number) => `/propostas/${id}`,
   ACEITAR_PROPOSTA: (id: number) => `/propostas/${id}/aceitar`,
   RECUSAR_PROPOSTA: (id: number) => `/propostas/${id}/recusar`,
