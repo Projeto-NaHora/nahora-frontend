@@ -46,7 +46,7 @@ Este repositório contém o **app mobile** (iOS e Android). O backend em Spring 
 | **Framework** | React Native 0.81 + Expo SDK 54 | Suporte iOS/Android unificado com acesso a APIs nativas |
 | **Roteamento** | Expo Router v6 (file-based) | Grupos de rota isolam os dois papéis (cliente/profissional) sem lógica condicional espalhada |
 | **Linguagem** | TypeScript 5.9 | Tipos espelham os enums e DTOs do backend Java, eliminando erros de contrato |
-| **Estado servidor** | TanStack Query v5 | Cache automático, revalidação, mutations otimistas — sem re-fetch desnecessário |
+| **Estado servidor** | SWR | Cache automático, revalidação em foco, deduplicação de requisições e updates otimistas via `mutate` |
 | **Estado cliente** | Zustand | Leve, sem boilerplate; guarda apenas token JWT, papel do usuário e notificações não lidas |
 | **HTTP** | Axios | Interceptores para injeção de JWT e refresh silencioso do access token |
 | **WebSocket** | @stomp/stompjs | Protocolo STOMP que o backend Spring usa; suporte nativo a WebSocket do React Native |
@@ -222,7 +222,7 @@ nahora/
 │  features/ — Domínios de negócio                       │
 │  Cada feature: components, hooks, service, types       │
 ├───────────────────────┬────────────────────────────────┤
-│  TanStack Query        │  Zustand                      │
+│  SWR                   │  Zustand                      │
 │  Estado do servidor    │  Estado de UI (auth, notifs)  │
 ├───────────────────────┴────────────────────────────────┤
 │  services/api/client.ts — Axios + interceptores JWT    │
@@ -507,33 +507,29 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 > **Por que não guardar o accessToken no SecureStore?** O access token dura apenas 15 minutos. Guardá-lo em memória (Zustand) é suficiente e mais rápido. O refresh token fica no SecureStore pois sobrevive a reinicializações do app.
 
-### TanStack Query — estado do servidor
+### SWR — estado do servidor
 
-TanStack Query gerencia todo dado que vem da API. Exemplos de uso:
+SWR gerencia todo dado que vem da API. Exemplos de uso:
 
 ```typescript
 // features/orders/hooks/useOrders.ts
-import { useQuery } from '@tanstack/react-query';
+import useSWR from 'swr';
 import { orderService } from '../service';
 
 export const ordersKeys = {
-  all: ['orders'] as const,
-  detail: (id: number) => ['orders', id] as const,
+  all: '/pedidos',
+  detail: (id: number) => `/pedidos/${id}`,
 };
 
 export function useOrders() {
-  return useQuery({
-    queryKey: ordersKeys.all,
-    queryFn: orderService.listar,
-    staleTime: 30_000, // 30 segundos — pedidos mudam com moderada frequência
+  return useSWR(ordersKeys.all, orderService.listar, {
+    dedupingInterval: 30_000, // 30 segundos — pedidos mudam com moderada frequência
   });
 }
 
 export function useOrderDetail(id: number) {
-  return useQuery({
-    queryKey: ordersKeys.detail(id),
-    queryFn: () => orderService.buscarPorId(id),
-    staleTime: 10_000,
+  return useSWR(ordersKeys.detail(id), () => orderService.buscarPorId(id), {
+    dedupingInterval: 10_000,
   });
 }
 ```
@@ -609,7 +605,7 @@ Execute após clonar o repositório e instalar as dependências base:
 
 ```bash
 # Estado e dados
-npm install @tanstack/react-query zustand
+npm install swr zustand
 
 # Formulários e validação
 npm install react-hook-form zod @hookform/resolvers
@@ -696,21 +692,80 @@ export function getApiErrorMessage(error: unknown, fallback = 'Algo deu errado')
 
 ## 🧪 Testes
 
-```bash
-# Rodar todos os testes
-npx jest
+O projeto segue TDD com o padrão de 3 arquivos por página e mocks globais para módulos nativos.
 
-# Com cobertura
-npx jest --coverage
+### Pilha de testes
 
-# Apenas uma feature
-npx jest features/auth
+| Camada | Arquivo | Função |
+|---|---|---|
+| Config | `jest.config.js` | Preset `jest-expo`, aliases (`@/`, `@tests/`), moduleNameMapper para módulos nativos |
+| Setup | `jest.setup.ts` | Bootstrap do React Native, gesture-handler, reanimated, stub do expo-modules-core |
+| Mocks globais | `__mocks__/` (6 arquivos) | Substituem módulos nativos inacessíveis no Node.js |
+| Utilities | `__tests__/test-utils.tsx` | `render()` customizado com provider SWR; re-exporta tudo do RNTL |
+| Factories | `__tests__/factories/` | Funções geradoras de dados de teste (`createMockPedido`, `createMockUser`) |
+
+### Estrutura de diretórios
+
+```
+__tests__/
+├── auth/                        # Grupo (auth) — 13 páginas implementadas
+│   ├── login/                   #   index.test.tsx + LoginContent.test.tsx + useLogin.test.ts
+│   └── register/
+│       ├── role/                #   role.test.tsx + RoleContent.test.tsx + useRegisterRole.test.ts
+│       ├── phone/               #   phone.test.tsx + PhoneContent.test.tsx + useRegisterPhone.test.ts
+│       ├── otp/                 #   (idem)
+│       ├── name/                #   (idem)
+│       ├── email/               #   (idem)
+│       ├── password/            #   (idem)
+│       └── professional/        #   6 páginas (profession, docs, profile-1/2/3, validation)
+├── client/                      # Grupo (client) — 2 páginas implementadas
+│   └── orders/
+│       ├── index/               #   index.test.tsx + 5 component tests
+│       └── new/                 #   new.test.tsx
+└── professional/                # Grupo (professional) — 0 páginas (todas stubs)
+    └── .gitkeep
 ```
 
-A estratégia de testes segue a pirâmide:
-- **Unitários** — hooks e services com mocks de Axios e Zustand
-- **Integração** — fluxos completos com `@testing-library/react-native`
-- **E2E** — fluxos críticos (auth, criar pedido, aceitar proposta) com Maestro
+Cada diretório de página contém até 3 arquivos:
+- `<page>.test.tsx` — teste de integração da tela (renderiza a screen, verifica wiring hook → componente)
+- `<Component>.test.tsx` — teste unitário do componente (provas via props, todos os estados visuais)
+- `<Hook>.test.ts` — teste unitário do hook (`renderHook`, transições de estado, chamadas ao service)
+
+### O que NUNCA mockar
+
+- **Zustand stores** — Use `useStore.setState({...})` no `beforeEach`. A store real funciona no ambiente de teste.
+- **react-hook-form** — Use `useForm` real. Crie um componente `TestHarness` que chama `useForm` e renderiza o componente com o `control` real.
+- **Zod schemas** — Deixe validar normalmente. Se um teste falhar com erro de validação, corrija os valores de teste para atenderem o schema.
+- **SWR** — O `test-utils.tsx` já provê um `SWRConfig` com cache em Map e `dedupingInterval: 0`. Nenhum mock adicional necessário.
+
+### Mocks globais (`__mocks__/`)
+
+Aplicados via `moduleNameMapper` em `jest.config.js`. **Nunca use `jest.mock()` inline para estes módulos** — o mock global já cobre todos os testes:
+
+| Mock | Substitui | Motivo |
+|---|---|---|
+| `expo-router.ts` | Roteador file-based | `useRouter`, `Stack`, `Link` dependem de primitivas nativas |
+| `expo-secure-store.ts` | Keychain/Keystore | Armazenamento criptografado nativo |
+| `expo-symbols.ts` | SF Symbols | Views nativas exclusivas do iOS |
+| `react-native-safe-area-context.ts` | Safe area insets | Métricas nativas de tela |
+| `fileMock.js` | Imagens/assets | `require('./logo.png')` retorna string |
+
+### Estratégia de mock por camada de teste
+
+| Camada | O que mockar | Exemplo |
+|---|---|---|
+| **Page test** | O hook que a tela chama + expo-router | `jest.mock('@/features/orders/hooks/useOrders', ...)` |
+| **Component test** | `useColorScheme`, `IconSymbol` (ruído visual) | Mockar para retornar `"light"` e renderizar `null` |
+| **Hook test** | O service (`authService.login`, `orderService.listar`) + `parseApiError` | `jest.mock('@/features/auth/service', ...)` |
+
+### Comandos
+
+```bash
+npm test                        # Todos os testes
+npm test -- <pattern>           # Filtro (ex: npm test -- login)
+npm run test:watch              # Watch mode
+npx jest --no-cache             # Limpa cache de transform (use após mudar mocks)
+```
 
 ---
 
@@ -721,7 +776,7 @@ A ordem natural de implementar uma feature é de baixo para cima:
 ```
 1. types.ts     → defina os tipos TypeScript espelhando o backend
 2. service.ts   → implemente as chamadas Axios
-3. hooks/       → crie os hooks TanStack Query / mutations
+3. hooks/       → crie os hooks SWR / mutations
 4. components/  → construa os componentes da feature
 5. app/         → crie a tela (fina!) usando os hooks
 ```

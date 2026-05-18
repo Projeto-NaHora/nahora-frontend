@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { ProfileStepIndicator } from "./ProfileStepIndicator";
 
 type Profile3ContentProps = {
@@ -12,6 +13,9 @@ type Profile3ContentProps = {
   onBack: () => void;
   onSubmit: () => void;
   isSubmitting?: boolean;
+  error?: string | null;
+  /** Código HTTP do erro (ex.: 401) para exibir como badge no banner */
+  errorStatus?: number | null;
 };
 
 export function Profile3Content({
@@ -21,6 +25,8 @@ export function Profile3Content({
   onBack,
   onSubmit,
   isSubmitting,
+  error,
+  errorStatus,
 }: Profile3ContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -38,6 +44,16 @@ export function Profile3Content({
         Envie fotos do seu trabalho para construir confiança com clientes em
         potencial.
       </Text>
+
+      {/* Error Banner */}
+      {error ? (
+        <ServerErrorBanner
+          title="Erro ao concluir cadastro"
+          message={error}
+          statusCode={errorStatus ?? undefined}
+          style={{ marginBottom: 16 }}
+        />
+      ) : null}
 
       {/* Upload Zone */}
       <Pressable
@@ -253,6 +269,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
   },
+
   buttonPressed: {
     opacity: 0.9,
   },

@@ -15,6 +15,7 @@ import {
 } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { formatPhone } from "@/utils/formatters";
+import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { AuthScreenShell } from "./AuthScreenShell";
 import type { RegisterPhoneFormValues } from "../types";
 
@@ -22,12 +23,17 @@ type PhoneContentProps = {
   control: Control<RegisterPhoneFormValues>;
   isSubmitting: boolean;
   onSubmit: () => void;
+  error?: string | null;
+  /** Código HTTP do erro (ex.: 401) para exibir como badge no banner */
+  errorStatus?: number | null;
 };
 
 export function PhoneContent({
   control,
   isSubmitting,
   onSubmit,
+  error,
+  errorStatus,
 }: PhoneContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -72,6 +78,13 @@ export function PhoneContent({
             </View>
           )}
         />
+        {error && (
+          <ServerErrorBanner
+            title="Erro ao enviar código"
+            message={error}
+            statusCode={errorStatus ?? undefined}
+          />
+        )}
         <Pressable
           accessibilityRole="button"
           onPress={onSubmit}
@@ -113,6 +126,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontFamily: Fonts?.sans,
   },
+
   button: {
     height: Sizes.buttonHeight,
     borderRadius: Radii.md,

@@ -1,10 +1,10 @@
+import { useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert } from "react-native";
 import { useForm } from "react-hook-form";
 
 import { useRegisterStore } from "@/store/registerStore";
-import { getApiErrorMessage } from "@/utils/apiError";
+import { parseApiError } from "@/utils/apiError";
 import { registerPhoneSchema, type RegisterPhoneFormValues } from "../types";
 import { unformatPhone } from "@/utils/formatters";
 import { authService } from "../service";
@@ -16,6 +16,8 @@ type UseRegisterPhoneOptions = {
 export function useRegisterPhone({ onSuccess }: UseRegisterPhoneOptions) {
   const phone = useRegisterStore((state) => state.phone);
   const setPhone = useRegisterStore((state) => state.setPhone);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
   const form = useForm<RegisterPhoneFormValues>({
     resolver: zodResolver(registerPhoneSchema),
@@ -34,12 +36,16 @@ export function useRegisterPhone({ onSuccess }: UseRegisterPhoneOptions) {
         onSuccess();
       },
       onError: (error) => {
-        Alert.alert("Erro", getApiErrorMessage(error));
+        const parsed = parseApiError(error);
+        setErrorMessage(parsed.message);
+        setErrorStatus(parsed.statusCode ?? null);
       },
     },
   );
 
   const onSubmit = form.handleSubmit((values) => {
+    setErrorMessage(null);
+    setErrorStatus(null);
     const digits = unformatPhone(values.phone);
     setPhone(digits);
     trigger(digits);
@@ -49,5 +55,7 @@ export function useRegisterPhone({ onSuccess }: UseRegisterPhoneOptions) {
     form,
     onSubmit,
     isSubmitting: isMutating,
+    errorMessage,
+    errorStatus,
   };
 }
