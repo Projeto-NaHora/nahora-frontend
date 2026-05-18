@@ -3,6 +3,8 @@ import { render, screen } from "@tests/test-utils";
 import { useAuthStore } from "@/store/authStore";
 import { createMockUser } from "@tests/factories/auth";
 
+const mockPush = jest.fn();
+
 jest.mock("@/hooks/use-color-scheme", () => ({
   useColorScheme: () => "light",
 }));
@@ -11,6 +13,9 @@ jest.mock("@/components/ui/icon-symbol", () => ({
 }));
 jest.mock("react-native-safe-area-context", () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+}));
+jest.mock("expo-router", () => ({
+  useRouter: () => ({ push: mockPush, back: jest.fn(), replace: jest.fn() }),
 }));
 jest.mock("@/features/professional/hooks/usePedidosDisponiveis", () => ({
   enrichWithMockData: (pedidos: any) => {
@@ -61,6 +66,7 @@ describe("ProfessionalHomeScreen", () => {
     useAuthStore.setState({
       user: createMockUser({ nome: "Maria Oliveira", tipo: "PROFISSIONAL" }),
     });
+    jest.clearAllMocks();
   });
 
   test("renders greeting with authenticated user name", () => {
