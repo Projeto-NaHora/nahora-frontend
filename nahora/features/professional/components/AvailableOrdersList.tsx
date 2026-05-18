@@ -1,22 +1,47 @@
 // features/professional/components/AvailableOrdersList.tsx
 import React, { useMemo, useState, useCallback } from "react";
-import { View, Text, FlatList, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { usePedidosDisponiveis, enrichWithMockData } from "../hooks/usePedidosDisponiveis";
+import {
+  usePedidosDisponiveis,
+  enrichWithMockData,
+} from "../hooks/usePedidosDisponiveis";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { AvailableOrderCard } from "./AvailableOrderCard";
 import { ProfessionalFilters } from "./ProfessionalFilters";
-import type { PedidoDisponivel, CategoriaFilter, UrgenciaFilter } from "../types";
+import type {
+  PedidoDisponivel,
+  CategoriaFilter,
+  UrgenciaFilter,
+} from "../types";
 
-export function AvailableOrdersList() {
+interface AvailableOrdersListProps {
+  onPressPedido?: (pedido: PedidoDisponivel) => void;
+}
+
+export function AvailableOrdersList({ onPressPedido }: AvailableOrdersListProps) {
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
-  const { pedidos, isLoading, isLoadingMore, hasMore, error, refresh, loadMore } =
-    usePedidosDisponiveis();
-  const [categoriaFilter, setCategoriaFilter] = useState<CategoriaFilter>("TODAS");
+  const {
+    pedidos,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    error,
+    refresh,
+    loadMore,
+  } = usePedidosDisponiveis();
+  const [categoriaFilter, setCategoriaFilter] =
+    useState<CategoriaFilter>("TODAS");
   const [urgenciaFilter, setUrgenciaFilter] = useState<UrgenciaFilter>("TODAS");
   const [refreshing, setRefreshing] = useState(false);
 
@@ -53,7 +78,9 @@ export function AvailableOrdersList() {
     const message = getApiErrorMessage(error, "Erro ao carregar pedidos");
     return (
       <View style={styles.centered}>
-        <Text style={[styles.errorText, { color: colors.error }]}>{message}</Text>
+        <Text style={[styles.errorText, { color: colors.error }]}>
+          {message}
+        </Text>
       </View>
     );
   }
@@ -82,8 +109,12 @@ export function AvailableOrdersList() {
               onSelectUrgencia={setUrgenciaFilter}
             />
             <View style={styles.headingRow}>
-              <Text style={[styles.heading, { color: colors.textPrimary }]}>Pedidos disponíveis</Text>
-              <Text style={[styles.location, { color: colors.textSecondary }]}>Recife, PE</Text>
+              <Text style={[styles.heading, { color: colors.textPrimary }]}>
+                Pedidos disponíveis
+              </Text>
+              <Text style={[styles.location, { color: colors.textSecondary }]}>
+                Recife, PE
+              </Text>
             </View>
           </View>
         }
@@ -102,9 +133,7 @@ export function AvailableOrdersList() {
         renderItem={({ item }) => (
           <AvailableOrderCard
             pedido={item}
-            onPress={(_pedido: PedidoDisponivel) => {
-              // Navegação futura: detalhes do pedido
-            }}
+            onPress={(pedido) => onPressPedido?.(pedido)}
           />
         )}
       />

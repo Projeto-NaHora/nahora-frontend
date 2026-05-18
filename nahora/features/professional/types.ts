@@ -12,6 +12,7 @@ export interface PedidoResumoResponse {
   faixaValorMin: number;
   faixaValorMax: number;
   contadorPropostas: number;
+  dataDesejada?: string;
 }
 
 /** Tipo para exibição no card (enriquecido com clienteNome mockado) */

@@ -5,13 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAuthStore } from "@/store/authStore";
-
-function getInitials(nome?: string): string {
-  if (!nome) return "?";
-  const parts = nome.trim().split(/\s+/);
-  if (parts.length === 1) return parts[0][0].toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
+import { getInitials } from "@/utils/formatters";
 
 export function ProfessionalHeader() {
   const insets = useSafeAreaInsets();
