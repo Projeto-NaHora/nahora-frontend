@@ -5,6 +5,8 @@ import { useProposalsByPedido } from "@/features/proposals/hooks/useProposals";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import { CATEGORIA_LABEL, STATUS_LABEL } from "@/features/orders/types";
 import { PropostaCard } from "@/features/proposals/components/PropostaCard";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 type OrdemFiltro = "todos" | "melhor_avaliacao" | "menor_preco";
 
@@ -26,6 +28,8 @@ const FILTRO_LABELS: { key: OrdemFiltro; label: string }[] = [
 export default function PropostasListContent() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
   const router = useRouter();
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const [filtro, setFiltro] = useState<OrdemFiltro>("todos");
   const { proposals, isLoading, isError } = useProposalsByPedido(Number(orderId));
   const { data: order } = useOrderDetail(Number(orderId));
@@ -43,39 +47,39 @@ export default function PropostasListContent() {
   const dataHora = order?.dataDesejada ? formatDateAndTime(order.dataDesejada) : null;
 
   return (
-    <View style={styles.root}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Text style={styles.backArrow}>←</Text>
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.background }]}>
+        <TouchableOpacity style={[styles.backButton, { backgroundColor: colors.surface }]} onPress={() => router.back()}>
+          <Text style={[styles.backArrow, { color: colors.textPrimary }]}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Interessados</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Interessados</Text>
         <View style={styles.headerSpacer} />
       </View>
 
       {!isLoading && !isError && order && (
-        <View style={styles.orderBanner}>
+        <View style={[styles.orderBanner, { backgroundColor: colors.brand + "1A" }]}>
           <View style={styles.orderBannerRow}>
-            <View style={styles.orderDot} />
+            <View style={[styles.orderDot, { backgroundColor: colors.brand }]} />
             <View style={styles.orderBannerTextContainer}>
               {categoriaLabel && (
-                <Text style={styles.orderCategory}>{categoriaLabel}</Text>
+                <Text style={[styles.orderCategory, { color: colors.brand }]}>{categoriaLabel}</Text>
               )}
               {statusLabel && dataHora && (
-                <Text style={styles.orderSubtitle}>{statusLabel} · {dataHora}</Text>
+                <Text style={[styles.orderSubtitle, { color: colors.textSecondary }]}>{statusLabel} · {dataHora}</Text>
               )}
             </View>
           </View>
-          <Text style={styles.orderCount}>{proposals.length}</Text>
+          <Text style={[styles.orderCount, { color: colors.brand }]}>{proposals.length}</Text>
         </View>
       )}
 
       {!isLoading && !isError && proposals.length > 0 && (
         <View style={styles.filterRow}>
           <TouchableOpacity
-            style={filtro === "todos" ? styles.filterChipActive : styles.filterChipInactive}
+            style={filtro === "todos" ? [styles.filterChipActive, { backgroundColor: colors.brand }] : [styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}
             onPress={() => setFiltro("todos")}
           >
-            <Text style={filtro === "todos" ? styles.filterTextActive : styles.filterTextInactive}>
+            <Text style={filtro === "todos" ? [styles.filterTextActive, { color: colors.onBrand }] : [styles.filterTextInactive, { color: colors.textSecondary }]}>
               Todos ({proposals.length})
             </Text>
           </TouchableOpacity>
@@ -83,32 +87,32 @@ export default function PropostasListContent() {
           {FILTRO_LABELS.map(({ key, label }) => (
             <TouchableOpacity
               key={key}
-              style={filtro === key ? styles.filterChipActive : styles.filterChipInactive}
+              style={filtro === key ? [styles.filterChipActive, { backgroundColor: colors.brand }] : [styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={() => setFiltro(key)}
             >
-              <Text style={filtro === key ? styles.filterTextActive : styles.filterTextInactive}>
+              <Text style={filtro === key ? [styles.filterTextActive, { color: colors.onBrand }] : [styles.filterTextInactive, { color: colors.textSecondary }]}>
                 {label}
               </Text>
             </TouchableOpacity>
           ))}
 
-          <TouchableOpacity style={styles.filterChipInactive}>
-            <Text style={styles.filterTextInactive}>Mais...</Text>
+          <TouchableOpacity style={[styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.filterTextInactive, { color: colors.textSecondary }]}>Mais...</Text>
           </TouchableOpacity>
         </View>
       )}
 
       {isLoading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#F97316" />
+          <ActivityIndicator size="large" color={colors.brand} />
         </View>
       ) : isError ? (
         <View style={styles.centered}>
-          <Text style={styles.errorText}>Erro ao carregar propostas. Tente novamente.</Text>
+          <Text style={[styles.errorText, { color: colors.error }]}>Erro ao carregar propostas. Tente novamente.</Text>
         </View>
       ) : proposals.length === 0 ? (
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>Nenhuma proposta recebida ainda.</Text>
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Nenhuma proposta recebida ainda.</Text>
         </View>
       ) : (
         <FlatList
@@ -132,10 +136,8 @@ export default function PropostasListContent() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#f9fafb",
   },
   header: {
-    backgroundColor: "#ffffff",
     paddingTop: 64,
     paddingHorizontal: 24,
     paddingBottom: 24,
@@ -147,18 +149,15 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(244, 244, 245, 0.6)",
     alignItems: "center",
     justifyContent: "center",
   },
   backArrow: {
     fontSize: 20,
-    color: "#1c1c1e",
   },
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1c1c1e",
     flex: 1,
     marginLeft: 16,
   },
@@ -169,7 +168,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 20,
     padding: 16,
-    backgroundColor: "#fff2e5",
     borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -185,7 +183,6 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#f27b24",
   },
   orderBannerTextContainer: {
     flex: 1,
@@ -193,16 +190,13 @@ const styles = StyleSheet.create({
   orderCategory: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#e67215",
   },
   orderSubtitle: {
     fontSize: 13,
-    color: "#cd7b40",
   },
   orderCount: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#f27b24",
   },
   filterRow: {
     paddingHorizontal: 20,
@@ -215,25 +209,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 9999,
-    backgroundColor: "#f27b24",
   },
   filterChipInactive: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 9999,
-    backgroundColor: "#ffffff",
     borderWidth: 1,
-    borderColor: "#eaeaea",
   },
   filterTextActive: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#ffffff",
   },
   filterTextInactive: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#8c8c8c",
   },
   centered: {
     flex: 1,
@@ -241,11 +230,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   errorText: {
-    color: "#ef4444",
     fontSize: 14,
   },
   emptyText: {
-    color: "#9ca3af",
     fontSize: 14,
   },
 });

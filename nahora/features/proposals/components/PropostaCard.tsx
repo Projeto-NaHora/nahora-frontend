@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import type { Proposta } from "@/features/proposals/types";
 import { CATEGORIA_LABEL } from "@/features/orders/types";
 import { getInitials } from "@/utils/formatters";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 const AVATAR_COLORS = ["#f27b24", "#0277bd", "#2e7d32", "#7c3aed", "#c62828"];
 
@@ -34,6 +36,9 @@ export function PropostaCard({
   onNegociar,
   onVerPerfil,
 }: PropostaCardProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+
   const iniciais = getInitials(proposta.profissional.nome);
   const avatarColor = getAvatarColor(proposta.profissional.nome);
   const categoria = getCategoriaLabel(proposta);
@@ -44,12 +49,15 @@ export function PropostaCard({
     <View
       style={[
         styles.card,
-        destacada ? styles.cardDestacada : styles.cardNormal,
+        { backgroundColor: colors.background },
+        destacada
+          ? { borderWidth: 2, borderColor: colors.brand }
+          : { borderWidth: 1, borderColor: colors.border },
       ]}
     >
       {destacada && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>MELHOR AVALIADO</Text>
+        <View style={[styles.badge, { backgroundColor: colors.brand }]}>
+          <Text style={[styles.badgeText, { color: colors.onBrand }]}>MELHOR AVALIADO</Text>
         </View>
       )}
 
@@ -61,36 +69,36 @@ export function PropostaCard({
               style={styles.avatarImage}
             />
           ) : (
-            <Text style={styles.avatarText}>{iniciais}</Text>
+            <Text style={[styles.avatarText, { color: colors.onBrand }]}>{iniciais}</Text>
           )}
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={styles.name}>{proposta.profissional.nome}</Text>
+          <Text style={[styles.name, { color: colors.textPrimary }]}>{proposta.profissional.nome}</Text>
           {subtitulo ? (
-            <Text style={styles.subtitle}>{subtitulo}</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitulo}</Text>
           ) : null}
         </View>
 
-        <Text style={styles.price}>R$ {(proposta.valor ?? 0).toFixed(0)}</Text>
+        <Text style={[styles.price, { color: colors.success }]}>R$ {(proposta.valor ?? 0).toFixed(0)}</Text>
       </View>
 
       {proposta.descricao ? (
-        <View style={styles.quoteBox}>
-          <Text style={styles.quoteText} numberOfLines={4}>
+        <View style={[styles.quoteBox, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.quoteText, { color: colors.textSecondary }]} numberOfLines={4}>
             &ldquo;{proposta.descricao}&rdquo;
           </Text>
         </View>
       ) : null}
 
       <View style={styles.statsRow}>
-        <Text style={styles.statsText}>
+        <Text style={[styles.statsText, { color: colors.textSecondary }]}>
           {proposta.profissional.totalServicosExecutados} serviços feitos
         </Text>
         {proposta.profissional.distancia != null && (
           <>
-            <Text style={styles.statsText}>·</Text>
-            <Text style={styles.statsText}>
+            <Text style={[styles.statsText, { color: colors.textSecondary }]}>·</Text>
+            <Text style={[styles.statsText, { color: colors.textSecondary }]}>
               {proposta.profissional.distancia} km de você
             </Text>
           </>
@@ -98,11 +106,11 @@ export function PropostaCard({
       </View>
 
       <View style={styles.buttonsRow}>
-        <TouchableOpacity style={styles.primaryButton} onPress={onNegociar}>
-          <Text style={styles.primaryButtonText}>Negociar</Text>
+        <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.brand }]} onPress={onNegociar}>
+          <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>Negociar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton} onPress={onVerPerfil}>
-          <Text style={styles.secondaryButtonText}>Ver perfil</Text>
+        <TouchableOpacity style={[styles.secondaryButton, { backgroundColor: colors.surface }]} onPress={onVerPerfil}>
+          <Text style={[styles.secondaryButtonText, { color: colors.textPrimary }]}>Ver perfil</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -111,30 +119,19 @@ export function PropostaCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#ffffff",
     borderRadius: 24,
     padding: 20,
-  },
-  cardNormal: {
-    borderWidth: 1,
-    borderColor: "#eaeaea",
-  },
-  cardDestacada: {
-    borderWidth: 2,
-    borderColor: "#f97316",
   },
   badge: {
     position: "absolute",
     top: 0,
     left: 20,
-    backgroundColor: "#f27b24",
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 4,
   },
   badgeText: {
-    color: "#ffffff",
     fontSize: 11,
     fontWeight: "700",
   },
@@ -156,7 +153,6 @@ const styles = StyleSheet.create({
     borderRadius: 22,
   },
   avatarText: {
-    color: "#ffffff",
     fontSize: 17,
     fontWeight: "700",
   },
@@ -166,19 +162,15 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#111111",
   },
   subtitle: {
     fontSize: 13,
-    color: "#8c8c8c",
   },
   price: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#1aae6f",
   },
   quoteBox: {
-    backgroundColor: "#f8f9fa",
     borderRadius: 24,
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -186,7 +178,6 @@ const styles = StyleSheet.create({
   },
   quoteText: {
     fontSize: 14,
-    color: "#4a5568",
   },
   statsRow: {
     flexDirection: "row",
@@ -196,7 +187,6 @@ const styles = StyleSheet.create({
   },
   statsText: {
     fontSize: 13,
-    color: "#8c8c8c",
   },
   buttonsRow: {
     flexDirection: "row",
@@ -205,25 +195,21 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flex: 1,
-    backgroundColor: "#f27b24",
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: "center",
   },
   primaryButtonText: {
-    color: "#ffffff",
     fontSize: 15,
     fontWeight: "700",
   },
   secondaryButton: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: "center",
   },
   secondaryButtonText: {
-    color: "#111111",
     fontSize: 15,
     fontWeight: "700",
   },

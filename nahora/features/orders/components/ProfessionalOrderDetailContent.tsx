@@ -60,16 +60,16 @@ export function ProfessionalOrderDetailContent({
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#E66A20" />
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.brand} />
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>Erro ao carregar pedido.</Text>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.error }]}>Erro ao carregar pedido.</Text>
       </View>
     );
   }
@@ -85,18 +85,18 @@ export function ProfessionalOrderDetailContent({
   const periodo = getPeriodo(pedido.dataDesejada);
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
             onPress={onBack}
-            style={styles.backButton}
+            style={[styles.backButton, { backgroundColor: colors.surface }]}
             activeOpacity={0.7}
           >
-            <Text style={styles.backArrow}>{"←"}</Text>
+            <Text style={[styles.backArrow, { color: colors.textPrimary }]}>{"←"}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle} numberOfLines={1}>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]} numberOfLines={1}>
             Detalhes do pedido
           </Text>
           <View style={styles.headerSpacer} />
@@ -112,40 +112,40 @@ export function ProfessionalOrderDetailContent({
         </View>
 
         {/* Category title */}
-        <Text style={styles.categoryTitle}>{categoryLabel}</Text>
+        <Text style={[styles.categoryTitle, { color: colors.textPrimary }]}>{categoryLabel}</Text>
 
         {/* Client Card */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
           <View style={styles.clientRow}>
-            <View style={styles.avatarCircle}>
-              <Text style={styles.avatarInitials}>{initials}</Text>
+            <View style={[styles.avatarCircle, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.avatarInitials, { color: colors.text }]}>{initials}</Text>
             </View>
             <View style={styles.clientInfo}>
-              <Text style={styles.clientName}>{pedido.clienteNome}</Text>
+              <Text style={[styles.clientName, { color: colors.textPrimary }]}>{pedido.clienteNome}</Text>
             </View>
           </View>
 
           {/* Description box inside card */}
-          <View style={styles.descriptionBox}>
-            <Text style={styles.descriptionText}>
+          <View style={[styles.descriptionBox, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.descriptionText, { color: colors.textSecondary }]}>
               “{pedido.descricao}”
             </Text>
           </View>
         </View>
 
         {/* Details Card */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
           <View style={styles.detailsGrid}>
             <View style={styles.detailCol}>
-              <Text style={styles.detailLabel}>Turno Disponível</Text>
-              <Text style={styles.detailValue}>{periodo}</Text>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Turno Disponível</Text>
+              <Text style={[styles.detailValue, { color: colors.textPrimary }]}>{periodo}</Text>
             </View>
             <View style={styles.detailCol}>
-              <Text style={styles.detailLabel}>Endereço</Text>
+              <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Endereço</Text>
             </View>
           </View>
           <View style={styles.detailFull}>
-            <Text style={styles.detailValue}>
+            <Text style={[styles.detailValue, { color: colors.textPrimary }]}>
               {formatEndereco(pedido.endereco)}
             </Text>
           </View>
@@ -156,25 +156,28 @@ export function ProfessionalOrderDetailContent({
           {onVerPerfil && (
             <TouchableOpacity
               onPress={onVerPerfil}
-              style={styles.secondaryButton}
+              style={[styles.secondaryButton, { backgroundColor: colors.surface }]}
               activeOpacity={0.7}
             >
-              <Text style={styles.secondaryButtonText}>Ver perfil</Text>
+              <Text style={[styles.secondaryButtonText, { color: colors.textPrimary }]}>Ver perfil</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity
             onPress={onMostrarInteresse}
-            style={onVerPerfil ? styles.primaryButton : styles.primaryButtonFull}
+            style={[
+              onVerPerfil ? styles.primaryButton : styles.primaryButtonFull,
+              { backgroundColor: colors.brand },
+            ]}
             activeOpacity={0.7}
           >
-            <Text style={styles.primaryButtonText}>Mostrar interesse</Text>
+            <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>Mostrar interesse</Text>
           </TouchableOpacity>
         </View>
 
         {/* Warning notice */}
-        <View style={styles.warningBox}>
+        <View style={[styles.warningBox, { backgroundColor: colors.brand + "1A" }]}>
           <Text style={styles.warningIcon}>{"⚠️"}</Text>
-          <Text style={styles.warningText}>
+          <Text style={[styles.warningText, { color: colors.textSecondary }]}>
             Ao mostrar interesse, o cliente receberá notificação e poderá
             entrar em contato.
           </Text>
@@ -187,18 +190,15 @@ export function ProfessionalOrderDetailContent({
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
   },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
   },
   errorText: {
     fontSize: 14,
     fontFamily: "Inter",
-    color: "#DC2626",
   },
 
   scrollContent: {
@@ -218,21 +218,18 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F5",
     alignItems: "center",
     justifyContent: "center",
   },
   backArrow: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#121212",
   },
   headerTitle: {
     flex: 1,
     fontSize: 24,
     fontWeight: "700",
     fontFamily: "Inter",
-    color: "#121212",
     marginLeft: 12,
     letterSpacing: -0.5,
   },
@@ -260,17 +257,14 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "700",
     fontFamily: "Inter",
-    color: "#121212",
     letterSpacing: -0.65,
     marginBottom: 15,
   },
 
   // Card
   card: {
-    backgroundColor: "#FFFFFF",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "#E5E5E5",
     padding: 20,
     marginBottom: 15,
     shadowColor: "#000",
@@ -291,7 +285,6 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: "#DBEAFE",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -299,7 +292,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     fontFamily: "Inter",
-    color: "#1D4ED8",
   },
   clientInfo: {
     flex: 1,
@@ -309,12 +301,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "700",
     fontFamily: "Inter",
-    color: "#121212",
   },
 
   // Description box
   descriptionBox: {
-    backgroundColor: "#F9F9F9",
     borderRadius: 16,
     padding: 16,
   },
@@ -323,7 +313,6 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontStyle: "italic",
     fontWeight: "500",
-    color: "#525252",
     lineHeight: 24.38,
   },
 
@@ -344,14 +333,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Inter",
     fontWeight: "500",
-    color: "#A3A3A3",
     lineHeight: 19.5,
   },
   detailValue: {
     fontSize: 16,
     fontWeight: "700",
     fontFamily: "Inter",
-    color: "#121212",
     lineHeight: 24,
   },
 
@@ -364,7 +351,6 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
     borderRadius: 16,
     paddingVertical: 18,
     alignItems: "center",
@@ -374,12 +360,10 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     fontFamily: "Inter",
-    color: "#333333",
     lineHeight: 25.5,
   },
   primaryButton: {
     flex: 1.5,
-    backgroundColor: "#E66A20",
     borderRadius: 16,
     paddingVertical: 18,
     alignItems: "center",
@@ -387,7 +371,6 @@ const styles = StyleSheet.create({
   },
   primaryButtonFull: {
     flex: 1,
-    backgroundColor: "#E66A20",
     borderRadius: 16,
     paddingVertical: 18,
     alignItems: "center",
@@ -397,13 +380,11 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     fontFamily: "Inter",
-    color: "#FFFFFF",
     lineHeight: 25.5,
   },
 
   // Warning
   warningBox: {
-    backgroundColor: "#FFF8CC",
     borderRadius: 16,
     padding: 16,
     flexDirection: "row",
@@ -419,7 +400,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Inter",
     fontWeight: "500",
-    color: "#D48806",
     lineHeight: 19.25,
   },
 });

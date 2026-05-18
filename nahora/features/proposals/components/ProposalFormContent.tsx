@@ -16,6 +16,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { getInitials } from "@/utils/formatters";
 import { TURNO_LABEL, TURNO_TIME_RANGES } from "@/features/orders/types";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import type {
   CriarPropostaFormValues,
   HorarioSlot,
@@ -107,6 +109,9 @@ export function ProposalFormContent({
   onConfirmSlot,
   onCloseModal,
 }: ProposalFormContentProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+
   const clienteNome = pedido?.clienteNome ?? "";
   const initials = getInitials(clienteNome);
   const isModalOpen = modalState.step !== "idle";
@@ -117,15 +122,15 @@ export function ProposalFormContent({
       : "";
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* HEADER */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
-          <IconSymbol name="chevron.left" size={20} color="#1a1a1a" />
+      <View style={[styles.header, { backgroundColor: colors.background }]}>
+        <TouchableOpacity style={[styles.backButton, { backgroundColor: colors.surface }]} onPress={onBack}>
+          <IconSymbol name="chevron.left" size={20} color={colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerTitles}>
-          <Text style={styles.headerTitle}>Mostrar Interesse</Text>
-          <Text style={styles.headerSubtitle}>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Mostrar Interesse</Text>
+          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
             Para {clienteNome}
           </Text>
         </View>
@@ -139,14 +144,14 @@ export function ProposalFormContent({
       >
         {isLoading && (
           <View style={styles.statusContainer}>
-            <ActivityIndicator size="large" color="#ea6c2d" />
-            <Text style={styles.statusText}>Carregando pedido...</Text>
+            <ActivityIndicator size="large" color={colors.brand} />
+            <Text style={[styles.statusText, { color: colors.textSecondary }]}>Carregando pedido...</Text>
           </View>
         )}
 
         {error && !isLoading && (
           <View style={styles.statusContainer}>
-            <Text style={styles.errorStateText}>
+            <Text style={[styles.errorStateText, { color: colors.error }]}>
               Erro ao carregar pedido.
             </Text>
           </View>
@@ -155,17 +160,17 @@ export function ProposalFormContent({
         {!isLoading && !error && pedido && (
           <>
             {/* Heading */}
-            <Text style={styles.mainTitle}>Criar proposta</Text>
+            <Text style={[styles.mainTitle, { color: colors.textPrimary }]}>Criar proposta</Text>
 
             {/* Client info card */}
-            <View style={styles.clientCard}>
-              <View style={styles.clientAvatar}>
-                <Text style={styles.avatarText}>{initials}</Text>
+            <View style={[styles.clientCard, { borderColor: colors.border }]}>
+              <View style={[styles.clientAvatar, { backgroundColor: colors.brand }]}>
+                <Text style={[styles.avatarText, { color: colors.onBrand }]}>{initials}</Text>
               </View>
               <View style={styles.clientInfo}>
-                <Text style={styles.clientName}>{clienteNome}</Text>
+                <Text style={[styles.clientName, { color: colors.textPrimary }]}>{clienteNome}</Text>
                 <View style={styles.clientMeta}>
-                  <Text style={styles.serviceCount}>
+                  <Text style={[styles.serviceCount, { color: colors.textSecondary }]}>
                     {pedido.descricao
                       ? pedido.descricao.split(" ").slice(0, 2).join(" ")
                       : "Servico"}
@@ -177,11 +182,11 @@ export function ProposalFormContent({
             {/* Servico (read-only) */}
             <View style={styles.fieldGroup}>
               <View style={styles.fieldLabelRow}>
-                <Text style={styles.fieldLabel}>Servico</Text>
-                <Text style={styles.requiredAsterisk}>*</Text>
+                <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Servico</Text>
+                <Text style={[styles.requiredAsterisk, { color: colors.error }]}>*</Text>
               </View>
-              <View style={styles.readonlyInput}>
-                <Text style={styles.readonlyText} numberOfLines={1}>
+              <View style={[styles.readonlyInput, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                <Text style={[styles.readonlyText, { color: colors.textPrimary }]} numberOfLines={1}>
                   {pedido.descricao}
                 </Text>
               </View>
@@ -190,35 +195,35 @@ export function ProposalFormContent({
             {/* Valor da mao de obra */}
             <View style={styles.fieldGroup}>
               <View style={styles.fieldLabelRow}>
-                <Text style={styles.fieldLabel}>Valor da mao de obra</Text>
-                <Text style={styles.requiredAsterisk}>*</Text>
+                <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Valor da mao de obra</Text>
+                <Text style={[styles.requiredAsterisk, { color: colors.error }]}>*</Text>
               </View>
-              <View style={styles.priceInputWrapper}>
+              <View style={[styles.priceInputWrapper, { borderColor: colors.brand, backgroundColor: colors.brand + "0D" }]}>
                 <View style={styles.priceInputRow}>
-                  <Text style={styles.currencyPrefix}>R$</Text>
+                  <Text style={[styles.currencyPrefix, { color: colors.brand }]}>R$</Text>
                   <Controller
                     control={control}
                     name="valorOferecido"
                     render={({ field: { onChange, value } }) => (
                       <TextInput
-                        style={styles.priceTextInput}
+                        style={[styles.priceTextInput, { color: colors.textPrimary }]}
                         keyboardType="decimal-pad"
                         placeholder="0"
-                        placeholderTextColor="#ccc"
+                        placeholderTextColor={colors.placeholder}
                         value={value}
                         onChangeText={onChange}
                       />
                     )}
                   />
                 </View>
-                <View style={styles.suggestionBadge}>
-                  <Text style={styles.suggestionText}>
+                <View style={[styles.suggestionBadge, { borderColor: colors.brand + "33", backgroundColor: colors.background }]}>
+                  <Text style={[styles.suggestionText, { color: colors.brand }]}>
                     Sugestao: R$ 90-130
                   </Text>
                 </View>
               </View>
               {errors.valorOferecido?.message && (
-                <Text style={styles.fieldError}>
+                <Text style={[styles.fieldError, { color: colors.error }]}>
                   {errors.valorOferecido.message}
                 </Text>
               )}
@@ -227,8 +232,8 @@ export function ProposalFormContent({
             {/* Descricao */}
             <View style={styles.fieldGroup}>
               <View style={styles.fieldLabelRow}>
-                <Text style={styles.fieldLabel}>Descricao</Text>
-                <Text style={styles.optionalHint}>
+                <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Descricao</Text>
+                <Text style={[styles.optionalHint, { color: colors.textSecondary }]}>
                   Opcional, mas aumenta aceite
                 </Text>
               </View>
@@ -237,9 +242,9 @@ export function ProposalFormContent({
                 name="descricao"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <TextInput
-                    style={styles.textArea}
+                    style={[styles.textArea, { borderColor: colors.border, backgroundColor: colors.surface, color: colors.textPrimary }]}
                     placeholder="Descreva seu servico..."
-                    placeholderTextColor="#ccc"
+                    placeholderTextColor={colors.placeholder}
                     multiline
                     numberOfLines={4}
                     textAlignVertical="top"
@@ -250,7 +255,7 @@ export function ProposalFormContent({
                 )}
               />
               {errors.descricao?.message && (
-                <Text style={styles.fieldError}>
+                <Text style={[styles.fieldError, { color: colors.error }]}>
                   {errors.descricao.message}
                 </Text>
               )}
@@ -258,29 +263,29 @@ export function ProposalFormContent({
 
             {/* Datas e horarios disponiveis */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>
+              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
                 Datas e horarios disponiveis
               </Text>
               {turnoTimeHint !== "" && (
-                <Text style={styles.turnoHint}>
+                <Text style={[styles.turnoHint, { color: colors.brand }]}>
                   Turno: {turnoLabel} ({turnoTimeHint})
                 </Text>
               )}
-              <View style={styles.availabilityCard}>
+              <View style={[styles.availabilityCard, { borderColor: colors.border, backgroundColor: colors.background }]}>
                 {horarios.map((slot, index) => (
                   <View
                     key={index}
                     style={[
                       styles.availabilityRow,
                       index < horarios.length - 1 &&
-                        styles.availabilityRowBorder,
+                        [styles.availabilityRowBorder, { borderBottomColor: colors.border }],
                     ]}
                   >
                     <View style={styles.availabilityInfo}>
-                      <Text style={styles.availabilityDate}>
+                      <Text style={[styles.availabilityDate, { color: colors.textPrimary }]}>
                         {formatDateShort(slot.inicio)}
                       </Text>
-                      <Text style={styles.availabilityTime}>
+                      <Text style={[styles.availabilityTime, { color: colors.textSecondary }]}>
                         {slot.inicio && slot.fim
                           ? `${formatTime(slot.inicio)} - ${formatTime(slot.fim)}`
                           : "Defina o horario"}
@@ -289,7 +294,7 @@ export function ProposalFormContent({
                     <TouchableOpacity
                       onPress={() => onRemoveHorario(index)}
                     >
-                      <Text style={styles.removeText}>remover</Text>
+                      <Text style={[styles.removeText, { color: colors.error }]}>remover</Text>
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -297,7 +302,7 @@ export function ProposalFormContent({
                   style={styles.addHorarioButton}
                   onPress={onAddHorario}
                 >
-                  <Text style={styles.addHorarioText}>
+                  <Text style={[styles.addHorarioText, { color: colors.brand }]}>
                     + Adicionar horario
                   </Text>
                 </TouchableOpacity>
@@ -306,27 +311,28 @@ export function ProposalFormContent({
 
             {/* API error message */}
             {errorMessage && (
-              <Text style={styles.errorBanner}>{errorMessage}</Text>
+              <Text style={[styles.errorBanner, { color: colors.error }]}>{errorMessage}</Text>
             )}
           </>
         )}
       </ScrollView>
 
       {/* FIXED BOTTOM BAR */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
-          <Text style={styles.cancelButtonText}>Cancelar</Text>
+      <View style={[styles.bottomBar, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
+        <TouchableOpacity style={[styles.cancelButton, { backgroundColor: colors.surface }]} onPress={onCancel}>
+          <Text style={[styles.cancelButtonText, { color: colors.textPrimary }]}>Cancelar</Text>
         </TouchableOpacity>
         <View style={styles.buttonGap} />
         <TouchableOpacity
           style={[
             styles.sendButton,
+            { backgroundColor: colors.brand },
             isSubmitting && styles.sendButtonDisabled,
           ]}
           onPress={onSubmit}
           disabled={isSubmitting}
         >
-          <Text style={styles.sendButtonText}>
+          <Text style={[styles.sendButtonText, { color: colors.onBrand }]}>
             {isSubmitting ? "Enviando..." : "Enviar proposta"}
           </Text>
         </TouchableOpacity>
@@ -340,11 +346,11 @@ export function ProposalFormContent({
         onRequestClose={onCloseModal}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
+          <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
             {/* Step: Date picker */}
             {modalState.step === "date" && (
               <>
-                <Text style={styles.modalTitle}>Selecione a data</Text>
+                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Selecione a data</Text>
                 <DateTimePicker
                   value={new Date()}
                   mode="date"
@@ -356,10 +362,10 @@ export function ProposalFormContent({
                 />
                 <View style={styles.modalActions}>
                   <TouchableOpacity
-                    style={styles.modalCancelButton}
+                    style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
-                    <Text style={styles.modalCancelText}>Cancelar</Text>
+                    <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
                   </TouchableOpacity>
                 </View>
               </>
@@ -368,9 +374,9 @@ export function ProposalFormContent({
             {/* Step: Start time */}
             {modalState.step === "start_time" && (
               <>
-                <Text style={styles.modalTitle}>Horario de inicio</Text>
+                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Horario de inicio</Text>
                 {turnoTimeHint !== "" && (
-                  <Text style={styles.modalTurnoHint}>
+                  <Text style={[styles.modalTurnoHint, { color: colors.brand }]}>
                     Turno: {turnoLabel} ({turnoTimeHint})
                   </Text>
                 )}
@@ -388,17 +394,17 @@ export function ProposalFormContent({
                 />
                 <View style={styles.modalActions}>
                   <TouchableOpacity
-                    style={styles.modalCancelButton}
+                    style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
-                    <Text style={styles.modalCancelText}>Cancelar</Text>
+                    <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
                   </TouchableOpacity>
                   <View style={styles.modalButtonGap} />
                   <TouchableOpacity
-                    style={styles.modalSecondaryButton}
+                    style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
-                    <Text style={styles.modalSecondaryText}>Voltar</Text>
+                    <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
                   </TouchableOpacity>
                 </View>
               </>
@@ -407,7 +413,7 @@ export function ProposalFormContent({
             {/* Step: End time */}
             {modalState.step === "end_time" && (
               <>
-                <Text style={styles.modalTitle}>Horario de termino</Text>
+                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Horario de termino</Text>
                 <DateTimePicker
                   value={
                     modalState.selectedStart
@@ -422,19 +428,19 @@ export function ProposalFormContent({
                 />
                 <View style={styles.modalActions}>
                   <TouchableOpacity
-                    style={styles.modalCancelButton}
+                    style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
-                    <Text style={styles.modalCancelText}>Cancelar</Text>
+                    <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
                   </TouchableOpacity>
                   <View style={styles.modalButtonGap} />
                   <TouchableOpacity
-                    style={styles.modalSecondaryButton}
+                    style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]}
                     onPress={() =>
                       onCloseModal()
                     }
                   >
-                    <Text style={styles.modalSecondaryText}>Voltar</Text>
+                    <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
                   </TouchableOpacity>
                 </View>
               </>
@@ -443,14 +449,14 @@ export function ProposalFormContent({
             {/* Step: Confirm */}
             {modalState.step === "confirm" && (
               <>
-                <Text style={styles.modalTitle}>Confirmar horario</Text>
+                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Confirmar horario</Text>
                 <View style={styles.confirmSummary}>
-                  <Text style={styles.confirmDate}>
+                  <Text style={[styles.confirmDate, { color: colors.textPrimary }]}>
                     {modalState.selectedDate
                       ? formatDateFromDate(modalState.selectedDate)
                       : ""}
                   </Text>
-                  <Text style={styles.confirmTime}>
+                  <Text style={[styles.confirmTime, { color: colors.brand }]}>
                     {modalState.selectedStart
                       ? formatTimeFromDate(modalState.selectedStart)
                       : ""}{" "}
@@ -462,24 +468,24 @@ export function ProposalFormContent({
                 </View>
                 <View style={styles.modalActions}>
                   <TouchableOpacity
-                    style={styles.modalCancelButton}
+                    style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
-                    <Text style={styles.modalCancelText}>Cancelar</Text>
+                    <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
                   </TouchableOpacity>
                   <View style={styles.modalButtonGap} />
                   <TouchableOpacity
-                    style={styles.modalSecondaryButton}
+                    style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
-                    <Text style={styles.modalSecondaryText}>Voltar</Text>
+                    <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
                   </TouchableOpacity>
                   <View style={styles.modalButtonGap} />
                   <TouchableOpacity
-                    style={styles.modalConfirmButton}
+                    style={[styles.modalConfirmButton, { backgroundColor: colors.brand }]}
                     onPress={onConfirmSlot}
                   >
-                    <Text style={styles.modalConfirmText}>Confirmar</Text>
+                    <Text style={[styles.modalConfirmText, { color: colors.onBrand }]}>Confirmar</Text>
                   </TouchableOpacity>
                 </View>
               </>
@@ -494,7 +500,6 @@ export function ProposalFormContent({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
   },
   // Header
   header: {
@@ -503,13 +508,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 999,
-    backgroundColor: "#f4f4f5",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -520,13 +523,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#1a1a1a",
     lineHeight: 22.5,
   },
   headerSubtitle: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#71717a",
     lineHeight: 20,
   },
   // Scroll
@@ -545,18 +546,15 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    color: "#71717a",
     marginTop: 12,
   },
   errorStateText: {
     fontSize: 14,
-    color: "#dc2626",
   },
   // Main title
   mainTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#1a1a1a",
     lineHeight: 33,
     marginBottom: 24,
   },
@@ -565,7 +563,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#e5e5e5",
     borderRadius: 32,
     padding: 12,
     height: 70,
@@ -574,14 +571,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#ea6c2d",
     justifyContent: "center",
     alignItems: "center",
   },
   avatarText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#ffffff",
   },
   clientInfo: {
     marginLeft: 12,
@@ -590,7 +585,6 @@ const styles = StyleSheet.create({
   clientName: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#1a1a1a",
     lineHeight: 20,
   },
   clientMeta: {
@@ -600,7 +594,6 @@ const styles = StyleSheet.create({
   },
   serviceCount: {
     fontSize: 11,
-    color: "#71717a",
     lineHeight: 17,
   },
   // Field groups
@@ -618,44 +611,36 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#1a1a1a",
     lineHeight: 20,
   },
   requiredAsterisk: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#dc2626",
     lineHeight: 20,
   },
   turnoHint: {
     fontSize: 12,
     fontWeight: "500",
-    color: "#ea6c2d",
     marginBottom: 8,
   },
   // Servico readonly
   readonlyInput: {
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "#e5e5e5",
     height: 50,
     paddingHorizontal: 16,
     paddingVertical: 14,
     justifyContent: "center",
-    backgroundColor: "#ffffff",
   },
   readonlyText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#1a1a1a",
     lineHeight: 20,
   },
   // Valor / price field
   priceInputWrapper: {
     borderRadius: 32,
     borderWidth: 2,
-    borderColor: "#ea6c2d",
-    backgroundColor: "rgba(234, 108, 45, 0.05)",
     paddingHorizontal: 6,
     paddingVertical: 6,
   },
@@ -667,13 +652,11 @@ const styles = StyleSheet.create({
   currencyPrefix: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#ea6c2d",
     marginRight: 8,
   },
   priceTextInput: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#1a1a1a",
     flex: 1,
     paddingVertical: 0,
   },
@@ -681,44 +664,35 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "rgba(234, 108, 45, 0.2)",
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: "#ffffff",
     marginRight: 6,
     marginBottom: 6,
   },
   suggestionText: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#ea6c2d",
   },
   // Descricao textarea
   textArea: {
     borderRadius: 32,
     borderWidth: 1,
-    borderColor: "#e5e5e5",
-    backgroundColor: "rgba(244, 244, 245, 0.2)",
     height: 100,
     paddingHorizontal: 16,
     paddingTop: 12,
     fontSize: 14,
     fontWeight: "500",
-    color: "#1a1a1a",
     lineHeight: 22,
   },
   optionalHint: {
     fontSize: 12,
     fontWeight: "500",
-    color: "#71717a",
     lineHeight: 16,
   },
   // Availability section
   availabilityCard: {
     borderRadius: 32,
     borderWidth: 1,
-    borderColor: "#e5e5e5",
-    backgroundColor: "#ffffff",
     overflow: "hidden",
   },
   availabilityRow: {
@@ -730,7 +704,6 @@ const styles = StyleSheet.create({
   },
   availabilityRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e5e5",
     borderStyle: "dashed",
   },
   availabilityInfo: {
@@ -742,19 +715,16 @@ const styles = StyleSheet.create({
   availabilityDate: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#1a1a1a",
     lineHeight: 20,
   },
   availabilityTime: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#71717a",
     lineHeight: 20,
   },
   removeText: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#dc2626",
   },
   addHorarioButton: {
     paddingVertical: 16,
@@ -763,18 +733,15 @@ const styles = StyleSheet.create({
   addHorarioText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#ea6c2d",
   },
   // Field error
   fieldError: {
     fontSize: 12,
-    color: "#dc2626",
     marginTop: 4,
   },
   // API error banner
   errorBanner: {
     fontSize: 14,
-    color: "#dc2626",
     textAlign: "center",
     paddingVertical: 12,
   },
@@ -786,8 +753,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 32,
     borderTopWidth: 1,
-    borderTopColor: "#e5e5e5",
-    backgroundColor: "#ffffff",
   },
   buttonGap: {
     width: 12,
@@ -796,20 +761,17 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     borderRadius: 999,
-    backgroundColor: "#f4f4f5",
     justifyContent: "center",
     alignItems: "center",
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1c1c1e",
   },
   sendButton: {
     flex: 1.4,
     height: 56,
     borderRadius: 999,
-    backgroundColor: "#ea6c2d",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -819,7 +781,6 @@ const styles = StyleSheet.create({
   sendButtonText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#ffffff",
   },
   // Modal
   modalOverlay: {
@@ -828,7 +789,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContainer: {
-    backgroundColor: "#ffffff",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 24,
@@ -838,14 +798,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#1a1a1a",
     textAlign: "center",
     marginBottom: 16,
   },
   modalTurnoHint: {
     fontSize: 13,
     fontWeight: "500",
-    color: "#ea6c2d",
     textAlign: "center",
     marginBottom: 12,
   },
@@ -861,34 +819,28 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 999,
-    backgroundColor: "#f4f4f5",
   },
   modalCancelText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#71717a",
   },
   modalSecondaryButton: {
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 999,
-    backgroundColor: "#f4f4f5",
   },
   modalSecondaryText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1a1a1a",
   },
   modalConfirmButton: {
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 999,
-    backgroundColor: "#ea6c2d",
   },
   modalConfirmText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#ffffff",
   },
   confirmSummary: {
     alignItems: "center",
@@ -897,12 +849,10 @@ const styles = StyleSheet.create({
   confirmDate: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#1a1a1a",
     marginBottom: 8,
   },
   confirmTime: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#ea6c2d",
   },
 });

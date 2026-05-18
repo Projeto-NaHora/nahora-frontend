@@ -69,16 +69,16 @@ export function OrderDetailOpenContent({
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#F97316" />
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.brand} />
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.errorText}>Erro ao carregar pedido.</Text>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.error }]}>Erro ao carregar pedido.</Text>
       </View>
     );
   }
@@ -93,7 +93,7 @@ export function OrderDetailOpenContent({
   const activeStage = pedido.status === "ABERTO" ? 1 : -1;
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View
         style={[
@@ -106,7 +106,7 @@ export function OrderDetailOpenContent({
       >
         <TouchableOpacity
           onPress={onBack}
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: colors.surface }]}
           activeOpacity={0.7}
         >
           <Text style={[styles.backArrow, { color: colors.text }]}>
@@ -220,15 +220,15 @@ export function OrderDetailOpenContent({
             const concluido = index < activeStage;
             const atual = index === activeStage;
 
-            let dotColor = "#D1D5DB";
-            let dotBorder = "#D1D5DB";
+            let dotColor = colors.border;
+            let dotBorder = colors.border;
             if (concluido) {
-              dotColor = "#22C55E";
-              dotBorder = "#22C55E";
+              dotColor = colors.success;
+              dotBorder = colors.success;
             }
             if (atual) {
-              dotColor = "#F97316";
-              dotBorder = "#F97316";
+              dotColor = colors.brand;
+              dotBorder = colors.brand;
             }
 
             return (
@@ -248,7 +248,7 @@ export function OrderDetailOpenContent({
                       style={[
                         styles.timelineLine,
                         {
-                          backgroundColor: concluido ? "#22C55E" : "#E5E7EB",
+                          backgroundColor: concluido ? colors.success : colors.border,
                         },
                       ]}
                     />
@@ -280,7 +280,7 @@ export function OrderDetailOpenContent({
                     </Text>
                   ) : null}
                   {"subtitle" in item && item.subtitle && atual ? (
-                    <Text style={styles.timelineSubActive}>
+                    <Text style={[styles.timelineSubActive, { color: colors.brand }]}>
                       {item.subtitle}
                     </Text>
                   ) : null}
@@ -294,7 +294,7 @@ export function OrderDetailOpenContent({
         <View style={styles.actionRow}>
           <TouchableOpacity
             onPress={onEdit}
-            style={styles.editButton}
+            style={[styles.editButton, { backgroundColor: colors.surface }]}
             activeOpacity={0.7}
           >
             <Text style={[styles.editButtonText, { color: colors.textPrimary }]}>
@@ -303,20 +303,20 @@ export function OrderDetailOpenContent({
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onDelete}
-            style={styles.deleteButton}
+            style={[styles.deleteButton, { backgroundColor: colors.surface }]}
             activeOpacity={0.7}
           >
-            <Text style={styles.deleteButtonText}>Excluir</Text>
+            <Text style={[styles.deleteButtonText, { color: colors.error }]}>Excluir</Text>
           </TouchableOpacity>
         </View>
 
         {/* Main CTA */}
         <TouchableOpacity
           onPress={onViewProposals}
-          style={styles.ctaButton}
+          style={[styles.ctaButton, { backgroundColor: colors.brand }]}
           activeOpacity={0.7}
         >
-          <Text style={styles.ctaButtonText}>Verificar Propostas</Text>
+          <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Verificar Propostas</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -326,18 +326,15 @@ export function OrderDetailOpenContent({
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
   },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F9FAFB",
   },
   errorText: {
     fontSize: 14,
     fontFamily: "Inter",
-    color: "#DC2626",
   },
 
   // Header
@@ -354,7 +351,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#F4F4F5",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -500,7 +496,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Inter",
     fontWeight: "400",
-    color: "#F97316",
     marginTop: 2,
   },
 
@@ -511,7 +506,6 @@ const styles = StyleSheet.create({
   },
   editButton: {
     flex: 1,
-    backgroundColor: "#F4F4F5",
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: "center",
@@ -523,7 +517,6 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     flex: 1,
-    backgroundColor: "#FDEAE8",
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: "center",
@@ -532,12 +525,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Inter",
     fontWeight: "400",
-    color: "#D32F2F",
   },
 
   // CTA
   ctaButton: {
-    backgroundColor: "#F97316",
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: "center",
@@ -546,6 +537,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Inter",
     fontWeight: "700",
-    color: "#FFFFFF",
   },
 });
