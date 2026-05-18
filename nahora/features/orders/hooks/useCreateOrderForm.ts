@@ -154,7 +154,7 @@ export function useCreateOrderForm() {
         const dataDesejada = buildDataDesejada(data.turno);
 
         // 4. Cria o pedido
-        await orderService.criar({
+        const created = await orderService.criar({
           categoria: data.categoria as CategoriaServico,
           descricao: data.descricao,
           endereco,
@@ -166,7 +166,10 @@ export function useCreateOrderForm() {
 
         // 5. Limpa o estado e redireciona
         midiasPicker.reset();
-        router.push("/(client)/(orders)/success");
+        router.push({
+          pathname: "/(client)/(orders)/success",
+          params: { orderId: String(created.id) },
+        });
       } catch (error) {
         const parsed = parseApiError(
           error,

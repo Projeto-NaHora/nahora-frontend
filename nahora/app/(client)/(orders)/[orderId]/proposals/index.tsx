@@ -1,27 +1,11 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import PropostasListContent from "@/features/proposals/components/PropostasListContent";
 
-export default function Screen() {
-  const params = useLocalSearchParams();
-
+export default function PropostasScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>
-        app/(client)/(orders)/[orderId]/proposals/index.tsx
-      </Text>
-    </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#f9fafb" }} edges={[]}>
+      <PropostasListContent />
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});

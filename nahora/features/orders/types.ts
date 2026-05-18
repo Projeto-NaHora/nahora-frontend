@@ -109,6 +109,22 @@ export const TURNO_LABEL: Record<string, string> = {
   NOITE: "Noite",
 };
 
+export const TURNO_TIME_RANGES: Record<string, { startHour: number; endHour: number; label: string }> = {
+  MANHA: { startHour: 8, endHour: 12, label: "Manhã" },
+  TARDE: { startHour: 14, endHour: 18, label: "Tarde" },
+  NOITE: { startHour: 19, endHour: 23, label: "Noite" },
+};
+
+export function getTurnoKey(iso: string | undefined | null): "MANHA" | "TARDE" | "NOITE" | null {
+  if (!iso) return null;
+  const date = new Date(iso);
+  if (isNaN(date.getTime())) return null;
+  const hora = date.getHours();
+  if (hora < 12) return "MANHA";
+  if (hora < 18) return "TARDE";
+  return "NOITE";
+}
+
 export const TURNO_OPTIONS = [
   { value: "MANHA", label: "Manha" },
   { value: "TARDE", label: "Tarde" },
