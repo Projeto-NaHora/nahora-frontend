@@ -31,6 +31,7 @@ const MAPPING = {
   "camera.fill": "camera-alt",
   "photo.on.rectangle": "photo-library",
   "square.and.pencil": "edit",
+  checkmark: "check",
 } as Partial<IconMapping>;
 
 /**
