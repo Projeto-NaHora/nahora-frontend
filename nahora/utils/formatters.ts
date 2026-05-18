@@ -51,6 +51,17 @@ export function unformatCpf(value: string): string {
  * Validates a CPF using the official algorithm (verification digits).
  * Accepts both formatted and raw CPF strings.
  */
+/**
+ * Returns initials from a name (first + last word initial).
+ * Handles single name, undefined, and multiple middle names.
+ */
+export function getInitials(nome?: string): string {
+  if (!nome) return "?";
+  const parts = nome.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export function isValidCpf(value: string): boolean {
   const digits = value.replace(/\D/g, "");
 

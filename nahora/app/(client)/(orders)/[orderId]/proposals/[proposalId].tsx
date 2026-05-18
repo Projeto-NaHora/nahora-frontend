@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useProposalDetail, useProposalActions } from "@/features/proposals/hooks/useProposals";
+import { getInitials } from "@/utils/formatters";
 
 export default function DetalhePropostaScreen() {
   const { orderId, proposalId } = useLocalSearchParams<{ orderId: string; proposalId: string; }>();
@@ -15,7 +16,7 @@ export default function DetalhePropostaScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color="#F97316" />
       </View>
     );
@@ -23,8 +24,8 @@ export default function DetalhePropostaScreen() {
 
   if (isError || !proposal) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
-        <Text className="text-red-500 text-sm">Erro ao carregar proposta.</Text>
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>Erro ao carregar proposta.</Text>
       </View>
     );
   }
@@ -77,102 +78,272 @@ export default function DetalhePropostaScreen() {
     );
   };
 
-  const iniciais = proposal.profissional.nome.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase();
+  const iniciais = getInitials(proposal.profissional.nome);
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <View className="flex-row items-center p-4 bg-white gap-2">
+    <View style={styles.root}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text className="text-2xl mr-1">←</Text>
+          <Text style={styles.backArrow}>←</Text>
         </TouchableOpacity>
-        <Text className="text-lg font-bold text-gray-900">Detalhes da proposta</Text>
+        <Text style={styles.headerTitle}>Detalhes da proposta</Text>
       </View>
 
       <ScrollView>
-        {/* Nova View envoltória corrigida aqui */}
-        <View className="p-4 gap-4">
-          <View className="bg-white rounded-xl p-4 flex-row gap-3">
-            <View className="w-12 h-12 rounded-full bg-gray-200 justify-center items-center">
-              <Text className="font-bold text-gray-600 text-lg">{iniciais}</Text>
-            </View>
-            <View className="flex-1 gap-1">
-              <Text className="font-bold text-base text-gray-900">{proposal.profissional.nome}</Text>
-              <Text className="text-sm text-orange-500">
-                ⭐ {proposal.profissional.notaMedia.toFixed(1)} ({proposal.profissional.totalAvaliacoes} avaliações)
-              </Text>
-              {proposal.profissional.bio && (
-                <Text className="text-xs text-gray-500 mt-1">{proposal.profissional.bio}</Text>
-              )}
+        <View style={styles.content}>
+          <View style={styles.card}>
+            <View style={styles.professionalCard}>
+              <View style={styles.avatarCircle}>
+                <Text style={styles.avatarText}>{iniciais}</Text>
+              </View>
+              <View style={styles.professionalInfo}>
+                <Text style={styles.professionalName}>{proposal.profissional.nome}</Text>
+                <Text style={styles.professionalRating}>
+                  ⭐ {proposal.profissional.notaMedia.toFixed(1)} ({proposal.profissional.totalAvaliacoes} avaliações)
+                </Text>
+                {proposal.profissional.bio && (
+                  <Text style={styles.professionalBio}>{proposal.profissional.bio}</Text>
+                )}
+              </View>
             </View>
           </View>
 
           {proposal.descricao && (
-            <View className="bg-white rounded-xl p-4 gap-2">
-              <Text className="font-bold text-sm text-gray-900">Mensagem do profissional</Text>
-              <Text className="text-sm text-gray-600 leading-5">{proposal.descricao}</Text>
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Mensagem do profissional</Text>
+              <Text style={styles.sectionText}>{proposal.descricao}</Text>
             </View>
           )}
 
           {proposal.tempoEstimado && (
-            <View className="bg-white rounded-xl p-4 gap-2">
-              <Text className="font-bold text-sm text-gray-900">Tempo estimado</Text>
-              <Text className="text-sm text-gray-600">{proposal.tempoEstimado}</Text>
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Tempo estimado</Text>
+              <Text style={styles.sectionText}>{proposal.tempoEstimado}</Text>
             </View>
           )}
 
           {proposal.profissional.especialidades && proposal.profissional.especialidades.length > 0 && (
-            <View className="bg-white rounded-xl p-4 gap-2">
-              <Text className="font-bold text-sm text-gray-900">Especialidades</Text>
-              <View className="flex-row flex-wrap gap-2">
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Especialidades</Text>
+              <View style={styles.tagRow}>
                 {proposal.profissional.especialidades.map((e) => (
-                  <View key={e} className="bg-orange-50 rounded-full px-3 py-1">
-                    <Text className="text-orange-500 text-xs">{e}</Text>
+                  <View key={e} style={styles.tag}>
+                    <Text style={styles.tagText}>{e}</Text>
                   </View>
                 ))}
               </View>
             </View>
           )}
 
-          <View className="bg-white rounded-xl p-4 gap-3">
-            <Text className="font-bold text-sm text-gray-900">Resumo financeiro</Text>
-            <View className="flex-row justify-between">
-              <Text className="text-sm text-gray-500">Valor da proposta</Text>
-              <Text className="text-sm text-gray-900">R$ {proposal.valor.toFixed(2)}</Text>
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>Resumo financeiro</Text>
+            <View style={styles.financeRow}>
+              <Text style={styles.financeLabel}>Valor da proposta</Text>
+              <Text style={styles.financeValue}>R$ {proposal.valor.toFixed(2)}</Text>
             </View>
             {proposal.expiraEm && (
-              <View className="flex-row justify-between">
-                <Text className="text-sm text-gray-500">Proposta válida até</Text>
-                <Text className="text-sm text-gray-900">{new Date(proposal.expiraEm).toLocaleDateString("pt-BR")}</Text>
+              <View style={styles.financeRow}>
+                <Text style={styles.financeLabel}>Proposta válida até</Text>
+                <Text style={styles.financeValue}>{new Date(proposal.expiraEm).toLocaleDateString("pt-BR")}</Text>
               </View>
             )}
-            <View className="flex-row justify-between border-t border-gray-100 pt-3">
-              <Text className="font-bold text-base text-gray-900">Total</Text>
-              <Text className="font-bold text-base text-orange-500">R$ {proposal.valor.toFixed(2)}</Text>
+            <View style={styles.financeTotalRow}>
+              <Text style={styles.financeTotalLabel}>Total</Text>
+              <Text style={styles.financeTotalValue}>R$ {proposal.valor.toFixed(2)}</Text>
             </View>
           </View>
         </View>
       </ScrollView>
 
-      <View className="flex-row p-4 gap-3 bg-white border-t border-gray-100">
+      <View style={styles.bottomBar}>
         <TouchableOpacity
-          className="flex-1 border border-orange-500 rounded-lg py-3 items-center"
+          style={styles.rejectButton}
           onPress={handleRecusar}
           disabled={loading}
         >
-          <Text className="text-orange-500 font-bold text-base">Recusar</Text>
+          <Text style={styles.rejectButtonText}>Recusar</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className={`flex-[2] bg-orange-500 rounded-lg py-3 items-center ${loading ? "opacity-60" : ""}`}
+          style={[styles.acceptButton, loading && styles.buttonDisabled]}
           onPress={handleAceitar}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text className="text-white font-bold text-base">Aceitar proposta</Text>
+            <Text style={styles.acceptButtonText}>Aceitar proposta</Text>
           )}
         </TouchableOpacity>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: "#f9fafb",
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f9fafb",
+  },
+  errorText: {
+    color: "#ef4444",
+    fontSize: 14,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "#ffffff",
+    gap: 8,
+  },
+  backArrow: {
+    fontSize: 24,
+    marginRight: 4,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111827",
+  },
+  content: {
+    padding: 16,
+    gap: 16,
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    padding: 16,
+  },
+  professionalCard: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  avatarCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#e5e7eb",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  avatarText: {
+    fontWeight: "700",
+    color: "#4b5563",
+    fontSize: 18,
+  },
+  professionalInfo: {
+    flex: 1,
+    gap: 4,
+  },
+  professionalName: {
+    fontWeight: "700",
+    fontSize: 16,
+    color: "#111827",
+  },
+  professionalRating: {
+    fontSize: 14,
+    color: "#f97316",
+  },
+  professionalBio: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginTop: 4,
+  },
+  sectionTitle: {
+    fontWeight: "700",
+    fontSize: 14,
+    color: "#111827",
+    marginBottom: 8,
+  },
+  sectionText: {
+    fontSize: 14,
+    color: "#4b5563",
+    lineHeight: 20,
+  },
+  tagRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  tag: {
+    backgroundColor: "#fff7ed",
+    borderRadius: 9999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  tagText: {
+    color: "#f97316",
+    fontSize: 12,
+  },
+  financeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  financeLabel: {
+    fontSize: 14,
+    color: "#6b7280",
+  },
+  financeValue: {
+    fontSize: 14,
+    color: "#111827",
+  },
+  financeTotalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderTopWidth: 1,
+    borderTopColor: "#f3f4f6",
+    paddingTop: 12,
+  },
+  financeTotalLabel: {
+    fontWeight: "700",
+    fontSize: 16,
+    color: "#111827",
+  },
+  financeTotalValue: {
+    fontWeight: "700",
+    fontSize: 16,
+    color: "#f97316",
+  },
+  bottomBar: {
+    flexDirection: "row",
+    padding: 16,
+    gap: 12,
+    backgroundColor: "#ffffff",
+    borderTopWidth: 1,
+    borderTopColor: "#f3f4f6",
+  },
+  rejectButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#f97316",
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  rejectButtonText: {
+    color: "#f97316",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  acceptButton: {
+    flex: 2,
+    backgroundColor: "#f97316",
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  acceptButtonText: {
+    color: "#ffffff",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+});
