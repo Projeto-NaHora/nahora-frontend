@@ -304,7 +304,7 @@ describe('useCreateOrderForm', () => {
       await result.current.onSubmit();
     });
 
-    expect(mockPush).toHaveBeenCalledWith('/(client)/(orders)/success');
+    expect(mockPush).toHaveBeenCalledWith({"params": {"orderId": "1"}, "pathname": "/(client)/(orders)/success"});
   });
 
   test('handleClear resets form to defaults', () => {
