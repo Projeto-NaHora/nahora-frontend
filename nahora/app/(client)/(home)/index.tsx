@@ -1,22 +1,230 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import {
+  Feather,
+  MaterialCommunityIcons,
+  FontAwesome,
+} from "@expo/vector-icons";
+import { useAuthStore } from "@/store/authStore";
+import { useHomeStore } from "@/store/homeStore";
+import { useHomeData } from "@/features/home/hooks/useHomeData";
+import ProfessionalCard from "@/components/ui/ProfessionalCard";
+import OrderCard from "@/components/ui/OrderCard";
 
-export default function Screen() {
+// Array das 8 categorias exibidas na Home
+const homeCategories = [
+  { id: "1", name: "Elétrica", icon: "lightning-bolt" },
+  { id: "2", name: "Encanamento", icon: "wrench" },
+  { id: "3", name: "Pintura", icon: "format-paint" },
+  { id: "4", name: "Limpeza", icon: "sparkles" },
+  { id: "5", name: "Jardim", icon: "leaf" },
+  { id: "6", name: "Marcenaria", icon: "hammer" },
+  { id: "7", name: "Ar-cond.", icon: "snowflake" },
+  { id: "8", name: "Mais", icon: "plus" },
+];
+
+export default function HomeScreen() {
+  const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+  const { loadHomeData } = useHomeData();
+  const suggestedProfessionals = useHomeStore((s) => s.suggestedProfessionals);
+  const recentOrders = useHomeStore((s) => s.recentOrders);
+
+  useEffect(() => {
+    loadHomeData();
+  }, [loadHomeData]);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>app/(client)/(home)/index.tsx</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Laranja */}
+        <View style={styles.header}>
+          <Text style={styles.greetingText}>
+            Olá, {user?.nome?.split(" ")[0] || "Usuário"} 👋
+          </Text>
+          <Text style={styles.mainTitle}>O que você precisa hoje?</Text>
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.searchBar}
+            onPress={() => router.push("/(client)/(home)/categories")}
+          >
+            <Feather name="search" size={20} color="#A3A3A3" />
+            <Text style={styles.searchPlaceholder}>
+              Buscar serviço, profissional...
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Categorias - Grade 4x2 */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Categorias</Text>
+            {/* CORREÇÃO 1: "Ver todas" volta a apontar para a tela B02 geral */}
+            <TouchableOpacity
+              onPress={() => router.push("/(client)/(home)/categories")}
+            >
+              <Text style={styles.seeAllText}>Ver todas</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.categoriesGrid}>
+            {homeCategories.map((cat) => (
+              <TouchableOpacity
+                key={cat.id}
+                style={styles.categoryItem}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(client)/(home)/category/[id]",
+                    // CORREÇÃO 2: Aqui usamos apenas o "cat", que é a variável deste map
+                    params: {
+                      id: cat.name,
+                      icon: cat.icon,
+                    },
+                  })
+                }
+              >
+                <View style={styles.categoryIconBox}>
+                  <MaterialCommunityIcons
+                    name={cat.icon as any}
+                    size={28}
+                    color="#4B5563"
+                  />
+                </View>
+                <Text style={styles.categoryText}>{cat.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Sugeridos para você */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Sugeridos para você</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>Ver mais</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalScrollContent}
+          >
+            {suggestedProfessionals.length === 0 ? (
+              <Text style={styles.emptyText}>
+                Nenhum profissional sugerido.
+              </Text>
+            ) : (
+              suggestedProfessionals.map((prof) => (
+                <ProfessionalCard key={prof.id} professional={prof} />
+              ))
+            )}
+          </ScrollView>
+        </View>
+
+        {/* Meus pedidos recentes */}
+        <View style={styles.sectionContainerRecent}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Meus pedidos recentes</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>Ver todos</Text>
+            </TouchableOpacity>
+          </View>
+
+          {recentOrders.length === 0 ? (
+            <Text style={styles.emptyText}>Nenhum pedido recente.</Text>
+          ) : (
+            recentOrders.map((order) => (
+              <OrderCard key={order.id} order={order} />
+            ))
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  scrollContainer: { flex: 1 },
+  scrollContent: { paddingBottom: 24 },
+  header: {
+    backgroundColor: "#F97316",
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 32,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    marginBottom: 24,
+  },
+  greetingText: { color: "#FFFFFF", fontSize: 16, marginBottom: 4 },
+  mainTitle: {
+    color: "#FFFFFF",
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  searchBar: {
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  text: {
-    fontSize: 16,
+  searchPlaceholder: { marginLeft: 8, color: "#9CA3AF", fontSize: 16 },
+  sectionContainer: { marginBottom: 24 },
+  sectionContainerRecent: { marginBottom: 8, paddingHorizontal: 24 },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    marginBottom: 16,
   },
+  sectionTitle: { fontSize: 18, fontWeight: "700", color: "#111827" },
+  seeAllText: { color: "#F97316", fontSize: 14, fontWeight: "600" },
+  categoriesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 16,
+    justifyContent: "space-between",
+  },
+  categoryItem: {
+    width: "25%",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  categoryIconBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  categoryText: { fontSize: 12, color: "#4B5563", textAlign: "center" },
+  horizontalScrollContent: { paddingHorizontal: 20 },
+  emptyText: { color: "#9CA3AF", paddingHorizontal: 24 },
 });
