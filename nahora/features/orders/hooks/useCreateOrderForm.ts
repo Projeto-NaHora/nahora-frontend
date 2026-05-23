@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { orderService } from "../service";
 import { useMidiasPicker } from "./useMidiasPicker";
+import { buscarCep } from "@/services/cep";
 import { parseApiError } from "@/utils/apiError";
 import type { CriarPedidoFormValues, EnderecoRequest } from "../types";
 import type { CategoriaServico, Urgencia } from "@/types/enums";
@@ -78,6 +79,7 @@ const schema = z
 export function useCreateOrderForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBuscandoCep, setIsBuscandoCep] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const midiasPicker = useMidiasPicker();
@@ -104,11 +106,57 @@ export function useCreateOrderForm() {
     control,
     handleSubmit,
     watch,
+    setValue,
     setError,
     formState: { errors },
   } = form;
 
   const enderecoDiferente = watch("enderecoDiferente");
+  const cepValue = watch("cep");
+
+  // Autofill endereço via ViaCEP quando o CEP atinge 8 dígitos
+  // setValue é omitido de propósito — é uma referência estável do react-hook-form
+  useEffect(() => {
+    if (!enderecoDiferente) return;
+
+    const digits = (cepValue || "").replace(/\D/g, "");
+    if (digits.length !== 8) return;
+
+    let cancelled = false;
+    setIsBuscandoCep(true);
+
+    buscarCep(digits)
+      .then((endereco) => {
+        if (cancelled || !endereco) return;
+        // Usa shouldValidate: false para evitar validação durante o preenchimento
+        setValue("logradouro", endereco.logradouro, {
+          shouldValidate: false,
+          shouldDirty: false,
+        });
+        setValue("bairro", endereco.bairro, {
+          shouldValidate: false,
+          shouldDirty: false,
+        });
+        setValue("cidade", endereco.cidade, {
+          shouldValidate: false,
+          shouldDirty: false,
+        });
+        setValue("estado", endereco.estado, {
+          shouldValidate: false,
+          shouldDirty: false,
+        });
+      })
+      .catch(() => {
+        // CEP inválido ou falha de rede — usuário preenche manualmente
+      })
+      .finally(() => {
+        if (!cancelled) setIsBuscandoCep(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [cepValue, enderecoDiferente]);
 
   /** Data desejada = 1 semana a partir de hoje + hora do turno */
   const buildDataDesejada = useCallback((turno: string): string => {
@@ -215,6 +263,7 @@ export function useCreateOrderForm() {
     form,
     control,
     isSubmitting,
+    isBuscandoCep,
     errorMessage,
     errors,
     enderecoDiferente,

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
@@ -26,6 +27,8 @@ import {
 type OrderFormContentProps = {
   control: Control<CriarPedidoFormValues>;
   isSubmitting: boolean;
+  /** Se true, está consultando o CEP na API ViaCEP */
+  isBuscandoCep: boolean;
   enderecoDiferente: boolean;
   errorMessage: string | null;
   /** Erros de validação do react-hook-form (Zod + backend) */
@@ -231,6 +234,7 @@ function EstadoPicker({
 export function OrderFormContent({
   control,
   isSubmitting,
+  isBuscandoCep,
   enderecoDiferente,
   errorMessage,
   errors,
@@ -414,36 +418,46 @@ export function OrderFormContent({
               <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
                 CEP
               </Text>
-              <Controller
-                control={control}
-                name="cep"
-                render={({ field: { onChange, onBlur, value } }) => {
-                  const digits = (value || "").replace(/\D/g, "");
-                  const display = digits.length > 5
-                    ? `${digits.slice(0, 5)}-${digits.slice(5, 8)}`
-                    : digits;
+              <View style={styles.cepRow}>
+                <Controller
+                  control={control}
+                  name="cep"
+                  render={({ field: { onChange, onBlur, value } }) => {
+                    const digits = (value || "").replace(/\D/g, "");
+                    const display =
+                      digits.length > 5
+                        ? `${digits.slice(0, 5)}-${digits.slice(5, 8)}`
+                        : digits;
 
-                  return (
-                    <TextInput
-                      style={[
-                        styles.textInput,
-                        {
-                          backgroundColor: colors.surface,
-                          borderColor: colors.border,
-                          color: colors.textPrimary,
-                        },
-                      ]}
-                      placeholder="00000-000"
-                      placeholderTextColor={colors.placeholder}
-                      keyboardType="numeric"
-                      maxLength={9}
-                      onBlur={onBlur}
-                      onChangeText={(text) => onChange(text.replace(/\D/g, ""))}
-                      value={display}
-                    />
-                  );
-                }}
-              />
+                    return (
+                      <TextInput
+                        style={[
+                          styles.textInput,
+                          styles.cepInput,
+                          {
+                            backgroundColor: colors.surface,
+                            borderColor: colors.border,
+                            color: colors.textPrimary,
+                          },
+                        ]}
+                        placeholder="00000-000"
+                        placeholderTextColor={colors.placeholder}
+                        keyboardType="numeric"
+                        maxLength={9}
+                        editable={!isBuscandoCep}
+                        onBlur={onBlur}
+                        onChangeText={(text) =>
+                          onChange(text.replace(/\D/g, ""))
+                        }
+                        value={display}
+                      />
+                    );
+                  }}
+                />
+                {isBuscandoCep && (
+                  <ActivityIndicator size="small" color={colors.brand} />
+                )}
+              </View>
               {errors.cep?.message && (
                 <Text style={[styles.fieldError, { color: colors.error }]}>
                   {errors.cep.message}
@@ -945,6 +959,15 @@ const styles = StyleSheet.create({
     fontFamily: Fonts?.sans,
     fontWeight: "700",
     lineHeight: 23,
+    flex: 1,
+  },
+  // CEP row with spinner
+  cepRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  cepInput: {
     flex: 1,
   },
   // Endereço (inside card)
