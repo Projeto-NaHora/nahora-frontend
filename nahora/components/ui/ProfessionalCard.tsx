@@ -1,38 +1,55 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { SuggestedProfessional } from "../../store/homeStore";
 
 type Props = {
-  professional: SuggestedProfessional;
+  // Usamos 'any' aqui internamente apenas para garantir que ele aceite o mapeamento novo sem conflitar com o Store antigo
+  professional: any;
 };
 
 export const ProfessionalCard: React.FC<Props> = ({ professional }) => {
+  // Extração segura das variáveis (aceita tanto o padrão em Inglês quanto o antigo em Português)
+  const name = professional?.name || professional?.nome || "Sem Nome";
+  const category =
+    professional?.category || professional?.categoria || "Serviços";
+  const rating = Number(professional?.rating ?? professional?.notaMedia ?? 0);
+  const reviews = professional?.reviews ?? professional?.totalAvaliacoes ?? 0;
+  const isPlus = professional?.isPlus || professional?.planoPlus || false;
+  const avatarUrl = professional?.avatarUrl || professional?.foto || null;
+
   return (
     <View style={styles.card}>
       <View style={styles.imageContainer}>
-        <View style={styles.imagePlaceholder}>
-          <FontAwesome name="user-circle" size={56} color="#A3A3A3" />
-        </View>
+        {/* Renderização condicional da foto, igual fizemos na busca */}
+        {avatarUrl ? (
+          <Image
+            source={{ uri: avatarUrl }}
+            style={styles.imagePlaceholder}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.imagePlaceholder}>
+            <FontAwesome name="user-circle" size={56} color="#A3A3A3" />
+          </View>
+        )}
       </View>
 
       <Text style={styles.name} numberOfLines={1}>
-        {professional.nome}
+        {name}
       </Text>
 
       <Text style={styles.category} numberOfLines={1}>
-        {professional.categoria}
+        {category}
       </Text>
 
       <View style={styles.ratingContainer}>
         <FontAwesome name="star" size={14} color="#FACC15" />
-        <Text style={styles.ratingScore}>
-          {professional.notaMedia.toFixed(1)}
-        </Text>
-        <Text style={styles.ratingCount}>({professional.totalAvaliacoes})</Text>
+        <Text style={styles.ratingScore}>{rating.toFixed(1)}</Text>
+        <Text style={styles.ratingCount}>({reviews})</Text>
       </View>
 
-      {professional.isPlus && (
+      {isPlus && (
         <View style={styles.badgePlus}>
           <Text style={styles.badgePlusText}>Plus</Text>
         </View>
@@ -82,12 +99,14 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center", // Garante que a nota fique centralizada
     marginBottom: 4,
   },
   ratingScore: {
     fontSize: 12,
     color: "#374151",
     marginLeft: 4,
+    fontWeight: "500",
   },
   ratingCount: {
     fontSize: 12,
@@ -95,7 +114,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   badgePlus: {
-    backgroundColor: "#FACC15",
+    backgroundColor: "#FF9800", // Atualizado para a mesma cor Laranja do "Plus" da busca
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 9999,

@@ -1,59 +1,5 @@
-import { useCallback } from "react";
-import {
-  useHomeStore,
-  SuggestedProfessional,
-  RecentOrder,
-} from "../../../store/homeStore";
-
-// Dados mockados baseados no Figma (B01)
-const MOCK_SUGGESTED_PROFESSIONALS: SuggestedProfessional[] = [
-  {
-    id: "1",
-    nome: "Roberto Barbosa",
-    categoria: "Eletricista",
-    localizacao: "Vila Mariana, SP",
-    notaMedia: 4.9,
-    totalAvaliacoes: 124,
-    isPlus: true,
-  },
-  {
-    id: "2",
-    nome: "Carlos Lima",
-    categoria: "Encanador",
-    localizacao: "Moema, SP",
-    notaMedia: 4.8,
-    totalAvaliacoes: 98,
-    isPlus: false,
-  },
-  {
-    id: "3",
-    nome: "Fernanda Souza",
-    categoria: "Pintora",
-    localizacao: "Pinheiros, SP",
-    notaMedia: 5.0,
-    totalAvaliacoes: 76,
-    isPlus: true,
-  },
-];
-
-const MOCK_RECENT_ORDERS: RecentOrder[] = [
-  {
-    id: "101",
-    titulo: "Troca de disjuntor",
-    nomeProfissional: "Roberto Barbosa",
-    data: "2024-05-10",
-    status: "concluido",
-    descricao: "Troca do disjuntor principal do quadro de luz.",
-  },
-  {
-    id: "102",
-    titulo: "Desentupir pia",
-    nomeProfissional: "Carlos Lima",
-    data: "2024-05-08",
-    status: "em_andamento",
-    descricao: "Desentupimento da pia da cozinha.",
-  },
-];
+import { api } from "@/services/api/client";
+import { useHomeStore } from "@/store/homeStore";
 
 export function useHomeData() {
   const setSuggestedProfessionals = useHomeStore(
@@ -61,11 +7,46 @@ export function useHomeData() {
   );
   const setRecentOrders = useHomeStore((s) => s.setRecentOrders);
 
-  // Carrega dados mockados
-  const loadHomeData = useCallback(() => {
-    setSuggestedProfessionals(MOCK_SUGGESTED_PROFESSIONALS);
-    setRecentOrders(MOCK_RECENT_ORDERS);
-  }, [setSuggestedProfessionals, setRecentOrders]);
+  const loadHomeData = async () => {
+    try {
+      // 1. Chama a API real (ajuste a rota e os params conforme o seu backend)
+      const response = await api.get("/profissionais/sugeridos", {
+        params: { lat: -8.05, lng: -34.88 }, // Substitua pela localização real do usuário depois!
+      });
+
+      const payload = response.data;
+      const arrayDeProfissionais = Array.isArray(payload)
+        ? payload
+        : payload?.profissionais || [];
+
+      // 2. Mapeia os dados usando a mesma lógica à prova de balas da busca
+      const dataMapped = arrayDeProfissionais.map((prof: any) => {
+        const rawCidade = prof?.cidade || "";
+        const cleanCidade = rawCidade
+          .replace(/null/gi, "")
+          .replace(/^[,\s]+|[,\s]+$/g, "")
+          .trim();
+
+        return {
+          id: prof?.id?.toString() || Math.random().toString(),
+          name: prof?.nome || prof?.name || "Sem Nome",
+          category: prof?.categoriaNome || prof?.categoria || "Serviços",
+          location: cleanCidade || "Localização não informada",
+          avatarUrl: prof?.foto || prof?.fotoPerfil || null,
+          distance: prof?.distanciaKm || prof?.distancia || 0,
+          rating: prof?.mediaAvaliacoes ?? 0,
+          reviews: prof?.totalAvaliacoes ?? 0,
+          price: 0,
+          isPlus: prof?.planoPlus || false,
+        };
+      });
+
+      // 3. Salva no Zustand
+      setSuggestedProfessionals(dataMapped);
+    } catch (error) {
+      console.error("Erro ao carregar os sugeridos da Home:", error);
+    }
+  };
 
   return { loadHomeData };
 }

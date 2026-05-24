@@ -37,7 +37,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     loadHomeData();
-  }, [loadHomeData]);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>

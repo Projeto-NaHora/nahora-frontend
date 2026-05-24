@@ -60,24 +60,11 @@ export default function ProvidersByCategoryScreen() {
           return;
         }
 
-        // --- DEBUG PARA O TERMINAL DO EXPO ---
-        console.log(">>> STATUS DA API:", response.status);
-        console.log(
-          ">>> PAYLOAD COMPLETO:",
-          JSON.stringify(response.data, null, 2),
-        );
-
         // Estratégia de extração flexível: procura o array em vários lugares comuns do Spring Boot
         const payload = response.data;
         const arrayDeProfissionais = Array.isArray(payload)
           ? payload
           : payload?.profissionais || payload?.content || payload?.data || [];
-
-        if (arrayDeProfissionais.length === 0) {
-          console.warn(
-            ">>> ATENÇÃO: O backend retornou 200, mas o array não foi encontrado no Frontend.",
-          );
-        }
 
         // Mapeamento com fallbacks de segurança
         const dataMapped = arrayDeProfissionais.map((prof: any) => ({
