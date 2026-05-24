@@ -9,6 +9,7 @@ import {
   LineHeights,
 } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { AuthScreenShell } from "./AuthScreenShell";
 
 type DocBoxProps = {
@@ -28,7 +29,7 @@ function DocBox({ icon, label, uri, onPress }: DocBoxProps) {
       onPress={onPress}
       style={({ pressed }) => [
         styles.docBox,
-        { backgroundColor: uri ? "#e6f7ec" : "#f9fafb" },
+        { backgroundColor: uri ? colors.brand + "20" : colors.surface },
         pressed && styles.docBoxPressed,
       ]}
     >
@@ -49,6 +50,9 @@ type DocsContentProps = {
   onPickSelfie: () => void;
   onContinue: () => void;
   isUploading?: boolean;
+  error?: string | null;
+  /** Código HTTP do erro (ex.: 401) para exibir como badge no banner */
+  errorStatus?: number | null;
 };
 
 export function DocsContent({
@@ -60,6 +64,8 @@ export function DocsContent({
   onPickSelfie,
   onContinue,
   isUploading = false,
+  error = null,
+  errorStatus,
 }: DocsContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -72,13 +78,28 @@ export function DocsContent({
       subtitle="Para validar seu perfil precisamos do seu RG e uma\nselfie segurando o documento."
     >
       {/* Privacy notice */}
-      <View style={[styles.privacyBox, { borderColor: "#8ab4f8" }]}>
+      <View
+        style={[
+          styles.privacyBox,
+          { borderColor: colors.border, backgroundColor: colors.surface },
+        ]}
+      >
         <Text style={styles.privacyIcon}>🔒</Text>
-        <Text style={styles.privacyText}>
+        <Text style={[styles.privacyText, { color: colors.link }]}>
           Seus dados são criptografados e usados apenas para verificação de
           identidade. Não compartilhamos com terceiros.
         </Text>
       </View>
+
+      {/* Error banner */}
+      {error && (
+        <ServerErrorBanner
+          title="Erro ao enviar documentos"
+          message={error}
+          statusCode={errorStatus ?? undefined}
+          style={{ marginBottom: 16 }}
+        />
+      )}
 
       {/* RG Section */}
       <View style={styles.section}>
@@ -118,7 +139,11 @@ export function DocsContent({
             onPress={onPickSelfie}
             style={({ pressed }) => [
               styles.selfieBox,
-              { backgroundColor: selfieUri ? "#e6f7ec" : "#f9fafb" },
+              {
+                backgroundColor: selfieUri
+                  ? colors.brand + "20"
+                  : colors.surface,
+              },
               pressed && styles.docBoxPressed,
             ]}
           >
@@ -147,7 +172,7 @@ export function DocsContent({
             styles.continueButton,
             {
               backgroundColor:
-                allUploaded && !isUploading ? colors.brand : "#e5e7eb",
+                allUploaded && !isUploading ? colors.brand : colors.surface,
             },
             pressed && styles.buttonPressed,
           ]}
@@ -156,7 +181,10 @@ export function DocsContent({
             style={[
               styles.continueText,
               {
-                color: allUploaded && !isUploading ? colors.onBrand : "#9ca3af",
+                color:
+                  allUploaded && !isUploading
+                    ? colors.onBrand
+                    : colors.textSecondary,
               },
             ]}
           >
@@ -172,7 +200,6 @@ const styles = StyleSheet.create({
   privacyBox: {
     flexDirection: "row",
     gap: 12,
-    backgroundColor: "#e5effa",
     borderRadius: 24,
     borderWidth: 1,
     padding: 16,
@@ -190,8 +217,8 @@ const styles = StyleSheet.create({
     lineHeight: 22.75,
     letterSpacing: LetterSpacing.body,
     fontWeight: "500",
-    color: "#1a56db",
   },
+
   section: {
     marginBottom: 16,
   },

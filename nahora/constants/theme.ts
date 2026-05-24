@@ -9,6 +9,7 @@ const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
 const brandColor = "#F97415";
 const errorColor = "#DC2626";
+const successColor = "#34C759";
 const surfaceMutedLight = "#F9F9F9";
 const borderLight = "#D9D9D9";
 const placeholderLight = "#CCCCCC";
@@ -33,6 +34,7 @@ export const Colors = {
     tabIconSelected: tintColorLight,
     brand: brandColor,
     error: errorColor,
+    success: successColor,
     surface: surfaceMutedLight,
     border: borderLight,
     placeholder: placeholderLight,
@@ -50,6 +52,7 @@ export const Colors = {
     tabIconSelected: tintColorDark,
     brand: brandColor,
     error: errorColor,
+    success: successColor,
     surface: surfaceMutedDark,
     border: borderDark,
     placeholder: placeholderDark,

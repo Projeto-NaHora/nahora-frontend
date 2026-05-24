@@ -1,27 +1,30 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { usePedidoResumoFromList } from "@/features/professional/hooks/usePedidoResumoFromList";
+import { ProfessionalOrderDetailContent } from "@/features/orders/components/ProfessionalOrderDetailContent";
 
-export default function Screen() {
-  const params = useLocalSearchParams();
+export default function ProfessionalOrderDetailScreen() {
+  const { orderId } = useLocalSearchParams<{ orderId: string }>();
+  const router = useRouter();
+  const { pedido, isLoading, error } = usePedidoResumoFromList(Number(orderId));
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>
-        app/(professional)/(orders)/[orderId]/index.tsx
-      </Text>
-    </View>
+    <ProfessionalOrderDetailContent
+      pedido={pedido}
+      isLoading={isLoading}
+      error={error}
+      onBack={() => router.back()}
+      onVerPerfil={
+        pedido?.clienteId
+          ? () =>
+              router.push(
+                `/(professional)/(orders)/${orderId}/client/${pedido.clienteId}`,
+              )
+          : undefined
+      }
+      onMostrarInteresse={() =>
+        router.push(`/(professional)/(orders)/${orderId}/proposal`)
+      }
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});

@@ -53,8 +53,10 @@ export function ProfessionContent({
               style={({ pressed }) => [
                 styles.card,
                 {
-                  backgroundColor: active ? "#fdf5df" : colors.background,
-                  borderColor: active ? "#eb7a23" : "#e5e7eb",
+                  backgroundColor: active
+                    ? colors.brand + "20"
+                    : colors.surface,
+                  borderColor: active ? colors.brand : colors.border,
                 },
                 pressed && styles.cardPressed,
               ]}
@@ -63,13 +65,15 @@ export function ProfessionContent({
               <Text
                 style={[
                   styles.cardLabel,
-                  { color: active ? "#eb7a23" : colors.textPrimary },
+                  { color: active ? colors.brand : colors.textPrimary },
                 ]}
               >
                 {option.label}
               </Text>
               {active && (
-                <View style={styles.checkBadge}>
+                <View
+                  style={[styles.checkBadge, { backgroundColor: colors.brand }]}
+                >
                   <Text style={styles.checkText}>✓</Text>
                 </View>
               )}
@@ -85,14 +89,14 @@ export function ProfessionContent({
           onPress={onContinue}
           style={({ pressed }) => [
             styles.continueButton,
-            { backgroundColor: selected ? colors.brand : "#e5e7eb" },
+            { backgroundColor: selected ? colors.brand : colors.surface },
             pressed && styles.buttonPressed,
           ]}
         >
           <Text
             style={[
               styles.continueText,
-              { color: selected ? colors.onBrand : "#9ca3af" },
+              { color: selected ? colors.onBrand : colors.textSecondary },
             ]}
           >
             Continuar

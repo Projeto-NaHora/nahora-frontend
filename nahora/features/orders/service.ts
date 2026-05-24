@@ -1,45 +1,43 @@
+// features/orders/service.ts
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
-import type { StatusPedido, CategoriaServico, Urgencia } from "@/types/enums";
+import type { Pedido, CriarPedidoPayload, Page } from "./types";
+import type { PedidoResumoResponse } from "@/features/professional/types";
 
-// 1. Define the DTOs (Data Transfer Objects) mirroring the backend
-export interface Pedido {
-  id: number;
-  titulo: string;
-  descricao: string;
-  categoria: CategoriaServico;
-  urgencia: Urgencia;
-  status: StatusPedido;
-  clienteId: number;
-  profissionalId?: number | null;
-  criadoEm: string;
-  atualizadoEm: string;
+/** Helper para extrair o tipo MIME a partir da extensão do arquivo */
+function mimeTypeFromUri(uri: string): string {
+  const ext = uri.split(".").pop()?.toLowerCase() ?? "jpg";
+  const map: Record<string, string> = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    webp: "image/webp",
+    gif: "image/gif",
+    mp4: "video/mp4",
+    mov: "video/quicktime",
+  };
+  return map[ext] ?? "image/jpeg";
 }
 
-export interface CriarPedidoPayload {
-  titulo: string;
-  descricao: string;
-  categoria: CategoriaServico;
-  urgencia: Urgencia;
-  enderecoId: number; // Assuming address is handled by ID
-}
-
-// 2. Implement the Service
 export const orderService = {
   /**
-   * Lista todos os pedidos associados ao usuário logado.
-   * Usado pelo hook useOrders()
+   * Lista os pedidos do cliente autenticado (GET /pedidos/meus).
    */
-  listar: async (): Promise<Pedido[]> => {
-    // Note: If your Spring Boot backend uses Pageable, you might need to adjust
-    // this to expect a PaginatedResponse<Pedido> instead of an array.
-    const { data } = await api.get<Pedido[]>(ENDPOINTS.PEDIDOS);
+  listarMeusPedidos: async (
+    status?: string,
+    page: number = 0,
+    size: number = 20,
+  ): Promise<Page<Pedido>> => {
+    const params: Record<string, string | number> = { page, size };
+    if (status) params.status = status;
+    const { data } = await api.get<Page<Pedido>>(ENDPOINTS.MEUS_PEDIDOS, {
+      params,
+    });
     return data;
   },
 
   /**
    * Busca os detalhes de um pedido específico.
-   * Usado pelo hook useOrderDetail(id)
    */
   buscarPorId: async (id: number): Promise<Pedido> => {
     const { data } = await api.get<Pedido>(ENDPOINTS.PEDIDO(id));
@@ -47,7 +45,7 @@ export const orderService = {
   },
 
   /**
-   * Cria um novo pedido (Ação exclusiva de CLIENTE).
+   * Cria um novo pedido (ação exclusiva de CLIENTE).
    */
   criar: async (payload: CriarPedidoPayload): Promise<Pedido> => {
     const { data } = await api.post<Pedido>(ENDPOINTS.PEDIDOS, payload);
@@ -58,7 +56,44 @@ export const orderService = {
    * Cancela um pedido aberto.
    */
   cancelar: async (id: number): Promise<void> => {
-    // Adicione a rota apropriada no seu ENDPOINTS, ex: `/pedidos/${id}/cancelar`
     await api.patch(`${ENDPOINTS.PEDIDO(id)}/cancelar`);
+  },
+
+  /**
+   * Lista pedidos disponíveis para profissionais aceitarem.
+   */
+  listarDisponiveis: async (
+    page: number = 0,
+    size: number = 20,
+  ): Promise<Page<PedidoResumoResponse>> => {
+    const { data } = await api.get<Page<PedidoResumoResponse>>(
+      ENDPOINTS.PEDIDOS_DISPONIVEIS,
+      { params: { page, size } },
+    );
+    return data;
+  },
+
+  /**
+   * Faz upload de um arquivo de mídia (imagem/vídeo) e retorna a URL pública.
+   */
+  uploadMidia: async (uri: string, tipo: string): Promise<string> => {
+    const formData = new FormData();
+    const filename = uri.split("/").pop() ?? "upload.jpg";
+    const mimeType = mimeTypeFromUri(uri);
+
+    formData.append("file", {
+      uri,
+      name: filename,
+      type: mimeType,
+    } as unknown as Blob);
+    formData.append("tipo", tipo);
+
+    const { data } = await api.post<{ url: string }>(
+      ENDPOINTS.UPLOAD_DOCUMENTO,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } },
+    );
+
+    return data.url;
   },
 };

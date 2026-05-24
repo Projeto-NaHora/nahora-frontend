@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { ProfileStepIndicator } from "./ProfileStepIndicator";
 
 type Profile3ContentProps = {
@@ -12,6 +13,9 @@ type Profile3ContentProps = {
   onBack: () => void;
   onSubmit: () => void;
   isSubmitting?: boolean;
+  error?: string | null;
+  /** Código HTTP do erro (ex.: 401) para exibir como badge no banner */
+  errorStatus?: number | null;
 };
 
 export function Profile3Content({
@@ -21,6 +25,8 @@ export function Profile3Content({
   onBack,
   onSubmit,
   isSubmitting,
+  error,
+  errorStatus,
 }: Profile3ContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -39,18 +45,33 @@ export function Profile3Content({
         potencial.
       </Text>
 
+      {/* Error Banner */}
+      {error ? (
+        <ServerErrorBanner
+          title="Erro ao concluir cadastro"
+          message={error}
+          statusCode={errorStatus ?? undefined}
+          style={{ marginBottom: 16 }}
+        />
+      ) : null}
+
       {/* Upload Zone */}
       <Pressable
         accessibilityRole="button"
         onPress={onPickPhoto}
         style={({ pressed }) => [
           styles.uploadZone,
-          { borderColor: "#e5e7eb" },
+          {
+            borderColor: colors.border,
+            backgroundColor: colors.surface,
+          },
           pressed && styles.buttonPressed,
         ]}
       >
         <View style={styles.uploadIconContainer}>
-          <View style={styles.uploadIconBg}>
+          <View
+            style={[styles.uploadIconBg, { backgroundColor: colors.surface }]}
+          >
             <Text style={styles.uploadIcon}>📁</Text>
           </View>
         </View>
@@ -70,7 +91,10 @@ export function Profile3Content({
           </Text>
           <View style={styles.photosGrid}>
             {portfolioPhotos.map((uri, index) => (
-              <View key={`${uri}-${index}`} style={styles.photoItem}>
+              <View
+                key={`${uri}-${index}`}
+                style={[styles.photoItem, { borderColor: colors.border }]}
+              >
                 <Image source={{ uri }} style={styles.photoImage} />
                 <Pressable
                   accessibilityRole="button"
@@ -95,6 +119,7 @@ export function Profile3Content({
           onPress={onBack}
           style={({ pressed }) => [
             styles.outlineButton,
+            { borderColor: colors.border },
             pressed && styles.buttonPressed,
           ]}
         >
@@ -149,7 +174,6 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f3f4f6",
     opacity: 0.8,
     marginBottom: 32,
   },
@@ -160,7 +184,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#fff7ed",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -198,7 +221,6 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#e5e7eb",
     position: "relative",
   },
   photoImage: {
@@ -230,7 +252,6 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -248,6 +269,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
   },
+
   buttonPressed: {
     opacity: 0.9,
   },

@@ -3,7 +3,7 @@ import useSWRMutation from "swr/mutation";
 import { Alert } from "react-native";
 
 import { useRegisterStore } from "@/store/registerStore";
-import { getApiErrorMessage } from "@/utils/apiError";
+import { parseApiError } from "@/utils/apiError";
 import { formatPhone } from "@/utils/formatters";
 import { authService } from "../service";
 
@@ -14,6 +14,7 @@ type UseRegisterOtpOptions = {
 export function useRegisterOtp({ onSuccess }: UseRegisterOtpOptions) {
   const phone = useRegisterStore((state) => state.phone);
   const [code, setCode] = useState("");
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
   const { trigger, isMutating, error } = useSWRMutation(
     "register-otp",
@@ -23,7 +24,9 @@ export function useRegisterOtp({ onSuccess }: UseRegisterOtpOptions) {
         onSuccess();
       },
       onError: (error) => {
-        Alert.alert("Erro", getApiErrorMessage(error));
+        const parsed = parseApiError(error);
+        setErrorStatus(parsed.statusCode ?? null);
+        Alert.alert("Erro", parsed.message);
       },
     },
   );
@@ -42,6 +45,7 @@ export function useRegisterOtp({ onSuccess }: UseRegisterOtpOptions) {
     onChangeCode: setCode,
     onSubmit,
     isSubmitting: isMutating,
-    error: error ? getApiErrorMessage(error) : undefined,
+    error: error ? parseApiError(error).message : undefined,
+    errorStatus: error ? (parseApiError(error).statusCode ?? null) : null,
   };
 }

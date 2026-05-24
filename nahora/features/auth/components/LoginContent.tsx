@@ -15,6 +15,7 @@ import {
 } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { PasswordInput } from "@/components/ui/password-input";
+import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { AuthScreenShell } from "./AuthScreenShell";
 import type { LoginFormValues } from "../types";
 
@@ -24,6 +25,9 @@ type LoginContentProps = {
   onSubmit: () => void;
   onForgotPassword: () => void;
   onRegister: () => void;
+  error?: string | null;
+  /** Código HTTP do erro (ex.: 401) para exibir como badge no banner */
+  errorStatus?: number | null;
 };
 
 export function LoginContent({
@@ -32,6 +36,8 @@ export function LoginContent({
   onSubmit,
   onForgotPassword,
   onRegister,
+  error,
+  errorStatus,
 }: LoginContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -51,6 +57,15 @@ export function LoginContent({
 
   return (
     <AuthScreenShell title={"Bem-vindo(a)\nde volta!"} footer={footer}>
+      {error && (
+        <ServerErrorBanner
+          title="Erro ao entrar"
+          message={error}
+          statusCode={errorStatus ?? undefined}
+          style={{ marginBottom: Spacing.formGap }}
+        />
+      )}
+
       <View style={styles.formFields}>
         <Controller
           control={control}

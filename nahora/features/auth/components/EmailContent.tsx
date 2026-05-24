@@ -83,7 +83,7 @@ export function EmailContent({
           ]}
         >
           <Text style={[styles.buttonText, { color: colors.onBrand }]}>
-            Enviar
+            Continuar
           </Text>
         </Pressable>
       </View>

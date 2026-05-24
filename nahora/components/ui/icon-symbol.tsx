@@ -21,11 +21,20 @@ const MAPPING = {
   "paperplane.fill": "send",
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
+  "chevron.down": "expand-more",
+  "chevron.left": "chevron-left",
   "doc.text.fill": "list-alt",
   "bubble.left.and.bubble.right.fill": "chat",
   "heart.fill": "favorite",
   "person.fill": "person",
   "briefcase.fill": "work",
+  edit: "edit",
+  public: "public",
+  "attach-money": "attach-money",
+  "location-on": "location-on",
+  settings: "settings",
+  lock: "lock",
+  logout: "logout",
 } as Partial<IconMapping>;
 
 /**
