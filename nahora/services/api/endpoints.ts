@@ -42,6 +42,7 @@ export const ENDPOINTS = {
   MARCAR_LIDA: (id: number) => `/notificacoes/${id}/lida`,
 
   // Perfil
+  COMPLETAR_PERFIL: "/profissionais/perfil",
   PERFIL_CLIENTE: "/clientes/me",
   PERFIL_PROFISSIONAL: "/profissionais/me",
   PROFISSIONAL: (id: number) => `/profissionais/${id}`,

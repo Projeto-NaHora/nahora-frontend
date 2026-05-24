@@ -18,7 +18,9 @@
       "mcp__figma-bridge__get_selection",
       "mcp__figma-bridge__get_metadata",
       "Skill(caveman)",
-      "Bash(npx expo *)"
+      "Bash(npx expo *)",
+      "Bash(Get-ChildItem -Directory -Name)",
+      "Bash(Select-Object -First 30)"
     ]
   }
 }

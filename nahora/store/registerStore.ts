@@ -34,6 +34,7 @@ type RegisterState = {
   especialidades: string[];
   // Profile step 3 — Portfolio
   portfolioPhotos: string[];
+  portfolioUrls: string[];
   setRole: (role: TipoUsuarioApp) => void;
   setPhone: (phone: string) => void;
   setName: (firstName: string, lastName: string) => void;
@@ -55,6 +56,7 @@ type RegisterState = {
   setEspecialidades: (tags: string[]) => void;
   addPortfolioPhoto: (uri: string) => void;
   removePortfolioPhoto: (index: number) => void;
+  setPortfolioUrls: (urls: string[]) => void;
   reset: () => void;
 };
 
@@ -80,6 +82,7 @@ const initialState = {
   about: "",
   especialidades: [],
   portfolioPhotos: [],
+  portfolioUrls: [],
 };
 
 export const useRegisterStore = create<RegisterState>((set) => ({
@@ -111,5 +114,6 @@ export const useRegisterStore = create<RegisterState>((set) => ({
     set((state) => ({
       portfolioPhotos: state.portfolioPhotos.filter((_, i) => i !== index),
     })),
+  setPortfolioUrls: (portfolioUrls) => set({ portfolioUrls }),
   reset: () => set({ ...initialState }),
 }));

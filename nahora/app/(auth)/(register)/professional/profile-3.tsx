@@ -6,9 +6,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Profile3Content } from "@/features/auth/components/Profile3Content";
 import { useRegisterStore } from "@/store/registerStore";
-import { useRegisterProfessional } from "@/features/auth/hooks/useRegisterProfessional";
+import { useCompleteProfessionalRegistration } from "@/features/auth/hooks/useCompleteProfessionalRegistration";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+
+const MAX_PHOTOS = 10;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 async function pickFromGallery(): Promise<string | null> {
   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -27,7 +30,17 @@ async function pickFromGallery(): Promise<string | null> {
   });
 
   if (result.canceled || !result.assets?.length) return null;
-  return result.assets[0].uri;
+
+  const asset = result.assets[0];
+  if (asset.fileSize && asset.fileSize > MAX_FILE_SIZE) {
+    Alert.alert(
+      "Arquivo muito grande",
+      "Cada foto deve ter no máximo 10MB.",
+    );
+    return null;
+  }
+
+  return asset.uri;
 }
 
 async function takeFromCamera(): Promise<string | null> {
@@ -46,7 +59,17 @@ async function takeFromCamera(): Promise<string | null> {
   });
 
   if (result.canceled || !result.assets?.length) return null;
-  return result.assets[0].uri;
+
+  const asset = result.assets[0];
+  if (asset.fileSize && asset.fileSize > MAX_FILE_SIZE) {
+    Alert.alert(
+      "Arquivo muito grande",
+      "Cada foto deve ter no máximo 10MB.",
+    );
+    return null;
+  }
+
+  return asset.uri;
 }
 
 function showPickOptions(onSelect: (uri: string) => void) {
@@ -83,14 +106,20 @@ export default function Profile3() {
   );
 
   const { submit, isSubmitting, errorMessage, errorStatus } =
-    useRegisterProfessional({
+    useCompleteProfessionalRegistration({
       onSuccess: () => {
-        // Navigate to the professional home after successful registration
         router.replace("/(professional)/(home)");
       },
     });
 
   const handlePickPhoto = () => {
+    if (portfolioPhotos.length >= MAX_PHOTOS) {
+      Alert.alert(
+        "Limite atingido",
+        `Você pode enviar no máximo ${MAX_PHOTOS} fotos.`,
+      );
+      return;
+    }
     showPickOptions((uri) => {
       addPortfolioPhoto(uri);
     });
