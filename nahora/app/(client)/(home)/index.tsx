@@ -22,13 +22,10 @@ import OrderCard from "@/components/ui/OrderCard";
 // Array das 8 categorias exibidas na Home
 const homeCategories = [
   { id: "1", name: "Elétrica", icon: "lightning-bolt" },
-  { id: "2", name: "Encanamento", icon: "wrench" },
-  { id: "3", name: "Pintura", icon: "format-paint" },
-  { id: "4", name: "Limpeza", icon: "sparkles" },
-  { id: "5", name: "Jardim", icon: "leaf" },
-  { id: "6", name: "Marcenaria", icon: "hammer" },
-  { id: "7", name: "Ar-cond.", icon: "snowflake" },
-  { id: "8", name: "Mais", icon: "plus" },
+  { id: "2", name: "Pedreiro", icon: "house" },
+  { id: "3", name: "Encanamento", icon: "wrench" },
+  { id: "4", name: "Pintura", icon: "format-paint" },
+  { id: "5", name: "Marcenaria", icon: "hammer" },
 ];
 
 export default function HomeScreen() {
@@ -68,11 +65,9 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Categorias - Grade 4x2 */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Categorias</Text>
-            {/* CORREÇÃO 1: "Ver todas" volta a apontar para a tela B02 geral */}
             <TouchableOpacity
               onPress={() => router.push("/(client)/(home)/categories")}
             >
@@ -88,10 +83,10 @@ export default function HomeScreen() {
                 onPress={() =>
                   router.push({
                     pathname: "/(client)/(home)/category/[id]",
-                    // CORREÇÃO 2: Aqui usamos apenas o "cat", que é a variável deste map
                     params: {
                       id: cat.name,
                       icon: cat.icon,
+                      categoriaId: cat.id,
                     },
                   })
                 }

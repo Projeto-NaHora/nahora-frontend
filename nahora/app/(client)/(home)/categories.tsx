@@ -11,20 +11,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 
-// Conforme PRD: 12 categorias com ícone e nome
+// Mock de categorias
 const allCategories = [
   { id: "1", name: "Elétrica", icon: "lightning-bolt" },
-  { id: "2", name: "Encanamento", icon: "wrench" },
-  { id: "3", name: "Pintura", icon: "format-paint" },
-  { id: "4", name: "Limpeza", icon: "sparkles" },
+  { id: "2", name: "Pedreiro", icon: "house" },
+  { id: "3", name: "Encanamento", icon: "wrench" },
+  { id: "4", name: "Pintura", icon: "format-paint" },
   { id: "5", name: "Marcenaria", icon: "hammer" },
-  { id: "6", name: "Mudanças", icon: "package-variant-closed" },
-  { id: "7", name: "Ar-cond.", icon: "snowflake" },
-  { id: "8", name: "Pedreiro", icon: "trowel" },
-  { id: "9", name: "Jardim", icon: "leaf" },
-  { id: "10", name: "Montagem", icon: "screwdriver" },
-  { id: "11", name: "Chaveiro", icon: "key" },
-  { id: "12", name: "Fretes", icon: "truck-outline" },
 ];
 
 export default function CategoriesScreen() {
@@ -35,9 +28,22 @@ export default function CategoriesScreen() {
     cat.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  // NOVA FUNÇÃO: Dispara a busca por termo
+  const handleSearch = () => {
+    if (searchQuery.trim().length >= 2) {
+      router.push({
+        pathname: "/(client)/(home)/category/[id]",
+        params: {
+          id: "Resultados da busca", // Título que aparecerá no header
+          termo: searchQuery, // O termo que a API vai usar
+        },
+      });
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header com botão de voltar e título */}
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -51,13 +57,18 @@ export default function CategoriesScreen() {
       {/* Input de Pesquisa */}
       <View style={styles.searchContainer}>
         <View style={styles.searchInputWrapper}>
-          <Feather name="search" size={20} color="#9CA3AF" />
+          {/* Adicionado Touchable para clicar na lupa */}
+          <TouchableOpacity onPress={handleSearch}>
+            <Feather name="search" size={20} color="#9CA3AF" />
+          </TouchableOpacity>
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar por nome ou categoria..."
             placeholderTextColor="#9CA3AF"
             value={searchQuery}
             onChangeText={setSearchQuery}
+            returnKeyType="search" // Muda o botão do teclado para "Buscar"
+            onSubmitEditing={handleSearch} // Dispara ao pressionar "Buscar"
           />
         </View>
       </View>
@@ -81,6 +92,7 @@ export default function CategoriesScreen() {
                   params: {
                     id: item.name,
                     icon: item.icon,
+                    categoriaId: item.id, // <-- AQUI ESTÁ A CORREÇÃO!
                   },
                 })
               }
@@ -95,8 +107,7 @@ export default function CategoriesScreen() {
               </Text>
             </TouchableOpacity>
           )}
-        />{" "}
-        {/* <-- Era essa barrinha que estava faltando! */}
+        />
       </View>
     </SafeAreaView>
   );

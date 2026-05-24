@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from "react";
+import { api } from "@/services/api/client";
+import { ENDPOINTS } from "@/services/api/endpoints";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
@@ -6,54 +8,12 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import ProfessionalListCard from "@/components/ui/ProfessionalListCard";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const mockProfessionals = [
-  {
-    id: "1",
-    name: "Rafael Borges",
-    category: "Eletricista",
-    distance: 1.2,
-    rating: 4.9,
-    reviews: 87,
-    price: 80,
-    isPlus: true,
-  },
-  {
-    id: "2",
-    name: "Juliana Lima",
-    category: "Eletricista",
-    distance: 2.5,
-    rating: 4.7,
-    reviews: 54,
-    price: 75,
-    isPlus: false,
-  },
-  {
-    id: "3",
-    name: "Carlos Souza",
-    category: "Eletricista",
-    distance: 0.8,
-    rating: 5.0,
-    reviews: 120,
-    price: 90,
-    isPlus: true,
-  },
-  {
-    id: "4",
-    name: "Beatriz Ramos",
-    category: "Eletricista",
-    distance: 3.1,
-    rating: 4.8,
-    reviews: 32,
-    price: 70,
-    isPlus: false,
-  },
-];
 
 const FILTERS = [
   { label: "Todos", value: "all" },
@@ -64,24 +24,101 @@ const FILTERS = [
 export default function ProvidersByCategoryScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { id, icon } = params as { id?: string; icon?: string };
+
+  // Pegamos os parâmetros extras que preparamos para a API
+  const { id, icon, categoriaId, termo } = params as {
+    id?: string;
+    icon?: string;
+    categoriaId?: string;
+    termo?: string;
+  };
 
   const [activeFilter, setActiveFilter] = useState("all");
 
-  // Lógica de ordenação inteligente
+  // Estados reais para a API
+  const [professionals, setProfessionals] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Efeito que dispara a busca real no backend
+  useEffect(() => {
+    async function fetchProfessionals() {
+      setIsLoading(true);
+      try {
+        let response;
+
+        if (termo) {
+          response = await api.get(ENDPOINTS.PROFISSIONAIS + "/busca", {
+            params: { termo: termo },
+          });
+        } else if (categoriaId) {
+          response = await api.get(ENDPOINTS.PROFISSIONAIS, {
+            params: { categoriaId: categoriaId },
+          });
+        } else {
+          setProfessionals([]);
+          setIsLoading(false);
+          return;
+        }
+
+        // --- DEBUG PARA O TERMINAL DO EXPO ---
+        console.log(">>> STATUS DA API:", response.status);
+        console.log(
+          ">>> PAYLOAD COMPLETO:",
+          JSON.stringify(response.data, null, 2),
+        );
+
+        // Estratégia de extração flexível: procura o array em vários lugares comuns do Spring Boot
+        const payload = response.data;
+        const arrayDeProfissionais = Array.isArray(payload)
+          ? payload
+          : payload?.profissionais || payload?.content || payload?.data || [];
+
+        if (arrayDeProfissionais.length === 0) {
+          console.warn(
+            ">>> ATENÇÃO: O backend retornou 200, mas o array não foi encontrado no Frontend.",
+          );
+        }
+
+        // Mapeamento "À prova de balas" com fallbacks de segurança
+        const dataMapped = arrayDeProfissionais.map((prof: any) => ({
+          // Garante um ID válido para não quebrar a FlatList
+          id: prof?.id?.toString() || Math.random().toString(),
+          name: prof?.nome || prof?.name || "Profissional Sem Nome",
+          category:
+            prof?.categoria ||
+            prof?.categoriaNome ||
+            (id as string) ||
+            "Serviços",
+          distance: prof?.distanciaKm || prof?.distancia || 0,
+          rating: prof?.notaMedia || prof?.rating || 5.0,
+          reviews: prof?.numeroAvaliacoes || prof?.totalAvaliacoes || 0,
+          price: 0,
+          isPlus: prof?.planoPlus || prof?.isPlus || false,
+        }));
+
+        setProfessionals(dataMapped);
+      } catch (error) {
+        console.error(">>> ERRO FATAL AO LER DADOS DA API:", error);
+        setProfessionals([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProfessionals();
+  }, [categoriaId, termo]);
+  // Lógica de ordenação inteligente (agora baseada nos dados da API)
   const sortedProfessionals = useMemo(() => {
-    let result = [...mockProfessionals];
+    let result = [...professionals];
 
     if (activeFilter === "best") {
-      // Ordena da maior para a menor nota
       result.sort((a, b) => b.rating - a.rating);
     } else if (activeFilter === "near") {
-      // Ordena da menor para a maior distância
       result.sort((a, b) => a.distance - b.distance);
     }
 
     return result;
-  }, [activeFilter]);
+  }, [professionals, activeFilter]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -129,33 +166,48 @@ export default function ProvidersByCategoryScreen() {
         </ScrollView>
       </View>
 
-      {/* Contagem dinâmica baseada no array ordenado */}
-      <Text style={styles.countText}>
-        {sortedProfessionals.length} profissionais encontrados
-      </Text>
+      {/* Condicional de Loading e Lista */}
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF7A00" />
+          <Text style={styles.loadingText}>Buscando profissionais...</Text>
+        </View>
+      ) : (
+        <>
+          <Text style={styles.countText}>
+            {sortedProfessionals.length} profissionais encontrados
+          </Text>
 
-      {/* Lista */}
-      <FlatList
-        data={sortedProfessionals}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <ProfessionalListCard
-            name={item.name}
-            category={item.category}
-            distance={item.distance}
-            rating={item.rating}
-            reviews={item.reviews}
-            price={item.price}
-            isPlus={item.isPlus}
-            onPress={() => {
-              // Rota direta usando template literal (crases)
-              router.push(`/(client)/(home)/professional/${item.id}`);
-            }}
+          <FlatList
+            data={sortedProfessionals}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <ProfessionalListCard
+                name={item.name}
+                category={item.category}
+                distance={item.distance}
+                rating={item.rating}
+                reviews={item.reviews}
+                price={item.price}
+                isPlus={item.isPlus}
+                onPress={() => {
+                  router.push({
+                    pathname: "/professional/[id]",
+                    params: { id: item.id },
+                  });
+                }}
+              />
+            )}
+            contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 16 }}
+            showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>
+                Nenhum profissional encontrado para esta categoria.
+              </Text>
+            }
           />
-        )}
-        contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 16 }}
-        showsVerticalScrollIndicator={false}
-      />
+        </>
+      )}
     </SafeAreaView>
   );
 }
@@ -225,5 +277,22 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     paddingHorizontal: 18,
     marginBottom: 6,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 40,
+  },
+  loadingText: {
+    marginTop: 12,
+    color: "#666",
+    fontSize: 16,
+  },
+  emptyText: {
+    textAlign: "center",
+    color: "#9CA3AF",
+    marginTop: 40,
+    fontSize: 15,
   },
 });
