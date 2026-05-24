@@ -22,7 +22,7 @@ export function useRegisterProfessional({
   const cpf = useRegisterStore((state) => state.cpf);
   const especialidades = useRegisterStore((state) => state.especialidades);
   const experienceYears = useRegisterStore((state) => state.experienceYears);
-  const location = useRegisterStore((state) => state.location);
+  const cargo = useRegisterStore((state) => state.cargo);
   const rgFrontUrl = useRegisterStore((state) => state.rgFrontUrl);
   const rgBackUrl = useRegisterStore((state) => state.rgBackUrl);
   const selfieUrl = useRegisterStore((state) => state.selfieUrl);
@@ -45,7 +45,7 @@ export function useRegisterProfessional({
         cpf,
         especialidades,
         anosExperiencia,
-        areaAtuacao: location ? [location] : [],
+        areaAtuacao: cargo ? [cargo] : [],
         rgFrenteUrl: rgFrontUrl!,
         rgVersoUrl: rgBackUrl!,
         selfieUrl: selfieUrl!,

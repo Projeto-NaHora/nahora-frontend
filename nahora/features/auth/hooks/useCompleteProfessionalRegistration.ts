@@ -50,7 +50,7 @@ export function useCompleteProfessionalRegistration({ onSuccess }: Options) {
         cpf: state.cpf,
         especialidades: state.especialidades,
         anosExperiencia,
-        areaAtuacao: state.location ? [state.location] : [],
+        areaAtuacao: state.cargo ? [state.cargo] : [],
         rgFrenteUrl: state.rgFrontUrl!,
         rgVersoUrl: state.rgBackUrl!,
         selfieUrl: state.selfieUrl!,
@@ -71,12 +71,19 @@ export function useCompleteProfessionalRegistration({ onSuccess }: Options) {
         ? [state.profession.id as CategoriaServico]
         : [];
 
+      const raioAtuacaoKm =
+        parseInt(state.raioAtuacaoKm, 10) || undefined;
+
       const profileData = await authService.completarPerfil({
         bio: state.about,
         categorias,
         especialidades: state.especialidades,
         anosExperiencia,
         urlsFotos: portfolioUrls,
+        ...(state.latitude != null && state.longitude != null
+          ? { latitude: state.latitude, longitude: state.longitude }
+          : {}),
+        ...(raioAtuacaoKm != null ? { raioAtuacaoKm } : {}),
       });
 
       setProfile(profileData);

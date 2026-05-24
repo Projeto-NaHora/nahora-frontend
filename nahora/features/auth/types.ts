@@ -124,6 +124,9 @@ export type CompletarPerfilRequest = {
   especialidades: string[];
   anosExperiencia: number;
   urlsFotos: string[];
+  latitude?: number;
+  longitude?: number;
+  raioAtuacaoKm?: number;
 };
 
 export type PerfilProfissionalResponse = {
