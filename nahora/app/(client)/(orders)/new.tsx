@@ -17,6 +17,7 @@ export default function NewOrderScreen() {
   const {
     control,
     isSubmitting,
+    isBuscandoCep,
     enderecoDiferente,
     errorMessage,
     errors,
@@ -55,6 +56,7 @@ export default function NewOrderScreen() {
       <OrderFormContent
         control={control}
         isSubmitting={isSubmitting}
+        isBuscandoCep={isBuscandoCep}
         enderecoDiferente={enderecoDiferente}
         errorMessage={errorMessage}
         errors={errors}

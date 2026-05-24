@@ -5,7 +5,7 @@ export type CategoriaServico =
   | "PEDREIRO"
   | "ENCANAMENTO"
   | "PINTURA"
-  | "AR_CONDICIONADO";
+  | "MARCENARIA";
 
 export type Urgencia = "BAIXA" | "NORMAL" | "URGENTE";
 

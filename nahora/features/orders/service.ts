@@ -2,7 +2,7 @@
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
 import type { Pedido, CriarPedidoPayload, Page } from "./types";
-import type { PedidoResumoResponse } from "@/features/professional/types";
+import type { PedidoResumoResponse, PedidoFiltroParams } from "@/features/professional/types";
 
 /** Helper para extrair o tipo MIME a partir da extensão do arquivo */
 function mimeTypeFromUri(uri: string): string {
@@ -65,10 +65,15 @@ export const orderService = {
   listarDisponiveis: async (
     page: number = 0,
     size: number = 20,
+    filtro?: PedidoFiltroParams,
   ): Promise<Page<PedidoResumoResponse>> => {
+    const params: Record<string, string | number | boolean> = { page, size };
+    if (filtro?.categoria && filtro.categoria !== "TODAS") params.categoria = filtro.categoria;
+    if (filtro?.urgente !== undefined && filtro.urgente !== null) params.urgente = filtro.urgente;
+    if (filtro?.sortBy) params.sortBy = filtro.sortBy;
     const { data } = await api.get<Page<PedidoResumoResponse>>(
       ENDPOINTS.PEDIDOS_DISPONIVEIS,
-      { params: { page, size } },
+      { params },
     );
     return data;
   },

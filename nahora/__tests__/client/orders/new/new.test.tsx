@@ -1,19 +1,20 @@
-import React from 'react';
-import { render, screen } from '@tests/test-utils';
-import NewOrderScreen from '@/app/(client)/(orders)/new';
+import React from "react";
+import { render, screen } from "@tests/test-utils";
+import NewOrderScreen from "@/app/(client)/(orders)/new";
 
-jest.mock('@/hooks/use-color-scheme', () => ({
-  useColorScheme: () => 'light',
+jest.mock("@/hooks/use-color-scheme", () => ({
+  useColorScheme: () => "light",
 }));
 
-jest.mock('@/components/ui/icon-symbol', () => ({
+jest.mock("@/components/ui/icon-symbol", () => ({
   IconSymbol: () => null,
 }));
 
-jest.mock('@/features/orders/hooks/useCreateOrderForm', () => ({
+jest.mock("@/features/orders/hooks/useCreateOrderForm", () => ({
   useCreateOrderForm: () => ({
     control: {} as any,
     isSubmitting: false,
+    isBuscandoCep: false,
     enderecoDiferente: false,
     errorMessage: null,
     errors: {},
@@ -31,23 +32,23 @@ jest.mock('@/features/orders/hooks/useCreateOrderForm', () => ({
   }),
 }));
 
-jest.mock('@/features/orders/components/OrderFormContent', () => ({
+jest.mock("@/features/orders/components/OrderFormContent", () => ({
   OrderFormContent: () => null,
 }));
 
 const mockBack = jest.fn();
-jest.mock('expo-router', () => ({
+jest.mock("expo-router", () => ({
   useRouter: () => ({ back: mockBack, push: jest.fn() }),
 }));
 
-describe('NewOrderScreen', () => {
+describe("NewOrderScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('renders header with title', () => {
+  test("renders header with title", () => {
     render(<NewOrderScreen />);
 
-    expect(screen.getByText('Pedido')).toBeOnTheScreen();
+    expect(screen.getByText("Pedido")).toBeOnTheScreen();
   });
 });

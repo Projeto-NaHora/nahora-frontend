@@ -1,7 +1,7 @@
 // features/professional/hooks/usePedidosDisponiveis.ts
 import useSWRInfinite from "swr/infinite";
 import { orderService } from "@/features/orders/service";
-import type { PedidoResumoResponse, PedidoDisponivel } from "../types";
+import type { PedidoResumoResponse, PedidoDisponivel, PedidoFiltroParams } from "../types";
 
 const CLIENTES_MOCK = [
   "Maria Silva",
@@ -23,13 +23,16 @@ export function enrichWithMockData(
   }));
 }
 
-export function usePedidosDisponiveis() {
+export function usePedidosDisponiveis(filtro?: PedidoFiltroParams) {
   const { data, size, setSize, isLoading, isValidating, error, mutate } = useSWRInfinite(
     (pageIndex, previousPageData) => {
       if (previousPageData && previousPageData.last) return null;
-      return ["pedidos-disponiveis", pageIndex, PAGE_SIZE];
+      return ["pedidos-disponiveis", pageIndex, PAGE_SIZE, filtro];
     },
-    ([, pageIndex, size]) => orderService.listarDisponiveis(pageIndex, size),
+    ([, pageIndex, size, f]) => {
+      const params = f as PedidoFiltroParams | undefined;
+      return orderService.listarDisponiveis(pageIndex as number, size as number, params);
+    },
   );
 
   const pedidos: PedidoResumoResponse[] = data?.flatMap((page) => page.content) ?? [];

@@ -2,6 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import { storage } from "@/utils/storage";
 import { isTokenExpired } from "@/utils/jwt";
+import { logAxiosError } from "@/utils/apiError";
 
 export const api = axios.create({ baseURL: process.env.EXPO_PUBLIC_API_URL });
 
@@ -19,7 +20,8 @@ async function doRefresh(): Promise<boolean> {
       .getState()
       .setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
     return true;
-  } catch {
+  } catch (error) {
+    logAxiosError(error, "doRefresh");
     useAuthStore.getState().logout();
     return false;
   }
@@ -51,28 +53,8 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    // === CONSOLE LOG DO ERRO ESPECÍFICO ===
-    console.error("[AXIOS ERROR HANDLER] Erro capturado:", {
-      message: error.message,
-      code: error.code,
-      isAxiosError: error.isAxiosError,
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      responseData: error.response?.data,
-      request: error.request
-        ? {
-            method: error.request.method,
-            url: error.request.url,
-            headers: error.request.headers,
-          }
-        : null,
-      config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        baseURL: error.config?.baseURL,
-      },
-    });
-    // === FIM DO CONSOLE LOG ===
+    // Loga TODOS os detalhes do erro antes de qualquer tratamento
+    logAxiosError(error);
 
     const original = error.config;
     if (

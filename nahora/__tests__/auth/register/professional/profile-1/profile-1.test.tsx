@@ -30,9 +30,18 @@ describe('Profile1Screen', () => {
     useRegisterStore.setState({
       cpf: '',
       cargo: '',
-      location: '',
-      experienceYears: undefined,
-      profilePhotoUri: undefined,
+      experienceYears: '',
+      profilePhotoUri: null,
+      cep: '',
+      logradouro: '',
+      numero: '',
+      complemento: '',
+      bairro: '',
+      cidade: '',
+      estado: '',
+      latitude: null,
+      longitude: null,
+      raioAtuacaoKm: '',
     });
     jest.clearAllMocks();
   });
@@ -56,12 +65,27 @@ describe('Profile1Screen', () => {
     expect(screen.getByPlaceholderText('ex. Eletricista')).toBeOnTheScreen();
   });
 
-  test('renders location input', () => {
+  test('renders CEP input', () => {
     render(<Profile1 />);
 
-    expect(
-      screen.getByPlaceholderText('Cidade, Estado'),
-    ).toBeOnTheScreen();
+    expect(screen.getByPlaceholderText('00000-000')).toBeOnTheScreen();
+  });
+
+  test('renders address fields', () => {
+    render(<Profile1 />);
+
+    expect(screen.getByPlaceholderText('Rua / Avenida')).toBeOnTheScreen();
+    expect(screen.getByPlaceholderText('123')).toBeOnTheScreen();
+    expect(screen.getByPlaceholderText('Bairro')).toBeOnTheScreen();
+    expect(screen.getByPlaceholderText('Cidade')).toBeOnTheScreen();
+    expect(screen.getByPlaceholderText('UF')).toBeOnTheScreen();
+  });
+
+  test('renders experiencia and raio fields', () => {
+    render(<Profile1 />);
+
+    expect(screen.getByPlaceholderText('ex. 8')).toBeOnTheScreen();
+    expect(screen.getByPlaceholderText('ex. 20')).toBeOnTheScreen();
   });
 
   test('renders continue button', () => {

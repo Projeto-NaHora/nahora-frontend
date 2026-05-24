@@ -27,13 +27,23 @@ type RegisterState = {
   profilePhotoUri: string | null;
   cpf: string;
   cargo: string;
-  location: string;
   experienceYears: string;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  latitude: number | null;
+  longitude: number | null;
+  raioAtuacaoKm: string;
   // Profile step 2 — Specialties
   about: string;
   especialidades: string[];
   // Profile step 3 — Portfolio
   portfolioPhotos: string[];
+  portfolioUrls: string[];
   setRole: (role: TipoUsuarioApp) => void;
   setPhone: (phone: string) => void;
   setName: (firstName: string, lastName: string) => void;
@@ -49,12 +59,22 @@ type RegisterState = {
   setProfilePhotoUri: (uri: string | null) => void;
   setCpf: (cpf: string) => void;
   setCargo: (cargo: string) => void;
-  setLocation: (location: string) => void;
   setExperienceYears: (years: string) => void;
+  setCep: (cep: string) => void;
+  setLogradouro: (logradouro: string) => void;
+  setNumero: (numero: string) => void;
+  setComplemento: (complemento: string) => void;
+  setBairro: (bairro: string) => void;
+  setCidade: (cidade: string) => void;
+  setEstado: (estado: string) => void;
+  setLatitude: (latitude: number | null) => void;
+  setLongitude: (longitude: number | null) => void;
+  setRaioAtuacaoKm: (raioAtuacaoKm: string) => void;
   setAbout: (about: string) => void;
   setEspecialidades: (tags: string[]) => void;
   addPortfolioPhoto: (uri: string) => void;
   removePortfolioPhoto: (index: number) => void;
+  setPortfolioUrls: (urls: string[]) => void;
   reset: () => void;
 };
 
@@ -75,11 +95,21 @@ const initialState = {
   profilePhotoUri: null,
   cpf: "",
   cargo: "",
-  location: "",
   experienceYears: "",
+  cep: "",
+  logradouro: "",
+  numero: "",
+  complemento: "",
+  bairro: "",
+  cidade: "",
+  estado: "",
+  latitude: null,
+  longitude: null,
+  raioAtuacaoKm: "",
   about: "",
   especialidades: [],
   portfolioPhotos: [],
+  portfolioUrls: [],
 };
 
 export const useRegisterStore = create<RegisterState>((set) => ({
@@ -99,8 +129,17 @@ export const useRegisterStore = create<RegisterState>((set) => ({
   setProfilePhotoUri: (profilePhotoUri) => set({ profilePhotoUri }),
   setCpf: (cpf) => set({ cpf }),
   setCargo: (cargo) => set({ cargo }),
-  setLocation: (location) => set({ location }),
   setExperienceYears: (experienceYears) => set({ experienceYears }),
+  setCep: (cep) => set({ cep }),
+  setLogradouro: (logradouro) => set({ logradouro }),
+  setNumero: (numero) => set({ numero }),
+  setComplemento: (complemento) => set({ complemento }),
+  setBairro: (bairro) => set({ bairro }),
+  setCidade: (cidade) => set({ cidade }),
+  setEstado: (estado) => set({ estado }),
+  setLatitude: (latitude) => set({ latitude }),
+  setLongitude: (longitude) => set({ longitude }),
+  setRaioAtuacaoKm: (raioAtuacaoKm) => set({ raioAtuacaoKm }),
   setAbout: (about) => set({ about }),
   setEspecialidades: (especialidades) => set({ especialidades }),
   addPortfolioPhoto: (uri) =>
@@ -111,5 +150,6 @@ export const useRegisterStore = create<RegisterState>((set) => ({
     set((state) => ({
       portfolioPhotos: state.portfolioPhotos.filter((_, i) => i !== index),
     })),
+  setPortfolioUrls: (portfolioUrls) => set({ portfolioUrls }),
   reset: () => set({ ...initialState }),
 }));

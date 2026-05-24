@@ -91,7 +91,7 @@ export const CATEGORIA_LABEL: Record<string, string> = {
   PEDREIRO: "Pedreiro",
   ENCANAMENTO: "Encanamento",
   PINTURA: "Pintura",
-  AR_CONDICIONADO: "Ar-condicionado",
+  MARCENARIA: "Marcenaria",
 };
 
 export const STATUS_LABEL: Record<string, string> = {

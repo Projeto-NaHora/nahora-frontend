@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -13,6 +13,8 @@ import { Profile1Content } from "@/features/auth/components/Profile1Content";
 import { useRegisterStore } from "@/store/registerStore";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { buscarCep } from "@/services/cep";
+import { geocodeAddress } from "@/services/geocode";
 
 async function pickPhoto(): Promise<string | null> {
   const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -75,25 +77,50 @@ function showPickOptions(onSelect: (uri: string) => void) {
   ]);
 }
 
+async function geocodeFromAddress(params: {
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+}): Promise<{ lat: number; lng: number } | null> {
+  const address = `${params.logradouro}, ${params.numero}, ${params.bairro}, ${params.cidade}, ${params.estado}`;
+  return geocodeAddress(address);
+}
+
 export default function Profile1() {
   const router = useRouter();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
+  const [cepLoading, setCepLoading] = useState(false);
 
   const cpf = useRegisterStore((state) => state.cpf);
   const cargo = useRegisterStore((state) => state.cargo);
-  const location = useRegisterStore((state) => state.location);
   const experienceYears = useRegisterStore((state) => state.experienceYears);
   const profilePhotoUri = useRegisterStore((state) => state.profilePhotoUri);
+  const cep = useRegisterStore((state) => state.cep);
+  const logradouro = useRegisterStore((state) => state.logradouro);
+  const numero = useRegisterStore((state) => state.numero);
+  const complemento = useRegisterStore((state) => state.complemento);
+  const bairro = useRegisterStore((state) => state.bairro);
+  const cidade = useRegisterStore((state) => state.cidade);
+  const estado = useRegisterStore((state) => state.estado);
+  const raioAtuacaoKm = useRegisterStore((state) => state.raioAtuacaoKm);
+
   const setCpf = useRegisterStore((state) => state.setCpf);
   const setCargo = useRegisterStore((state) => state.setCargo);
-  const setLocation = useRegisterStore((state) => state.setLocation);
-  const setExperienceYears = useRegisterStore(
-    (state) => state.setExperienceYears,
-  );
-  const setProfilePhotoUri = useRegisterStore(
-    (state) => state.setProfilePhotoUri,
-  );
+  const setExperienceYears = useRegisterStore((state) => state.setExperienceYears);
+  const setProfilePhotoUri = useRegisterStore((state) => state.setProfilePhotoUri);
+  const setCep = useRegisterStore((state) => state.setCep);
+  const setLogradouro = useRegisterStore((state) => state.setLogradouro);
+  const setNumero = useRegisterStore((state) => state.setNumero);
+  const setComplemento = useRegisterStore((state) => state.setComplemento);
+  const setBairro = useRegisterStore((state) => state.setBairro);
+  const setCidade = useRegisterStore((state) => state.setCidade);
+  const setEstado = useRegisterStore((state) => state.setEstado);
+  const setLatitude = useRegisterStore((state) => state.setLatitude);
+  const setLongitude = useRegisterStore((state) => state.setLongitude);
+  const setRaioAtuacaoKm = useRegisterStore((state) => state.setRaioAtuacaoKm);
 
   const handlePickPhoto = () => {
     showPickOptions((uri) => {
@@ -101,7 +128,45 @@ export default function Profile1() {
     });
   };
 
-  const handleContinue = () => {
+  const handleCepBlur = async () => {
+    const digits = cep.replace(/\D/g, "");
+    if (digits.length !== 8) return;
+
+    setCepLoading(true);
+    try {
+      const endereco = await buscarCep(digits);
+      if (endereco) {
+        setLogradouro(endereco.logradouro);
+        setBairro(endereco.bairro);
+        setCidade(endereco.cidade);
+        setEstado(endereco.estado);
+      }
+    } catch {
+      // silently ignore CEP lookup errors
+    } finally {
+      setCepLoading(false);
+    }
+  };
+
+  const handleContinue = async () => {
+    // Geocode the address before moving to next step
+    if (!cepLoading) {
+      try {
+        const coords = await geocodeFromAddress({
+          logradouro,
+          numero,
+          bairro,
+          cidade,
+          estado,
+        });
+        if (coords) {
+          setLatitude(coords.lat);
+          setLongitude(coords.lng);
+        }
+      } catch {
+        // proceed even if geocoding fails
+      }
+    }
     router.push("/(auth)/(register)/professional/profile-2");
   };
 
@@ -123,13 +188,29 @@ export default function Profile1() {
           <Profile1Content
             cpf={cpf}
             cargo={cargo}
-            location={location}
             experienceYears={experienceYears}
             profilePhotoUri={profilePhotoUri}
+            cep={cep}
+            logradouro={logradouro}
+            numero={numero}
+            complemento={complemento}
+            bairro={bairro}
+            cidade={cidade}
+            estado={estado}
+            raioAtuacaoKm={raioAtuacaoKm}
+            cepLoading={cepLoading}
             onChangeCpf={setCpf}
             onChangeCargo={setCargo}
-            onChangeLocation={setLocation}
             onChangeExperienceYears={setExperienceYears}
+            onChangeCep={setCep}
+            onChangeLogradouro={setLogradouro}
+            onChangeNumero={setNumero}
+            onChangeComplemento={setComplemento}
+            onChangeBairro={setBairro}
+            onChangeCidade={setCidade}
+            onChangeEstado={setEstado}
+            onChangeRaioAtuacaoKm={setRaioAtuacaoKm}
+            onCepBlur={handleCepBlur}
             onPickPhoto={handlePickPhoto}
             onContinue={handleContinue}
           />

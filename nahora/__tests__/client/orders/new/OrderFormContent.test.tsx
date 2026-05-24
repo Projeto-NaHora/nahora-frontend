@@ -1,34 +1,35 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@tests/test-utils';
-import { useForm } from 'react-hook-form';
-import { OrderFormContent } from '@/features/orders/components/OrderFormContent';
-import type { CriarPedidoFormValues } from '@/features/orders/types';
+import React from "react";
+import { render, screen, fireEvent } from "@tests/test-utils";
+import { useForm } from "react-hook-form";
+import { OrderFormContent } from "@/features/orders/components/OrderFormContent";
+import type { CriarPedidoFormValues } from "@/features/orders/types";
 
-jest.mock('@/hooks/use-color-scheme', () => ({
-  useColorScheme: () => 'light',
+jest.mock("@/hooks/use-color-scheme", () => ({
+  useColorScheme: () => "light",
 }));
 
-jest.mock('@/components/ui/icon-symbol', () => ({
+jest.mock("@/components/ui/icon-symbol", () => ({
   IconSymbol: () => null,
 }));
 
 const defaultValues: CriarPedidoFormValues = {
-  categoria: '',
-  descricao: '',
+  categoria: "",
+  descricao: "",
   enderecoDiferente: false,
-  cep: '',
-  logradouro: '',
-  numero: '',
-  complemento: '',
-  bairro: '',
-  cidade: '',
-  estado: '',
-  urgencia: 'NORMAL',
-  turno: 'MANHA',
+  cep: "",
+  logradouro: "",
+  numero: "",
+  complemento: "",
+  bairro: "",
+  cidade: "",
+  estado: "",
+  urgencia: "NORMAL",
+  turno: "MANHA",
 };
 
 function TestHarness({
   isSubmitting = false,
+  isBuscandoCep = false,
   enderecoDiferente = false,
   errorMessage = null,
   errors = {},
@@ -42,6 +43,7 @@ function TestHarness({
   onClear = jest.fn(),
 }: Partial<{
   isSubmitting: boolean;
+  isBuscandoCep: boolean;
   enderecoDiferente: boolean;
   errorMessage: string | null;
   errors: Record<string, { message?: string }>;
@@ -60,6 +62,7 @@ function TestHarness({
     <OrderFormContent
       control={control}
       isSubmitting={isSubmitting}
+      isBuscandoCep={isBuscandoCep}
       enderecoDiferente={enderecoDiferente}
       errorMessage={errorMessage}
       errors={errors as any}
@@ -75,223 +78,223 @@ function TestHarness({
   );
 }
 
-describe('OrderFormContent', () => {
-  test('renders title and subtitle', () => {
+describe("OrderFormContent", () => {
+  test("renders title and subtitle", () => {
     render(<TestHarness />);
 
-    expect(screen.getByText('Cadastro Pedido')).toBeOnTheScreen();
+    expect(screen.getByText("Cadastro Pedido")).toBeOnTheScreen();
     expect(
-      screen.getByText('Preencha as informações do seu pedido'),
+      screen.getByText("Preencha as informações do seu pedido"),
     ).toBeOnTheScreen();
   });
 
-  test('renders categoria picker placeholder', () => {
+  test("renders categoria picker placeholder", () => {
     render(<TestHarness />);
 
-    expect(screen.getByText('Tipo')).toBeOnTheScreen();
+    expect(screen.getByText("Tipo")).toBeOnTheScreen();
   });
 
-  test('renders descricao field', () => {
+  test("renders descricao field", () => {
     render(<TestHarness />);
 
-    expect(screen.getByText('Descrição')).toBeOnTheScreen();
+    expect(screen.getByText("Descrição")).toBeOnTheScreen();
   });
 
-  test('renders turno chips', () => {
+  test("renders turno chips", () => {
     render(<TestHarness />);
 
-    expect(screen.getByText('Turno disponível')).toBeOnTheScreen();
-    expect(screen.getByText('Manha')).toBeOnTheScreen();
-    expect(screen.getByText('Tarde')).toBeOnTheScreen();
-    expect(screen.getByText('Noite')).toBeOnTheScreen();
+    expect(screen.getByText("Turno disponível")).toBeOnTheScreen();
+    expect(screen.getByText("Manha")).toBeOnTheScreen();
+    expect(screen.getByText("Tarde")).toBeOnTheScreen();
+    expect(screen.getByText("Noite")).toBeOnTheScreen();
   });
 
-  test('renders urgencia chips', () => {
+  test("renders urgencia chips", () => {
     render(<TestHarness />);
 
-    expect(screen.getByText('Urgência')).toBeOnTheScreen();
-    expect(screen.getByText('Normal')).toBeOnTheScreen();
-    expect(screen.getByText('Baixa')).toBeOnTheScreen();
-    expect(screen.getByText('Urgente')).toBeOnTheScreen();
+    expect(screen.getByText("Urgência")).toBeOnTheScreen();
+    expect(screen.getByText("Normal")).toBeOnTheScreen();
+    expect(screen.getByText("Baixa")).toBeOnTheScreen();
+    expect(screen.getByText("Urgente")).toBeOnTheScreen();
   });
 
-  test('renders media buttons', () => {
+  test("renders media buttons", () => {
     render(<TestHarness />);
 
-    expect(screen.getByText('Câmera')).toBeOnTheScreen();
-    expect(screen.getByText('Galeria')).toBeOnTheScreen();
+    expect(screen.getByText("Câmera")).toBeOnTheScreen();
+    expect(screen.getByText("Galeria")).toBeOnTheScreen();
   });
 
-  test('renders action buttons', () => {
+  test("renders action buttons", () => {
     render(<TestHarness />);
 
-    expect(screen.getByText('Limpar')).toBeOnTheScreen();
-    expect(screen.getByText('Criar Pedido')).toBeOnTheScreen();
+    expect(screen.getByText("Limpar")).toBeOnTheScreen();
+    expect(screen.getByText("Criar Pedido")).toBeOnTheScreen();
   });
 
-  test('disables submit button when submitting', () => {
+  test("disables submit button when submitting", () => {
     render(<TestHarness isSubmitting={true} />);
 
-    const button = screen.getByText('Criando...');
+    const button = screen.getByText("Criando...");
     expect(button).toBeOnTheScreen();
   });
 
-  test('shows endereco checkbox toggle', () => {
+  test("shows endereco checkbox toggle", () => {
     render(<TestHarness />);
 
-    expect(
-      screen.getByText(/Usar endereço diferente/),
-    ).toBeOnTheScreen();
+    expect(screen.getByText(/Usar endereço diferente/)).toBeOnTheScreen();
   });
 
-  test('shows endereco fields when toggle is on', () => {
+  test("shows endereco fields when toggle is on", () => {
     render(<TestHarness enderecoDiferente={true} />);
 
-    expect(screen.getByText('CEP')).toBeOnTheScreen();
-    expect(screen.getByText('Logradouro')).toBeOnTheScreen();
-    expect(screen.getByText('Número')).toBeOnTheScreen();
-    expect(screen.getByText('Complemento')).toBeOnTheScreen();
-    expect(screen.getByText('Bairro')).toBeOnTheScreen();
-    expect(screen.getByText('Cidade')).toBeOnTheScreen();
-    expect(screen.getByText('Estado')).toBeOnTheScreen();
+    expect(screen.getByText("CEP")).toBeOnTheScreen();
+    expect(screen.getByText("Logradouro")).toBeOnTheScreen();
+    expect(screen.getByText("Número")).toBeOnTheScreen();
+    expect(screen.getByText("Complemento")).toBeOnTheScreen();
+    expect(screen.getByText("Bairro")).toBeOnTheScreen();
+    expect(screen.getByText("Cidade")).toBeOnTheScreen();
+    expect(screen.getByText("Estado")).toBeOnTheScreen();
   });
 
-  test('hides endereco fields when toggle is off', () => {
+  test("hides endereco fields when toggle is off", () => {
     render(<TestHarness enderecoDiferente={false} />);
 
-    expect(screen.queryByText('CEP')).not.toBeOnTheScreen();
-    expect(screen.queryByText('Logradouro')).not.toBeOnTheScreen();
+    expect(screen.queryByText("CEP")).not.toBeOnTheScreen();
+    expect(screen.queryByText("Logradouro")).not.toBeOnTheScreen();
   });
 
-  test('shows global error message', () => {
+  test("shows global error message", () => {
     render(<TestHarness errorMessage="Erro ao criar pedido" />);
 
-    expect(screen.getByText('Erro ao criar pedido')).toBeOnTheScreen();
+    expect(screen.getByText("Erro ao criar pedido")).toBeOnTheScreen();
   });
 
-  test('shows field-level error messages', () => {
+  test("shows field-level error messages", () => {
     render(
       <TestHarness
         errors={{
-          categoria: { message: 'Selecione um tipo' },
-          descricao: { message: 'Descreva melhor' },
-          turno: { message: 'Selecione um turno' },
-          urgencia: { message: 'Selecione a urgencia' },
+          categoria: { message: "Selecione um tipo" },
+          descricao: { message: "Descreva melhor" },
+          turno: { message: "Selecione um turno" },
+          urgencia: { message: "Selecione a urgencia" },
         }}
       />,
     );
 
-    expect(screen.getByText('Selecione um tipo')).toBeOnTheScreen();
-    expect(screen.getByText('Descreva melhor')).toBeOnTheScreen();
-    expect(screen.getByText('Selecione um turno')).toBeOnTheScreen();
-    expect(screen.getByText('Selecione a urgencia')).toBeOnTheScreen();
+    expect(screen.getByText("Selecione um tipo")).toBeOnTheScreen();
+    expect(screen.getByText("Descreva melhor")).toBeOnTheScreen();
+    expect(screen.getByText("Selecione um turno")).toBeOnTheScreen();
+    expect(screen.getByText("Selecione a urgencia")).toBeOnTheScreen();
   });
 
-  describe('address validation', () => {
-    test('shows CEP format error', () => {
+  describe("address validation", () => {
+    test("shows CEP format error", () => {
       render(
         <TestHarness
           enderecoDiferente={true}
-          errors={{ cep: { message: 'CEP inválido' } }}
+          errors={{ cep: { message: "CEP inválido" } }}
         />,
       );
 
-      expect(screen.getByText('CEP inválido')).toBeOnTheScreen();
+      expect(screen.getByText("CEP inválido")).toBeOnTheScreen();
     });
 
-    test('shows required logradouro error', () => {
+    test("shows required logradouro error", () => {
       render(
         <TestHarness
           enderecoDiferente={true}
-          errors={{ logradouro: { message: 'Informe o logradouro' } }}
+          errors={{ logradouro: { message: "Informe o logradouro" } }}
         />,
       );
 
-      expect(screen.getByText('Informe o logradouro')).toBeOnTheScreen();
+      expect(screen.getByText("Informe o logradouro")).toBeOnTheScreen();
     });
 
-    test('shows required numero error', () => {
+    test("shows required numero error", () => {
       render(
         <TestHarness
           enderecoDiferente={true}
-          errors={{ numero: { message: 'Informe o número' } }}
+          errors={{ numero: { message: "Informe o número" } }}
         />,
       );
 
-      expect(screen.getByText('Informe o número')).toBeOnTheScreen();
+      expect(screen.getByText("Informe o número")).toBeOnTheScreen();
     });
 
-    test('shows required bairro error', () => {
+    test("shows required bairro error", () => {
       render(
         <TestHarness
           enderecoDiferente={true}
-          errors={{ bairro: { message: 'Informe o bairro' } }}
+          errors={{ bairro: { message: "Informe o bairro" } }}
         />,
       );
 
-      expect(screen.getByText('Informe o bairro')).toBeOnTheScreen();
+      expect(screen.getByText("Informe o bairro")).toBeOnTheScreen();
     });
 
-    test('shows required cidade error', () => {
+    test("shows required cidade error", () => {
       render(
         <TestHarness
           enderecoDiferente={true}
-          errors={{ cidade: { message: 'Informe a cidade' } }}
+          errors={{ cidade: { message: "Informe a cidade" } }}
         />,
       );
 
-      expect(screen.getByText('Informe a cidade')).toBeOnTheScreen();
+      expect(screen.getByText("Informe a cidade")).toBeOnTheScreen();
     });
 
-    test('shows estado format error', () => {
+    test("shows estado format error", () => {
       render(
         <TestHarness
           enderecoDiferente={true}
-          errors={{ estado: { message: 'Selecione um estado válido' } }}
+          errors={{ estado: { message: "Selecione um estado válido" } }}
         />,
       );
 
-      expect(screen.getByText('Selecione um estado válido')).toBeOnTheScreen();
+      expect(screen.getByText("Selecione um estado válido")).toBeOnTheScreen();
     });
   });
 
-  test('shows upload error', () => {
+  test("shows upload error", () => {
     render(<TestHarness uploadError="Permissão de câmera não concedida." />);
 
     expect(
-      screen.getByText('Permissão de câmera não concedida.'),
+      screen.getByText("Permissão de câmera não concedida."),
     ).toBeOnTheScreen();
   });
 
-  test('shows media preview with remove badges', () => {
+  test("shows media preview with remove badges", () => {
     render(
-      <TestHarness mediaUris={['file://test/photo1.jpg', 'file://test/photo2.jpg']} />,
+      <TestHarness
+        mediaUris={["file://test/photo1.jpg", "file://test/photo2.jpg"]}
+      />,
     );
 
     // Should have 2 images rendered
-    const images = screen.UNSAFE_getAllByType(require('react-native').Image);
+    const images = screen.UNSAFE_getAllByType(require("react-native").Image);
     expect(images.length).toBe(2);
   });
 
-  test('shows uploading status text', () => {
+  test("shows uploading status text", () => {
     render(<TestHarness isUploadingMedia={true} />);
 
-    expect(screen.getByText('Enviando imagens...')).toBeOnTheScreen();
+    expect(screen.getByText("Enviando imagens...")).toBeOnTheScreen();
   });
 
-  test('calls onClear when Limpar button pressed', () => {
+  test("calls onClear when Limpar button pressed", () => {
     const onClear = jest.fn();
     render(<TestHarness onClear={onClear} />);
 
-    fireEvent.press(screen.getByText('Limpar'));
+    fireEvent.press(screen.getByText("Limpar"));
     expect(onClear).toHaveBeenCalled();
   });
 
-  test('calls onSubmit when Criar Pedido button pressed', () => {
+  test("calls onSubmit when Criar Pedido button pressed", () => {
     const onSubmit = jest.fn();
     render(<TestHarness onSubmit={onSubmit} />);
 
-    fireEvent.press(screen.getByText('Criar Pedido'));
+    fireEvent.press(screen.getByText("Criar Pedido"));
     expect(onSubmit).toHaveBeenCalled();
   });
 });
