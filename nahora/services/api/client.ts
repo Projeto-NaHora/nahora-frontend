@@ -51,6 +51,29 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
+    // === CONSOLE LOG DO ERRO ESPECÍFICO ===
+    console.error("[AXIOS ERROR HANDLER] Erro capturado:", {
+      message: error.message,
+      code: error.code,
+      isAxiosError: error.isAxiosError,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      responseData: error.response?.data,
+      request: error.request
+        ? {
+            method: error.request.method,
+            url: error.request.url,
+            headers: error.request.headers,
+          }
+        : null,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL,
+      },
+    });
+    // === FIM DO CONSOLE LOG ===
+
     const original = error.config;
     if (
       (error.response?.status === 401 || error.response?.status === 403) &&
