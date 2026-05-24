@@ -1,60 +1,81 @@
-import { useEffect, useRef, useState } from "react";
-import { IMessage, StompSubscription } from "@stomp/stompjs"; // Import types
-import { getStompClient } from "../stompClient";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { chatWsManager } from "../stompClient";
+import type { ConnectionStatus } from "../stompClient";
 import type { Mensagem } from "../types";
 
-export function useChat(conversaId: number, historicoInicial: Mensagem[]) {
-  const [mensagens, setMensagens] = useState<Mensagem[]>(historicoInicial);
+const IA_BLOCK_TIMEOUT = 3000;
 
-  // Use the explicit StompSubscription type from the library
-  const subRef = useRef<StompSubscription | null>(null);
+export function useChat(conversaId: number, onMessage?: (msg: Mensagem) => void) {
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(
+    chatWsManager.connectionStatus,
+  );
+  const [isSending, setIsSending] = useState(false);
+  const [iaBlocked, setIaBlocked] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSentRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const stomp = getStompClient();
+    setConnectionStatus(chatWsManager.connectionStatus);
+    const unsub = chatWsManager.onStatusChange(setConnectionStatus);
+    return unsub;
+  }, []);
 
-    const subscribe = () => {
-      // Check if we already have a subscription for this ID to avoid duplicates
-      if (subRef.current) return;
-
-      subRef.current = stomp.subscribe(
-        `/topic/chat/${conversaId}`,
-        (frame: IMessage) => {
-          const nova: Mensagem = JSON.parse(frame.body);
-          setMensagens((prev) => [...prev, nova]);
-        },
-      );
-    };
-
-    // If client is already active, subscribe immediately
-    if (stomp.active && stomp.connected) {
-      subscribe();
+  useEffect(() => {
+    if (!chatWsManager.getClient()?.active) {
+      chatWsManager.connect();
     }
 
-    // Assign onConnect to handle initial connection or reconnection
-    // Note: If using @stomp/stompjs v7+, prefer stomp.onConnect = ...
-    const originalOnConnect = stomp.onConnect;
-    stomp.onConnect = (frame) => {
-      if (originalOnConnect) originalOnConnect(frame);
-      subscribe();
-    };
+    chatWsManager.subscribe(conversaId, (msg: Mensagem) => {
+      if (
+        lastSentRef.current &&
+        timeoutRef.current &&
+        msg.conteudo === lastSentRef.current
+      ) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+        lastSentRef.current = null;
+        setIsSending(false);
+      }
+      onMessage?.(msg);
+    });
 
     return () => {
-      if (subRef.current) {
-        subRef.current.unsubscribe();
-        subRef.current = null; // Clear the ref
+      chatWsManager.unsubscribe(conversaId);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
     };
-  }, [conversaId]);
+  }, [conversaId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function enviarMensagem(conteudo: string) {
-    const stomp = getStompClient();
-    if (stomp.active) {
-      stomp.publish({
-        destination: `/app/chat/${conversaId}`,
-        body: JSON.stringify({ conteudo }),
-      });
-    }
-  }
+  const sendMessage = useCallback(
+    (conteudo: string, anexoUrl?: string) => {
+      if (!conteudo.trim()) return;
 
-  return { mensagens, enviarMensagem };
+      setIsSending(true);
+      lastSentRef.current = conteudo;
+
+      timeoutRef.current = setTimeout(() => {
+        setIsSending(false);
+        setIaBlocked(true);
+        timeoutRef.current = null;
+        lastSentRef.current = null;
+      }, IA_BLOCK_TIMEOUT);
+
+      chatWsManager.send(conversaId, conteudo.trim(), anexoUrl);
+    },
+    [conversaId],
+  );
+
+  const isConnected =
+    connectionStatus === "CONNECTED";
+
+  return {
+    connectionStatus,
+    isSending,
+    isConnected,
+    iaBlocked,
+    sendMessage,
+    clearIaBlocked: () => setIaBlocked(false),
+  };
 }

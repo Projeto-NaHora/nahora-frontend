@@ -26,9 +26,11 @@ export const ENDPOINTS = {
   ACEITAR_PROPOSTA: (id: number) => `/propostas/${id}/aceitar`,
   RECUSAR_PROPOSTA: (id: number) => `/propostas/${id}/recusar`,
 
-  // Chat (histórico REST — mensagens em tempo real via WebSocket)
+  // Chat (conversation list + message history REST)
+  CONVERSAS: "/conversas",
   CONVERSA: (id: number) => `/conversas/${id}`,
   MENSAGENS: (conversaId: number) => `/conversas/${conversaId}/mensagens`,
+  PEDIDO_CONVERSA: (pedidoId: number) => `/pedidos/${pedidoId}/conversa`,
 
   // Pagamentos
   PAGAMENTO: (propostaId: number) => `/propostas/${propostaId}/pagamento`,

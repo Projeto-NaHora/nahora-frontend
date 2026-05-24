@@ -142,3 +142,19 @@ export const LetterSpacing = {
 export const Borders = {
   thin: 1,
 };
+
+export const ChatColors = {
+  brandOrange: "#f27b24",
+  incomingBubble: "#f4f6f8",
+  proposalBg: "#fff2e5",
+  proposalBorder: "#fad3bc",
+  proposalText: "#e67215",
+  onlineGreen: "#10b981",
+  mutedText: "#8c8c8c",
+  surfaceLight: "#f8f9fa",
+  borderSubtle: "#eaeaea",
+  darkText: "#111111",
+  readReceipt: "#f27b24",
+  readReceiptSent: "#8c8c8c",
+  white: "#ffffff",
+};

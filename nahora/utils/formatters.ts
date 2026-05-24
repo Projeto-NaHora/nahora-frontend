@@ -1,3 +1,5 @@
+import type { Mensagem } from "@/features/chat/types";
+
 /**
  * Formats a raw digit string into Brazilian phone format (xx) xxxxx-xxxx
  */
@@ -69,6 +71,49 @@ export function formatCep(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 8);
   if (digits.length <= 5) return digits;
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+}
+
+/**
+ * Formats ISO datetime to HH:mm (24h).
+ */
+export function formatMessageTime(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
+/**
+ * Returns "HOJE", "ONTEM", or "DD/MM/YYYY" for a date separator.
+ */
+export function formatDateSeparator(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const diff = (today.getTime() - target.getTime()) / (1000 * 60 * 60 * 24);
+  if (diff === 0) return "HOJE";
+  if (diff === 1) return "ONTEM";
+  return d.toLocaleDateString("pt-BR");
+}
+
+/**
+ * Groups messages by date, inserting DateSeparatorEntry markers between days.
+ */
+export function groupMessagesByDate(
+  messages: Mensagem[],
+): (Mensagem | { __type: "date-separator"; date: string })[] {
+  const result: (Mensagem | { __type: "date-separator"; date: string })[] = [];
+  let lastDate = "";
+  for (const msg of messages) {
+    const date = msg.criadoEm.slice(0, 10);
+    if (date !== lastDate) {
+      result.push({ __type: "date-separator", date: msg.criadoEm });
+      lastDate = date;
+    }
+    result.push(msg);
+  }
+  return result;
 }
 
 export function isValidCpf(value: string): boolean {

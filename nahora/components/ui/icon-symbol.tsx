@@ -25,6 +25,7 @@ const MAPPING = {
   "chevron.left": "chevron-left",
   "doc.text.fill": "list-alt",
   "bubble.left.and.bubble.right.fill": "chat",
+  magnifyingglass: "search",
   "heart.fill": "favorite",
   "person.fill": "person",
   "briefcase.fill": "work",
