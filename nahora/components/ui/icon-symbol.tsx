@@ -28,10 +28,13 @@ const MAPPING = {
   "heart.fill": "favorite",
   "person.fill": "person",
   "briefcase.fill": "work",
-  "camera.fill": "camera-alt",
-  "photo.on.rectangle": "photo-library",
-  "square.and.pencil": "edit",
-  checkmark: "check",
+  edit: "edit",
+  public: "public",
+  "attach-money": "attach-money",
+  "location-on": "location-on",
+  settings: "settings",
+  lock: "lock",
+  logout: "logout",
 } as Partial<IconMapping>;
 
 /**
