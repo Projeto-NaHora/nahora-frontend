@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx jest *)",
+      "mcp__figma-bridge__get_design_context",
+      "mcp__figma-bridge__get_screenshot",
+      "mcp__figma-bridge__save_screenshots",
+      "mcp__figma-bridge__get_node",
+      "Bash(npm test *)",
+      "Bash(npx tsc *)",
+      "Skill(tdd)",
+      "Bash(node *)",
+      "mcp__figma-bridge__get_styles",
+      "mcp__figma-bridge__list_files",
+      "Bash(test -f \"C:\\\\Users\\\\zauns\\\\Documents\\\\nahora-frontend\\\\nahora\\\\__tests__\\\\client\\\\orders\\\\[orderId]\\\\proposals\\\\index.test.tsx\")",
+      "Bash(test -f \"C:\\\\Users\\\\zauns\\\\Documents\\\\nahora-frontend\\\\nahora\\\\__tests__\\\\client\\\\orders\\\\[orderId]\\\\proposals\\\\PropostaCard.test.tsx\")",
+      "Bash(test -f \"C:\\\\Users\\\\zauns\\\\Documents\\\\nahora-frontend\\\\nahora\\\\__tests__\\\\client\\\\orders\\\\[orderId]\\\\proposals\\\\useProposalsByPedido.test.ts\")",
+      "mcp__figma-bridge__get_selection",
+      "mcp__figma-bridge__get_metadata",
+      "Skill(caveman)",
+      "Bash(npx expo *)"
+    ]
+  }
+}

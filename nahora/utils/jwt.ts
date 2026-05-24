@@ -19,3 +19,14 @@ export function decodeJwtPayload<T = Record<string, unknown>>(
     return null;
   }
 }
+
+export function getTokenExp(token: string): number | null {
+  const payload = decodeJwtPayload<{ exp?: number }>(token);
+  return payload?.exp ?? null;
+}
+
+export function isTokenExpired(token: string): boolean {
+  const exp = getTokenExp(token);
+  if (!exp) return true;
+  return Date.now() / 1000 >= exp;
+}

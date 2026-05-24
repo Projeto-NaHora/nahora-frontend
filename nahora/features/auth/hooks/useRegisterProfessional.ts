@@ -1,9 +1,9 @@
-import { Alert } from "react-native";
+import { useState } from "react";
 import useSWRMutation from "swr/mutation";
 
 import { useAuthStore } from "@/store/authStore";
 import { useRegisterStore } from "@/store/registerStore";
-import { getApiErrorMessage } from "@/utils/apiError";
+import { parseApiError } from "@/utils/apiError";
 import { authService } from "../service";
 
 type UseRegisterProfessionalOptions = {
@@ -28,6 +28,8 @@ export function useRegisterProfessional({
   const selfieUrl = useRegisterStore((state) => state.selfieUrl);
   const reset = useRegisterStore((state) => state.reset);
   const setTokens = useAuthStore((state) => state.setTokens);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
 
   const { trigger, isMutating } = useSWRMutation(
     "register-professional",
@@ -59,7 +61,9 @@ export function useRegisterProfessional({
         onSuccess();
       },
       onError: (error) => {
-        Alert.alert("Erro", getApiErrorMessage(error));
+        const parsed = parseApiError(error);
+        setErrorMessage(parsed.message);
+        setErrorStatus(parsed.statusCode ?? null);
       },
     },
   );
@@ -67,5 +71,7 @@ export function useRegisterProfessional({
   return {
     submit: trigger,
     isSubmitting: isMutating,
+    errorMessage,
+    errorStatus,
   };
 }

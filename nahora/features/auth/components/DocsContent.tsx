@@ -9,6 +9,7 @@ import {
   LineHeights,
 } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { AuthScreenShell } from "./AuthScreenShell";
 
 type DocBoxProps = {
@@ -49,6 +50,9 @@ type DocsContentProps = {
   onPickSelfie: () => void;
   onContinue: () => void;
   isUploading?: boolean;
+  error?: string | null;
+  /** Código HTTP do erro (ex.: 401) para exibir como badge no banner */
+  errorStatus?: number | null;
 };
 
 export function DocsContent({
@@ -60,6 +64,8 @@ export function DocsContent({
   onPickSelfie,
   onContinue,
   isUploading = false,
+  error = null,
+  errorStatus,
 }: DocsContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -84,6 +90,16 @@ export function DocsContent({
           identidade. Não compartilhamos com terceiros.
         </Text>
       </View>
+
+      {/* Error banner */}
+      {error && (
+        <ServerErrorBanner
+          title="Erro ao enviar documentos"
+          message={error}
+          statusCode={errorStatus ?? undefined}
+          style={{ marginBottom: 16 }}
+        />
+      )}
 
       {/* RG Section */}
       <View style={styles.section}>
@@ -202,6 +218,7 @@ const styles = StyleSheet.create({
     letterSpacing: LetterSpacing.body,
     fontWeight: "500",
   },
+
   section: {
     marginBottom: 16,
   },

@@ -82,12 +82,13 @@ export default function Profile3() {
     (state) => state.removePortfolioPhoto,
   );
 
-  const { submit, isSubmitting } = useRegisterProfessional({
-    onSuccess: () => {
-      // Navigate to the professional home after successful registration
-      router.replace("/(professional)/(home)");
-    },
-  });
+  const { submit, isSubmitting, errorMessage, errorStatus } =
+    useRegisterProfessional({
+      onSuccess: () => {
+        // Navigate to the professional home after successful registration
+        router.replace("/(professional)/(home)");
+      },
+    });
 
   const handlePickPhoto = () => {
     showPickOptions((uri) => {
@@ -124,6 +125,8 @@ export default function Profile3() {
           onBack={handleBack}
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
+          error={errorMessage}
+          errorStatus={errorStatus}
         />
       </ScrollView>
     </SafeAreaView>
