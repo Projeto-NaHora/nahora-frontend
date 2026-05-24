@@ -1,0 +1,72 @@
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+
+import { Fonts } from "@/constants/theme";
+
+interface ProfileHeaderProps {
+  initials: string;
+  name: string;
+  subtitle: string;
+}
+
+export function ProfileHeader({
+  initials,
+  name,
+  subtitle,
+}: ProfileHeaderProps) {
+  return (
+    <View style={styles.container}>
+      <View style={styles.textContainer}>
+        <Text style={[styles.name, { color: "#1c1c1e" }]}>{name}</Text>
+        <Text style={[styles.subtitle, { color: "#8e8e93" }]}>{subtitle}</Text>
+      </View>
+      <View style={[styles.avatar, { backgroundColor: "#fef0e8" }]}>
+        <Text style={[styles.avatarText, { color: "#f26f21" }]}>
+          {initials}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+  },
+  textContainer: {
+    flex: 1,
+    gap: 6,
+    paddingRight: 16,
+  },
+  name: {
+    fontSize: 24,
+    fontFamily: Fonts?.sans,
+    fontWeight: "700",
+    lineHeight: 40,
+    letterSpacing: -0.8,
+  },
+  subtitle: {
+    fontSize: 17,
+    fontFamily: Fonts?.sans,
+    fontWeight: "400",
+    lineHeight: 25.5,
+  },
+  avatar: {
+    width: 106,
+    height: 104,
+    borderRadius: 33554400,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    fontSize: 30,
+    fontFamily: Fonts?.sans,
+    fontWeight: "700",
+    lineHeight: 27,
+    textAlign: "center",
+  },
+});

@@ -26,6 +26,13 @@ const MAPPING = {
   "heart.fill": "favorite",
   "person.fill": "person",
   "briefcase.fill": "work",
+  edit: "edit",
+  public: "public",
+  "attach-money": "attach-money",
+  "location-on": "location-on",
+  settings: "settings",
+  lock: "lock",
+  logout: "logout",
 } as Partial<IconMapping>;
 
 /**
