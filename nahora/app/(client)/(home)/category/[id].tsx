@@ -90,8 +90,8 @@ export default function ProvidersByCategoryScreen() {
             (id as string) ||
             "Serviços",
           distance: prof?.distanciaKm || prof?.distancia || 0,
-          rating: prof?.notaMedia || prof?.rating || 5.0,
-          reviews: prof?.numeroAvaliacoes || prof?.totalAvaliacoes || 0,
+          rating: prof?.mediaAvaliacoes ?? 0,
+          reviews: prof?.totalAvaliacoes ?? 0,
           price: 0,
           isPlus: prof?.planoPlus || prof?.isPlus || false,
         }));
