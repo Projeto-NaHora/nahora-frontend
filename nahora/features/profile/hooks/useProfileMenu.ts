@@ -11,10 +11,10 @@ import type {
 // ---- MOCK: remover quando o endpoint GET /profissionais/me estiver pronto ----
 const MOCK_PROFILE: ProfessionalProfileResponse = {
   id: 1,
-  nome: "Roberto Barbosa",
-  email: "roberto@email.com",
+  nome: "Gustavo Henrique",
+  email: "gustavo@email.com",
   telefone: "11999998888",
-  categoriaServico: "ELETRICA",
+  categoriaServico: "PINTURA",
   cidade: "Recife",
   estado: "PE",
   mediaAvaliacao: 4.8,

@@ -75,7 +75,7 @@ export default function Screen() {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={[styles.container, { backgroundColor: "#ffffff" }]}
       contentContainerStyle={styles.content}
     >
       <ProfileHeader
