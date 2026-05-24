@@ -17,7 +17,7 @@ function mapResumoToPedido(
     endereco: undefined,
     urgencia: resumo.urgente ? "URGENTE" : "NORMAL",
     orcamentoEstimado: undefined,
-    dataDesejada: resumo.dataDesejada ?? "",
+    dataDesejada: "",
     status: "ABERTO",
     criadoEm: resumo.dataPublicacao,
   };
