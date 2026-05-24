@@ -79,7 +79,7 @@ export default function ProvidersByCategoryScreen() {
           );
         }
 
-        // Mapeamento "À prova de balas" com fallbacks de segurança
+        // Mapeamento com fallbacks de segurança
         const dataMapped = arrayDeProfissionais.map((prof: any) => ({
           // Garante um ID válido para não quebrar a FlatList
           id: prof?.id?.toString() || Math.random().toString(),
@@ -89,6 +89,7 @@ export default function ProvidersByCategoryScreen() {
             prof?.categoriaNome ||
             (id as string) ||
             "Serviços",
+          avatarUrl: prof.foto || null,
           distance: prof?.distanciaKm || prof?.distancia || 0,
           rating: prof?.mediaAvaliacoes ?? 0,
           reviews: prof?.totalAvaliacoes ?? 0,
@@ -186,6 +187,7 @@ export default function ProvidersByCategoryScreen() {
                 name={item.name}
                 category={item.category}
                 distance={item.distance}
+                avatarUrl={item.avatarUrl}
                 rating={item.rating}
                 reviews={item.reviews}
                 price={item.price}

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 
 type ProfessionalListCardProps = {
@@ -7,6 +7,7 @@ type ProfessionalListCardProps = {
   category: string;
   distance: number; // em km
   rating: number;
+  avatarUrl?: string | null;
   reviews: number;
   price: number;
   isPlus?: boolean;
@@ -26,6 +27,7 @@ export const ProfessionalListCard: React.FC<ProfessionalListCardProps> = ({
   name,
   category,
   distance,
+  avatarUrl,
   rating,
   reviews,
   price,
@@ -40,9 +42,17 @@ export const ProfessionalListCard: React.FC<ProfessionalListCardProps> = ({
     >
       {/* Avatar */}
       <View style={styles.avatarContainer}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{getInitials(name)}</Text>
-        </View>
+        {avatarUrl ? (
+          <Image
+            source={{ uri: avatarUrl }}
+            style={styles.avatar}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{getInitials(name)}</Text>
+          </View>
+        )}
       </View>
       {/* Info */}
       <View style={styles.info}>
