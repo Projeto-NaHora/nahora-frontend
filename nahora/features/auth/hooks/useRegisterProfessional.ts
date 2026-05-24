@@ -21,6 +21,7 @@ export function useRegisterProfessional({
   const profession = useRegisterStore((state) => state.profession);
   const cpf = useRegisterStore((state) => state.cpf);
   const especialidades = useRegisterStore((state) => state.especialidades);
+  const about = useRegisterStore((state) => state.about);
   const experienceYears = useRegisterStore((state) => state.experienceYears);
   const location = useRegisterStore((state) => state.location);
   const rgFrontUrl = useRegisterStore((state) => state.rgFrontUrl);
@@ -51,6 +52,7 @@ export function useRegisterProfessional({
         categoriaServico: profession?.id ?? "",
         cpf,
         especialidades,
+        descricaoEspecialidades: about,
         anosExperiencia,
         cidade: cidadeQuebrada || "Não informada",
         estado: estadoQuebrado,

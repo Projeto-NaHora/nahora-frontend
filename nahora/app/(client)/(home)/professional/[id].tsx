@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,33 +7,12 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
-// IMPORTAÇÃO CORRETA DA SAFE AREA (salva o Android!)
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-
-// Mock de dados do profissional (Adicionada a "categoria")
-const mockProfessional = {
-  id: "1",
-  nome: "Mariana Souza",
-  categoria: "Eletricista", // <-- Tipo do profissional adicionado aqui
-  localizacao: "São Paulo, SP",
-  nota: 4.8,
-  experienciaAnos: 7,
-  servicosRealizados: 152,
-  especialidades: ["Elétrica", "Instalação de Ar", "Manutenção", "Pintura"],
-  biografia:
-    "Profissional dedicada com mais de 7 anos de experiência em serviços residenciais e comerciais. Prezo pela qualidade, pontualidade e satisfação do cliente. Atendo toda a região de São Paulo e arredores.",
-  avatarUrl: "",
-  portfolio: [
-    "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-    "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-    "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-    "https://images.unsplash.com/photo-1508873699372-7aeab60b44c1",
-    "https://images.unsplash.com/photo-1516979187457-637abb4f9353",
-  ],
-};
+import { api } from "@/services/api/client"; // Certifique-se de que o caminho do seu axios/api está correto
 
 const AVATAR_SIZE = 96;
 const STAR_SIZE = 20;
@@ -47,28 +26,120 @@ export default function ProfessionalProfileScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
-  const prof = mockProfessional;
+  // Função segura para voltar
+  const handleGoBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      // Se não houver histórico, força a volta para a home
+      router.push("/(client)/(home)");
+    }
+  };
 
-  const getInitials = (name: string) =>
-    name
+  // Estados para gerenciar os dados da API
+  const [profileData, setProfileData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Busca os dados do profissional assim que a tela abre
+  useEffect(() => {
+    async function fetchProfessionalProfile() {
+      if (!id) return;
+
+      try {
+        setIsLoading(true);
+        // Chama o endpoint de perfil do seu backend
+        const response = await api.get(`/profissionais/${id}`);
+        setProfileData(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar perfil do profissional:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProfessionalProfile();
+  }, [id]);
+
+  const getInitials = (name: string) => {
+    if (!name) return "P";
+    return name
       .split(" ")
       .map((n) => n[0])
       .join("")
-      .toUpperCase();
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  // Tela de Carregamento
+  if (isLoading) {
+    return (
+      <SafeAreaView style={[styles.safe, styles.centerContent]}>
+        <ActivityIndicator size="large" color={ORANGE} />
+        <Text style={styles.loadingText}>Carregando perfil...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  // Tela de Erro (se a API falhar ou o ID não existir)
+  if (!profileData) {
+    return (
+      <SafeAreaView style={[styles.safe, styles.centerContent]}>
+        <Feather name="user-x" size={48} color={GRAY} />
+        <Text style={styles.errorText}>Profissional não encontrado.</Text>
+        <TouchableOpacity style={styles.errorBtn} onPress={handleGoBack}>
+          <Text style={styles.errorBtnText}>Voltar</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
+  const rawCidade = profileData.cidade || "";
+  const cleanCidade = rawCidade
+    .replace(/null/gi, "") // Tira o "null"
+    .replace(/^[,\s]+|[,\s]+$/g, "") // Tira vírgulas soltas no início ou fim
+    .trim();
+
+  // Mapeamento dos dados do Backend (ProfissionalPerfilDTO) para o formato da tela
+  const prof = {
+    nome: profileData.nome || "Sem Nome",
+    categoria: profileData.categoriaNome || "Profissional",
+    cidade: cleanCidade || "Localização não informada",
+    nota: profileData.mediaAvaliacoes ?? 0,
+    experienciaAnos: profileData.anosExperiencia ?? 0,
+    servicosRealizados: profileData.totalServicosExecutados ?? 0,
+    descricaoEspecialidades:
+      profileData.especialidadesDescricao ||
+      "Não foi informada uma descrição das especialidades.",
+    especialidades: profileData.especialidadesTags || [],
+    biografia:
+      profileData.sobreDescricao ||
+      "Este profissional ainda não adicionou uma biografia.",
+    avatarUrl: profileData.foto || null,
+    portfolio: profileData.portfolioFotos || [],
+    totalPortfolio: profileData.totalPortfolioFotos || 0,
+  };
 
   const maxPortfolio = 5;
   const portfolioToShow = prof.portfolio.slice(0, maxPortfolio);
-  const extraCount = prof.portfolio.length - maxPortfolio;
+  // Calcula quantos itens extras existem além dos mostrados
+  const extraCount =
+    prof.totalPortfolio > portfolioToShow.length
+      ? prof.totalPortfolio - portfolioToShow.length
+      : 0;
 
   return (
     <SafeAreaView style={styles.safe}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+        <TouchableOpacity
+          onPress={handleGoBack}
+          style={styles.backBtn}
+          hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+        >
           <Feather name="arrow-left" size={24} color={DARK} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Perfil do Profissional</Text>
-        <View style={{ width: 24 }} />
+        <View style={{ width: 36 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -89,10 +160,9 @@ export default function ProfessionalProfileScreen() {
           )}
           <Text style={styles.name}>{prof.nome}</Text>
 
-          {/* Nova linha de Localização com a Categoria */}
           <View style={styles.locationRow}>
             <Text style={styles.locationText}>
-              {prof.categoria} - {prof.localizacao}
+              {prof.categoria} - {prof.cidade}
             </Text>
           </View>
 
@@ -115,7 +185,7 @@ export default function ProfessionalProfileScreen() {
           </View>
         </View>
 
-        {/* Ações (Botões limpos e botão de opções adicionado) */}
+        {/* Ações */}
         <View style={styles.actionsRow}>
           <TouchableOpacity style={styles.actionPrimary}>
             <Text style={styles.actionPrimaryText}>Criar pedido</Text>
@@ -143,36 +213,45 @@ export default function ProfessionalProfileScreen() {
         </View>
 
         {/* Especialidades */}
-        <Text style={styles.sectionTitle}>Especialidades</Text>
-        <View style={styles.pillsRow}>
-          {prof.especialidades.map((esp, idx) => (
-            <View key={esp + idx} style={styles.pill}>
-              <Text style={styles.pillText}>{esp}</Text>
+        {prof.especialidades.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Especialidades</Text>
+            <Text style={styles.bioText}>{prof.descricaoEspecialidades}</Text>
+            <View style={styles.pillsRow}>
+              {prof.especialidades.map((esp: string, idx: number) => (
+                <View key={esp + idx} style={styles.pill}>
+                  <Text style={styles.pillText}>{esp}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+          </>
+        )}
 
         {/* Sobre */}
         <Text style={styles.sectionTitle}>Sobre</Text>
         <Text style={styles.bioText}>{prof.biografia}</Text>
 
         {/* Portfólio */}
-        <Text style={styles.sectionTitle}>Portfólio</Text>
-        <View style={styles.portfolioGrid}>
-          {portfolioToShow.map((url, idx) => {
-            const isLast = idx === maxPortfolio - 1 && extraCount > 0;
-            return (
-              <View key={url + idx} style={styles.portfolioItem}>
-                <Image source={{ uri: url }} style={styles.portfolioImg} />
-                {isLast && (
-                  <View style={styles.overlay}>
-                    <Text style={styles.overlayText}>+{extraCount}</Text>
+        {prof.portfolio.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Portfólio</Text>
+            <View style={styles.portfolioGrid}>
+              {portfolioToShow.map((url: string, idx: number) => {
+                const isLast = idx === maxPortfolio - 1 && extraCount > 0;
+                return (
+                  <View key={url + idx} style={styles.portfolioItem}>
+                    <Image source={{ uri: url }} style={styles.portfolioImg} />
+                    {isLast && (
+                      <View style={styles.overlay}>
+                        <Text style={styles.overlayText}>+{extraCount}</Text>
+                      </View>
+                    )}
                   </View>
-                )}
-              </View>
-            );
-          })}
-        </View>
+                );
+              })}
+            </View>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -182,6 +261,33 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: "#FFF",
+  },
+  centerContent: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#666",
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 18,
+    color: "#444",
+    fontWeight: "500",
+  },
+  errorBtn: {
+    marginTop: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: ORANGE,
+    borderRadius: 8,
+  },
+  errorBtnText: {
+    color: "#FFF",
+    fontWeight: "bold",
+    fontSize: 16,
   },
   header: {
     flexDirection: "row",
@@ -194,7 +300,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   backBtn: {
-    padding: 4,
+    padding: 8,
   },
   headerTitle: {
     fontSize: 18,

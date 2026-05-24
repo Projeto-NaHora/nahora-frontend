@@ -22,8 +22,8 @@ import OrderCard from "@/components/ui/OrderCard";
 // Array das 8 categorias exibidas na Home
 const homeCategories = [
   { id: "1", name: "Elétrica", icon: "lightning-bolt" },
-  { id: "2", name: "Pedreiro", icon: "house" },
-  { id: "3", name: "Encanamento", icon: "wrench" },
+  { id: "2", name: "Pedreiro", icon: "wrench" },
+  { id: "3", name: "Encanamento", icon: "water" },
   { id: "4", name: "Pintura", icon: "format-paint" },
   { id: "5", name: "Marcenaria", icon: "hammer" },
 ];

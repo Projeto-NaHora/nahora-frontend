@@ -14,8 +14,8 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 // Mock de categorias
 const allCategories = [
   { id: "1", name: "Elétrica", icon: "lightning-bolt" },
-  { id: "2", name: "Pedreiro", icon: "house" },
-  { id: "3", name: "Encanamento", icon: "wrench" },
+  { id: "2", name: "Pedreiro", icon: "wrench" },
+  { id: "3", name: "Encanamento", icon: "water" },
   { id: "4", name: "Pintura", icon: "format-paint" },
   { id: "5", name: "Marcenaria", icon: "hammer" },
 ];
