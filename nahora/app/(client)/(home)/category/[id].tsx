@@ -81,7 +81,7 @@ export default function ProvidersByCategoryScreen() {
           rating: prof?.mediaAvaliacoes ?? 0,
           reviews: prof?.totalAvaliacoes ?? 0,
           price: 0,
-          isPlus: prof?.planoPlus || prof?.isPlus || false,
+          isPlus: prof?.badgePlus || prof?.planoPlus || prof?.isPlus || false,
         }));
 
         setProfessionals(dataMapped);

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 
 type ProfessionalListCardProps = {
   name: string;
@@ -54,6 +54,7 @@ export const ProfessionalListCard: React.FC<ProfessionalListCardProps> = ({
           </View>
         )}
       </View>
+
       {/* Info */}
       <View style={styles.info}>
         <View style={styles.row}>
@@ -62,14 +63,16 @@ export const ProfessionalListCard: React.FC<ProfessionalListCardProps> = ({
           </Text>
           {isPlus && (
             <View style={styles.plusBadge}>
-              <MaterialCommunityIcons name="star" size={14} color="#fff" />
               <Text style={styles.plusText}>Plus</Text>
             </View>
           )}
         </View>
+
+        {/*Categoria • X km */}
         <Text style={styles.categoryDistance} numberOfLines={1}>
           {category} <Text style={styles.dot}>•</Text> {distance.toFixed(1)} km
         </Text>
+
         <View style={styles.bottomRow}>
           <View style={styles.ratingRow}>
             <Feather
@@ -79,7 +82,9 @@ export const ProfessionalListCard: React.FC<ProfessionalListCardProps> = ({
               style={{ marginRight: 2 }}
             />
             <Text style={styles.rating}>{rating.toFixed(1)}</Text>
-            <Text style={styles.reviews}>({reviews})</Text>
+            <Text style={styles.reviews}>
+              <Text style={styles.dot}>•</Text> {reviews} aval.{" "}
+            </Text>
           </View>
         </View>
       </View>
@@ -137,37 +142,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#22223B",
-    maxWidth: "80%",
+    maxWidth: "80%", // Previne que nomes muito longos empurrem a badge pra fora da tela
   },
   plusBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FF9800",
+    backgroundColor: "#FFF7ED", // Fundo laranjinha claro
     borderRadius: 8,
     paddingHorizontal: 6,
     paddingVertical: 2,
     marginLeft: 6,
-    gap: 2,
   },
   plusText: {
-    color: "#fff",
-    fontSize: 12,
+    color: "#F97316", // Laranja forte
+    fontSize: 11,
     fontWeight: "bold",
-    marginLeft: 2,
   },
   categoryDistance: {
     color: "#6B7280",
-    fontSize: 14,
-    marginBottom: 2,
+    fontSize: 13,
+    marginBottom: 4, // Um pouco mais de espaço embaixo
   },
   dot: {
     fontWeight: "bold",
-    color: "#BDBDBD",
+    color: "#D1D5DB", // Pontinho um pouco mais claro
   },
   bottomRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
+    marginTop: 2,
     justifyContent: "space-between",
   },
   ratingRow: {
@@ -177,13 +178,13 @@ const styles = StyleSheet.create({
   },
   rating: {
     color: "#22223B",
-    fontWeight: "600",
-    fontSize: 14,
+    fontWeight: "bold",
+    fontSize: 13,
     marginLeft: 2,
   },
   reviews: {
     color: "#6B7280",
-    fontSize: 13,
+    fontSize: 12,
     marginLeft: 4,
   },
   price: {

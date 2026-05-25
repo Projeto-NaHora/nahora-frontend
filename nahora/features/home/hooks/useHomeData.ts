@@ -37,7 +37,7 @@ export function useHomeData() {
           rating: prof?.mediaAvaliacoes ?? 0,
           reviews: prof?.totalAvaliacoes ?? 0,
           price: 0,
-          isPlus: prof?.planoPlus || false,
+          isPlus: prof?.badgePlus || false,
         };
       });
 

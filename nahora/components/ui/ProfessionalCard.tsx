@@ -15,7 +15,11 @@ export const ProfessionalCard: React.FC<Props> = ({ professional }) => {
     professional?.category || professional?.categoria || "Serviços";
   const rating = Number(professional?.rating ?? professional?.notaMedia ?? 0);
   const reviews = professional?.reviews ?? professional?.totalAvaliacoes ?? 0;
-  const isPlus = professional?.isPlus || professional?.planoPlus || false;
+  const isPlus =
+    professional?.isPlus ||
+    professional?.badgePlus ||
+    professional?.planoPlus ||
+    false;
   const avatarUrl = professional?.avatarUrl || professional?.foto || null;
 
   return (
