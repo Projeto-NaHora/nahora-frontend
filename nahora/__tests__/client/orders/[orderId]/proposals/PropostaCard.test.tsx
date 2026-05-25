@@ -12,6 +12,7 @@ describe("PropostaCard", () => {
         proposta={baseProposta}
         destacada={false}
         onNegociar={jest.fn()}
+        onVerProposta={jest.fn()}
         onVerPerfil={jest.fn()}
       />,
     );
@@ -24,6 +25,7 @@ describe("PropostaCard", () => {
         proposta={createMockProposta({ valor: 250 })}
         destacada={false}
         onNegociar={jest.fn()}
+        onVerProposta={jest.fn()}
         onVerPerfil={jest.fn()}
       />,
     );
@@ -36,6 +38,7 @@ describe("PropostaCard", () => {
         proposta={baseProposta}
         destacada={true}
         onNegociar={jest.fn()}
+        onVerProposta={jest.fn()}
         onVerPerfil={jest.fn()}
       />,
     );
@@ -48,6 +51,7 @@ describe("PropostaCard", () => {
         proposta={baseProposta}
         destacada={false}
         onNegociar={jest.fn()}
+        onVerProposta={jest.fn()}
         onVerPerfil={jest.fn()}
       />,
     );
@@ -60,6 +64,7 @@ describe("PropostaCard", () => {
         proposta={baseProposta}
         destacada={false}
         onNegociar={jest.fn()}
+        onVerProposta={jest.fn()}
         onVerPerfil={jest.fn()}
       />,
     );
@@ -74,6 +79,7 @@ describe("PropostaCard", () => {
         })}
         destacada={false}
         onNegociar={jest.fn()}
+        onVerProposta={jest.fn()}
         onVerPerfil={jest.fn()}
       />,
     );
@@ -87,6 +93,7 @@ describe("PropostaCard", () => {
         proposta={proposta}
         destacada={false}
         onNegociar={jest.fn()}
+        onVerProposta={jest.fn()}
         onVerPerfil={jest.fn()}
       />,
     );
@@ -99,6 +106,7 @@ describe("PropostaCard", () => {
         proposta={baseProposta}
         destacada={false}
         onNegociar={jest.fn()}
+        onVerProposta={jest.fn()}
         onVerPerfil={jest.fn()}
       />,
     );
@@ -113,6 +121,7 @@ describe("PropostaCard", () => {
         })}
         destacada={false}
         onNegociar={jest.fn()}
+        onVerProposta={jest.fn()}
         onVerPerfil={jest.fn()}
       />,
     );
@@ -133,13 +142,29 @@ describe("PropostaCard", () => {
     expect(onNegociar).toHaveBeenCalled();
   });
 
-  test("calls onVerPerfil when Ver perfil button pressed", () => {
+  test("calls onVerProposta when Ver proposta button pressed", () => {
+    const onVerProposta = jest.fn();
+    render(
+      <PropostaCard
+        proposta={baseProposta}
+        destacada={false}
+        onNegociar={jest.fn()}
+        onVerProposta={onVerProposta}
+        onVerPerfil={jest.fn()}
+      />,
+    );
+    fireEvent.press(screen.getByText("Ver proposta"));
+    expect(onVerProposta).toHaveBeenCalled();
+  });
+
+  test("calls onVerPerfil when Ver perfil subtext pressed", () => {
     const onVerPerfil = jest.fn();
     render(
       <PropostaCard
         proposta={baseProposta}
         destacada={false}
         onNegociar={jest.fn()}
+        onVerProposta={jest.fn()}
         onVerPerfil={onVerPerfil}
       />,
     );
