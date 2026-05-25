@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "expo-router";
 
 import { useAuthStore } from "@/store/authStore";
@@ -121,7 +121,19 @@ export function useProfileMenu() {
     [router],
   );
 
-  const handleLogout = useCallback(() => {
+  // Popup de confirmação de logout
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+
+  const openLogoutPopup = useCallback(() => {
+    setShowLogoutPopup(true);
+  }, []);
+
+  const closeLogoutPopup = useCallback(() => {
+    setShowLogoutPopup(false);
+  }, []);
+
+  const confirmLogout = useCallback(() => {
+    setShowLogoutPopup(false);
     logout();
     router.replace("/(auth)/(login)");
   }, [logout, router]);
@@ -136,7 +148,10 @@ export function useProfileMenu() {
     stats,
     menuItems,
     handleMenuItemPress,
-    handleLogout,
+    showLogoutPopup,
+    openLogoutPopup,
+    closeLogoutPopup,
+    confirmLogout,
   };
 }
 

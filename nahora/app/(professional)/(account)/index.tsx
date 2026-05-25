@@ -12,6 +12,7 @@ import { useProfileMenu } from "@/features/profile/hooks/useProfileMenu";
 import { ProfileHeader } from "@/features/profile/components/ProfileHeader";
 import { StatsCards } from "@/features/profile/components/StatsCards";
 import { MenuItem } from "@/features/profile/components/MenuItem";
+import { LogoutPopup } from "@/features/profile/components/LogoutPopup";
 import { Colors, FontSizes, Fonts, LineHeights } from "@/constants/theme";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -29,7 +30,10 @@ export default function Screen() {
     stats,
     menuItems,
     handleMenuItemPress,
-    handleLogout,
+    showLogoutPopup,
+    openLogoutPopup,
+    closeLogoutPopup,
+    confirmLogout,
     retry,
   } = useProfileMenu();
 
@@ -74,38 +78,46 @@ export default function Screen() {
   }
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: "#ffffff" }]}
-      contentContainerStyle={styles.content}
-    >
-      <ProfileHeader
-        initials={initials}
-        name={user?.nome ?? "Usuário"}
-        subtitle={subtitle}
-      />
-
-      <StatsCards stats={stats} />
-
-      <View style={styles.menuSection}>
-        {menuItems.map((item, index) => (
-          <React.Fragment key={item.id}>
-            <MenuItem item={item} onPress={handleMenuItemPress} />
-            {index < menuItems.length - 1 && <View style={styles.divider} />}
-          </React.Fragment>
-        ))}
-
-        <View style={styles.divider} />
-
-        <MenuItem
-          item={{
-            id: "logout",
-            label: "Sair da conta",
-            isDanger: true,
-          }}
-          onPress={handleLogout}
+    <>
+      <ScrollView
+        style={[styles.container, { backgroundColor: "#ffffff" }]}
+        contentContainerStyle={styles.content}
+      >
+        <ProfileHeader
+          initials={initials}
+          name={user?.nome ?? "Usuário"}
+          subtitle={subtitle}
         />
-      </View>
-    </ScrollView>
+
+        <StatsCards stats={stats} />
+
+        <View style={styles.menuSection}>
+          {menuItems.map((item, index) => (
+            <React.Fragment key={item.id}>
+              <MenuItem item={item} onPress={handleMenuItemPress} />
+              {index < menuItems.length - 1 && <View style={styles.divider} />}
+            </React.Fragment>
+          ))}
+
+          <View style={styles.divider} />
+
+          <MenuItem
+            item={{
+              id: "logout",
+              label: "Sair da conta",
+              isDanger: true,
+            }}
+            onPress={openLogoutPopup}
+          />
+        </View>
+      </ScrollView>
+
+      <LogoutPopup
+        visible={showLogoutPopup}
+        onConfirm={confirmLogout}
+        onCancel={closeLogoutPopup}
+      />
+    </>
   );
 }
 

@@ -35,6 +35,7 @@ const MAPPING = {
   settings: "settings",
   lock: "lock",
   logout: "logout",
+  close: "close",
 } as Partial<IconMapping>;
 
 /**
