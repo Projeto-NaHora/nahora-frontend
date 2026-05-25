@@ -7,7 +7,7 @@ import { createMockPedido } from "@tests/factories/orders";
 const mockPedido = createMockPedido();
 const mockBack = jest.fn();
 const mockPush = jest.fn();
-const mockUsePedidoResumoFromList = jest.fn(() => ({
+const mockUsePedidoPublico = jest.fn(() => ({
   pedido: undefined,
   isLoading: true,
   error: undefined,
@@ -22,9 +22,9 @@ jest.mock("@/components/ui/icon-symbol", () => ({
 }));
 
 jest.mock(
-  "@/features/professional/hooks/usePedidoResumoFromList",
+  "@/features/professional/hooks/usePedidoPublico",
   () => ({
-    usePedidoResumoFromList: (id: number) => mockUsePedidoResumoFromList(id),
+    usePedidoPublico: (id: number) => mockUsePedidoPublico(id),
   }),
 );
 
@@ -36,7 +36,7 @@ jest.mock("expo-router", () => ({
 describe("ProfessionalOrderDetailScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUsePedidoResumoFromList.mockImplementation(() => ({
+    mockUsePedidoPublico.mockImplementation(() => ({
       pedido: undefined,
       isLoading: true,
       error: undefined,
@@ -49,13 +49,13 @@ describe("ProfessionalOrderDetailScreen", () => {
     expect(indicators.length).toBeGreaterThan(0);
   });
 
-  test("passes orderId from URL params to usePedidoResumoFromList hook", () => {
+  test("passes orderId from URL params to usePedidoPublico hook", () => {
     render(<ProfessionalOrderDetailScreen />);
-    expect(mockUsePedidoResumoFromList).toHaveBeenCalledWith(42);
+    expect(mockUsePedidoPublico).toHaveBeenCalledWith(42);
   });
 
   test("renders order data when loaded", () => {
-    mockUsePedidoResumoFromList.mockImplementation(() => ({
+    mockUsePedidoPublico.mockImplementation(() => ({
       pedido: mockPedido,
       isLoading: false,
       error: undefined,
@@ -65,7 +65,7 @@ describe("ProfessionalOrderDetailScreen", () => {
   });
 
   test("back button navigates back", () => {
-    mockUsePedidoResumoFromList.mockImplementation(() => ({
+    mockUsePedidoPublico.mockImplementation(() => ({
       pedido: mockPedido,
       isLoading: false,
       error: undefined,

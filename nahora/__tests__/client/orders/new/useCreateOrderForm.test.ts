@@ -6,6 +6,10 @@ jest.mock('@/features/orders/service', () => ({
   orderService: { criar: jest.fn(), uploadMidia: jest.fn() },
 }));
 
+jest.mock('@/services/geocode', () => ({
+  geocodeAddress: jest.fn().mockResolvedValue({ lat: -23.5, lng: -46.6 }),
+}));
+
 jest.mock('@/features/orders/hooks/useMidiasPicker', () => ({
   useMidiasPicker: () => ({
     mediaUris: [],
@@ -132,7 +136,7 @@ describe('useCreateOrderForm', () => {
 
     expect(orderService.criar).toHaveBeenCalledWith(
       expect.objectContaining({
-        endereco: {
+        endereco: expect.objectContaining({
           cep: '01001000',
           logradouro: 'Rua das Flores',
           numero: '123',
@@ -140,7 +144,9 @@ describe('useCreateOrderForm', () => {
           bairro: 'Centro',
           cidade: 'São Paulo',
           estado: 'SP',
-        },
+          latitude: -23.5,
+          longitude: -46.6,
+        }),
       }),
     );
   });

@@ -18,17 +18,19 @@ export const ENDPOINTS = {
   PEDIDO: (id: number) => `/pedidos/${id}`,
   MEUS_PEDIDOS: "/pedidos/meus",
   PEDIDOS_DISPONIVEIS: "/pedidos/disponiveis",
+  PEDIDO_PUBLICO: (id: number) => `/pedidos/${id}/public`,
 
   // Propostas
   PROPOSTAS: (pedidoId: number) => `/pedidos/${pedidoId}/propostas`,
   CRIAR_PROPOSTA: (pedidoId: number) => `/pedidos/${pedidoId}/propostas`,
-  PROPOSTA: (id: number) => `/propostas/${id}`,
-  ACEITAR_PROPOSTA: (id: number) => `/propostas/${id}/aceitar`,
-  RECUSAR_PROPOSTA: (id: number) => `/propostas/${id}/recusar`,
+  PROPOSTA: (pedidoId: number, propostaId: number) => `/pedidos/${pedidoId}/propostas/${propostaId}`,
+  ACEITAR_PROPOSTA: (pedidoId: number, propostaId: number) => `/pedidos/${pedidoId}/propostas/${propostaId}/aceitar`,
+  RECUSAR_PROPOSTA: (pedidoId: number, propostaId: number) => `/pedidos/${pedidoId}/propostas/${propostaId}/recusar`,
 
-  // Chat (histórico REST — mensagens em tempo real via WebSocket)
-  CONVERSA: (id: number) => `/conversas/${id}`,
+  // Chat (conversation list + message history REST)
+  CONVERSAS: "/conversas",
   MENSAGENS: (conversaId: number) => `/conversas/${conversaId}/mensagens`,
+  PROPOSTA_CONVERSA: (propostaId: number) => `/propostas/${propostaId}/conversa`,
 
   // Pagamentos
   PAGAMENTO: (propostaId: number) => `/propostas/${propostaId}/pagamento`,

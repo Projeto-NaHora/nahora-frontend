@@ -1,7 +1,7 @@
 // features/orders/service.ts
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
-import type { Pedido, CriarPedidoPayload, Page } from "./types";
+import type { Pedido, PedidoPublicoResponse, CriarPedidoPayload, Page } from "./types";
 import type { PedidoResumoResponse, PedidoFiltroParams } from "@/features/professional/types";
 
 /** Helper para extrair o tipo MIME a partir da extensão do arquivo */
@@ -53,10 +53,18 @@ export const orderService = {
   },
 
   /**
-   * Cancela um pedido aberto.
+   * Cancela um pedido aberto (DELETE /pedidos/{pedidoId}).
    */
   cancelar: async (id: number): Promise<void> => {
-    await api.patch(`${ENDPOINTS.PEDIDO(id)}/cancelar`);
+    await api.delete(ENDPOINTS.PEDIDO(id));
+  },
+
+  /**
+   * Atualiza um pedido aberto (PUT /pedidos/{pedidoId}).
+   */
+  atualizar: async (id: number, payload: CriarPedidoPayload): Promise<Pedido> => {
+    const { data } = await api.put<Pedido>(ENDPOINTS.PEDIDO(id), payload);
+    return data;
   },
 
   /**
@@ -75,6 +83,14 @@ export const orderService = {
       ENDPOINTS.PEDIDOS_DISPONIVEIS,
       { params },
     );
+    return data;
+  },
+
+  /**
+   * Busca detalhes públicos de um pedido (sem autenticação).
+   */
+  buscarPedidoPublico: async (id: number): Promise<PedidoPublicoResponse> => {
+    const { data } = await api.get<PedidoPublicoResponse>(ENDPOINTS.PEDIDO_PUBLICO(id));
     return data;
   },
 

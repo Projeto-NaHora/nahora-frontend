@@ -1,25 +1,11 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { ChatContent } from "@/features/chat/components/ChatContent";
 
-export default function ChatId() {
-  const params = useLocalSearchParams();
+export default function ClientChatScreen() {
+  const { chatId } = useLocalSearchParams<{ chatId: string }>();
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>app/(client)/(chats)/[chatId].tsx</Text>
-    </View>
-  );
+  if (!chatId) return null;
+  console.log(chatId)
+  return <ChatContent propostaId={Number(chatId)} />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});

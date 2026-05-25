@@ -171,8 +171,8 @@ export function ProposalFormContent({
                 <Text style={[styles.clientName, { color: colors.textPrimary }]}>{clienteNome}</Text>
                 <View style={styles.clientMeta}>
                   <Text style={[styles.serviceCount, { color: colors.textSecondary }]}>
-                    {pedido.descricao
-                      ? pedido.descricao.split(" ").slice(0, 2).join(" ")
+                    {pedido.categoria
+                      ? pedido.categoria
                       : "Servico"}
                   </Text>
                 </View>
@@ -182,7 +182,7 @@ export function ProposalFormContent({
             {/* Servico (read-only) */}
             <View style={styles.fieldGroup}>
               <View style={styles.fieldLabelRow}>
-                <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Servico</Text>
+                <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Descrição do Serviço</Text>
                 <Text style={[styles.requiredAsterisk, { color: colors.error }]}>*</Text>
               </View>
               <View style={[styles.readonlyInput, { borderColor: colors.border, backgroundColor: colors.background }]}>
@@ -198,9 +198,9 @@ export function ProposalFormContent({
                 <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Valor da mao de obra</Text>
                 <Text style={[styles.requiredAsterisk, { color: colors.error }]}>*</Text>
               </View>
-              <View style={[styles.priceInputWrapper, { borderColor: colors.brand, backgroundColor: colors.brand + "0D" }]}>
+              <View style={[styles.priceInputWrapper, { borderColor: colors.border, backgroundColor: colors.surface }]}>
                 <View style={styles.priceInputRow}>
-                  <Text style={[styles.currencyPrefix, { color: colors.brand }]}>R$</Text>
+                  <Text style={[styles.currencyPrefix, { color: colors.textPrimary }]}>R$</Text>
                   <Controller
                     control={control}
                     name="valorOferecido"
@@ -215,11 +215,6 @@ export function ProposalFormContent({
                       />
                     )}
                   />
-                </View>
-                <View style={[styles.suggestionBadge, { borderColor: colors.brand + "33", backgroundColor: colors.background }]}>
-                  <Text style={[styles.suggestionText, { color: colors.brand }]}>
-                    Sugestao: R$ 90-130
-                  </Text>
                 </View>
               </View>
               {errors.valorOferecido?.message && (
@@ -640,14 +635,15 @@ const styles = StyleSheet.create({
   // Valor / price field
   priceInputWrapper: {
     borderRadius: 32,
-    borderWidth: 2,
-    paddingHorizontal: 6,
-    paddingVertical: 6,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    justifyContent: "center",
   },
   priceInputRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingLeft: 14,
+    justifyContent: "center",
   },
   currencyPrefix: {
     fontSize: 18,
@@ -657,21 +653,7 @@ const styles = StyleSheet.create({
   priceTextInput: {
     fontSize: 26,
     fontWeight: "700",
-    flex: 1,
     paddingVertical: 0,
-  },
-  suggestionBadge: {
-    alignSelf: "flex-end",
-    borderRadius: 24,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginRight: 6,
-    marginBottom: 6,
-  },
-  suggestionText: {
-    fontSize: 12,
-    fontWeight: "700",
   },
   // Descricao textarea
   textArea: {

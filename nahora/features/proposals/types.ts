@@ -25,13 +25,16 @@ export interface Proposta {
   tempoEstimado?: string;
   status: "PENDENTE" | "ACEITA" | "REJEITADA" | "EXPIRADA";
   expiraEm?: string;
-  criadoEm: string;
-  atualizadoEm: string;
+  horariosDisponiveis?: HorarioSlot[];
+  criadoEm?: string;
+  atualizadoEm?: string;
 }
 
 export interface HorarioSlot {
   inicio: string;
   fim: string;
+  data?: string;
+  excecao?: boolean;
 }
 
 export interface CriarPropostaPayload {
@@ -44,10 +47,10 @@ export interface PropostaResponseRaw {
   id: number;
   pedidoId?: number;
   profissionalId?: number;
-  profissionalNome: string;
+  profissionalNome?: string;
   profissionalFotoUrl?: string;
-  notaMedia: number;
-  numeroAvaliacoes: number;
+  notaMedia?: number;
+  numeroAvaliacoes?: number;
   totalServicosExecutados?: number;
   distancia?: number;
   localidade?: string;
@@ -58,8 +61,16 @@ export interface PropostaResponseRaw {
   tempoEstimado?: string;
   status: "PENDENTE" | "ACEITA" | "REJEITADA" | "EXPIRADA";
   expiraEm?: string;
-  criadoEm: string;
-  atualizadoEm: string;
+  horariosDisponiveis?: HorarioSlot[];
+  criadoEm?: string;
+  atualizadoEm?: string;
+}
+
+export interface AceitarPropostaResponseDTO {
+  pedidoId: number;
+  status: string;
+  profissionalId: number;
+  profissionalNome: string;
 }
 
 export interface CriarPropostaFormValues {
