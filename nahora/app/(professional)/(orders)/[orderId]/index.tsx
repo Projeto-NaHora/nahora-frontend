@@ -1,12 +1,12 @@
 import React from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { usePedidoResumoFromList } from "@/features/professional/hooks/usePedidoResumoFromList";
+import { usePedidoPublico } from "@/features/professional/hooks/usePedidoPublico";
 import { ProfessionalOrderDetailContent } from "@/features/orders/components/ProfessionalOrderDetailContent";
 
 export default function ProfessionalOrderDetailScreen() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
   const router = useRouter();
-  const { pedido, isLoading, error } = usePedidoResumoFromList(Number(orderId));
+  const { pedido, isLoading, error } = usePedidoPublico(Number(orderId));
 
   return (
     <ProfessionalOrderDetailContent
@@ -14,14 +14,6 @@ export default function ProfessionalOrderDetailScreen() {
       isLoading={isLoading}
       error={error}
       onBack={() => router.back()}
-      onVerPerfil={
-        pedido?.clienteId
-          ? () =>
-              router.push(
-                `/(professional)/(orders)/${orderId}/client/${pedido.clienteId}`,
-              )
-          : undefined
-      }
       onMostrarInteresse={() =>
         router.push(`/(professional)/(orders)/${orderId}/proposal`)
       }

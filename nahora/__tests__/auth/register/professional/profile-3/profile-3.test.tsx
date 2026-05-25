@@ -50,8 +50,7 @@ describe('Profile3Screen', () => {
       especialidades: [],
       cpf: '123.456.789-00',
       cargo: 'Eletricista',
-      location: 'São Paulo',
-      experienceYears: 5,
+      experienceYears: '5',
       profession: { id: 'eletricista', label: 'Eletricista' },
     });
     jest.clearAllMocks();

@@ -12,7 +12,14 @@ export interface PedidoResumoResponse {
   faixaValorMin: number;
   faixaValorMax: number;
   contadorPropostas: number;
-  dataDesejada?: string;
+}
+
+export type SortBy = "MAIS_PROXIMOS" | "MAIS_RECENTES" | "URGENTES";
+
+export interface PedidoFiltroParams {
+  categoria?: CategoriaFilter;
+  urgente?: boolean;
+  sortBy?: SortBy;
 }
 
 /** Tipo para exibição no card (enriquecido com clienteNome mockado) */

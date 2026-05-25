@@ -17,7 +17,7 @@ export const PROFESSION_OPTIONS: ProfessionOption[] = [
   { id: "ENCANAMENTO", label: "Encanador", icon: "🔧" },
   { id: "PINTURA", label: "Pintor", icon: "🎨" },
   { id: "PEDREIRO", label: "Pedreiro / Reforma", icon: "🏗️" },
-  { id: "AR_CONDICIONADO", label: "Ar-Condicionado", icon: "❄️" },
+  { id: "MARCENARIA", label: "Marcenaria", icon: "🪚" },
 ];
 
 type ProfessionContentProps = {

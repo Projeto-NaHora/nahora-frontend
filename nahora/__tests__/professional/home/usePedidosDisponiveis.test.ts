@@ -22,7 +22,7 @@ describe("usePedidosDisponiveis", () => {
       expect(result.current.pedidos).toHaveLength(3);
     });
 
-    expect(orderService.listarDisponiveis).toHaveBeenCalledWith(0, 20);
+    expect(orderService.listarDisponiveis).toHaveBeenCalledWith(0, 20, undefined);
   });
 
   test("loadMore fetches next page and appends pedidos", async () => {
@@ -30,7 +30,7 @@ describe("usePedidosDisponiveis", () => {
     page0.last = false;
     const page1 = createMockPedidoResumoPage(3, 10, 1, 20);
     (orderService.listarDisponiveis as jest.Mock).mockImplementation(
-      (_page: number, _size: number) => {
+      (_page: number, _size: number, _filtro?: unknown) => {
         if (_page === 0) return Promise.resolve(page0);
         return Promise.resolve(page1);
       },
@@ -50,7 +50,7 @@ describe("usePedidosDisponiveis", () => {
       expect(result.current.pedidos).toHaveLength(6);
     });
 
-    expect(orderService.listarDisponiveis).toHaveBeenCalledWith(1, 20);
+    expect(orderService.listarDisponiveis).toHaveBeenCalledWith(1, 20, undefined);
   });
 
   test("refresh resets and re-fetches from page 0", async () => {
@@ -109,7 +109,7 @@ describe("usePedidosDisponiveis", () => {
     });
 
     (orderService.listarDisponiveis as jest.Mock).mockImplementation(
-      (_page: number, _size: number) => {
+      (_page: number, _size: number, _filtro?: unknown) => {
         if (_page === 0) return Promise.resolve(page0);
         return page1Promise;
       },
@@ -135,6 +135,29 @@ describe("usePedidosDisponiveis", () => {
 
     await waitFor(() => {
       expect(result.current.isLoadingMore).toBe(false);
+    });
+  });
+
+  test("passes filter params to listarDisponiveis", async () => {
+    const page = createMockPedidoResumoPage(3, 3, 0, 20);
+    (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
+
+    const filtro = { categoria: "ELETRICA" as const, urgente: true };
+    renderHook(() => usePedidosDisponiveis(filtro));
+
+    await waitFor(() => {
+      expect(orderService.listarDisponiveis).toHaveBeenCalledWith(0, 20, filtro);
+    });
+  });
+
+  test("does not send TODAS categoria or null urgente to backend", async () => {
+    const page = createMockPedidoResumoPage(3, 3, 0, 20);
+    (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
+
+    renderHook(() => usePedidosDisponiveis());
+
+    await waitFor(() => {
+      expect(orderService.listarDisponiveis).toHaveBeenCalledWith(0, 20, undefined);
     });
   });
 });

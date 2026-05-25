@@ -25,13 +25,18 @@ const MAPPING = {
   "chevron.left": "chevron-left",
   "doc.text.fill": "list-alt",
   "bubble.left.and.bubble.right.fill": "chat",
+  magnifyingglass: "search",
   "heart.fill": "favorite",
   "person.fill": "person",
   "briefcase.fill": "work",
-  "camera.fill": "camera-alt",
-  "photo.on.rectangle": "photo-library",
-  "square.and.pencil": "edit",
-  checkmark: "check",
+  edit: "edit",
+  public: "public",
+  "attach-money": "attach-money",
+  "location-on": "location-on",
+  settings: "settings",
+  lock: "lock",
+  logout: "logout",
+  close: "close",
 } as Partial<IconMapping>;
 
 /**

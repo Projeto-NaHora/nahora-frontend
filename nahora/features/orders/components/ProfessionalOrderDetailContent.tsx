@@ -29,7 +29,12 @@ function getPeriodo(iso: string | undefined | null): string {
 
 function formatEndereco(endereco: Pedido["endereco"]): string {
   if (!endereco) return "—";
-  return `${endereco.logradouro}, ${endereco.numero} – ${endereco.bairro}, ${endereco.cidade}`;
+  const line1 = endereco.logradouro
+    ? `${endereco.logradouro}, ${endereco.numero}`
+    : "";
+  const line2 = `${endereco.bairro}, ${endereco.cidade}`;
+  if (!line1) return line2;
+  return `${line1} – ${line2}`;
 }
 
 function getUrgencyColors(urgencia: string): { bg: string; text: string } {

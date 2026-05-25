@@ -123,8 +123,9 @@ export default function PropostasListContent() {
             <PropostaCard
               proposta={item}
               destacada={index === 0 && filtro === "melhor_avaliacao"}
-              onNegociar={() => router.push(`/(client)/(orders)/${orderId}/proposals/${item.id}`)}
-              onVerPerfil={() => router.push(`/(client)/profile/${item.profissional.id}`)}
+              onNegociar={() => router.push(`/(client)/(chats)/${item.id}`)}
+              onVerProposta={() => router.push(`/(client)/(orders)/${orderId}/proposals/${item.id}`)}
+              onVerPerfil={() => router.push(`/(client)/(home)/${item.profissional.id}`)}
             />
           )}
         />

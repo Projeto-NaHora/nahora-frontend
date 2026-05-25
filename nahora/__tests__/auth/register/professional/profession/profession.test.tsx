@@ -37,7 +37,7 @@ describe('ProfessionScreen', () => {
     expect(screen.getByText('Encanador')).toBeOnTheScreen();
     expect(screen.getByText('Pintor')).toBeOnTheScreen();
     expect(screen.getByText('Pedreiro / Reforma')).toBeOnTheScreen();
-    expect(screen.getByText('Ar-Condicionado')).toBeOnTheScreen();
+    expect(screen.getByText('Marcenaria')).toBeOnTheScreen();
   });
 
   test('renders continue button', () => {

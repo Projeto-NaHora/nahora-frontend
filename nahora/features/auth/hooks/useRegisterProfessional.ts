@@ -21,8 +21,9 @@ export function useRegisterProfessional({
   const profession = useRegisterStore((state) => state.profession);
   const cpf = useRegisterStore((state) => state.cpf);
   const especialidades = useRegisterStore((state) => state.especialidades);
+  const about = useRegisterStore((state) => state.about);
   const experienceYears = useRegisterStore((state) => state.experienceYears);
-  const location = useRegisterStore((state) => state.location);
+  const cargo = useRegisterStore((state) => state.cargo);
   const rgFrontUrl = useRegisterStore((state) => state.rgFrontUrl);
   const rgBackUrl = useRegisterStore((state) => state.rgBackUrl);
   const selfieUrl = useRegisterStore((state) => state.selfieUrl);
@@ -35,6 +36,13 @@ export function useRegisterProfessional({
     "register-professional",
     async () => {
       const anosExperiencia = parseInt(experienceYears, 10) || 0;
+      const partes = location ? location.split(",") : [];
+      const cidadeQuebrada = partes[0] ? partes[0].trim() : "";
+
+      const estadoQuebrado =
+        partes.length > 1 && partes[1]
+          ? partes[1].trim().substring(0, 2).toUpperCase()
+          : "PE";
 
       const payload = {
         nome: `${firstName} ${lastName}`.trim(),
@@ -44,7 +52,10 @@ export function useRegisterProfessional({
         categoriaServico: profession?.id ?? "",
         cpf,
         especialidades,
+        descricaoEspecialidades: about,
         anosExperiencia,
+        cidade: cidadeQuebrada || "Não informada",
+        estado: estadoQuebrado,
         areaAtuacao: location ? [location] : [],
         rgFrenteUrl: rgFrontUrl!,
         rgVersoUrl: rgBackUrl!,

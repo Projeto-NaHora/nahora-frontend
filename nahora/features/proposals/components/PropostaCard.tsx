@@ -20,6 +20,7 @@ interface PropostaCardProps {
   proposta: Proposta;
   destacada: boolean;
   onNegociar: () => void;
+  onVerProposta: () => void;
   onVerPerfil: () => void;
 }
 
@@ -34,6 +35,7 @@ export function PropostaCard({
   proposta,
   destacada,
   onNegociar,
+  onVerProposta,
   onVerPerfil,
 }: PropostaCardProps) {
   const theme = useColorScheme() ?? "light";
@@ -78,6 +80,9 @@ export function PropostaCard({
           {subtitulo ? (
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitulo}</Text>
           ) : null}
+          <TouchableOpacity onPress={onVerPerfil}>
+            <Text style={[styles.verPerfilText, { color: colors.brand }]}>Ver perfil</Text>
+          </TouchableOpacity>
         </View>
 
         <Text style={[styles.price, { color: colors.success }]}>R$ {(proposta.valor ?? 0).toFixed(0)}</Text>
@@ -109,8 +114,8 @@ export function PropostaCard({
         <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.brand }]} onPress={onNegociar}>
           <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>Negociar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.secondaryButton, { backgroundColor: colors.surface }]} onPress={onVerPerfil}>
-          <Text style={[styles.secondaryButtonText, { color: colors.textPrimary }]}>Ver perfil</Text>
+        <TouchableOpacity style={[styles.secondaryButton, { backgroundColor: colors.surface }]} onPress={onVerProposta}>
+          <Text style={[styles.secondaryButtonText, { color: colors.textPrimary }]}>Ver proposta</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -165,6 +170,11 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 13,
+  },
+  verPerfilText: {
+    fontSize: 13,
+    fontWeight: "600",
+    marginTop: 2,
   },
   price: {
     fontSize: 12,
