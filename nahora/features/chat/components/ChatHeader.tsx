@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChatAvatar } from "./ChatAvatar";
-import { ChatColors } from "@/constants/theme";
+import { useChatColors } from "@/hooks/use-chat-colors";
 
 interface Props {
   nome: string;
@@ -12,22 +13,54 @@ interface Props {
 }
 
 export function ChatHeader({ nome, fotoUrl, online, onBack, onMenu }: Props) {
+  const colors = useChatColors();
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: insets.top + 8 },
+        {
+          backgroundColor: colors.white,
+          borderBottomColor: colors.borderSubtle,
+        },
+      ]}
+    >
       <View style={styles.topRow}>
-        <TouchableOpacity style={styles.backBtn} onPress={onBack}>
-          <Text style={styles.chevron}>{"<"}</Text>
+        <TouchableOpacity
+          style={[styles.backBtn, { backgroundColor: colors.surfaceLight }]}
+          onPress={onBack}
+        >
+          <Text style={[styles.chevron, { color: colors.darkText }]}>{"<"}</Text>
         </TouchableOpacity>
 
         <View style={styles.profile}>
           <ChatAvatar nome={nome} fotoUrl={fotoUrl} size={42} online={online} />
           <View style={styles.profileText}>
-            <Text style={styles.name} numberOfLines={1}>
+            <Text
+              style={[styles.name, { color: colors.darkText }]}
+              numberOfLines={1}
+            >
               {nome}
             </Text>
             <View style={styles.statusRow}>
-              {online && <View style={styles.greenDot} />}
-              <Text style={[styles.status, online && styles.statusOnline]}>
+              {online && (
+                <View
+                  style={[
+                    styles.greenDot,
+                    { backgroundColor: colors.onlineGreen },
+                  ]}
+                />
+              )}
+              <Text
+                style={[
+                  styles.status,
+                  online
+                    ? { color: colors.onlineGreen }
+                    : { color: colors.mutedText },
+                ]}
+              >
                 {online ? "Online agora" : "Offline"}
               </Text>
             </View>
@@ -35,7 +68,7 @@ export function ChatHeader({ nome, fotoUrl, online, onBack, onMenu }: Props) {
         </View>
 
         <TouchableOpacity style={styles.menuBtn} onPress={onMenu}>
-          <Text style={styles.dots}>{"..."}</Text>
+          <Text style={[styles.dots, { color: colors.darkText }]}>{"..."}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -44,11 +77,7 @@ export function ChatHeader({ nome, fotoUrl, online, onBack, onMenu }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor:
-      Platform.OS === "ios" ? "rgba(255,255,255,0.9)" : ChatColors.white,
     borderBottomWidth: 1,
-    borderBottomColor: ChatColors.borderSubtle,
-    paddingTop: Platform.OS === "ios" ? 50 : 8,
     paddingBottom: 12,
   },
   topRow: {
@@ -61,13 +90,11 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: ChatColors.surfaceLight,
     justifyContent: "center",
     alignItems: "center",
   },
   chevron: {
     fontSize: 20,
-    color: ChatColors.darkText,
     fontWeight: "700",
   },
   profile: {
@@ -84,7 +111,6 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "700",
     fontSize: 16,
-    color: ChatColors.darkText,
     maxWidth: 180,
   },
   statusRow: {
@@ -96,16 +122,11 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: ChatColors.onlineGreen,
   },
   status: {
     fontFamily: "Inter",
     fontWeight: "500",
     fontSize: 12,
-    color: ChatColors.mutedText,
-  },
-  statusOnline: {
-    color: ChatColors.onlineGreen,
   },
   menuBtn: {
     width: 40,
@@ -115,7 +136,6 @@ const styles = StyleSheet.create({
   },
   dots: {
     fontSize: 20,
-    color: ChatColors.darkText,
     fontWeight: "700",
     letterSpacing: 2,
   },

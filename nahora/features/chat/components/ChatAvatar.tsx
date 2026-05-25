@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Image, Text, StyleSheet } from "react-native";
-import { ChatColors } from "@/constants/theme";
+import { useChatColors } from "@/hooks/use-chat-colors";
 import { getInitials } from "@/utils/formatters";
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
 }
 
 export function ChatAvatar({ nome, fotoUrl, size = 42, online }: Props) {
+  const colors = useChatColors();
   const initials = getInitials(nome);
 
   return (
@@ -28,15 +29,28 @@ export function ChatAvatar({ nome, fotoUrl, size = 42, online }: Props) {
               width: size,
               height: size,
               borderRadius: size / 2,
+              backgroundColor: colors.proposalBg,
             },
           ]}
         >
-          <Text style={[styles.initialsText, { fontSize: size * 0.36 }]}>
+          <Text style={[styles.initialsText, { fontSize: size * 0.36, color: colors.proposalText }]}>
             {initials}
           </Text>
         </View>
       )}
-      {online && <View style={[styles.onlineDot, { width: size * 0.28, height: size * 0.28, borderRadius: size * 0.14 }]} />}
+      {online && (
+        <View
+          style={[
+            styles.onlineDot,
+            {
+              width: size * 0.28,
+              height: size * 0.28,
+              borderRadius: size * 0.14,
+              backgroundColor: colors.onlineGreen,
+            },
+          ]}
+        />
+      )}
     </View>
   );
 }
@@ -49,21 +63,18 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   initialsCircle: {
-    backgroundColor: ChatColors.proposalBg,
     justifyContent: "center",
     alignItems: "center",
   },
   initialsText: {
     fontFamily: "Inter",
     fontWeight: "700",
-    color: ChatColors.proposalText,
   },
   onlineDot: {
     position: "absolute",
     bottom: 0,
     right: 0,
-    backgroundColor: ChatColors.onlineGreen,
     borderWidth: 2,
-    borderColor: ChatColors.white,
+    borderColor: "#fff",
   },
 });

@@ -22,6 +22,38 @@ const placeholderDark = "#6D6D6D";
 const onBrandDark = "#FAFAFA";
 const textSecondaryDark = "#9BA1A6";
 
+const chatLight = {
+  brandOrange: "#f27b24",
+  incomingBubble: "#f4f6f8",
+  proposalBg: "#fff2e5",
+  proposalBorder: "#fad3bc",
+  proposalText: "#e67215",
+  onlineGreen: "#10b981",
+  mutedText: "#8c8c8c",
+  surfaceLight: "#f8f9fa",
+  borderSubtle: "#eaeaea",
+  darkText: "#111111",
+  readReceipt: "#f27b24",
+  readReceiptSent: "#8c8c8c",
+  white: "#ffffff",
+};
+
+const chatDark = {
+  brandOrange: "#f27b24",
+  incomingBubble: "#2A2A2A",
+  proposalBg: "#3D2E1F",
+  proposalBorder: "#5C432A",
+  proposalText: "#f27b24",
+  onlineGreen: "#34d399",
+  mutedText: "#9BA1A6",
+  surfaceLight: "#2A2A2A",
+  borderSubtle: "#3A3A3A",
+  darkText: "#ECEDEE",
+  readReceipt: "#f27b24",
+  readReceiptSent: "#9BA1A6",
+  white: "#151718",
+};
+
 export const Colors = {
   light: {
     text: "#11181C",
@@ -40,6 +72,7 @@ export const Colors = {
     placeholder: placeholderLight,
     onBrand: onBrandLight,
     link: brandColor,
+    chat: chatLight,
   },
   dark: {
     text: "#ECEDEE",
@@ -58,6 +91,7 @@ export const Colors = {
     placeholder: placeholderDark,
     onBrand: onBrandDark,
     link: brandColor,
+    chat: chatDark,
   },
 };
 
@@ -143,18 +177,5 @@ export const Borders = {
   thin: 1,
 };
 
-export const ChatColors = {
-  brandOrange: "#f27b24",
-  incomingBubble: "#f4f6f8",
-  proposalBg: "#fff2e5",
-  proposalBorder: "#fad3bc",
-  proposalText: "#e67215",
-  onlineGreen: "#10b981",
-  mutedText: "#8c8c8c",
-  surfaceLight: "#f8f9fa",
-  borderSubtle: "#eaeaea",
-  darkText: "#111111",
-  readReceipt: "#f27b24",
-  readReceiptSent: "#8c8c8c",
-  white: "#ffffff",
-};
+/** @deprecated Use `useChatColors()` hook instead. */
+export const ChatColors = Colors.light.chat;

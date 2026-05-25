@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { ChatColors } from "@/constants/theme";
+import { useChatColors } from "@/hooks/use-chat-colors";
 
 interface Props {
   onSend: (text: string) => void;
@@ -24,6 +24,7 @@ export function ChatInput({
   isSending,
   placeholder = "Digite uma mensagem...",
 }: Props) {
+  const colors = useChatColors();
   const [text, setText] = useState("");
 
   const handleSend = () => {
@@ -34,24 +35,35 @@ export function ChatInput({
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          borderTopColor: colors.borderSubtle,
+          backgroundColor: colors.white,
+        },
+      ]}
+    >
       <TouchableOpacity
-        style={styles.iconBtn}
+        style={[styles.iconBtn, { backgroundColor: colors.surfaceLight }]}
         onPress={onAttachment}
         disabled={disabled}
       >
-        <Text style={styles.attachmentIcon}>+</Text>
+        <Text style={[styles.attachmentIcon, { color: colors.darkText }]}>
+          +
+        </Text>
       </TouchableOpacity>
 
       <TextInput
         style={[
           styles.input,
+          { backgroundColor: colors.surfaceLight, color: colors.darkText },
           disabled && styles.inputDisabled,
         ]}
         value={text}
         onChangeText={setText}
         placeholder={disabled ? "Conversa encerrada" : placeholder}
-        placeholderTextColor={ChatColors.mutedText}
+        placeholderTextColor={colors.mutedText}
         editable={!disabled}
         multiline={false}
         returnKeyType="send"
@@ -61,13 +73,14 @@ export function ChatInput({
       <TouchableOpacity
         style={[
           styles.sendBtn,
+          { backgroundColor: colors.brandOrange },
           (!text.trim() || disabled) && styles.sendBtnDisabled,
         ]}
         onPress={handleSend}
         disabled={!text.trim() || disabled || isSending}
       >
         {isSending ? (
-          <ActivityIndicator color={ChatColors.white} size="small" />
+          <ActivityIndicator color={colors.white} size="small" />
         ) : (
           <Text style={styles.sendIcon}>{">"}</Text>
         )}
@@ -83,32 +96,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: ChatColors.borderSubtle,
-    backgroundColor: ChatColors.white,
     gap: 12,
   },
   iconBtn: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: ChatColors.surfaceLight,
     justifyContent: "center",
     alignItems: "center",
   },
   attachmentIcon: {
     fontSize: 20,
-    color: ChatColors.darkText,
     fontWeight: "700",
   },
   input: {
     flex: 1,
     height: 48,
     borderRadius: 24,
-    backgroundColor: ChatColors.surfaceLight,
     paddingHorizontal: 16,
     fontFamily: "Inter",
     fontSize: 15,
-    color: ChatColors.darkText,
   },
   inputDisabled: {
     opacity: 0.5,
@@ -117,7 +124,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: ChatColors.brandOrange,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
@@ -131,7 +137,7 @@ const styles = StyleSheet.create({
   },
   sendIcon: {
     fontSize: 18,
-    color: ChatColors.white,
+    color: "#ffffff",
     fontWeight: "700",
   },
 });

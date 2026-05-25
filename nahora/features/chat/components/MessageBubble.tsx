@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { ChatColors } from "@/constants/theme";
+import { useChatColors } from "@/hooks/use-chat-colors";
 import { formatMessageTime } from "@/utils/formatters";
 import type { Mensagem } from "../types";
 
@@ -10,19 +10,33 @@ interface Props {
 }
 
 export function MessageBubble({ mensagem, isOwn }: Props) {
+  const colors = useChatColors();
   const time = formatMessageTime(mensagem.criadoEm);
   const isBlocked = mensagem.bloqueadaIa;
+
+  const bubbleBg = isBlocked
+    ? colors.surfaceLight
+    : isOwn
+      ? colors.brandOrange
+      : colors.incomingBubble;
+
+  const textColor = isBlocked
+    ? colors.mutedText
+    : isOwn
+      ? colors.white
+      : colors.darkText;
 
   return (
     <View style={[styles.row, isOwn ? styles.rowOwn : styles.rowOther]}>
       {!isOwn && (
-        <Text style={styles.senderLabel}>
+        <Text style={[styles.senderLabel, { color: colors.mutedText }]}>
           {mensagem.nomeRemetente} · {time}
         </Text>
       )}
       <View
         style={[
           styles.bubble,
+          { backgroundColor: bubbleBg },
           isOwn ? styles.bubbleOwn : styles.bubbleOther,
           isBlocked && styles.bubbleBlocked,
         ]}
@@ -30,7 +44,7 @@ export function MessageBubble({ mensagem, isOwn }: Props) {
         <Text
           style={[
             styles.text,
-            isOwn ? styles.textOwn : styles.textOther,
+            { color: textColor },
             isBlocked && styles.textBlocked,
           ]}
         >
@@ -40,14 +54,21 @@ export function MessageBubble({ mensagem, isOwn }: Props) {
         </Text>
       </View>
       <View style={[styles.metaRow, isOwn ? styles.metaOwn : styles.metaOther]}>
-        {isOwn && <Text style={styles.timeOwn}>{time}</Text>}
+        {isOwn && (
+          <Text style={[styles.timeOwn, { color: colors.mutedText }]}>
+            {time}
+          </Text>
+        )}
         {isOwn && (
           <Text
             style={[
               styles.checkmark,
-              mensagem.status === "LIDA"
-                ? styles.checkmarkRead
-                : styles.checkmarkSent,
+              {
+                color:
+                  mensagem.status === "LIDA"
+                    ? colors.readReceipt
+                    : colors.readReceiptSent,
+              },
             ]}
           >
             {"✓✓"}
@@ -73,7 +94,6 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "500",
     fontSize: 11,
-    color: ChatColors.mutedText,
     marginBottom: 4,
     marginLeft: 4,
   },
@@ -83,21 +103,18 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
   },
   bubbleOwn: {
-    backgroundColor: ChatColors.brandOrange,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 4,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
   bubbleOther: {
-    backgroundColor: ChatColors.incomingBubble,
     borderTopLeftRadius: 4,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
   bubbleBlocked: {
-    backgroundColor: ChatColors.surfaceLight,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
@@ -108,14 +125,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 24,
   },
-  textOwn: {
-    color: ChatColors.white,
-  },
-  textOther: {
-    color: ChatColors.darkText,
-  },
   textBlocked: {
-    color: ChatColors.mutedText,
     fontStyle: "italic",
   },
   metaRow: {
@@ -134,15 +144,8 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "500",
     fontSize: 11,
-    color: ChatColors.mutedText,
   },
   checkmark: {
     fontSize: 14,
-  },
-  checkmarkRead: {
-    color: ChatColors.readReceipt,
-  },
-  checkmarkSent: {
-    color: ChatColors.readReceiptSent,
   },
 });

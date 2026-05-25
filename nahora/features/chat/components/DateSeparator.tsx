@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { ChatColors } from "@/constants/theme";
+import { useChatColors } from "@/hooks/use-chat-colors";
 import { formatDateSeparator } from "@/utils/formatters";
 
 interface Props {
@@ -8,12 +8,21 @@ interface Props {
 }
 
 export function DateSeparator({ date }: Props) {
+  const colors = useChatColors();
   const label = formatDateSeparator(date);
 
   return (
     <View style={styles.container}>
-      <View style={styles.pill}>
-        <Text style={styles.text}>{label}</Text>
+      <View
+        style={[
+          styles.pill,
+          {
+            backgroundColor: colors.surfaceLight,
+            borderColor: colors.borderSubtle,
+          },
+        ]}
+      >
+        <Text style={[styles.text, { color: colors.mutedText }]}>{label}</Text>
       </View>
     </View>
   );
@@ -25,9 +34,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   pill: {
-    backgroundColor: ChatColors.surfaceLight,
     borderWidth: 1,
-    borderColor: ChatColors.borderSubtle,
     borderRadius: 9999,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -36,7 +43,6 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "700",
     fontSize: 12,
-    color: ChatColors.mutedText,
     letterSpacing: 1.2,
   },
 });

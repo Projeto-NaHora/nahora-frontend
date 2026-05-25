@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { ChatColors } from "@/constants/theme";
+import { useChatColors } from "@/hooks/use-chat-colors";
 
 interface Props {
   valorProposta: number;
@@ -22,6 +22,8 @@ export function ProposalBanner({
   onVerDetalhes,
   papel,
 }: Props) {
+  const colors = useChatColors();
+
   if (statusProposta !== "PENDENTE" && statusProposta !== "ACEITA") return null;
 
   const label = STATUS_LABELS[statusProposta ?? ""] ?? "PROPOSTA EM ANDAMENTO";
@@ -31,15 +33,32 @@ export function ProposalBanner({
   }).format(valorProposta);
 
   return (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.proposalBg,
+          borderColor: colors.proposalBorder,
+        },
+      ]}
+    >
       <View style={styles.left}>
-        <Text style={styles.label}>{label}</Text>
+        <Text style={[styles.label, { color: colors.proposalText }]}>
+          {label}
+        </Text>
         <Text style={styles.priceRow}>
-          <Text style={styles.priceLabel}>Valor proposto: </Text>
-          <Text style={styles.priceValue}>{formattedValue}</Text>
+          <Text style={[styles.priceLabel, { color: colors.darkText }]}>
+            Valor proposto:{" "}
+          </Text>
+          <Text style={[styles.priceValue, { color: colors.proposalText }]}>
+            {formattedValue}
+          </Text>
         </Text>
       </View>
-      <TouchableOpacity style={styles.cta} onPress={onVerDetalhes}>
+      <TouchableOpacity
+        style={[styles.cta, { backgroundColor: colors.brandOrange }]}
+        onPress={onVerDetalhes}
+      >
         <Text style={styles.ctaText}>
           {papel === "PROFISSIONAL" ? "Editar proposta" : "Ver detalhes"}
         </Text>
@@ -53,9 +72,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: ChatColors.proposalBg,
     borderWidth: 1,
-    borderColor: ChatColors.proposalBorder,
     borderRadius: 16,
     padding: 14,
     marginHorizontal: 16,
@@ -69,7 +86,6 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "700",
     fontSize: 13,
-    color: ChatColors.proposalText,
     letterSpacing: 0.3,
   },
   priceRow: {
@@ -79,16 +95,13 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "500",
     fontSize: 14,
-    color: ChatColors.darkText,
   },
   priceValue: {
     fontFamily: "Inter",
     fontWeight: "700",
     fontSize: 14,
-    color: ChatColors.proposalText,
   },
   cta: {
-    backgroundColor: ChatColors.brandOrange,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -97,6 +110,6 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "700",
     fontSize: 13,
-    color: ChatColors.white,
+    color: "#ffffff",
   },
 });

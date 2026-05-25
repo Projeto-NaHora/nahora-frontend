@@ -1,6 +1,8 @@
 import React from "react";
 import { View, TextInput, StyleSheet } from "react-native";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 interface SearchBarProps {
   value: string;
@@ -8,21 +10,24 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({ value, onChangeText }: SearchBarProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+
   return (
     <View style={styles.wrapper}>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <IconSymbol
           name="magnifyingglass"
           size={20}
-          color="#8e8e93"
+          color={colors.textSecondary}
           style={styles.icon}
         />
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: colors.textPrimary }]}
           value={value}
           onChangeText={onChangeText}
           placeholder="Buscar..."
-          placeholderTextColor="#8e8e93"
+          placeholderTextColor={colors.placeholder}
           returnKeyType="search"
         />
       </View>
@@ -37,10 +42,8 @@ const styles = StyleSheet.create({
   },
   container: {
     height: 48,
-    backgroundColor: "#f8f9fa",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(240,240,240,0.5)",
     flexDirection: "row",
     alignItems: "center",
     paddingLeft: 16,
@@ -58,7 +61,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontFamily: "Inter",
-    color: "#1c1c1e",
     padding: 0,
   },
 });

@@ -6,26 +6,27 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   StyleSheet,
-  Platform,
   KeyboardAvoidingView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
+import { useChatColors } from "@/hooks/use-chat-colors";
 import { useChatScreen } from "../hooks/useChatScreen";
 import { ChatHeader } from "./ChatHeader";
 import { MessageBubble } from "./MessageBubble";
 import { DateSeparator } from "./DateSeparator";
 import { ProposalBanner } from "./ProposalBanner";
 import { ChatInput } from "./ChatInput";
-import { ChatColors } from "@/constants/theme";
 import type { Mensagem, DateSeparatorEntry } from "../types";
 
 interface Props {
-  conversaId: number;
+  propostaId: number;
 }
 
-export function ChatContent({ conversaId }: Props) {
+export function ChatContent({ propostaId }: Props) {
   const router = useRouter();
+  const colors = useChatColors();
   const userId = useAuthStore((s) => s.user?.id);
   const userTipo = useAuthStore((s) => s.user?.tipo);
 
@@ -44,7 +45,8 @@ export function ChatContent({ conversaId }: Props) {
     iaBlocked,
     clearIaBlocked,
     conversa,
-  } = useChatScreen(conversaId);
+    connectionError,
+  } = useChatScreen(propostaId);
 
   const isReadOnly =
     conversa?.status === "SOMENTE_LEITURA" || conversa?.status === "FECHADA";
@@ -79,44 +81,54 @@ export function ChatContent({ conversaId }: Props) {
   // Loading state
   if (isLoading && messageCount === 0) {
     return (
-      <View style={styles.screen}>
+      <SafeAreaView style={[styles.screen, { backgroundColor: colors.white }]} edges={["bottom"]}>
         <ChatHeader
           nome={conversa?.nomeOutroParticipante ?? "Carregando..."}
           fotoUrl={conversa?.fotoOutroParticipante}
           onBack={() => router.back()}
         />
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={ChatColors.brandOrange} />
-          <Text style={styles.loadingText}>Carregando mensagens...</Text>
+          <ActivityIndicator size="large" color={colors.brandOrange} />
+          <Text style={[styles.loadingText, { color: colors.mutedText }]}>
+            Carregando mensagens...
+          </Text>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   // Error state (no cache)
   if (isError && messageCount === 0) {
     return (
-      <View style={styles.screen}>
+      <SafeAreaView style={[styles.screen, { backgroundColor: colors.white }]} edges={["bottom"]}>
         <ChatHeader
           nome={conversa?.nomeOutroParticipante ?? ""}
           fotoUrl={conversa?.fotoOutroParticipante}
           onBack={() => router.back()}
         />
         <View style={styles.center}>
-          <Text style={styles.errorIcon}>!</Text>
-          <Text style={styles.errorText}>
+          <Text style={[styles.errorIcon, { color: colors.brandOrange }]}>
+            !
+          </Text>
+          <Text style={[styles.errorText, { color: colors.darkText }]}>
             Nao foi possivel carregar as mensagens
           </Text>
-          <TouchableOpacity style={styles.retryBtn} onPress={() => refresh()}>
+          <TouchableOpacity
+            style={[styles.retryBtn, { backgroundColor: colors.brandOrange }]}
+            onPress={() => refresh()}
+          >
             <Text style={styles.retryText}>Tentar novamente</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView
+      style={[styles.screen, { backgroundColor: colors.white }]}
+      edges={["bottom"]}
+    >
       <ChatHeader
         nome={conversa?.nomeOutroParticipante ?? ""}
         fotoUrl={conversa?.fotoOutroParticipante}
@@ -138,7 +150,11 @@ export function ChatContent({ conversaId }: Props) {
       {connectionStatus !== "CONNECTED" &&
         connectionStatus !== "CONNECTING" && (
           <View style={styles.reconnectBanner}>
-            <Text style={styles.reconnectText}>Reconectando...</Text>
+            <Text style={styles.reconnectText}>
+              {connectionError
+                ? `Erro de conexão: ${connectionError}`
+                : "Reconectando..."}
+            </Text>
           </View>
         )}
 
@@ -155,13 +171,14 @@ export function ChatContent({ conversaId }: Props) {
 
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+        behavior="padding"
       >
         {messageCount === 0 ? (
           <View style={styles.center}>
-            <Text style={styles.emptyTitle}>Nenhuma mensagem ainda</Text>
-            <Text style={styles.emptySubtitle}>
+            <Text style={[styles.emptyTitle, { color: colors.darkText }]}>
+              Nenhuma mensagem ainda
+            </Text>
+            <Text style={[styles.emptySubtitle, { color: colors.mutedText }]}>
               Envie uma mensagem para iniciar a conversa
             </Text>
           </View>
@@ -191,14 +208,13 @@ export function ChatContent({ conversaId }: Props) {
           isSending={isSending}
         />
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: ChatColors.white,
   },
   flex: {
     flex: 1,
@@ -212,24 +228,20 @@ const styles = StyleSheet.create({
   loadingText: {
     fontFamily: "Inter",
     fontSize: 14,
-    color: ChatColors.mutedText,
     marginTop: 12,
   },
   errorIcon: {
     fontSize: 48,
-    color: ChatColors.brandOrange,
     fontWeight: "700",
     marginBottom: 12,
   },
   errorText: {
     fontFamily: "Inter",
     fontSize: 15,
-    color: ChatColors.darkText,
     textAlign: "center",
     marginBottom: 16,
   },
   retryBtn: {
-    backgroundColor: ChatColors.brandOrange,
     borderRadius: 16,
     paddingHorizontal: 24,
     paddingVertical: 10,
@@ -238,19 +250,17 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "700",
     fontSize: 14,
-    color: ChatColors.white,
+    color: "#ffffff",
   },
   emptyTitle: {
     fontFamily: "Inter",
     fontWeight: "700",
     fontSize: 16,
-    color: ChatColors.darkText,
     marginBottom: 4,
   },
   emptySubtitle: {
     fontFamily: "Inter",
     fontSize: 14,
-    color: ChatColors.mutedText,
   },
   listContent: {
     paddingTop: 16,
