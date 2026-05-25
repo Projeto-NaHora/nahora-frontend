@@ -181,9 +181,9 @@ describe("ProposalFormContent", () => {
     expect(names.length).toBeGreaterThanOrEqual(1);
   });
 
-  test("renders Servico label", () => {
+  test("renders categoria label", () => {
     renderComponent({ pedido: mockPedido });
-    expect(screen.getByText("Servico")).toBeOnTheScreen();
+    expect(screen.getByText("ELETRICA")).toBeOnTheScreen();
   });
 
   test("renders Valor da mao de obra label", () => {

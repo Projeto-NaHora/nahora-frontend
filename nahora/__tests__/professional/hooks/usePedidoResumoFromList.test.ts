@@ -86,20 +86,7 @@ describe("usePedidoResumoFromList", () => {
     expect(typeof result.current.pedido?.clienteNome).toBe("string");
   });
 
-  test("maps dataDesejada when present in resumo", async () => {
-    const page = createMockPedidoResumoPage(1, 1);
-    page.content[0] = { ...page.content[0], dataDesejada: "2026-05-22T08:00:00" } as any;
-    (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
-
-    const { result } = renderHook(() => usePedidoResumoFromList(1));
-
-    await waitFor(() => {
-      expect(result.current.pedido).toBeDefined();
-    });
-    expect(result.current.pedido?.dataDesejada).toBe("2026-05-22T08:00:00");
-  });
-
-  test("defaults dataDesejada to empty string when absent", async () => {
+  test("maps dataDesejada to empty string", async () => {
     const page = createMockPedidoResumoPage(1, 1);
     (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
 

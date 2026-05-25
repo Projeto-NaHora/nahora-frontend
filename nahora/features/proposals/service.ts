@@ -1,6 +1,6 @@
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
-import type { Proposta, PropostaResponseRaw, CriarPropostaPayload } from "./types";
+import type { Proposta, PropostaResponseRaw, CriarPropostaPayload, AceitarPropostaResponseDTO } from "./types";
 
 export function mapRawToProposta(raw: PropostaResponseRaw): Proposta {
   return {
@@ -8,10 +8,10 @@ export function mapRawToProposta(raw: PropostaResponseRaw): Proposta {
     pedidoId: raw.pedidoId ?? 0,
     profissional: {
       id: raw.profissionalId ?? 0,
-      nome: raw.profissionalNome,
+      nome: raw.profissionalNome ?? "",
       foto: raw.profissionalFotoUrl,
-      notaMedia: raw.notaMedia,
-      totalAvaliacoes: raw.numeroAvaliacoes,
+      notaMedia: raw.notaMedia ?? 0,
+      totalAvaliacoes: raw.numeroAvaliacoes ?? 0,
       totalServicosExecutados: raw.totalServicosExecutados ?? 0,
       distancia: raw.distancia,
       localidade: raw.localidade,
@@ -23,6 +23,7 @@ export function mapRawToProposta(raw: PropostaResponseRaw): Proposta {
     tempoEstimado: raw.tempoEstimado,
     status: raw.status,
     expiraEm: raw.expiraEm,
+    horariosDisponiveis: raw.horariosDisponiveis,
     criadoEm: raw.criadoEm,
     atualizadoEm: raw.atualizadoEm,
   };
@@ -34,8 +35,8 @@ export const proposalsService = {
     return data.map(mapRawToProposta);
   },
 
-  buscarPorId: async (id: number): Promise<Proposta> => {
-    const { data } = await api.get<PropostaResponseRaw>(ENDPOINTS.PROPOSTA(id));
+  buscarPorId: async (pedidoId: number, propostaId: number): Promise<Proposta> => {
+    const { data } = await api.get<PropostaResponseRaw>(ENDPOINTS.PROPOSTA(pedidoId, propostaId));
     return mapRawToProposta(data);
   },
 
@@ -44,11 +45,12 @@ export const proposalsService = {
     return mapRawToProposta(data);
   },
 
-  aceitar: async (id: number): Promise<void> => {
-    await api.post(ENDPOINTS.ACEITAR_PROPOSTA(id));
+  aceitar: async (pedidoId: number, propostaId: number): Promise<AceitarPropostaResponseDTO> => {
+    const { data } = await api.post<AceitarPropostaResponseDTO>(ENDPOINTS.ACEITAR_PROPOSTA(pedidoId, propostaId));
+    return data;
   },
 
-  recusar: async (id: number): Promise<void> => {
-    await api.post(ENDPOINTS.RECUSAR_PROPOSTA(id));
+  recusar: async (pedidoId: number, propostaId: number): Promise<void> => {
+    await api.post(ENDPOINTS.RECUSAR_PROPOSTA(pedidoId, propostaId));
   },
 };

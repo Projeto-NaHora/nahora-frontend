@@ -25,7 +25,7 @@ const CATEGORIAS: CategoriaFilter[] = [
   "PEDREIRO",
   "ENCANAMENTO",
   "PINTURA",
-  "AR_CONDICIONADO",
+  "MARCENARIA",
 ];
 
 const URGENCIAS: { value: UrgenciaFilter; label: string }[] = [

@@ -21,6 +21,7 @@ import type {
   PedidoDisponivel,
   CategoriaFilter,
   UrgenciaFilter,
+  PedidoFiltroParams,
 } from "../types";
 
 interface AvailableOrdersListProps {
@@ -31,6 +32,18 @@ export function AvailableOrdersList({ onPressPedido }: AvailableOrdersListProps)
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
+  const [categoriaFilter, setCategoriaFilter] =
+    useState<CategoriaFilter>("TODAS");
+  const [urgenciaFilter, setUrgenciaFilter] = useState<UrgenciaFilter>("TODAS");
+  const [refreshing, setRefreshing] = useState(false);
+
+  const filtro: PedidoFiltroParams = useMemo(() => {
+    const params: PedidoFiltroParams = {};
+    if (categoriaFilter !== "TODAS") params.categoria = categoriaFilter;
+    if (urgenciaFilter !== "TODAS") params.urgente = urgenciaFilter === "URGENTE";
+    return params;
+  }, [categoriaFilter, urgenciaFilter]);
+
   const {
     pedidos,
     isLoading,
@@ -39,26 +52,9 @@ export function AvailableOrdersList({ onPressPedido }: AvailableOrdersListProps)
     error,
     refresh,
     loadMore,
-  } = usePedidosDisponiveis();
-  const [categoriaFilter, setCategoriaFilter] =
-    useState<CategoriaFilter>("TODAS");
-  const [urgenciaFilter, setUrgenciaFilter] = useState<UrgenciaFilter>("TODAS");
-  const [refreshing, setRefreshing] = useState(false);
+  } = usePedidosDisponiveis(filtro);
 
   const enriched = useMemo(() => enrichWithMockData(pedidos), [pedidos]);
-
-  const filtered = useMemo(() => {
-    let result = enriched;
-    if (categoriaFilter !== "TODAS") {
-      result = result.filter((p) => p.categoria === categoriaFilter);
-    }
-    if (urgenciaFilter !== "TODAS") {
-      result = result.filter((p) =>
-        urgenciaFilter === "URGENTE" ? p.urgente : !p.urgente,
-      );
-    }
-    return result;
-  }, [enriched, categoriaFilter, urgenciaFilter]);
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -88,7 +84,7 @@ export function AvailableOrdersList({ onPressPedido }: AvailableOrdersListProps)
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
-        data={filtered}
+        data={enriched}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={{
           paddingHorizontal: 20,

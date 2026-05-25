@@ -23,7 +23,7 @@ export function useRegisterProfessional({
   const especialidades = useRegisterStore((state) => state.especialidades);
   const about = useRegisterStore((state) => state.about);
   const experienceYears = useRegisterStore((state) => state.experienceYears);
-  const location = useRegisterStore((state) => state.location);
+  const cargo = useRegisterStore((state) => state.cargo);
   const rgFrontUrl = useRegisterStore((state) => state.rgFrontUrl);
   const rgBackUrl = useRegisterStore((state) => state.rgBackUrl);
   const selfieUrl = useRegisterStore((state) => state.selfieUrl);

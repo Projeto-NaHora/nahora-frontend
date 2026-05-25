@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { TipoUsuarioApp } from "@/types/enums";
+import type { CategoriaServico, StatusVerificacao, TipoUsuarioApp } from "@/types/enums";
 
 export const loginSchema = z.object({
   identificador: z.string().min(1, "Informe seu e-mail ou número de telefone"),
@@ -117,3 +117,31 @@ export interface LoginResponse {
   refreshToken: string;
   tipoUsuario: string;
 }
+
+export type CompletarPerfilRequest = {
+  bio: string;
+  categorias: CategoriaServico[];
+  especialidades: string[];
+  anosExperiencia: number;
+  urlsFotos: string[];
+  latitude?: number;
+  longitude?: number;
+  raioAtuacaoKm?: number;
+};
+
+export type PerfilProfissionalResponse = {
+  id: number;
+  nome: string;
+  foto: string;
+  bio: string;
+  categorias: CategoriaServico[];
+  especialidades: string[];
+  anosExperiencia: number;
+  raioAtuacaoKm: number;
+  notaMedia: number;
+  totalAvaliacoes: number;
+  totalServicosExecutados: number;
+  portfolio: string[];
+  disponivel: boolean;
+  statusVerificacao: StatusVerificacao;
+};

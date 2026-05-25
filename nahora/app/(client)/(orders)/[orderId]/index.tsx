@@ -6,9 +6,13 @@ import { orderService } from "@/features/orders/service";
 import { OrderDetailOpenContent } from "@/features/orders/components/OrderDetailOpenContent";
 
 export default function PedidoAbertoScreen() {
-  const { orderId } = useLocalSearchParams<{ orderId: string }>();
+  const { orderId, acceptedProposalId } = useLocalSearchParams<{
+    orderId: string;
+    acceptedProposalId?: string;
+  }>();
   const router = useRouter();
-  const { data: pedido, isLoading, error } = useOrderDetail(Number(orderId));
+  const pedidoId = Number(orderId);
+  const { data: pedido, isLoading, error } = useOrderDetail(pedidoId);
 
   const handleDelete = () => {
     Alert.alert(
@@ -21,7 +25,7 @@ export default function PedidoAbertoScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              await orderService.cancelar(Number(orderId));
+              await orderService.cancelar(pedidoId);
               router.back();
             } catch {
               Alert.alert("Erro", "Não foi possível excluir o pedido.");
@@ -38,10 +42,15 @@ export default function PedidoAbertoScreen() {
       isLoading={isLoading}
       error={error}
       onBack={() => router.back()}
-      onEdit={() => router.back()}
+      onEdit={() =>
+        router.push(`/(client)/(orders)/new?editId=${orderId}`)
+      }
       onDelete={handleDelete}
       onViewProposals={() =>
         router.push(`/(client)/(orders)/${orderId}/proposals`)
+      }
+      acceptedProposalId={
+        acceptedProposalId ? Number(acceptedProposalId) : undefined
       }
     />
   );

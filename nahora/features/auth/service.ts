@@ -2,8 +2,10 @@ import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
 
 import type {
+  CompletarPerfilRequest,
   LoginPayload,
   LoginResponse,
+  PerfilProfissionalResponse,
   RegisterClientPayload,
   RegisterProfessionalPayload,
   RegisterResponse,
@@ -72,6 +74,16 @@ export const authService = {
   ): Promise<RegisterResponse> => {
     const { data } = await api.post<RegisterResponse>(
       ENDPOINTS.REGISTER_PROFISSIONAL,
+      payload,
+    );
+    return data;
+  },
+
+  completarPerfil: async (
+    payload: CompletarPerfilRequest,
+  ): Promise<PerfilProfissionalResponse> => {
+    const { data } = await api.put<PerfilProfissionalResponse>(
+      ENDPOINTS.COMPLETAR_PERFIL,
       payload,
     );
     return data;

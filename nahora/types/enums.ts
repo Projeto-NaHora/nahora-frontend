@@ -5,7 +5,7 @@ export type CategoriaServico =
   | "PEDREIRO"
   | "ENCANAMENTO"
   | "PINTURA"
-  | "AR_CONDICIONADO";
+  | "MARCENARIA";
 
 export type Urgencia = "BAIXA" | "NORMAL" | "URGENTE";
 
@@ -19,7 +19,9 @@ export type StatusPedido =
 
 export type StatusProposta = "PENDENTE" | "ACEITA" | "REJEITADA" | "EXPIRADA";
 
-export type StatusConversa = "ABERTA" | "SOMENTE_LEITURA" | "FECHADA";
+export type StatusConversa = "ABERTA" | "SOMENTE_LEITURA" | "EM_DISPUTA" | "FECHADA";
+
+export type StatusMensagem = "ENVIADA" | "ENTREGUE" | "LIDA";
 
 export type StatusPagamento =
   | "PENDENTE"

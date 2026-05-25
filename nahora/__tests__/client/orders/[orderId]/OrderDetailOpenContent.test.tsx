@@ -12,6 +12,11 @@ jest.mock("@/components/ui/icon-symbol", () => ({
   IconSymbol: () => null,
 }));
 
+const mockPush = jest.fn();
+jest.mock("expo-router", () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
+
 const mockPedido = createMockPedido();
 
 function TestHarness(
@@ -25,6 +30,7 @@ function TestHarness(
     onEdit: jest.fn(),
     onDelete: jest.fn(),
     onViewProposals: jest.fn(),
+    acceptedProposalId: undefined,
   };
   return <OrderDetailOpenContent {...defaults} {...overrides} />;
 }
@@ -159,5 +165,48 @@ describe("OrderDetailOpenContent", () => {
 
     fireEvent.press(screen.getByText("Verificar Propostas"));
     expect(onViewProposals).toHaveBeenCalled();
+  });
+
+  test("renders 'Falar com prestador' CTA when status is EM_ANDAMENTO", () => {
+    render(
+      <TestHarness
+        pedido={createMockPedido({ status: "EM_ANDAMENTO" })}
+        acceptedProposalId={10}
+      />,
+    );
+    expect(screen.getByText("Falar com prestador")).toBeOnTheScreen();
+    expect(screen.queryByText("Verificar Propostas")).not.toBeOnTheScreen();
+  });
+
+  test("renders 'Falar com prestador' CTA when status is AGUARDANDO_VALIDACAO", () => {
+    render(
+      <TestHarness
+        pedido={createMockPedido({ status: "AGUARDANDO_VALIDACAO" })}
+        acceptedProposalId={10}
+      />,
+    );
+    expect(screen.getByText("Falar com prestador")).toBeOnTheScreen();
+    expect(screen.queryByText("Verificar Propostas")).not.toBeOnTheScreen();
+  });
+
+  test("navigates to chat when 'Falar com prestador' pressed", () => {
+    render(
+      <TestHarness
+        pedido={createMockPedido({ status: "EM_ANDAMENTO" })}
+        acceptedProposalId={42}
+      />,
+    );
+    fireEvent.press(screen.getByText("Falar com prestador"));
+    expect(mockPush).toHaveBeenCalledWith("/(client)/(chats)/42");
+  });
+
+  test("does not navigate when 'Falar com prestador' pressed without acceptedProposalId", () => {
+    render(
+      <TestHarness
+        pedido={createMockPedido({ status: "EM_ANDAMENTO" })}
+      />,
+    );
+    fireEvent.press(screen.getByText("Falar com prestador"));
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });
