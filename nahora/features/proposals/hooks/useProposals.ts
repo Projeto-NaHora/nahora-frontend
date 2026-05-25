@@ -1,5 +1,5 @@
 import { ENDPOINTS } from "@/services/api/endpoints";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { proposalsService } from "../service";
 
 export function useProposalsByPedido(pedidoId: number) {
@@ -16,10 +16,10 @@ export function useProposalsByPedido(pedidoId: number) {
   };
 }
 
-export function useProposalDetail(id: number) {
+export function useProposalDetail(pedidoId: number, propostaId: number) {
   const { data, error, isLoading } = useSWR(
-    id ? ENDPOINTS.PROPOSTA(id) : null,
-    () => proposalsService.buscarPorId(id)
+    pedidoId && propostaId ? ENDPOINTS.PROPOSTA(pedidoId, propostaId) : null,
+    () => proposalsService.buscarPorId(pedidoId, propostaId)
   );
 
   return {
@@ -29,14 +29,24 @@ export function useProposalDetail(id: number) {
   };
 }
 
-export function useProposalActions(onSuccess?: () => void) {
+export function useProposalActions(pedidoId: number, onSuccess?: () => void) {
+  const { mutate } = useSWRConfig();
+
   const acceptProposal = async (propostaId: number) => {
-    await proposalsService.aceitar(propostaId);
+    await proposalsService.aceitar(pedidoId, propostaId);
+    await Promise.allSettled([
+      mutate(ENDPOINTS.PROPOSTAS(pedidoId)),
+      mutate(`order-${pedidoId}`),
+    ]);
     onSuccess?.();
   };
 
   const rejectProposal = async (propostaId: number) => {
-    await proposalsService.recusar(propostaId);
+    await proposalsService.recusar(pedidoId, propostaId);
+    await Promise.allSettled([
+      mutate(ENDPOINTS.PROPOSTAS(pedidoId)),
+      mutate(`order-${pedidoId}`),
+    ]);
     onSuccess?.();
   };
 
