@@ -10,6 +10,8 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import ProfessionalListCard from "@/components/ui/ProfessionalListCard";
@@ -24,6 +26,8 @@ const FILTERS = [
 export default function ProvidersByCategoryScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
 
   // Pegamos os parâmetros extras que preparamos para a API
   const { id, icon, categoriaId, termo } = params as {
@@ -109,11 +113,11 @@ export default function ProvidersByCategoryScreen() {
   }, [professionals, activeFilter]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <Feather name="arrow-left" size={22} color="#22223B" />
+          <Feather name="arrow-left" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
         <View style={styles.headerIcon}>
           <MaterialCommunityIcons
@@ -122,7 +126,7 @@ export default function ProvidersByCategoryScreen() {
             color="#7C3AED"
           />
         </View>
-        <Text style={styles.headerTitle} numberOfLines={1}>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]} numberOfLines={1}>
           {id || "Categoria"}
         </Text>
         <View style={{ width: 22 }} />
@@ -136,7 +140,8 @@ export default function ProvidersByCategoryScreen() {
               key={f.value}
               style={[
                 styles.pill,
-                activeFilter === f.value && styles.pillActive,
+                { backgroundColor: colors.surface },
+                activeFilter === f.value && { backgroundColor: colors.brand },
               ]}
               onPress={() => setActiveFilter(f.value)}
               activeOpacity={0.8}
@@ -144,7 +149,8 @@ export default function ProvidersByCategoryScreen() {
               <Text
                 style={[
                   styles.pillText,
-                  activeFilter === f.value && styles.pillTextActive,
+                  { color: colors.textSecondary },
+                  activeFilter === f.value && { color: colors.onBrand },
                 ]}
               >
                 {f.label}
@@ -157,12 +163,12 @@ export default function ProvidersByCategoryScreen() {
       {/* Condicional de Loading e Lista */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF7A00" />
-          <Text style={styles.loadingText}>Buscando profissionais...</Text>
+          <ActivityIndicator size="large" color={colors.brand} />
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Buscando profissionais...</Text>
         </View>
       ) : (
         <>
-          <Text style={styles.countText}>
+          <Text style={[styles.countText, { color: colors.textSecondary }]}>
             {sortedProfessionals.length} profissionais encontrados
           </Text>
 
@@ -190,7 +196,7 @@ export default function ProvidersByCategoryScreen() {
             contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 16 }}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
-              <Text style={styles.emptyText}>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
                 Nenhum profissional encontrado para esta categoria.
               </Text>
             }

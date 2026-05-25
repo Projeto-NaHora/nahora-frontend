@@ -13,6 +13,8 @@ import {
   MaterialCommunityIcons,
   FontAwesome,
 } from "@expo/vector-icons";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAuthStore } from "@/store/authStore";
 import { useHomeStore } from "@/store/homeStore";
 import { useHomeData } from "@/features/home/hooks/useHomeData";
@@ -30,6 +32,8 @@ const homeCategories = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const user = useAuthStore((s) => s.user);
   const { loadHomeData } = useHomeData();
   const suggestedProfessionals = useHomeStore((s) => s.suggestedProfessionals);
@@ -40,26 +44,26 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header Laranja */}
-        <View style={styles.header}>
-          <Text style={styles.greetingText}>
+        <View style={[styles.header, { backgroundColor: colors.brand }]}>
+          <Text style={[styles.greetingText, { color: colors.onBrand }]}>
             Olá, {user?.nome?.split(" ")[0] || "Usuário"} 👋
           </Text>
-          <Text style={styles.mainTitle}>O que você precisa hoje?</Text>
+          <Text style={[styles.mainTitle, { color: colors.onBrand }]}>O que você precisa hoje?</Text>
 
           <TouchableOpacity
             activeOpacity={0.8}
-            style={styles.searchBar}
+            style={[styles.searchBar, { backgroundColor: colors.background }]}
             onPress={() => router.push("/(client)/(home)/categories")}
           >
-            <Feather name="search" size={20} color="#A3A3A3" />
-            <Text style={styles.searchPlaceholder}>
+            <Feather name="search" size={20} color={colors.icon} />
+            <Text style={[styles.searchPlaceholder, { color: colors.placeholder }]}>
               Buscar serviço, profissional...
             </Text>
           </TouchableOpacity>
@@ -67,11 +71,11 @@ export default function HomeScreen() {
 
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Categorias</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Categorias</Text>
             <TouchableOpacity
               onPress={() => router.push("/(client)/(home)/categories")}
             >
-              <Text style={styles.seeAllText}>Ver todas</Text>
+              <Text style={[styles.seeAllText, { color: colors.link }]}>Ver todas</Text>
             </TouchableOpacity>
           </View>
 
@@ -91,14 +95,14 @@ export default function HomeScreen() {
                   })
                 }
               >
-                <View style={styles.categoryIconBox}>
+                <View style={[styles.categoryIconBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
                   <MaterialCommunityIcons
                     name={cat.icon as any}
                     size={28}
-                    color="#4B5563"
+                    color={colors.icon}
                   />
                 </View>
-                <Text style={styles.categoryText}>{cat.name}</Text>
+                <Text style={[styles.categoryText, { color: colors.textSecondary }]}>{cat.name}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -107,9 +111,9 @@ export default function HomeScreen() {
         {/* Sugeridos para você */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Sugeridos para você</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Sugeridos para você</Text>
             <TouchableOpacity>
-              <Text style={styles.seeAllText}>Ver mais</Text>
+              <Text style={[styles.seeAllText, { color: colors.link }]}>Ver mais</Text>
             </TouchableOpacity>
           </View>
 
@@ -119,7 +123,7 @@ export default function HomeScreen() {
             contentContainerStyle={styles.horizontalScrollContent}
           >
             {suggestedProfessionals.length === 0 ? (
-              <Text style={styles.emptyText}>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
                 Nenhum profissional sugerido.
               </Text>
             ) : (
@@ -133,14 +137,14 @@ export default function HomeScreen() {
         {/* Meus pedidos recentes */}
         <View style={styles.sectionContainerRecent}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Meus pedidos recentes</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Meus pedidos recentes</Text>
             <TouchableOpacity>
-              <Text style={styles.seeAllText}>Ver todos</Text>
+              <Text style={[styles.seeAllText, { color: colors.link }]}>Ver todos</Text>
             </TouchableOpacity>
           </View>
 
           {recentOrders.length === 0 ? (
-            <Text style={styles.emptyText}>Nenhum pedido recente.</Text>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Nenhum pedido recente.</Text>
           ) : (
             recentOrders.map((order) => (
               <OrderCard key={order.id} order={order} />

@@ -9,10 +9,12 @@ import {
   Dimensions,
   ActivityIndicator,
 } from "react-native";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { api } from "@/services/api/client"; // Certifique-se de que o caminho do seu axios/api está correto
+import { api } from "@/services/api/client";
 
 const AVATAR_SIZE = 96;
 const STAR_SIZE = 20;
@@ -25,6 +27,8 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 export default function ProfessionalProfileScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
 
   // Função segura para voltar
   const handleGoBack = () => {
@@ -73,9 +77,9 @@ export default function ProfessionalProfileScreen() {
   // Tela de Carregamento
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.safe, styles.centerContent]}>
-        <ActivityIndicator size="large" color={ORANGE} />
-        <Text style={styles.loadingText}>Carregando perfil...</Text>
+      <SafeAreaView style={[styles.safe, styles.centerContent, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.brand} />
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Carregando perfil...</Text>
       </SafeAreaView>
     );
   }
@@ -83,11 +87,11 @@ export default function ProfessionalProfileScreen() {
   // Tela de Erro (se a API falhar ou o ID não existir)
   if (!profileData) {
     return (
-      <SafeAreaView style={[styles.safe, styles.centerContent]}>
-        <Feather name="user-x" size={48} color={GRAY} />
-        <Text style={styles.errorText}>Profissional não encontrado.</Text>
-        <TouchableOpacity style={styles.errorBtn} onPress={handleGoBack}>
-          <Text style={styles.errorBtnText}>Voltar</Text>
+      <SafeAreaView style={[styles.safe, styles.centerContent, { backgroundColor: colors.background }]}>
+        <Feather name="user-x" size={48} color={colors.textSecondary} />
+        <Text style={[styles.errorText, { color: colors.textPrimary }]}>Profissional não encontrado.</Text>
+        <TouchableOpacity style={[styles.errorBtn, { backgroundColor: colors.brand }]} onPress={handleGoBack}>
+          <Text style={[styles.errorBtnText, { color: colors.onBrand }]}>Voltar</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -128,17 +132,17 @@ export default function ProfessionalProfileScreen() {
       : 0;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <TouchableOpacity
           onPress={handleGoBack}
           style={styles.backBtn}
           hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
         >
-          <Feather name="arrow-left" size={24} color={DARK} />
+          <Feather name="arrow-left" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Perfil do Profissional</Text>
+        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Perfil do Profissional</Text>
         <View style={{ width: 36 }} />
       </View>
 
@@ -148,20 +152,20 @@ export default function ProfessionalProfileScreen() {
           {prof.avatarUrl ? (
             <Image
               source={{ uri: prof.avatarUrl }}
-              style={styles.avatar}
+              style={[styles.avatar, { backgroundColor: colors.surface }]}
               resizeMode="cover"
             />
           ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Text style={styles.avatarInitials}>
+            <View style={[styles.avatarPlaceholder, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.avatarInitials, { color: colors.brand }]}>
                 {getInitials(prof.nome)}
               </Text>
             </View>
           )}
-          <Text style={styles.name}>{prof.nome}</Text>
+          <Text style={[styles.name, { color: colors.textPrimary }]}>{prof.nome}</Text>
 
           <View style={styles.locationRow}>
-            <Text style={styles.locationText}>
+            <Text style={[styles.locationText, { color: colors.textSecondary }]}>
               {prof.categoria} - {prof.cidade}
             </Text>
           </View>
@@ -181,46 +185,46 @@ export default function ProfessionalProfileScreen() {
                 color="#FFD600"
               />
             ))}
-            <Text style={styles.ratingText}>{prof.nota.toFixed(1)}</Text>
+            <Text style={[styles.ratingText, { color: colors.textPrimary }]}>{prof.nota.toFixed(1)}</Text>
           </View>
         </View>
 
         {/* Ações */}
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionPrimary}>
-            <Text style={styles.actionPrimaryText}>Criar pedido</Text>
+          <TouchableOpacity style={[styles.actionPrimary, { backgroundColor: colors.brand }]}>
+            <Text style={[styles.actionPrimaryText, { color: colors.onBrand }]}>Criar pedido</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionSecondary}>
-            <Text style={styles.actionSecondaryText}>Ver agenda</Text>
+          <TouchableOpacity style={[styles.actionSecondary, { borderColor: colors.border, backgroundColor: colors.background }]}>
+            <Text style={[styles.actionSecondaryText, { color: colors.brand }]}>Ver agenda</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionMore}>
-            <Feather name="more-horizontal" size={20} color="#222" />
+          <TouchableOpacity style={[styles.actionMore, { borderColor: colors.border, backgroundColor: colors.background }]}>
+            <Feather name="more-horizontal" size={20} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
 
         {/* Stats */}
         <View style={styles.statsRow}>
-          <View style={styles.statBlock}>
-            <Text style={styles.statValue}>{prof.experienciaAnos} anos</Text>
-            <Text style={styles.statLabel}>Experiência</Text>
+          <View style={[styles.statBlock, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.statValue, { color: colors.textPrimary }]}>{prof.experienciaAnos} anos</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Experiência</Text>
           </View>
-          <View style={styles.statBlock}>
-            <Text style={styles.statValue}>{prof.servicosRealizados}</Text>
-            <Text style={styles.statLabel}>Serviços</Text>
+          <View style={[styles.statBlock, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.statValue, { color: colors.textPrimary }]}>{prof.servicosRealizados}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Serviços</Text>
           </View>
         </View>
 
         {/* Especialidades */}
         {prof.especialidades.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>Especialidades</Text>
-            <Text style={styles.bioText}>{prof.descricaoEspecialidades}</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Especialidades</Text>
+            <Text style={[styles.bioText, { color: colors.textPrimary }]}>{prof.descricaoEspecialidades}</Text>
             <View style={styles.pillsRow}>
               {prof.especialidades.map((esp: string, idx: number) => (
-                <View key={esp + idx} style={styles.pill}>
-                  <Text style={styles.pillText}>{esp}</Text>
+                <View key={esp + idx} style={[styles.pill, { backgroundColor: colors.surface }]}>
+                  <Text style={[styles.pillText, { color: colors.textSecondary }]}>{esp}</Text>
                 </View>
               ))}
             </View>
@@ -228,18 +232,18 @@ export default function ProfessionalProfileScreen() {
         )}
 
         {/* Sobre */}
-        <Text style={styles.sectionTitle}>Sobre</Text>
-        <Text style={styles.bioText}>{prof.biografia}</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Sobre</Text>
+        <Text style={[styles.bioText, { color: colors.textPrimary }]}>{prof.biografia}</Text>
 
         {/* Portfólio */}
         {prof.portfolio.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>Portfólio</Text>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Portfólio</Text>
             <View style={styles.portfolioGrid}>
               {portfolioToShow.map((url: string, idx: number) => {
                 const isLast = idx === maxPortfolio - 1 && extraCount > 0;
                 return (
-                  <View key={url + idx} style={styles.portfolioItem}>
+                  <View key={url + idx} style={[styles.portfolioItem, { backgroundColor: colors.surface }]}>
                     <Image source={{ uri: url }} style={styles.portfolioImg} />
                     {isLast && (
                       <View style={styles.overlay}>

@@ -10,6 +10,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 // Mock de categorias
 const allCategories = [
@@ -22,6 +24,8 @@ const allCategories = [
 
 export default function CategoriesScreen() {
   const router = useRouter();
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredCategories = allCategories.filter((cat) =>
@@ -42,29 +46,29 @@ export default function CategoriesScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <Feather name="arrow-left" size={24} color="#111827" />
+          <Feather name="arrow-left" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.title}>Encontrar Profissional</Text>
+        <Text style={[styles.title, { color: colors.textPrimary }]}>Encontrar Profissional</Text>
       </View>
 
       {/* Input de Pesquisa */}
       <View style={styles.searchContainer}>
-        <View style={styles.searchInputWrapper}>
+        <View style={[styles.searchInputWrapper, { backgroundColor: colors.surface }]}>
           {/* Adicionado Touchable para clicar na lupa */}
           <TouchableOpacity onPress={handleSearch}>
-            <Feather name="search" size={20} color="#9CA3AF" />
+            <Feather name="search" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.textPrimary }]}
             placeholder="Buscar por nome ou categoria..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.placeholder}
             value={searchQuery}
             onChangeText={setSearchQuery}
             returnKeyType="search" // Muda o botão do teclado para "Buscar"
@@ -75,7 +79,7 @@ export default function CategoriesScreen() {
 
       {/* Grade de Categorias */}
       <View style={styles.listContainer}>
-        <Text style={styles.sectionTitle}>Todas as categorias</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Todas as categorias</Text>
         <FlatList
           data={filteredCategories}
           keyExtractor={(item) => item.id}
@@ -85,7 +89,7 @@ export default function CategoriesScreen() {
           contentContainerStyle={styles.flatListContent}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.categoryCard}
+              style={[styles.categoryCard, { backgroundColor: colors.background, borderColor: colors.border }]}
               onPress={() =>
                 router.push({
                   pathname: "/(client)/(home)/category/[id]",
@@ -100,9 +104,9 @@ export default function CategoriesScreen() {
               <MaterialCommunityIcons
                 name={item.icon as any}
                 size={32}
-                color="#F97316"
+                color={colors.brand}
               />
-              <Text style={styles.categoryCardText} numberOfLines={1}>
+              <Text style={[styles.categoryCardText, { color: colors.textSecondary }]} numberOfLines={1}>
                 {item.name}
               </Text>
             </TouchableOpacity>
