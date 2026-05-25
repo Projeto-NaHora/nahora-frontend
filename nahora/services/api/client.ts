@@ -46,12 +46,26 @@ api.interceptors.request.use(async (config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
+  if (config.url?.includes("disponiveis")) {
+    console.log("[DEBUG-d4f2] REQ →", config.method?.toUpperCase(), config.baseURL + config.url, "params:", JSON.stringify(config.params));
+  }
+
   return config;
 });
 
 // Tenta refresh silencioso quando recebe 401 ou 403
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    if (res.config.url?.includes("disponiveis")) {
+      console.log(
+        "[DEBUG-d4f2] RES ← status:", res.status,
+        "totalElements:", res.data?.totalElements,
+        "contentLength:", res.data?.content?.length,
+        "empty:", res.data?.empty,
+      );
+    }
+    return res;
+  },
   async (error) => {
     // Loga TODOS os detalhes do erro antes de qualquer tratamento
     logAxiosError(error);
