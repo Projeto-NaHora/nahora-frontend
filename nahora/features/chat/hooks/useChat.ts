@@ -11,16 +11,28 @@ export function useChat(conversaId: number, onMessage?: (msg: Mensagem) => void)
   );
   const [isSending, setIsSending] = useState(false);
   const [iaBlocked, setIaBlocked] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(
+    chatWsManager.lastError,
+  );
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSentRef = useRef<string | null>(null);
 
   useEffect(() => {
     setConnectionStatus(chatWsManager.connectionStatus);
-    const unsub = chatWsManager.onStatusChange(setConnectionStatus);
+    const unsub = chatWsManager.onStatusChange((status) => {
+      setConnectionStatus(status);
+      if (status === "DISCONNECTED") {
+        setConnectionError(chatWsManager.lastError);
+      } else if (status === "CONNECTED") {
+        setConnectionError(null);
+      }
+    });
     return unsub;
   }, []);
 
   useEffect(() => {
+    if (!conversaId) return;
+
     if (!chatWsManager.getClient()?.active) {
       chatWsManager.connect();
     }
@@ -50,7 +62,7 @@ export function useChat(conversaId: number, onMessage?: (msg: Mensagem) => void)
 
   const sendMessage = useCallback(
     (conteudo: string, anexoUrl?: string) => {
-      if (!conteudo.trim()) return;
+      if (!conversaId || !conteudo.trim()) return;
 
       setIsSending(true);
       lastSentRef.current = conteudo;
@@ -62,7 +74,16 @@ export function useChat(conversaId: number, onMessage?: (msg: Mensagem) => void)
         lastSentRef.current = null;
       }, IA_BLOCK_TIMEOUT);
 
-      chatWsManager.send(conversaId, conteudo.trim(), anexoUrl);
+      const sent = chatWsManager.send(conversaId, conteudo.trim(), anexoUrl);
+      if (!sent) {
+        setIsSending(false);
+        setIaBlocked(true);
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+        lastSentRef.current = null;
+      }
     },
     [conversaId],
   );
@@ -77,5 +98,6 @@ export function useChat(conversaId: number, onMessage?: (msg: Mensagem) => void)
     iaBlocked,
     sendMessage,
     clearIaBlocked: () => setIaBlocked(false),
+    connectionError,
   };
 }

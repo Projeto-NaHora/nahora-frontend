@@ -6,6 +6,8 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import {
   FILTRO_OPTIONS,
   type FiltroConversaStatus,
@@ -17,8 +19,11 @@ interface FilterTabsProps {
 }
 
 export default function FilterTabs({ selected, onSelect }: FilterTabsProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -31,7 +36,12 @@ export default function FilterTabs({ selected, onSelect }: FilterTabsProps) {
               key={opt.value}
               style={[
                 styles.chip,
-                isActive ? styles.chipActive : styles.chipInactive,
+                isActive
+                  ? styles.chipActive
+                  : [
+                      styles.chipInactive,
+                      { backgroundColor: colors.background, borderColor: colors.border },
+                    ],
               ]}
               activeOpacity={0.7}
               onPress={() => onSelect(opt.value)}
@@ -39,7 +49,9 @@ export default function FilterTabs({ selected, onSelect }: FilterTabsProps) {
               <Text
                 style={[
                   styles.chipText,
-                  isActive ? styles.chipTextActive : styles.chipTextInactive,
+                  isActive
+                    ? styles.chipTextActive
+                    : [styles.chipTextInactive, { color: colors.textSecondary }],
                 ]}
               >
                 {opt.label}
@@ -72,9 +84,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FEF0E8",
     borderColor: "#F26F21",
   },
-  chipInactive: {
-    borderColor: "#D9D9D9",
-  },
+  chipInactive: {},
   chipText: {
     fontSize: 14,
     fontFamily: "Inter",
@@ -85,6 +95,5 @@ const styles = StyleSheet.create({
   },
   chipTextInactive: {
     fontWeight: "400",
-    color: "#9CA3AF",
   },
 });

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import type { ConversaResponseDTO } from "../types";
 import { CONVERSA_STATUS_LABEL, CONVERSA_STATUS_COLORS } from "../types";
 
@@ -37,8 +39,10 @@ export default function ConversationListItem({
   conversa,
   onPress,
 }: ConversationListItemProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const [imgFailed, setImgFailed] = useState(false);
-  const { id, nomeOutroParticipante, fotoOutroParticipante, status } = conversa;
+  const { propostaId, nomeOutroParticipante, fotoOutroParticipante, status } = conversa;
   const temFoto = !!fotoOutroParticipante && !imgFailed;
   const preview =
     conversa.ultimaMensagem || conversa.tituloPedido || "";
@@ -54,7 +58,7 @@ export default function ConversationListItem({
     <TouchableOpacity
       style={styles.row}
       activeOpacity={0.6}
-      onPress={() => onPress(id)}
+      onPress={() => onPress(propostaId)}
     >
       <View style={styles.avatar}>
         {temFoto ? (
@@ -72,13 +76,13 @@ export default function ConversationListItem({
 
       <View style={styles.content}>
         <View style={styles.topRow}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
             {nomeOutroParticipante}
           </Text>
-          <Text style={styles.time}>{timeLabel}</Text>
+          <Text style={[styles.time, { color: colors.textSecondary }]}>{timeLabel}</Text>
         </View>
         <View style={styles.bottomRow}>
-          <Text style={styles.preview} numberOfLines={1}>
+          <Text style={[styles.preview, { color: colors.textSecondary }]} numberOfLines={1}>
             {preview}
           </Text>
           <View
@@ -136,14 +140,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Inter",
     fontWeight: "700",
-    color: "#1f2937",
     flex: 1,
     marginRight: 8,
   },
   time: {
     fontSize: 14,
     fontFamily: "Inter",
-    color: "#6b7280",
   },
   bottomRow: {
     flexDirection: "row",
@@ -153,7 +155,6 @@ const styles = StyleSheet.create({
   preview: {
     fontSize: 16,
     fontFamily: "Inter",
-    color: "#6b7280",
     flex: 1,
     marginRight: 8,
   },

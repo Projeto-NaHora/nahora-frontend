@@ -1,10 +1,10 @@
 import useSWR from "swr";
 import { chatService } from "../service";
 
-export function useConversa(conversaId: number) {
+export function useConversaPorProposta(propostaId: number) {
   const { data, error, isLoading, mutate } = useSWR(
-    conversaId ? `conversa-${conversaId}` : null,
-    () => chatService.buscarConversa(conversaId),
+    propostaId ? `conversa-por-proposta-${propostaId}` : null,
+    () => chatService.buscarPorProposta(propostaId),
     { revalidateOnFocus: false },
   );
 

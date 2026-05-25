@@ -20,6 +20,11 @@ class ChatWebSocketManager {
   private appStateSub: { remove: () => void } | null = null;
   private _connectionStatus: ConnectionStatus = "DISCONNECTED";
   private pendingReconnect = false;
+  private _lastError: string | null = null;
+
+  get lastError(): string | null {
+    return this._lastError;
+  }
 
   get connectionStatus(): ConnectionStatus {
     return this._connectionStatus;
@@ -36,6 +41,7 @@ class ChatWebSocketManager {
     const brokerURL = process.env.EXPO_PUBLIC_WS_URL;
     if (!brokerURL) return;
 
+    this._lastError = null;
     this.setConnectionStatus("CONNECTING");
 
     this.client = new Client({
@@ -46,11 +52,13 @@ class ChatWebSocketManager {
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
+      connectionTimeout: 10_000,
       debug: __DEV__ ? (msg: string) => console.log("[WS]", msg) : () => {},
 
       webSocketFactory: () => new WebSocket(brokerURL),
 
       onConnect: () => {
+        this._lastError = null;
         this.setConnectionStatus("CONNECTED");
         this.pendingReconnect = false;
         this.resubscribeAll();
@@ -62,6 +70,8 @@ class ChatWebSocketManager {
 
       onStompError: (frame) => {
         const msg = frame.headers?.message ?? "";
+        this._lastError = msg || "Erro STOMP desconhecido";
+
         if (
           msg.toLowerCase().includes("auth") ||
           msg.includes("401") ||
@@ -69,12 +79,18 @@ class ChatWebSocketManager {
         ) {
           this.setConnectionStatus("DISCONNECTED");
           this.client?.deactivate();
+        } else {
+          this.setConnectionStatus("DISCONNECTED");
         }
       },
 
-      onWebSocketClose: () => {
+      onWebSocketClose: (evt) => {
         if (this._connectionStatus === "CONNECTED") {
           this.setConnectionStatus("RECONNECTING");
+        } else if (this._connectionStatus === "CONNECTING") {
+          this._lastError =
+            this._lastError ?? `WebSocket fechado (código ${evt?.code ?? "?"})`;
+          this.setConnectionStatus("DISCONNECTED");
         }
       },
     });
@@ -90,6 +106,7 @@ class ChatWebSocketManager {
     this.messageHandlers.clear();
     this.client?.deactivate();
     this.client = null;
+    this._lastError = null;
     this.setConnectionStatus("DISCONNECTED");
   }
 
@@ -129,12 +146,13 @@ class ChatWebSocketManager {
     this.messageHandlers.delete(conversaId);
   }
 
-  send(conversaId: number, conteudo: string, anexoUrl?: string): void {
-    if (!this.client?.connected) return;
+  send(conversaId: number, conteudo: string, anexoUrl?: string): boolean {
+    if (!this.client?.connected) return false;
     this.client.publish({
       destination: `/app/chat/${conversaId}/enviar`,
       body: JSON.stringify({ conteudo, anexoUrl: anexoUrl ?? null }),
     });
+    return true;
   }
 
   onStatusChange(listener: StatusListener): () => void {

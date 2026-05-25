@@ -6,5 +6,6 @@ export default function ClientChatScreen() {
   const { chatId } = useLocalSearchParams<{ chatId: string }>();
 
   if (!chatId) return null;
-  return <ChatContent conversaId={Number(chatId)} />;
+  console.log(chatId)
+  return <ChatContent propostaId={Number(chatId)} />;
 }

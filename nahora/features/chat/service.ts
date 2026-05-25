@@ -30,11 +30,11 @@ export const chatService = {
     return data;
   },
 
-  buscarConversa: async (
-    conversaId: number,
+  buscarPorProposta: async (
+    propostaId: number,
   ): Promise<ConversaResponseDTO> => {
     const { data } = await api.get<ConversaResponseDTO>(
-      ENDPOINTS.CONVERSA(conversaId),
+      ENDPOINTS.PROPOSTA_CONVERSA(propostaId),
     );
     return data;
   },

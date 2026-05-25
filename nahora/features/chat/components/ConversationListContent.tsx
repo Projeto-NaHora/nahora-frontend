@@ -10,6 +10,9 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useAuthStore } from "@/store/authStore";
 import { useConversations } from "../hooks/useConversations";
 import type { FiltroConversaStatus, ConversaResponseDTO } from "../types";
 import SearchBar from "./SearchBar";
@@ -40,6 +43,8 @@ interface Section {
 export default function ConversationListContent() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const [filtro, setFiltro] = useState<FiltroConversaStatus>("TODAS");
   const [searchText, setSearchText] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -48,7 +53,6 @@ export default function ConversationListContent() {
     conversations,
     isLoading,
     isLoadingMore,
-    hasMore,
     error,
     refresh,
     loadMore,
@@ -76,11 +80,14 @@ export default function ConversationListContent() {
     return Object.entries(groups).map(([title, data]) => ({ title, data }));
   }, [searchFiltered]);
 
+  const userTipo = useAuthStore((s) => s.user?.tipo);
+
   const handlePress = useCallback(
-    (conversaId: number) => {
-      router.push(`./${conversaId}`);
+    (propostaId: number) => {
+      const base = userTipo === "PROFISSIONAL" ? "professional" : "client";
+      router.push(`/(${base})/(chats)/${propostaId}`);
     },
-    [router],
+    [router, userTipo],
   );
 
   const onRefresh = useCallback(async () => {
@@ -93,23 +100,24 @@ export default function ConversationListContent() {
     loadMore();
   }, [loadMore]);
 
-  const headerHeight = insets.top + 64 + 24;
+  const textPrimary = colors.textPrimary;
+  const textSecondary = colors.textSecondary;
 
   // --- Loading (first load) ---
   if (isLoading) {
     return (
-      <View style={styles.safeArea}>
-        <View style={[styles.header, { paddingTop: insets.top + 64 }]}>
+      <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { paddingTop: insets.top + 64, backgroundColor: colors.background }]}>
           <View style={styles.headerRow}>
-            <View style={styles.headerBtn}>
-              <IconSymbol name="chevron.left" size={20} color="#1c1c1e" />
+            <View style={[styles.headerBtn, { backgroundColor: colors.surface }]}>
+              <IconSymbol name="chevron.left" size={20} color={textPrimary} />
             </View>
-            <Text style={styles.headerTitle}>Mensagens</Text>
+            <Text style={[styles.headerTitle, { color: textPrimary }]}>Mensagens</Text>
             <View style={[styles.headerBtn, styles.invisible]} />
           </View>
         </View>
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#F26F21" />
+          <ActivityIndicator size="large" color={colors.brand} />
         </View>
       </View>
     );
@@ -118,21 +126,21 @@ export default function ConversationListContent() {
   // --- Error (no cached data) ---
   if (error && conversations.length === 0) {
     return (
-      <View style={styles.safeArea}>
-        <View style={[styles.header, { paddingTop: insets.top + 64 }]}>
+      <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { paddingTop: insets.top + 64, backgroundColor: colors.background }]}>
           <View style={styles.headerRow}>
-            <View style={styles.headerBtn}>
-              <IconSymbol name="chevron.left" size={20} color="#1c1c1e" />
+            <View style={[styles.headerBtn, { backgroundColor: colors.surface }]}>
+              <IconSymbol name="chevron.left" size={20} color={textPrimary} />
             </View>
-            <Text style={styles.headerTitle}>Mensagens</Text>
+            <Text style={[styles.headerTitle, { color: textPrimary }]}>Mensagens</Text>
             <View style={[styles.headerBtn, styles.invisible]} />
           </View>
         </View>
         <View style={styles.centered}>
-          <Text style={styles.errorText}>
+          <Text style={[styles.errorText, { color: textPrimary }]}>
             {getApiErrorMessage(error, "Erro ao carregar conversas")}
           </Text>
-          <Text style={styles.errorSubtext}>Puxe para tentar novamente</Text>
+          <Text style={[styles.errorSubtext, { color: textSecondary }]}>Puxe para tentar novamente</Text>
         </View>
       </View>
     );
@@ -147,13 +155,13 @@ export default function ConversationListContent() {
         : "Nenhuma conversa ainda";
 
   return (
-    <View style={styles.safeArea}>
-      <View style={[styles.header, { paddingTop: insets.top + 64 }]}>
+    <View style={[styles.safeArea, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 64, backgroundColor: colors.background }]}>
         <View style={styles.headerRow}>
-          <View style={styles.headerBtn}>
-            <IconSymbol name="chevron.left" size={20} color="#1c1c1e" />
+          <View style={[styles.headerBtn, { backgroundColor: colors.surface }]}>
+            <IconSymbol name="chevron.left" size={20} color={textPrimary} />
           </View>
-          <Text style={styles.headerTitle}>Mensagens</Text>
+          <Text style={[styles.headerTitle, { color: textPrimary }]}>Mensagens</Text>
           <View style={[styles.headerBtn, styles.invisible]} />
         </View>
       </View>
@@ -166,7 +174,7 @@ export default function ConversationListContent() {
         keyExtractor={(item) => String(item.id)}
         renderSectionHeader={({ section: { title } }) => (
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionHeaderText}>{title}</Text>
+            <Text style={[styles.sectionHeaderText, { color: textSecondary }]}>{title}</Text>
           </View>
         )}
         renderItem={({ item }) => (
@@ -174,14 +182,14 @@ export default function ConversationListContent() {
         )}
         ListEmptyComponent={
           <View style={styles.centered}>
-            <IconSymbol name="bubble.left.and.bubble.right.fill" size={48} color="#D9D9D9" />
-            <Text style={styles.emptyText}>{emptyMessage}</Text>
+            <IconSymbol name="bubble.left.and.bubble.right.fill" size={48} color={colors.border} />
+            <Text style={[styles.emptyText, { color: textSecondary }]}>{emptyMessage}</Text>
           </View>
         }
         ListFooterComponent={
           isLoadingMore ? (
             <View style={styles.footer}>
-              <ActivityIndicator size="small" color="#F26F21" />
+              <ActivityIndicator size="small" color={colors.brand} />
             </View>
           ) : null
         }
@@ -189,8 +197,8 @@ export default function ConversationListContent() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#F26F21"]}
-            tintColor="#F26F21"
+            colors={[colors.brand]}
+            tintColor={colors.brand}
           />
         }
         onEndReached={onEndReached}
@@ -208,10 +216,8 @@ export default function ConversationListContent() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#ffffff",
   },
   header: {
-    backgroundColor: "#ffffff",
     paddingBottom: 24,
     paddingHorizontal: 32,
   },
@@ -224,7 +230,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(244,244,245,0.6)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -235,7 +240,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: "Inter",
     fontWeight: "700",
-    color: "#1c1c1e",
   },
   sectionHeader: {
     paddingHorizontal: 27,
@@ -245,7 +249,6 @@ const styles = StyleSheet.create({
   sectionHeaderText: {
     fontSize: 14,
     fontFamily: "Inter",
-    color: "#6b7280",
   },
   centered: {
     flex: 1,
@@ -260,19 +263,16 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontFamily: "Inter",
-    color: "#6b7280",
     textAlign: "center",
   },
   errorText: {
     fontSize: 16,
     fontFamily: "Inter",
-    color: "#1f2937",
     textAlign: "center",
   },
   errorSubtext: {
     fontSize: 14,
     fontFamily: "Inter",
-    color: "#9CA3AF",
     textAlign: "center",
   },
   footer: {

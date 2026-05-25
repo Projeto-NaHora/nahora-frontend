@@ -1,11 +1,14 @@
 import { useMemo, useCallback } from "react";
 import { useMessages } from "./useMessages";
 import { useChat } from "./useChat";
-import { useConversa } from "./useConversa";
+import { useConversaPorProposta } from "./useConversa";
 import { groupMessagesByDate } from "@/utils/formatters";
 import type { ConnectionStatus } from "../stompClient";
 
-export function useChatScreen(conversaId: number) {
+export function useChatScreen(propostaId: number) {
+  const { conversa, isLoading: conversaLoading } = useConversaPorProposta(propostaId);
+  const conversaId = conversa?.id;
+
   const {
     messages,
     isLoading: msgsLoading,
@@ -24,9 +27,8 @@ export function useChatScreen(conversaId: number) {
     iaBlocked,
     sendMessage,
     clearIaBlocked,
+    connectionError,
   } = useChat(conversaId, appendIncoming);
-
-  const { conversa, isLoading: conversaLoading } = useConversa(conversaId);
 
   const groupedMessages = useMemo(
     () => groupMessagesByDate(messages),
@@ -59,5 +61,6 @@ export function useChatScreen(conversaId: number) {
     iaBlocked,
     clearIaBlocked,
     conversa,
+    connectionError,
   };
 }
