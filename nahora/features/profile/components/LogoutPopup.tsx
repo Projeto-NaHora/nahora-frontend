@@ -1,5 +1,12 @@
-import React from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useRef } from "react";
+import {
+  Animated,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Fonts } from "@/constants/theme";
@@ -15,17 +22,52 @@ export function LogoutPopup({
   onConfirm,
   onCancel,
 }: LogoutPopupProps) {
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const sheetTranslateY = useRef(new Animated.Value(600)).current;
+
+  useEffect(() => {
+    if (visible) {
+      Animated.parallel([
+        // Dissolve do backdrop: fade in de 0 → 0.4
+        Animated.timing(backdropOpacity, {
+          toValue: 0.4,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        // Slide-up da sheet
+        Animated.timing(sheetTranslateY, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      backdropOpacity.setValue(0);
+      sheetTranslateY.setValue(600);
+    }
+  }, [visible, backdropOpacity, sheetTranslateY]);
+
   return (
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType="none"
       onRequestClose={onCancel}
       statusBarTranslucent
     >
       <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={onCancel} />
-        <View style={styles.sheet}>
+        {/* Backdrop com fade-in (dissolve) */}
+        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={onCancel} />
+        </Animated.View>
+
+        {/* Sheet com slide-up */}
+        <Animated.View
+          style={[
+            styles.sheet,
+            { transform: [{ translateY: sheetTranslateY }] },
+          ]}
+        >
           {/* Ícone */}
           <View style={styles.iconWrapper}>
             <View style={styles.iconCircle}>
@@ -65,7 +107,7 @@ export function LogoutPopup({
               <Text style={styles.cancelButtonText}>Cancelar</Text>
             </Pressable>
           </View>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -78,7 +120,7 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
   sheet: {
     backgroundColor: "#ffffff",
