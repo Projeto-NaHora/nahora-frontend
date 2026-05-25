@@ -47,6 +47,8 @@ type OrderFormContentProps = {
   onRemoveMedia: (index: number) => void;
   onSubmit: () => void;
   onClear: () => void;
+  /** Se true, exibe UI de edicao ao inves de criacao */
+  isEditing?: boolean;
 };
 
 /** Dropdown/picker for Tipo */
@@ -246,6 +248,7 @@ export function OrderFormContent({
   onRemoveMedia,
   onSubmit,
   onClear,
+  isEditing = false,
 }: OrderFormContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -260,10 +263,12 @@ export function OrderFormContent({
       {/* Header title */}
       <View style={styles.headerSection}>
         <Text style={[styles.mainTitle, { color: colors.textPrimary }]}>
-          Cadastro Pedido
+          {isEditing ? "Editar Pedido" : "Cadastro Pedido"}
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Preencha as informações do seu pedido
+          {isEditing
+            ? "Atualize as informações do seu pedido"
+            : "Preencha as informações do seu pedido"}
         </Text>
       </View>
 
@@ -862,7 +867,13 @@ export function OrderFormContent({
           disabled={isSubmitting}
         >
           <Text style={[styles.actionButtonText, { color: colors.onBrand }]}>
-            {isSubmitting ? "Criando..." : "Criar Pedido"}
+            {isSubmitting
+              ? isEditing
+                ? "Salvando..."
+                : "Criando..."
+              : isEditing
+                ? "Salvar Alterações"
+                : "Criar Pedido"}
           </Text>
         </Pressable>
       </View>

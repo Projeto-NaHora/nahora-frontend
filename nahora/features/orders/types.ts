@@ -1,7 +1,7 @@
 // features/orders/types.ts
 // DTOs que espelham o retorno do backend (Spring Boot)
 
-import type { CategoriaServico, Urgencia } from "@/types/enums";
+import type { CategoriaServico, StatusPedido, Urgencia } from "@/types/enums";
 
 export interface EnderecoDTO {
   logradouro: string;
@@ -24,6 +24,23 @@ export interface Pedido {
   dataDesejada: string;
   status: string;
   criadoEm: string;
+  propostaId?: number;
+}
+
+/** Espelha PedidoPublicoResponse do backend (GET /pedidos/{id}/public) */
+export interface PedidoPublicoResponse {
+  id: number;
+  categoria: CategoriaServico;
+  descricao: string;
+  urgencia: Urgencia;
+  orcamentoEstimado: number;
+  status: StatusPedido;
+  criadoEm: string;
+  bairro: string;
+  cidade: string;
+  clienteNome: string;
+  fotos: string[];
+  dataDesejada: string;
 }
 
 export interface Page<T> {

@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import type { Pedido } from "../types";
@@ -53,6 +54,7 @@ export interface OrderDetailOpenContentProps {
   onEdit: () => void;
   onDelete: () => void;
   onViewProposals: () => void;
+  acceptedProposalId?: number;
 }
 
 export function OrderDetailOpenContent({
@@ -63,7 +65,9 @@ export function OrderDetailOpenContent({
   onEdit,
   onDelete,
   onViewProposals,
+  acceptedProposalId,
 }: OrderDetailOpenContentProps) {
+  const router = useRouter();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
@@ -90,7 +94,20 @@ export function OrderDetailOpenContent({
     text: "#F26F21",
   };
   const statusLabel = STATUS_LABEL[pedido.status] ?? "Em aberto";
-  const activeStage = pedido.status === "ABERTO" ? 1 : -1;
+  // Map order status to active timeline stage.
+  // Stages: 0=Pedido criado, 1=Avaliacao de propostas, 2=Servico em andamento, 3=Concluido
+  // activeStage = -1 means nothing active (cancelled / disputed)
+  // activeStage = 4 means all stages complete
+  function getActiveStage(status: string): number {
+    switch (status) {
+      case "ABERTO": return 1;
+      case "EM_ANDAMENTO": return 2;
+      case "AGUARDANDO_VALIDACAO": return 2;
+      case "CONCLUIDO": return 4;
+      default: return -1;
+    }
+  }
+  const activeStage = getActiveStage(pedido.status);
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -310,14 +327,29 @@ export function OrderDetailOpenContent({
           </TouchableOpacity>
         </View>
 
-        {/* Main CTA */}
-        <TouchableOpacity
-          onPress={onViewProposals}
-          style={[styles.ctaButton, { backgroundColor: colors.brand }]}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Verificar Propostas</Text>
-        </TouchableOpacity>
+        {/* Main CTA — depends on order status */}
+        {pedido.status === "EM_ANDAMENTO" || pedido.status === "AGUARDANDO_VALIDACAO" ? (
+          <TouchableOpacity
+            onPress={() => {
+              const chatId = acceptedProposalId ?? pedido.propostaId;
+              if (chatId) {
+                router.push(`/(client)/(chats)/${chatId}`);
+              }
+            }}
+            style={[styles.ctaButton, { backgroundColor: colors.brand }]}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Falar com prestador</Text>
+          </TouchableOpacity>
+        ) : pedido.status === "ABERTO" ? (
+          <TouchableOpacity
+            onPress={onViewProposals}
+            style={[styles.ctaButton, { backgroundColor: colors.brand }]}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Verificar Propostas</Text>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
     </View>
   );

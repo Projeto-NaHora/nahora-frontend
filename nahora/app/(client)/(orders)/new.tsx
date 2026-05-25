@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -11,6 +11,8 @@ import { useCreateOrderForm } from "@/features/orders/hooks/useCreateOrderForm";
 
 export default function NewOrderScreen() {
   const router = useRouter();
+  const { editId } = useLocalSearchParams<{ editId?: string }>();
+  const editIdNum = editId ? Number(editId) : undefined;
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
@@ -22,9 +24,10 @@ export default function NewOrderScreen() {
     errorMessage,
     errors,
     midiasPicker,
+    isEditing,
     onSubmit,
     handleClear,
-  } = useCreateOrderForm();
+  } = useCreateOrderForm(editIdNum);
 
   return (
     <SafeAreaView
@@ -47,7 +50,7 @@ export default function NewOrderScreen() {
           />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-          Pedido
+          {isEditing ? "Editar Pedido" : "Pedido"}
         </Text>
         <View style={styles.headerSpacer} />
       </View>
@@ -68,6 +71,7 @@ export default function NewOrderScreen() {
         onRemoveMedia={midiasPicker.removeMedia}
         onSubmit={onSubmit}
         onClear={handleClear}
+        isEditing={isEditing}
       />
     </SafeAreaView>
   );

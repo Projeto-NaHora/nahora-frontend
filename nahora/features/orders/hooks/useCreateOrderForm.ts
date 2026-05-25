@@ -3,11 +3,15 @@ import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useSWRConfig } from "swr";
 
 import { orderService } from "../service";
+import { useOrderDetail } from "./useOrders";
 import { useMidiasPicker } from "./useMidiasPicker";
 import { buscarCep } from "@/services/cep";
+import { geocodeAddress } from "@/services/geocode";
 import { parseApiError } from "@/utils/apiError";
+import { getTurnoKey } from "../types";
 import type { CriarPedidoFormValues, EnderecoRequest } from "../types";
 import type { CategoriaServico, Urgencia } from "@/types/enums";
 
@@ -76,8 +80,9 @@ const schema = z
     }
   });
 
-export function useCreateOrderForm() {
+export function useCreateOrderForm(editId?: number) {
   const router = useRouter();
+  const { mutate } = useSWRConfig();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBuscandoCep, setIsBuscandoCep] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -108,14 +113,39 @@ export function useCreateOrderForm() {
     watch,
     setValue,
     setError,
+    reset,
     formState: { errors },
   } = form;
 
   const enderecoDiferente = watch("enderecoDiferente");
   const cepValue = watch("cep");
 
+  // Carrega pedido existente para edicao
+  const editIdNum = editId ?? 0;
+  const { data: existingOrder } = useOrderDetail(editIdNum);
+
+  useEffect(() => {
+    if (!editId || !existingOrder) return;
+
+    const turno = getTurnoKey(existingOrder.dataDesejada) ?? "MANHA";
+
+    reset({
+      categoria: existingOrder.categoria ?? "",
+      descricao: existingOrder.descricao ?? "",
+      enderecoDiferente: !!existingOrder.endereco,
+      cep: existingOrder.endereco?.cep ?? "",
+      logradouro: existingOrder.endereco?.logradouro ?? "",
+      numero: existingOrder.endereco?.numero ?? "",
+      complemento: "",
+      bairro: existingOrder.endereco?.bairro ?? "",
+      cidade: existingOrder.endereco?.cidade ?? "",
+      estado: "",
+      urgencia: existingOrder.urgencia ?? "NORMAL",
+      turno,
+    });
+  }, [editId, existingOrder, reset]);
+
   // Autofill endereço via ViaCEP quando o CEP atinge 8 dígitos
-  // setValue é omitido de propósito — é uma referência estável do react-hook-form
   useEffect(() => {
     if (!enderecoDiferente) return;
 
@@ -128,7 +158,6 @@ export function useCreateOrderForm() {
     buscarCep(digits)
       .then((endereco) => {
         if (cancelled || !endereco) return;
-        // Usa shouldValidate: false para evitar validação durante o preenchimento
         setValue("logradouro", endereco.logradouro, {
           shouldValidate: false,
           shouldDirty: false,
@@ -196,13 +225,24 @@ export function useCreateOrderForm() {
             cidade: data.cidade,
             estado: data.estado,
           };
+
+          // Geocode do endereco para obter latitude/longitude
+          try {
+            const address = `${data.logradouro}, ${data.numero}, ${data.bairro}, ${data.cidade}, ${data.estado}`;
+            const coords = await geocodeAddress(address);
+            if (coords) {
+              endereco.latitude = coords.lat;
+              endereco.longitude = coords.lng;
+            }
+          } catch {
+            // prossegue sem coordenadas se o geocoding falhar
+          }
         }
 
         // 3. Monta dataDesejada = 1 semana a partir de hoje + turno
         const dataDesejada = buildDataDesejada(data.turno);
 
-        // 4. Cria o pedido
-        const created = await orderService.criar({
+        const payload = {
           categoria: data.categoria as CategoriaServico,
           descricao: data.descricao,
           endereco,
@@ -210,22 +250,27 @@ export function useCreateOrderForm() {
           urgencia: data.urgencia as Urgencia,
           orcamentoEstimado: 0,
           dataDesejada,
-        });
+        };
 
-        // 5. Limpa o estado e redireciona
-        midiasPicker.reset();
-        router.push({
-          pathname: "/(client)/(orders)/success",
-          params: { orderId: String(created.id) },
-        });
+        if (editId) {
+          await orderService.atualizar(editId, payload);
+          mutate(`order-${editId}`);
+          router.back();
+        } else {
+          const created = await orderService.criar(payload);
+          midiasPicker.reset();
+          router.push({
+            pathname: "/(client)/(orders)/success",
+            params: { orderId: String(created.id) },
+          });
+        }
       } catch (error) {
         const parsed = parseApiError(
           error,
-          "Erro ao criar pedido. Tente novamente.",
+          "Erro ao salvar pedido. Tente novamente.",
         );
         setErrorMessage(parsed.message);
 
-        // Define erros de campo recebidos do backend
         for (const [field, message] of Object.entries(parsed.fieldErrors)) {
           if (field in form.getValues()) {
             setError(field as keyof CriarPedidoFormValues, {
@@ -238,11 +283,11 @@ export function useCreateOrderForm() {
         setIsSubmitting(false);
       }
     },
-    [router, midiasPicker, setError, buildDataDesejada],
+    [editId, router, midiasPicker, setError, buildDataDesejada, mutate],
   );
 
   const handleClear = useCallback(() => {
-    form.reset({
+    reset({
       categoria: "",
       descricao: "",
       enderecoDiferente: false,
@@ -257,7 +302,7 @@ export function useCreateOrderForm() {
       turno: "MANHA",
     });
     midiasPicker.reset();
-  }, [form, midiasPicker]);
+  }, [reset, midiasPicker]);
 
   return {
     form,
@@ -268,6 +313,7 @@ export function useCreateOrderForm() {
     errors,
     enderecoDiferente,
     midiasPicker,
+    isEditing: !!editId,
     onSubmit: handleSubmit(onSubmit),
     handleClear,
   };
