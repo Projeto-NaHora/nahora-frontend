@@ -84,11 +84,6 @@ export function useProfileMenu() {
         route: "/(professional)/(account)/edit",
       },
       {
-        id: "public-profile",
-        label: "Editar perfil público",
-        route: "/(professional)/(account)/public-profile-1",
-      },
-      {
         id: "bank-accounts",
         label: "Contas Bancárias e PIX",
         route: "/(professional)/(account)/bank-accounts",
