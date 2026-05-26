@@ -10,11 +10,16 @@ import {
 } from "react-native";
 
 import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { formatCpf, isValidCpf, unformatCpf, formatCep } from "@/utils/formatters";
+import {
+  formatCpf,
+  isValidCpf,
+  unformatCpf,
+  formatCep,
+} from "@/utils/formatters";
 import { ProfileStepIndicator } from "./ProfileStepIndicator";
 
 type Profile1ContentProps = {
+  nome: string;
   cpf: string;
   cargo: string;
   experienceYears: string;
@@ -28,6 +33,7 @@ type Profile1ContentProps = {
   estado: string;
   raioAtuacaoKm: string;
   cepLoading: boolean;
+  onChangeNome: (value: string) => void;
   onChangeCpf: (value: string) => void;
   onChangeCargo: (value: string) => void;
   onChangeExperienceYears: (value: string) => void;
@@ -42,9 +48,12 @@ type Profile1ContentProps = {
   onCepBlur: () => void;
   onPickPhoto: () => void;
   onContinue: () => void;
+  /** Botão Voltar (opcional — usado no modo edição) */
+  onBack?: () => void;
 };
 
 export function Profile1Content({
+  nome,
   cpf,
   cargo,
   experienceYears,
@@ -58,6 +67,7 @@ export function Profile1Content({
   estado,
   raioAtuacaoKm,
   cepLoading,
+  onChangeNome,
   onChangeCpf,
   onChangeCargo,
   onChangeExperienceYears,
@@ -72,8 +82,9 @@ export function Profile1Content({
   onCepBlur,
   onPickPhoto,
   onContinue,
+  onBack,
 }: Profile1ContentProps) {
-  const theme = useColorScheme() ?? "light";
+  const theme = "light";
   const colors = Colors[theme];
 
   const formattedCpf = formatCpf(cpf);
@@ -87,14 +98,21 @@ export function Profile1Content({
     cidade.trim().length >= 3 &&
     estado.trim().length === 2;
   const isExperienceValid = /^\d+$/.test(experienceYears);
-  const isRaioValid = /^\d+$/.test(raioAtuacaoKm) && parseInt(raioAtuacaoKm, 10) > 0;
-  const isValid =
-    isCpfValid &&
-    isCargoValid &&
-    isCepValid &&
-    isAddressValid &&
-    isExperienceValid &&
-    isRaioValid;
+  const isRaioValid =
+    /^\d+$/.test(raioAtuacaoKm) && parseInt(raioAtuacaoKm, 10) > 0;
+  const hasNome = !!(nome && nome.trim().length >= 3);
+  const isValid = hasNome
+    ? isCargoValid &&
+      isCepValid &&
+      isAddressValid &&
+      isExperienceValid &&
+      isRaioValid
+    : isCpfValid &&
+      isCargoValid &&
+      isCepValid &&
+      isAddressValid &&
+      isExperienceValid &&
+      isRaioValid;
 
   const handleCpfChange = (text: string) => {
     onChangeCpf(unformatCpf(text));
@@ -113,7 +131,7 @@ export function Profile1Content({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: "#ffffff" }]}>
       <ProfileStepIndicator currentStep={1} />
 
       <Text style={[styles.heading, { color: colors.textPrimary }]}>
@@ -164,30 +182,60 @@ export function Profile1Content({
       </View>
 
       <View style={styles.form}>
-        <View style={styles.fieldGroup}>
-          <Text style={[styles.label, { color: colors.textPrimary }]}>CPF</Text>
-          <View style={styles.inputWrapper}>
-            <View style={styles.inputIconContainer}>
-              <Text style={styles.inputIcon}>🪪</Text>
+        {nome && nome.length > 0 ? (
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.label, { color: colors.textPrimary }]}>
+              Nome
+            </Text>
+            <View style={styles.inputWrapper}>
+              <View style={styles.inputIconContainer}>
+                <Text style={styles.inputIcon}>👤</Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: colors.textPrimary,
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
+                ]}
+                placeholder="Seu nome completo"
+                placeholderTextColor={colors.placeholder}
+                value={nome}
+                onChangeText={onChangeNome}
+                autoCapitalize="words"
+              />
             </View>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  color: colors.textPrimary,
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                },
-              ]}
-              placeholder="ex. 999.999.999-00"
-              placeholderTextColor={colors.placeholder}
-              value={formattedCpf}
-              onChangeText={handleCpfChange}
-              keyboardType="number-pad"
-              maxLength={14}
-            />
           </View>
-        </View>
+        ) : (
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.label, { color: colors.textPrimary }]}>
+              CPF
+            </Text>
+            <View style={styles.inputWrapper}>
+              <View style={styles.inputIconContainer}>
+                <Text style={styles.inputIcon}>🪪</Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: colors.textPrimary,
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
+                ]}
+                placeholder="ex. 999.999.999-00"
+                placeholderTextColor={colors.placeholder}
+                value={formattedCpf}
+                onChangeText={handleCpfChange}
+                keyboardType="number-pad"
+                maxLength={14}
+              />
+            </View>
+          </View>
+        )}
 
         <View style={styles.fieldGroup}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>
@@ -220,7 +268,11 @@ export function Profile1Content({
           <View style={styles.inputWrapper}>
             <View style={styles.inputIconContainer}>
               {cepLoading ? (
-                <ActivityIndicator size="small" color={colors.brand} style={{ width: 18, height: 18 }} />
+                <ActivityIndicator
+                  size="small"
+                  color={colors.brand}
+                  style={{ width: 18, height: 18 }}
+                />
               ) : (
                 <Text style={styles.inputIcon}>📮</Text>
               )}
@@ -426,12 +478,29 @@ export function Profile1Content({
       </View>
 
       <View style={styles.bottomBar}>
+        {onBack && (
+          <Pressable
+            accessibilityRole="button"
+            onPress={onBack}
+            style={({ pressed }) => [
+              styles.outlineButton,
+              { borderColor: colors.border },
+              pressed && styles.buttonPressed,
+            ]}
+          >
+            <Text
+              style={[styles.outlineButtonText, { color: colors.textPrimary }]}
+            >
+              Voltar
+            </Text>
+          </Pressable>
+        )}
         <Pressable
           accessibilityRole="button"
           disabled={!isValid}
           onPress={onContinue}
           style={({ pressed }) => [
-            styles.continueButton,
+            styles.primaryButton,
             {
               backgroundColor: isValid ? colors.brand : colors.surface,
             },
@@ -440,7 +509,7 @@ export function Profile1Content({
         >
           <Text
             style={[
-              styles.continueText,
+              styles.primaryButtonText,
               { color: isValid ? colors.onBrand : colors.textSecondary },
             ]}
           >
@@ -602,24 +671,40 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   bottomBar: {
+    flexDirection: "row",
+    gap: 16,
     marginTop: 32,
     marginBottom: 24,
   },
-  continueButton: {
+  outlineButton: {
+    flex: 1,
     height: 54,
-    borderRadius: 10,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  outlineButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    lineHeight: 24,
+  },
+  primaryButton: {
+    flex: 1,
+    height: 54,
+    borderRadius: 24,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
   },
+  primaryButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    lineHeight: 24,
+  },
   buttonPressed: {
     opacity: 0.9,
-  },
-  continueText: {
-    fontSize: 16,
-    fontWeight: "500",
-    lineHeight: 24,
   },
   arrowIcon: {
     fontSize: 18,
