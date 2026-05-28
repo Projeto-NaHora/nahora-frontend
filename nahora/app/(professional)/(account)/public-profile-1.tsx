@@ -119,7 +119,7 @@ export default function PublicProfile1() {
     setLatitude,
     setLongitude,
     setRaioAtuacaoKm,
-  } = useEditProfileForm();
+  } = useEditProfileForm({ initialize: true });
 
   const handleBack = () => {
     router.back();

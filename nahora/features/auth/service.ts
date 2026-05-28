@@ -2,7 +2,12 @@ import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
 
 import type {
+  CadastroEmailPayload,
+  CadastroNomePayload,
+  CadastroSenhaPayload,
   CompletarPerfilRequest,
+  DefinirCategoriaPayload,
+  EnviarDocumentosPayload,
   LoginPayload,
   LoginResponse,
   PerfilProfissionalResponse,
@@ -19,7 +24,7 @@ import type {
 export const authService = {
   sendOtp: async (payload: SendOtpPayload): Promise<SendOtpResponse> => {
     const { data } = await api.post<SendOtpResponse>(
-      ENDPOINTS.SEND_OTP,
+      ENDPOINTS.ENVIAR_OTP,
       payload,
     );
     return data;
@@ -27,7 +32,7 @@ export const authService = {
 
   verifyOtp: async (payload: VerifyOtpPayload): Promise<VerifyOtpResponse> => {
     const { data } = await api.post<VerifyOtpResponse>(
-      ENDPOINTS.VERIFY_OTP,
+      ENDPOINTS.VERIFICAR_OTP,
       payload,
     );
     return data;
@@ -87,5 +92,31 @@ export const authService = {
       payload,
     );
     return data;
+  },
+
+  cadastroEmail: async (payload: CadastroEmailPayload): Promise<void> => {
+    await api.post(ENDPOINTS.CADASTRO_EMAIL, payload);
+  },
+
+  cadastroNome: async (payload: CadastroNomePayload): Promise<void> => {
+    await api.post(ENDPOINTS.CADASTRO_NOME, payload);
+  },
+
+  cadastroSenha: async (
+    payload: CadastroSenhaPayload,
+  ): Promise<RegisterResponse> => {
+    const { data } = await api.post<RegisterResponse>(
+      ENDPOINTS.CADASTRO_SENHA,
+      payload,
+    );
+    return data;
+  },
+
+  definirCategoria: async (payload: DefinirCategoriaPayload): Promise<void> => {
+    await api.post(ENDPOINTS.PROFISSIONAL_CATEGORIA, payload);
+  },
+
+  enviarDocumentos: async (payload: EnviarDocumentosPayload): Promise<void> => {
+    await api.post(ENDPOINTS.PROFISSIONAL_DOCUMENTOS, payload);
   },
 };

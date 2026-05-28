@@ -33,6 +33,9 @@ export function useRegisterPassword({
   const resetRegister = useRegisterStore((state) => state.reset);
 
   const setTokens = useAuthStore((state) => state.setTokens);
+  const setProfessionalOnboarding = useAuthStore(
+    (state) => state.setProfessionalOnboarding,
+  );
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
@@ -46,31 +49,63 @@ export function useRegisterPassword({
     mode: "onTouched",
   });
 
-  const { trigger, isMutating } = useSWRMutation(
-    "register-password",
-    async (_key: string, { arg }: { arg: RegisterPasswordFormValues }) => {
-      const nomeCompleto = `${firstName} ${lastName}`.trim();
+  const { trigger: triggerClient, isMutating: isMutatingClient } =
+    useSWRMutation(
+      "register-client-password",
+      async (_key: string, { arg }: { arg: RegisterPasswordFormValues }) => {
+        const nomeCompleto = `${firstName} ${lastName}`.trim();
+        return authService.registerClient({
+          telefone: phone,
+          nome: nomeCompleto,
+          email,
+          senha: arg.password,
+        });
+      },
+      {
+        onSuccess: async (data) => {
+          await setTokens(
+            data.accessToken,
+            data.refreshToken,
+            data.tipoUsuario,
+          );
+          resetRegister();
+          onClientSuccess();
+        },
+        onError: (error) => {
+          const parsed = parseApiError(error);
+          setErrorMessage(parsed.message);
+          setErrorStatus(parsed.statusCode ?? null);
+        },
+      },
+    );
 
-      return authService.registerClient({
-        telefone: phone,
-        nome: nomeCompleto,
-        email,
-        senha: arg.password,
-      });
-    },
-    {
-      onSuccess: async (data) => {
-        await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
-        onClientSuccess();
-        resetRegister();
+  const { trigger: triggerProfessional, isMutating: isMutatingProfessional } =
+    useSWRMutation(
+      "register-professional-password",
+      async (_key: string, { arg }: { arg: RegisterPasswordFormValues }) =>
+        authService.cadastroSenha({
+          telefone: phone,
+          senha: arg.password,
+          confirmacaoSenha: arg.confirmPassword,
+        }),
+      {
+        onSuccess: async (data) => {
+          // Set phase before setTokens so the guard sees it atomically.
+          await setProfessionalOnboarding("identidade");
+          await setTokens(
+            data.accessToken,
+            data.refreshToken,
+            data.tipoUsuario,
+          );
+          onProfessional();
+        },
+        onError: (error) => {
+          const parsed = parseApiError(error);
+          setErrorMessage(parsed.message);
+          setErrorStatus(parsed.statusCode ?? null);
+        },
       },
-      onError: (error) => {
-        const parsed = parseApiError(error);
-        setErrorMessage(parsed.message);
-        setErrorStatus(parsed.statusCode ?? null);
-      },
-    },
-  );
+    );
 
   const onSubmit = form.handleSubmit((values) => {
     setPassword(values.password);
@@ -81,8 +116,18 @@ export function useRegisterPassword({
       return;
     }
 
+    setErrorMessage(null);
+    setErrorStatus(null);
+
     if (role === "PROFISSIONAL") {
-      onProfessional();
+      if (!phone) {
+        Alert.alert(
+          "Erro",
+          "Complete as etapas anteriores antes de finalizar o cadastro.",
+        );
+        return;
+      }
+      triggerProfessional(values);
       return;
     }
 
@@ -94,15 +139,13 @@ export function useRegisterPassword({
       return;
     }
 
-    setErrorMessage(null);
-    setErrorStatus(null);
-    trigger(values);
+    triggerClient(values);
   });
 
   return {
     form,
     onSubmit,
-    isSubmitting: isMutating,
+    isSubmitting: isMutatingClient || isMutatingProfessional,
     errorMessage,
     errorStatus,
   };

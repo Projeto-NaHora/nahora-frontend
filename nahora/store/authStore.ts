@@ -12,13 +12,21 @@ interface User {
   tipo: TipoUsuarioApp;
 }
 
+// Tracks which phase of professional onboarding is pending.
+// null = onboarding complete (or not a professional).
+export type ProfessionalOnboarding = "identidade" | "aguardando" | "perfil";
+
 interface AuthState {
   accessToken: string | null;
   user: User | null;
+  professionalOnboarding: ProfessionalOnboarding | null;
   setTokens: (
     access: string,
     refresh: string,
     tipoUsuario?: string,
+  ) => Promise<void>;
+  setProfessionalOnboarding: (
+    phase: ProfessionalOnboarding | null,
   ) => Promise<void>;
   restoreSession: () => Promise<void>;
   logout: () => void;
@@ -75,6 +83,7 @@ function extractUserFromToken(
 export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   user: null,
+  professionalOnboarding: null,
 
   setTokens: async (access, refresh, tipoUsuario) => {
     await storage.set("refreshToken", refresh);
@@ -82,10 +91,22 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ accessToken: access, user });
   },
 
+  setProfessionalOnboarding: async (phase) => {
+    // Update store immediately (sync) so guard reacts before SecureStore finishes.
+    set({ professionalOnboarding: phase });
+    if (phase === null) {
+      await storage.delete("professionalOnboarding");
+    } else {
+      await storage.set("professionalOnboarding", phase);
+    }
+  },
+
   restoreSession: async () => {
     try {
       const refreshToken = await storage.get("refreshToken");
       if (!refreshToken) return false;
+
+      const savedOnboarding = await storage.get("professionalOnboarding");
 
       const { default: axios } = await import("axios");
       const { data } = await axios.post(
@@ -95,7 +116,12 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       await storage.set("refreshToken", data.refreshToken);
       const user = extractUserFromToken(data.accessToken, data.tipoUsuario);
-      set({ accessToken: data.accessToken, user });
+      set({
+        accessToken: data.accessToken,
+        user,
+        professionalOnboarding:
+          (savedOnboarding as ProfessionalOnboarding | null) ?? null,
+      });
       return true;
     } catch {
       await storage.delete("refreshToken");
@@ -105,8 +131,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: async () => {
     await storage.delete("refreshToken");
+    await storage.delete("professionalOnboarding");
     disconnectStomp();
     useNotifStore.getState().clear();
-    set({ accessToken: null, user: null });
+    set({ accessToken: null, user: null, professionalOnboarding: null });
   },
 }));

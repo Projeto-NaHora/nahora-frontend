@@ -41,6 +41,12 @@ export function useUploadDocuments() {
       setRgBackUrl(rgBackResp.url);
       setSelfieUrl(selfieResp.url);
 
+      await authService.enviarDocumentos({
+        rgFrente: rgFrontResp.url,
+        rgVerso: rgBackResp.url,
+        selfieComDocumento: selfieResp.url,
+      });
+
       return true;
     } catch (error) {
       const parsed = parseApiError(error);

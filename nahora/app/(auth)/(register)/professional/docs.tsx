@@ -6,6 +6,7 @@ import * as ImagePicker from "expo-image-picker";
 import { DocsContent } from "@/features/auth/components/DocsContent";
 import { useUploadDocuments } from "@/features/auth/hooks/useUploadDocuments";
 import { useRegisterStore } from "@/store/registerStore";
+import { useAuthStore } from "@/store/authStore";
 
 type DocType = "rgFront" | "rgBack" | "selfie";
 
@@ -76,6 +77,9 @@ function showPickOptions(onSelect: (uri: string) => void) {
 
 export default function Docs() {
   const router = useRouter();
+  const setProfessionalOnboarding = useAuthStore(
+    (state) => state.setProfessionalOnboarding,
+  );
   const rgFrontUri = useRegisterStore((state) => state.rgFrontUri);
   const rgBackUri = useRegisterStore((state) => state.rgBackUri);
   const selfieUri = useRegisterStore((state) => state.selfieUri);
@@ -111,6 +115,7 @@ export default function Docs() {
   const handleContinue = async () => {
     const success = await upload();
     if (success) {
+      await setProfessionalOnboarding("aguardando");
       router.push("/(auth)/(register)/professional/validation");
     }
   };

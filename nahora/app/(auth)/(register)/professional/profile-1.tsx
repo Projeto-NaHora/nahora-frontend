@@ -186,6 +186,8 @@ export default function Profile1() {
           bounces={false}
         >
           <Profile1Content
+            nome=""
+            onChangeNome={() => {}}
             cpf={cpf}
             cargo={cargo}
             experienceYears={experienceYears}

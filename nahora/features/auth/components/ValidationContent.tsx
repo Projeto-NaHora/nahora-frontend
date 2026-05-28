@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import {
   Colors,
@@ -38,13 +38,9 @@ function ValidationRow({ icon, title, subtitle }: ValidationRowProps) {
 
 type ValidationContentProps = {
   professionLabel: string;
-  onGoToProfile: () => void;
 };
 
-export function ValidationContent({
-  professionLabel,
-  onGoToProfile,
-}: ValidationContentProps) {
+export function ValidationContent({ professionLabel }: ValidationContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
@@ -132,31 +128,10 @@ export function ValidationContent({
       >
         <Text style={styles.infoIcon}>📱</Text>
         <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-          Você receberá uma notificação quando a verificação for concluída. Crie
-          seu perfil profissional enquanto validamos seus documentos
+          Você receberá uma notificação quando a verificação for concluída. O
+          app avançará automaticamente assim que o administrador aprovar seus
+          documentos.
         </Text>
-      </View>
-
-      {/* CTA Button */}
-      <View style={styles.bottomBar}>
-        <Pressable
-          accessibilityRole="button"
-          onPress={onGoToProfile}
-          style={({ pressed }) => [
-            styles.profileButton,
-            { backgroundColor: colors.surface },
-            pressed && styles.buttonPressed,
-          ]}
-        >
-          <Text
-            style={[styles.profileButtonText, { color: colors.textPrimary }]}
-          >
-            Criar Perfil Profissional
-          </Text>
-          <Text style={[styles.arrowIcon, { color: colors.textPrimary }]}>
-            →
-          </Text>
-        </Pressable>
       </View>
     </AuthScreenShell>
   );
@@ -251,31 +226,5 @@ const styles = StyleSheet.create({
     lineHeight: 22.75,
     letterSpacing: LetterSpacing.body,
     fontWeight: "400",
-  },
-  bottomBar: {
-    alignItems: "center",
-  },
-  profileButton: {
-    width: "100%",
-    height: 56,
-    borderRadius: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-  buttonPressed: {
-    opacity: 0.9,
-  },
-  profileButtonText: {
-    fontFamily: Fonts?.sans,
-    fontSize: FontSizes.body,
-    lineHeight: 24,
-    letterSpacing: LetterSpacing.body,
-    fontWeight: "600",
-  },
-  arrowIcon: {
-    fontSize: 18,
-    lineHeight: 20,
   },
 });
