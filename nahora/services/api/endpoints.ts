@@ -23,14 +23,18 @@ export const ENDPOINTS = {
   // Propostas
   PROPOSTAS: (pedidoId: number) => `/pedidos/${pedidoId}/propostas`,
   CRIAR_PROPOSTA: (pedidoId: number) => `/pedidos/${pedidoId}/propostas`,
-  PROPOSTA: (pedidoId: number, propostaId: number) => `/pedidos/${pedidoId}/propostas/${propostaId}`,
-  ACEITAR_PROPOSTA: (pedidoId: number, propostaId: number) => `/pedidos/${pedidoId}/propostas/${propostaId}/aceitar`,
-  RECUSAR_PROPOSTA: (pedidoId: number, propostaId: number) => `/pedidos/${pedidoId}/propostas/${propostaId}/recusar`,
+  PROPOSTA: (pedidoId: number, propostaId: number) =>
+    `/pedidos/${pedidoId}/propostas/${propostaId}`,
+  ACEITAR_PROPOSTA: (pedidoId: number, propostaId: number) =>
+    `/pedidos/${pedidoId}/propostas/${propostaId}/aceitar`,
+  RECUSAR_PROPOSTA: (pedidoId: number, propostaId: number) =>
+    `/pedidos/${pedidoId}/propostas/${propostaId}/recusar`,
 
   // Chat (conversation list + message history REST)
   CONVERSAS: "/conversas",
   MENSAGENS: (conversaId: number) => `/conversas/${conversaId}/mensagens`,
-  PROPOSTA_CONVERSA: (propostaId: number) => `/propostas/${propostaId}/conversa`,
+  PROPOSTA_CONVERSA: (propostaId: number) =>
+    `/propostas/${propostaId}/conversa`,
 
   // Pagamentos
   PAGAMENTO: (propostaId: number) => `/propostas/${propostaId}/pagamento`,
@@ -50,4 +54,10 @@ export const ENDPOINTS = {
   UPLOAD_PROFILE_PHOTO: "/files/upload/profile",
   PROFISSIONAL: (id: number) => `/profissionais/${id}`,
   PROFISSIONAIS: "/profissionais",
+
+  // Favoritos
+  FAVORITO_STATUS: (profissionalId: number) =>
+    `/profissionais/${profissionalId}/favoritado`,
+  FAVORITAR: (profissionalId: number) => `/favoritos/${profissionalId}`,
+  DESFAVORITAR: (profissionalId: number) => `/favoritos/${profissionalId}`,
 } as const;
