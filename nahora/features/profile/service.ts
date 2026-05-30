@@ -1,10 +1,7 @@
 // features/profile/service.ts
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
-import type {
-  PerfilProfissionalDTO,
-  ProfissionalPerfilRequest,
-} from "./types";
+import type { PerfilProfissionalDTO, ProfissionalPerfilRequest } from "./types";
 
 const isRemoteUrl = (uri: string) => uri.startsWith("http");
 
@@ -16,13 +13,17 @@ export const profileService = {
     return data;
   },
 
-  uploadFoto: async (uri: string): Promise<string> => {
+  uploadFoto: async (uri: string, tipo?: string): Promise<string> => {
     const formData = new FormData();
+    const fileName = tipo ? `${tipo.toLowerCase()}.jpg` : "foto.jpg";
     formData.append("file", {
       uri,
       type: "image/jpeg",
-      name: "foto.jpg",
+      name: fileName,
     } as any);
+    if (tipo) {
+      formData.append("tipo", tipo);
+    }
     const { data } = await api.post<{ url: string }>(
       ENDPOINTS.UPLOAD_DOCUMENTO,
       formData,

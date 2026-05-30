@@ -1,0 +1,10 @@
+name: Create Development Build
+
+jobs:
+  build_dev:
+    type: build # This job type creates a dev build for Android
+    params:
+      platform: android
+      distribution: internal
+      profile: development
+

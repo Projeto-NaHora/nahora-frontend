@@ -54,7 +54,7 @@ function extractUserFromToken(
     return null;
   }
 
-  console.log("[AuthStore] JWT payload keys:", Object.keys(payload), "tipoUsuario arg:", tipoUsuario);
+  console.log("[AuthStore] JWT payload keys:", Object.keys(payload), "tipoUsuario arg:", tipoUsuario, 'jwt:', accessToken);
 
   // ID: prefere `id` (numérico) sobre `sub` que é o email
   const id = Number(

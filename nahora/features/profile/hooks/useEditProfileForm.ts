@@ -57,12 +57,12 @@ export function useEditProfileForm(opts?: { initialize?: boolean }) {
 
     const fotoUrl =
       s.profilePhotoUri && !isRemoteUrl(s.profilePhotoUri)
-        ? await profileService.uploadFoto(s.profilePhotoUri)
+        ? await profileService.uploadFoto(s.profilePhotoUri, "PERFIL")
         : (s.profilePhotoUri ?? undefined);
 
     const portfolioUrls = await Promise.all(
       s.portfolioPhotos.map((uri) =>
-        isRemoteUrl(uri) ? uri : profileService.uploadFoto(uri),
+        isRemoteUrl(uri) ? uri : profileService.uploadFoto(uri, "PORTIFOLIO"),
       ),
     );
 
