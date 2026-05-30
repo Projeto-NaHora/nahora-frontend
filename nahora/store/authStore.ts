@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { storage } from "@/utils/storage";
 import { decodeJwtPayload } from "@/utils/jwt";
-import { disconnectStomp } from "@/features/chat/stompClient";
+import { disconnectStomp, chatWsManager } from "@/features/chat/stompClient";
 import { useNotifStore } from "@/store/notifStore";
 
 import type { TipoUsuarioApp } from "@/types/enums";
@@ -54,6 +54,8 @@ function extractUserFromToken(
     return null;
   }
 
+  console.log("[AuthStore] JWT payload keys:", Object.keys(payload), "tipoUsuario arg:", tipoUsuario);
+
   // ID: prefere `id` (numérico) sobre `sub` que é o email
   const id = Number(
     payload.id ?? payload.sub ?? payload.userId ?? payload.user_id,
@@ -67,7 +69,11 @@ function extractUserFromToken(
     "";
 
   // Tipo: prioriza o argumento da API, mas usa o claim do JWT como fallback
-  const tipo = tipoUsuario ?? (payload.tipoUsuario as string) ?? "";
+  const tipo =
+    tipoUsuario ??
+    (payload.tipoUsuario as string) ??
+    (payload.tipo as string) ??
+    "";
 
   if (!id || !nome || !tipo) {
     console.warn(
@@ -86,9 +92,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   professionalOnboarding: null,
 
   setTokens: async (access, refresh, tipoUsuario) => {
-    await storage.set("refreshToken", refresh);
     const user = extractUserFromToken(access, tipoUsuario);
     set({ accessToken: access, user });
+    chatWsManager.setToken(access);
+    await storage.set("refreshToken", refresh);
   },
 
   setProfessionalOnboarding: async (phase) => {
@@ -122,6 +129,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         professionalOnboarding:
           (savedOnboarding as ProfessionalOnboarding | null) ?? null,
       });
+      chatWsManager.setToken(data.accessToken);
       return true;
     } catch {
       await storage.delete("refreshToken");
@@ -132,6 +140,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     await storage.delete("refreshToken");
     await storage.delete("professionalOnboarding");
+    chatWsManager.setToken(null);
     disconnectStomp();
     useNotifStore.getState().clear();
     set({ accessToken: null, user: null, professionalOnboarding: null });

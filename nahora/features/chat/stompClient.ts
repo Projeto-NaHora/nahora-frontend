@@ -1,6 +1,5 @@
 import { Client, StompSubscription } from "@stomp/stompjs";
 import { AppState } from "react-native";
-import { useAuthStore } from "@/store/authStore";
 import type { Mensagem } from "./types";
 
 export type ConnectionStatus =
@@ -21,6 +20,11 @@ class ChatWebSocketManager {
   private _connectionStatus: ConnectionStatus = "DISCONNECTED";
   private pendingReconnect = false;
   private _lastError: string | null = null;
+  private _authToken: string | null = null;
+
+  setToken(token: string | null): void {
+    this._authToken = token;
+  }
 
   get lastError(): string | null {
     return this._lastError;
@@ -37,6 +41,7 @@ class ChatWebSocketManager {
 
   connect(): void {
     if (this.client?.active) return;
+    if (!this._authToken) return;
 
     const brokerURL = process.env.EXPO_PUBLIC_WS_URL;
     if (!brokerURL) return;
@@ -47,7 +52,7 @@ class ChatWebSocketManager {
     this.client = new Client({
       brokerURL,
       connectHeaders: {
-        Authorization: `Bearer ${useAuthStore.getState().accessToken}`,
+        Authorization: `Bearer ${this._authToken}`,
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
@@ -161,8 +166,8 @@ class ChatWebSocketManager {
   }
 
   refreshConnection(newToken: string): void {
+    this._authToken = newToken;
     this.disconnect();
-    useAuthStore.setState({ accessToken: newToken });
     this.connect();
   }
 

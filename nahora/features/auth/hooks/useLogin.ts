@@ -23,6 +23,9 @@ export function useLogin() {
   });
 
   const setTokens = useAuthStore((state) => state.setTokens);
+  const setProfessionalOnboarding = useAuthStore(
+    (state) => state.setProfessionalOnboarding,
+  );
 
   const { trigger, isMutating } = useSWRMutation(
     "login",
@@ -31,6 +34,7 @@ export function useLogin() {
     },
     {
       onSuccess: async (data) => {
+        await setProfessionalOnboarding(null);
         await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
       },
       onError: (error) => {

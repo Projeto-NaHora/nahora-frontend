@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Stack,
-  useRouter,
-  useSegments,
-  useRootNavigationState,
-} from "expo-router";
+import { Stack, useRouter, useSegments, useRootNavigationState } from "expo-router";
 import { SWRConfig } from "swr";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuthStore } from "@/store/authStore";
@@ -30,13 +25,19 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (restoring) return;
-    // Wait until the navigator is fully mounted
     if (!navigationState?.key) return;
     if (!segments[0]) return;
 
     const inAuthGroup = segments[0] === "(auth)";
     const inClientGroup = segments[0] === "(client)";
     const inProfGroup = segments[0] === "(professional)";
+
+    console.log("[AuthGuard]", {
+      user: user?.tipo ?? null,
+      accessToken: !!accessToken,
+      segments: segments[0],
+      professionalOnboarding,
+    });
 
     if (!user || !accessToken) {
       if (!inAuthGroup) {
@@ -55,6 +56,8 @@ export default function RootLayout() {
       } else if (!inProfGroup) {
         router.replace("/(professional)/(home)");
       }
+    } else {
+      console.warn("[AuthGuard] tipo desconhecido:", user.tipo);
     }
   }, [
     user,
