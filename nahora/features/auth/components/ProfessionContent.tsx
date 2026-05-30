@@ -24,12 +24,16 @@ type ProfessionContentProps = {
   selected: ProfessionOption | null;
   onSelect: (profession: ProfessionOption) => void;
   onContinue: () => void;
+  isSubmitting?: boolean;
+  error?: string | null;
 };
 
 export function ProfessionContent({
   selected,
   onSelect,
   onContinue,
+  isSubmitting = false,
+  error,
 }: ProfessionContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -82,24 +86,38 @@ export function ProfessionContent({
         })}
       </View>
 
+      {error && (
+        <Text style={[styles.errorText, { color: colors.error ?? "#dc2626" }]}>
+          {error}
+        </Text>
+      )}
+
       <View style={styles.bottomBar}>
         <Pressable
           accessibilityRole="button"
-          disabled={!selected}
+          disabled={!selected || isSubmitting}
           onPress={onContinue}
           style={({ pressed }) => [
             styles.continueButton,
-            { backgroundColor: selected ? colors.brand : colors.surface },
+            {
+              backgroundColor:
+                selected && !isSubmitting ? colors.brand : colors.surface,
+            },
             pressed && styles.buttonPressed,
           ]}
         >
           <Text
             style={[
               styles.continueText,
-              { color: selected ? colors.onBrand : colors.textSecondary },
+              {
+                color:
+                  selected && !isSubmitting
+                    ? colors.onBrand
+                    : colors.textSecondary,
+              },
             ]}
           >
-            Continuar
+            {isSubmitting ? "Aguarde..." : "Continuar"}
           </Text>
         </Pressable>
       </View>
@@ -157,6 +175,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 14,
     fontWeight: "700",
+  },
+  errorText: {
+    fontSize: FontSizes.body,
+    marginBottom: 12,
+    textAlign: "center",
   },
   bottomBar: {
     marginTop: 32,

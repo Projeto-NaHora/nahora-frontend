@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import type { PerfilProfissionalResponse } from "@/features/auth/types";
+import type { PerfilProfissionalDTO } from "@/features/profile/types";
 
 interface ProfessionalState {
-  profile: PerfilProfissionalResponse | null;
-  setProfile: (profile: PerfilProfissionalResponse) => void;
+  profile: PerfilProfissionalDTO | null;
+  setProfile: (profile: PerfilProfissionalDTO) => void;
   clear: () => void;
 }
 

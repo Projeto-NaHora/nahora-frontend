@@ -81,7 +81,7 @@ export function useProfileMenu() {
       {
         id: "edit-profile",
         label: "Editar perfil",
-        route: "/(professional)/(account)/edit",
+        route: "/(professional)/(account)/public-profile-1",
       },
       {
         id: "bank-accounts",

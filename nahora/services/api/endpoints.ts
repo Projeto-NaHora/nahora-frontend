@@ -4,8 +4,11 @@ export const ENDPOINTS = {
   UPLOAD_DOCUMENTO: "/files/upload",
 
   // Auth (público — sem JWT)
-  SEND_OTP: "/auth/send-otp",
-  VERIFY_OTP: "/auth/verify-otp",
+  ENVIAR_OTP: "/auth/enviar-otp",
+  VERIFICAR_OTP: "/auth/verificar-otp",
+  CADASTRO_NOME: "/auth/cadastro/nome",
+  CADASTRO_EMAIL: "/auth/cadastro/email",
+  CADASTRO_SENHA: "/auth/cadastro/senha",
   REGISTER_CLIENTE: "/auth/register/cliente",
   REGISTER_PROFISSIONAL: "/auth/register/profissional",
   LOGIN: "/auth/login",
@@ -47,8 +50,10 @@ export const ENDPOINTS = {
   NOTIFICACOES: "/notificacoes",
   MARCAR_LIDA: (id: number) => `/notificacoes/${id}/lida`,
 
-  // Perfil
+  // Perfil / cadastro profissional
   COMPLETAR_PERFIL: "/profissionais/perfil",
+  PROFISSIONAL_CATEGORIA: "/profissionais/categoria",
+  PROFISSIONAL_DOCUMENTOS: "/profissionais/documentos",
   PERFIL_CLIENTE: "/clientes/me",
   PERFIL_PROFISSIONAL: "/profissionais/me",
   UPLOAD_PROFILE_PHOTO: "/files/upload/profile",

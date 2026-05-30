@@ -14,6 +14,7 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { AuthScreenShell } from "./AuthScreenShell";
 import type { RegisterEmailFormValues } from "../types";
 
@@ -21,12 +22,16 @@ type EmailContentProps = {
   control: Control<RegisterEmailFormValues>;
   isSubmitting: boolean;
   onSubmit: () => void;
+  error?: string | null;
+  errorStatus?: number | null;
 };
 
 export function EmailContent({
   control,
   isSubmitting,
   onSubmit,
+  error,
+  errorStatus,
 }: EmailContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -71,6 +76,9 @@ export function EmailContent({
             </View>
           )}
         />
+        {error && (
+          <ServerErrorBanner message={error} statusCode={errorStatus ?? undefined} />
+        )}
         <Pressable
           accessibilityRole="button"
           onPress={onSubmit}
