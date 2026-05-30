@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -94,6 +94,7 @@ export default function Profile1() {
   const colors = Colors[theme];
   const [cepLoading, setCepLoading] = useState(false);
 
+  const profession = useRegisterStore((state) => state.profession);
   const cpf = useRegisterStore((state) => state.cpf);
   const cargo = useRegisterStore((state) => state.cargo);
   const experienceYears = useRegisterStore((state) => state.experienceYears);
@@ -121,6 +122,12 @@ export default function Profile1() {
   const setLatitude = useRegisterStore((state) => state.setLatitude);
   const setLongitude = useRegisterStore((state) => state.setLongitude);
   const setRaioAtuacaoKm = useRegisterStore((state) => state.setRaioAtuacaoKm);
+
+  useEffect(() => {
+    if (!cargo && profession?.label) {
+      setCargo(profession.label);
+    }
+  }, []);
 
   const handlePickPhoto = () => {
     showPickOptions((uri) => {

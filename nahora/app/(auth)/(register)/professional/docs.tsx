@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Alert } from "react-native";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -77,9 +77,19 @@ function showPickOptions(onSelect: (uri: string) => void) {
 
 export default function Docs() {
   const router = useRouter();
+  const professionalOnboarding = useAuthStore(
+    (state) => state.professionalOnboarding,
+  );
   const setProfessionalOnboarding = useAuthStore(
     (state) => state.setProfessionalOnboarding,
   );
+
+  useEffect(() => {
+    if (professionalOnboarding === "perfil") {
+      router.replace("/(auth)/(register)/professional/profile-1");
+    }
+  }, [professionalOnboarding, router]);
+
   const rgFrontUri = useRegisterStore((state) => state.rgFrontUri);
   const rgBackUri = useRegisterStore((state) => state.rgBackUri);
   const selfieUri = useRegisterStore((state) => state.selfieUri);
