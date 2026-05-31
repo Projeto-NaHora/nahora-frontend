@@ -6,7 +6,10 @@ import { authService } from '@/features/auth/service';
 import { Alert } from 'react-native';
 
 jest.mock('@/features/auth/service', () => ({
-  authService: { registerClient: jest.fn() },
+  authService: {
+    registerClient: jest.fn(),
+    cadastroSenha: jest.fn(),
+  },
 }));
 
 jest.mock('@/utils/apiError', () => ({
@@ -42,6 +45,11 @@ describe('useRegisterPassword', () => {
   });
 
   test('calls onProfessional when role is PROFISSIONAL', async () => {
+    (authService.cadastroSenha as jest.Mock).mockResolvedValue({
+      accessToken: 'test-access',
+      refreshToken: 'test-refresh',
+      tipoUsuario: 'PROFISSIONAL',
+    });
     useRegisterStore.setState({ role: 'PROFISSIONAL' });
 
     const { result } = renderHook(() =>

@@ -23,6 +23,9 @@ import {
   useIsFavorited,
   useToggleFavorite,
 } from "@/features/profile/hooks/useFavorites";
+import { FavoriteButton } from "@/features/favorites/components/FavoriteButton";
+import { useFavoriteStatus } from "@/features/favorites/hooks/useFavoriteStatus";
+import { Snackbar } from "@/components/ui/Snackbar";
 
 const AVATAR_SIZE = 96;
 const STAR_SIZE = 20;
@@ -34,9 +37,19 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 
 export default function ProfessionalProfileScreen() {
   const { id } = useLocalSearchParams();
+  const profissionalId = Number(id);
   const router = useRouter();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
+
+  // Favoritos
+  const {
+    isFavorite,
+    isLoading: isFavoriteLoading,
+    toggle,
+    snackbar,
+    dismissSnackbar,
+  } = useFavoriteStatus(profissionalId);
 
   // Função segura para voltar
   const handleGoBack = () => {
@@ -412,6 +425,14 @@ export default function ProfessionalProfileScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* Snackbar para feedback de favoritar/desfavoritar */}
+      <Snackbar
+        visible={snackbar.visible}
+        message={snackbar.message}
+        isError={snackbar.isError}
+        onDismiss={dismissSnackbar}
+      />
     </SafeAreaView>
   );
 }
@@ -565,15 +586,6 @@ const styles = StyleSheet.create({
     color: ORANGE,
     fontWeight: "700",
     fontSize: 15,
-  },
-  actionMore: {
-    width: 48,
-    borderWidth: 1,
-    borderColor: GRAY,
-    backgroundColor: "#FFF",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
   },
   statsRow: {
     flexDirection: "row",

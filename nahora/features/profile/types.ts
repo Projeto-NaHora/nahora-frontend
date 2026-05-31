@@ -1,5 +1,58 @@
 // features/profile/types.ts
 
+import type { StatusVerificacao } from "@/types/enums";
+
+/** GET /api/v1/profissionais/perfil */
+export interface PerfilProfissionalDTO {
+  id: number;
+  nome: string;
+  foto?: string;
+  profissao?: string;
+  cep?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+  bio?: string;
+  categorias?: string[];
+  especialidades?: string[];
+  anosExperiencia?: number;
+  raioAtuacaoKm?: number;
+  notaMedia?: number;
+  totalAvaliacoes?: number;
+  totalServicosExecutados?: number;
+  portfolio?: string[];
+  disponivel?: boolean;
+  statusVerificacao?: StatusVerificacao;
+}
+
+/** PUT /api/v1/profissionais/perfil */
+export interface ProfissionalPerfilRequest {
+  nome?: string;
+  email?: string;
+  cpf?: string;
+  celular?: string;
+  fotoPerfil?: string;
+  profissao?: string;
+  cep?: string;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  cidade?: string;
+  estado?: string;
+  anosExperiencia?: number;
+  bio?: string;
+  especialidades?: string[];
+  categorias?: string[];
+  raioAtuacaoKm?: number;
+  latitude?: number;
+  longitude?: number;
+  urlsFotosPortfolio?: string[];
+}
+
 export interface ProfileStats {
   servicesCount: number;
   rating: number;
@@ -28,7 +81,7 @@ export interface ProfessionalProfileResponse {
   fotoUrl?: string;
   especialidades?: string[];
   anosExperiencia?: number;
-  statusVerificacao?: string;
+  statusVerificacao?: StatusVerificacao;
 }
 
 /** Profissional favorito retornado por GET /clientes/me/favoritos */
@@ -42,3 +95,4 @@ export interface FavoriteProfessional {
   totalAvaliacoes?: number;
   fotoUrl?: string;
 }
+  

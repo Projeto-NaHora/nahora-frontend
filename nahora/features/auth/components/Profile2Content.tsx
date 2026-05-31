@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+
 import { ProfileStepIndicator } from "./ProfileStepIndicator";
 
 type Profile2ContentProps = {
@@ -24,7 +24,7 @@ export function Profile2Content({
   onBack,
   onContinue,
 }: Profile2ContentProps) {
-  const theme = useColorScheme() ?? "light";
+  const theme = "light";
   const colors = Colors[theme];
 
   const [tagInput, setTagInput] = useState("");
@@ -42,7 +42,7 @@ export function Profile2Content({
   const isValid = isAboutValid && hasEspecialidades;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: "#ffffff" }]}>
       {/* Step Indicator */}
       <ProfileStepIndicator currentStep={2} />
 

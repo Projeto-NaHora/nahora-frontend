@@ -106,6 +106,33 @@ export type UploadDocumentoResponse = {
 
 export type DocumentoTipo = "RG_FRENTE" | "RG_VERSO" | "SELFIE";
 
+export type CadastroEmailPayload = {
+  telefone: string;
+  email: string;
+};
+
+export type CadastroNomePayload = {
+  telefone: string;
+  nome: string;
+  sobrenome: string;
+};
+
+export type CadastroSenhaPayload = {
+  telefone: string;
+  senha: string;
+  confirmacaoSenha: string;
+};
+
+export type DefinirCategoriaPayload = {
+  categoria: string;
+};
+
+export type EnviarDocumentosPayload = {
+  rgFrente: string;
+  rgVerso: string;
+  selfieComDocumento: string;
+};
+
 export interface AuthUser {
   id: number;
   nome: string;

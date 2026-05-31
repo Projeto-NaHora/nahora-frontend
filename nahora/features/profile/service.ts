@@ -5,12 +5,51 @@ import type {
   FavoriteProfessional,
   ProfessionalProfileResponse,
 } from "./types";
+import type { PerfilProfissionalDTO, ProfissionalPerfilRequest } from "./types";
+
+const isRemoteUrl = (uri: string) => uri.startsWith("http");
 
 export const profileService = {
-  /** Busca os dados do perfil do profissional logado */
-  buscarPerfilProfissional: async (): Promise<ProfessionalProfileResponse> => {
-    const { data } = await api.get<ProfessionalProfileResponse>(
-      ENDPOINTS.PERFIL_PROFISSIONAL,
+  buscarPerfilParaEdicao: async (): Promise<PerfilProfissionalDTO> => {
+    const { data } = await api.get<PerfilProfissionalDTO>(
+      ENDPOINTS.COMPLETAR_PERFIL,
+    );
+    return data;
+  },
+
+  uploadFoto: async (uri: string, tipo?: string): Promise<string> => {
+    const formData = new FormData();
+    const fileName = tipo ? `${tipo.toLowerCase()}.jpg` : "foto.jpg";
+    formData.append("file", {
+      uri,
+      type: "image/jpeg",
+      name: fileName,
+    } as any);
+    if (tipo) {
+      formData.append("tipo", tipo);
+    }
+    const { data } = await api.post<{ url: string }>(
+      ENDPOINTS.UPLOAD_DOCUMENTO,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" }, timeout: 60000 },
+    );
+    return data.url;
+  },
+
+  salvarPerfil: async (
+    payload: ProfissionalPerfilRequest,
+  ): Promise<PerfilProfissionalDTO> => {
+    const { data } = await api.put<PerfilProfissionalDTO>(
+      ENDPOINTS.COMPLETAR_PERFIL,
+      payload,
+    );
+    return data;
+  },
+
+  /** @deprecated Use buscarPerfilParaEdicao */
+  buscarPerfilProfissional: async (): Promise<PerfilProfissionalDTO> => {
+    const { data } = await api.get<PerfilProfissionalDTO>(
+      ENDPOINTS.COMPLETAR_PERFIL,
     );
     return data;
   },
