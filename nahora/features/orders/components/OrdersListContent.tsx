@@ -30,7 +30,13 @@ export default function OrdersListContent() {
   });
 
   const handleOrderPress = (pedido: Pedido) => {
-    router.push(`/(client)/(orders)/${pedido.id}`);
+    if (pedido.status === "AGUARDANDO_VALIDACAO") {
+      router.push(`/(client)/(orders)/${pedido.id}/validation`);
+    } else if (pedido.status === "EM_ANDAMENTO") {
+      router.push(`/(client)/(orders)/${pedido.id}/active`);
+    } else {
+      router.push(`/(client)/(orders)/${pedido.id}`);
+    }
   };
 
   const handleNewOrder = () => {
