@@ -87,6 +87,9 @@ export const orderService = {
     return data;
   },
 
+  concluirServico: async (id: number): Promise<void> => {
+    await api.post(`${ENDPOINTS.PEDIDO(id)}/concluir`);
+  },
   /**
    * Lista pedidos disponíveis para profissionais aceitarem.
    */
