@@ -29,7 +29,7 @@ export function useCompleteProfessionalRegistration({ onSuccess }: Options) {
       if (state.profilePhotoUri) {
         const result = await authService.uploadDocumento(
           state.profilePhotoUri,
-          "FOTO_PERFIL",
+          "PERFIL",
         );
         fotoPerfil = result.url;
       }

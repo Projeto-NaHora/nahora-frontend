@@ -7,8 +7,10 @@ import type { ProfessionalOnboarding } from "@/store/authStore";
 
 const ONBOARDING_ROUTE: Record<ProfessionalOnboarding, string> = {
   identidade: "/(auth)/(register)/professional/profession",
-  aguardando: "/(auth)/(register)/professional/validation",
-  perfil: "/(auth)/(register)/professional/profile-1",
+  aguardando: "/(onboarding)/validation",
+  perfil: "/(onboarding)/profile-1",
+  cadastro_incompleto: "/(auth)/(register)/professional/profession",
+  rejeitado: "/(auth)/(register)/professional/rejected",
 };
 
 export default function RootLayout() {
@@ -49,9 +51,24 @@ export default function RootLayout() {
       }
     } else if (user.tipo === "PROFISSIONAL") {
       if (professionalOnboarding !== null) {
-        // Professional hasn't finished registration — keep in (auth) group.
-        if (!inAuthGroup) {
-          router.replace(ONBOARDING_ROUTE[professionalOnboarding] as any);
+        // Only redirect if the current route group doesn't match the
+        // target group — this lets users navigate forward within the
+        // (onboarding) group without being bounced back to page 1.
+        const targetRoute = ONBOARDING_ROUTE[professionalOnboarding];
+        const targetGroup = targetRoute.split("/")[1];
+        const currentGroup = segments[0];
+        console.log("[AuthGuard:onboarding]", {
+          targetRoute,
+          targetGroup,
+          currentGroup,
+          match: currentGroup === targetGroup,
+          action:
+            currentGroup === targetGroup
+              ? "skip (already in group)"
+              : "redirect",
+        });
+        if (currentGroup !== targetGroup) {
+          router.replace(targetRoute as any);
         }
       } else if (!inProfGroup) {
         router.replace("/(professional)/(home)");
@@ -82,6 +99,7 @@ export default function RootLayout() {
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(client)" />
           <Stack.Screen name="(professional)" />
+          <Stack.Screen name="(onboarding)" />
         </Stack>
       </SWRConfig>
     </GestureHandlerRootView>

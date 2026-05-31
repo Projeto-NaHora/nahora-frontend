@@ -1,5 +1,7 @@
 // features/profile/types.ts
 
+import type { StatusVerificacao } from "@/types/enums";
+
 /** GET /api/v1/profissionais/perfil */
 export interface PerfilProfissionalDTO {
   id: number;
@@ -23,7 +25,7 @@ export interface PerfilProfissionalDTO {
   totalServicosExecutados?: number;
   portfolio?: string[];
   disponivel?: boolean;
-  statusVerificacao?: string;
+  statusVerificacao?: StatusVerificacao;
 }
 
 /** PUT /api/v1/profissionais/perfil */
@@ -79,5 +81,5 @@ export interface ProfessionalProfileResponse {
   fotoUrl?: string;
   especialidades?: string[];
   anosExperiencia?: number;
-  statusVerificacao?: string;
+  statusVerificacao?: StatusVerificacao;
 }

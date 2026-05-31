@@ -14,7 +14,12 @@ interface User {
 
 // Tracks which phase of professional onboarding is pending.
 // null = onboarding complete (or not a professional).
-export type ProfessionalOnboarding = "identidade" | "aguardando" | "perfil";
+export type ProfessionalOnboarding =
+  | "identidade"
+  | "aguardando"
+  | "perfil"
+  | "cadastro_incompleto"
+  | "rejeitado";
 
 interface AuthState {
   accessToken: string | null;

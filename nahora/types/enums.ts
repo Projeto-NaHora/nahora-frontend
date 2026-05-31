@@ -33,9 +33,9 @@ export type StatusPagamento =
 export type MetodoPagamento = "PIX" | "CARTAO_CREDITO";
 
 export type StatusVerificacao =
-  | "NAO_ENVIADO"
-  | "PENDENTE"
-  | "APROVADO"
+  | "CADASTRO_INCOMPLETO"
+  | "AGUARDANDO_VERIFICACAO"
+  | "VERIFICADO"
   | "REJEITADO";
 
 export type TipoNotificacao =
