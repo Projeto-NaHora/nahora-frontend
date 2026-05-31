@@ -83,3 +83,5 @@ export interface ProfessionalProfileResponse {
   anosExperiencia?: number;
   statusVerificacao?: StatusVerificacao;
 }
+
+

@@ -1,6 +1,7 @@
 // features/profile/service.ts
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
+import type { ProfessionalProfileResponse } from "./types";
 import type { PerfilProfissionalDTO, ProfissionalPerfilRequest } from "./types";
 
 const isRemoteUrl = (uri: string) => uri.startsWith("http");
@@ -49,4 +50,5 @@ export const profileService = {
     );
     return data;
   },
+
 };
