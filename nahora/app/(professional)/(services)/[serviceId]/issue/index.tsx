@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Alert } from "react-native";
+import { mutate } from "swr";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
+import { orderService } from "@/features/orders/service";
 import { OrderIssueContent } from "@/features/orders/components/OrderIssueContent";
 
 export default function ProReportarProblemaScreen() {
@@ -9,7 +11,6 @@ export default function ProReportarProblemaScreen() {
   const router = useRouter();
   const idPedido = Number(serviceId);
 
-  // Busca os dados do serviço
   const { data: pedido, isLoading } = useOrderDetail(idPedido);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -17,16 +18,30 @@ export default function ProReportarProblemaScreen() {
     setIsSubmitting(true);
 
     try {
-      setTimeout(() => {
-        setIsSubmitting(false);
-        Alert.alert(
-          "Suporte acionado",
-          "Sua solicitação foi enviada para a nossa equipe. Entraremos em contato em breve.",
-        );
-        router.back();
-      }, 1500);
+      // 1. Chama o backend
+      await orderService.reportarProblema(idPedido);
+
+      // 2. Invalida o cache para atualizar as cores e os status
+      mutate("/pedidos/meus-servicos");
+      mutate(`/pedidos/${idPedido}`);
+
+      // 3. Exibe o alerta e volta para a aba "Serviços"
+      Alert.alert(
+        "Disputa Aberta",
+        "Sua contestação foi registrada. Nossa equipe de suporte analisará a situação e entrará em contato em breve.",
+        [
+          {
+            text: "Entendi",
+            onPress: () => {
+              // Limpa o histórico dessa tela e joga de volta pra lista raiz
+              router.dismissAll();
+              router.replace("/(professional)/(services)");
+            },
+          },
+        ],
+      );
     } catch (err) {
-      Alert.alert("Erro", "Não foi possível enviar o relato.");
+      Alert.alert("Erro", "Não foi possível abrir a disputa. Tente novamente.");
       setIsSubmitting(false);
     }
   };

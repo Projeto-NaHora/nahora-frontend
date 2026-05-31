@@ -22,6 +22,7 @@ export const ENDPOINTS = {
   MEUS_PEDIDOS: "/pedidos/meus",
   PEDIDOS_DISPONIVEIS: "/pedidos/disponiveis",
   PEDIDO_PUBLICO: (id: number) => `/pedidos/${id}/public`,
+  MEUS_SERVICOS: "/pedidos/meus-servicos",
 
   // Propostas
   PROPOSTAS: (pedidoId: number) => `/pedidos/${pedidoId}/propostas`,

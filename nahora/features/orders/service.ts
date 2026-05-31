@@ -111,6 +111,15 @@ export const orderService = {
     return data;
   },
 
+  listarMeusServicos: async (page = 0, size = 20, status?: string) => {
+    const params: Record<string, string | number> = { page, size };
+    if (status) params.status = status;
+    const { data } = await api.get("/pedidos/meus-servicos", {
+      params,
+    });
+    return data;
+  },
+
   /**
    * Busca detalhes públicos de um pedido (sem autenticação).
    */

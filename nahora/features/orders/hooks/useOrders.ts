@@ -30,14 +30,20 @@ export const useAvailableOrders = () => {
   });
 };
 
-/*
 export const useProOrders = () => {
-  return useSWR({
-    queryKey: ["pedidos", "meus-servicos"],
-    queryFn: () => orderService.listarMeusServicos(),
-  });
+  // No SWR, passamos a chave (pode ser a rota) e o fetcher (a função que chama a API)
+  const { data, error, mutate, isValidating } = useSWR(
+    "/pedidos/meus-servicos",
+    () => orderService.listarMeusServicos(),
+  );
+
+  return {
+    data,
+    isLoading: !data && !error, // Se não tem dados e não tem erro, está carregando
+    isError: error,
+    mutate,
+  };
 };
-*/
 
 export function useOrderDetail(id: number) {
   return useSWR(id ? `order-${id}` : null, () => orderService.buscarPorId(id));

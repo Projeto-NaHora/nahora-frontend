@@ -41,8 +41,30 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
     );
   }
 
+  // Lógica para textos e cores dinâmicas baseadas no status
+  const status = pedido?.status;
+  const isAguardando = status === "AGUARDANDO_VALIDACAO";
+  const isConcluido = status === "CONCLUIDO";
+  const isEmDisputa = status === "EM_DISPUTA";
+  const isEmAndamento = status === "EM_ANDAMENTO";
+
+  const getStatusDisplay = () => {
+    if (isEmAndamento)
+      return { text: "EM ANDAMENTO", color: "#417BE0", bg: "#E6F0FF" };
+    if (isAguardando)
+      return { text: "AGUARDANDO CLIENTE", color: "#D97706", bg: "#FEF3C7" };
+    if (isConcluido)
+      return { text: "CONCLUÍDO", color: "#10B981", bg: "#D1FAE5" };
+    if (isEmDisputa)
+      return { text: "EM DISPUTA", color: "#DC2626", bg: "#FEE2E2" };
+    return { text: status || "SERVIÇO", color: "#6B7280", bg: "#F3F4F6" };
+  };
+
+  const badgeInfo = getStatusDisplay();
   const categoriaFormatada =
     CATEGORIA_LABEL[pedido?.categoria] || pedido?.categoria || "Serviço";
+
+  // Data e Endereço
   const dataFormatada = pedido?.dataDesejada
     ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
     : "A combinar";
@@ -74,8 +96,10 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
       >
         <View style={styles.titleRow}>
           <Text style={styles.serviceTitle}>{categoriaFormatada}</Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>Em andamento</Text>
+          <View style={[styles.badge, { backgroundColor: badgeInfo.bg }]}>
+            <Text style={[styles.badgeText, { color: badgeInfo.color }]}>
+              {badgeInfo.text}
+            </Text>
           </View>
         </View>
 
@@ -104,7 +128,7 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
           <Text style={styles.descriptionText}>{pedido?.descricao}</Text>
         </View>
 
-        {/* Timeline */}
+        {/* Timeline Dinâmica */}
         <View style={styles.timelineContainer}>
           <Text style={styles.sectionTitle}>Linha do tempo</Text>
 
@@ -125,20 +149,60 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
           </View>
 
           <View style={styles.timelineItem}>
-            <View style={[styles.timelineDot, styles.dotOrange]} />
-            <View style={styles.timelineLineInactive} />
+            <View
+              style={[
+                styles.timelineDot,
+                isAguardando || isConcluido
+                  ? styles.dotGreen
+                  : styles.dotOrange,
+              ]}
+            />
+            <View
+              style={[
+                isAguardando || isConcluido
+                  ? styles.timelineLineActive
+                  : styles.timelineLineInactive,
+              ]}
+            />
             <View style={styles.timelineTextContainer}>
-              <Text style={[styles.timelineTitle, { color: "#F97316" }]}>
+              <Text
+                style={[
+                  styles.timelineTitle,
+                  {
+                    color: isAguardando || isConcluido ? "#111827" : "#F97316",
+                  },
+                ]}
+              >
                 Serviço em andamento
               </Text>
             </View>
           </View>
 
           <View style={styles.timelineItem}>
-            <View style={[styles.timelineDot, styles.dotGray]} />
+            <View
+              style={[
+                styles.timelineDot,
+                isConcluido
+                  ? styles.dotGreen
+                  : isAguardando
+                    ? styles.dotOrange
+                    : styles.dotGray,
+              ]}
+            />
             <View style={styles.timelineTextContainer}>
-              <Text style={[styles.timelineTitle, { color: "#9CA3AF" }]}>
-                Concluído
+              <Text
+                style={[
+                  styles.timelineTitle,
+                  {
+                    color: isConcluido
+                      ? "#111827"
+                      : isAguardando
+                        ? "#F97316"
+                        : "#9CA3AF",
+                  },
+                ]}
+              >
+                {isAguardando ? "Aguardando aprovação do cliente" : "Concluído"}
               </Text>
             </View>
           </View>
@@ -146,25 +210,31 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
 
         {/* Footer Actions */}
         <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={onIssue}
-            disabled={isFinishing}
-          >
-            <Text style={styles.secondaryButtonText}>Tive um problema</Text>
-          </TouchableOpacity>
+          {/* Se o pedido já estiver concluído, não mostramos os botões de ação */}
+          {!isConcluido && (
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={onIssue}
+              disabled={isFinishing}
+            >
+              <Text style={styles.secondaryButtonText}>Tive um problema</Text>
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity
-            style={[styles.primaryButton, isFinishing && { opacity: 0.7 }]}
-            onPress={onFinish}
-            disabled={isFinishing}
-          >
-            {isFinishing ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.primaryButtonText}>Finalizar serviço</Text>
-            )}
-          </TouchableOpacity>
+          {/* O botão "Finalizar serviço" só aparece se estiver de fato em andamento */}
+          {isEmAndamento && (
+            <TouchableOpacity
+              style={[styles.primaryButton, isFinishing && { opacity: 0.7 }]}
+              onPress={onFinish}
+              disabled={isFinishing}
+            >
+              {isFinishing ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.primaryButtonText}>Finalizar serviço</Text>
+              )}
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -203,14 +273,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 24,
   },
-  serviceTitle: { fontSize: 24, fontWeight: "700", color: "#111827", flex: 1 },
-  badge: {
-    backgroundColor: "#E6F0FF",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+  serviceTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#111827",
+    flex: 1,
+    marginRight: 8,
   },
-  badgeText: { color: "#417BE0", fontSize: 12, fontWeight: "600" },
+  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  badgeText: { fontSize: 10, fontWeight: "700", letterSpacing: 0.5 },
   card: {
     borderWidth: 1,
     borderColor: "#F3F4F6",
@@ -272,7 +343,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   timelineTextContainer: { marginLeft: 16, flex: 1 },
-  timelineTitle: { fontSize: 15, fontWeight: "600", color: "#111827" },
+  timelineTitle: { fontSize: 15, fontWeight: "600" },
   footer: { marginTop: 24, gap: 12 },
   primaryButton: {
     backgroundColor: "#F26F21",

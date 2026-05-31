@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Alert } from "react-native";
+import { mutate } from "swr";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import { orderService } from "@/features/orders/service";
@@ -24,11 +25,13 @@ export default function ProActiveOrderScreen() {
           onPress: async () => {
             setIsFinishing(true);
             try {
-              // Chama o Spring Boot para mudar o status
               await orderService.concluirServico(pedidoId);
 
-              // Navega para a tela de sucesso
-              router.push(`/(professional)/(orders)/${pedidoId}/success`);
+              mutate("/pedidos/meus-servicos");
+
+              mutate(`/pedidos/${pedidoId}`);
+
+              router.replace(`/(professional)/(services)/${pedidoId}/success`);
             } catch (err) {
               Alert.alert(
                 "Erro",
@@ -43,7 +46,6 @@ export default function ProActiveOrderScreen() {
   };
 
   const handleIssue = () => {
-    // Corrigido para apontar para a pasta de (services) e usar o serviceId
     router.push(`/(professional)/(services)/${serviceId}/issue`);
   };
 
