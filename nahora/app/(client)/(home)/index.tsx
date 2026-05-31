@@ -44,13 +44,16 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      edges={["top"]}
+      style={[styles.container, { backgroundColor: colors.brand }]}
+    >
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Laranja */}
+        {/* Header Laranja (orange, sits on top of brand bg) */}
         <View style={[styles.header, { backgroundColor: colors.brand }]}>
           <Text style={[styles.greetingText, { color: colors.onBrand }]}>
             Olá, {user?.nome?.split(" ")[0] || "Usuário"} 👋
@@ -69,87 +72,99 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Categorias</Text>
-            <TouchableOpacity
-              onPress={() => router.push("/(client)/(home)/categories")}
-            >
-              <Text style={[styles.seeAllText, { color: colors.link }]}>Ver todas</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.categoriesGrid}>
-            {homeCategories.map((cat) => (
+        {/* White-background sections below the header */}
+        <View style={{ backgroundColor: colors.background }}>
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }, {paddingTop: 20}]}>Categorias</Text>
               <TouchableOpacity
-                key={cat.id}
-                style={styles.categoryItem}
-                onPress={() =>
-                  router.push({
-                    pathname: "/(client)/(home)/category/[id]",
-                    params: {
-                      id: cat.name,
-                      icon: cat.icon,
-                      categoriaId: cat.id,
-                    },
-                  })
-                }
+                onPress={() => router.push("/(client)/(home)/categories")}
               >
-                <View style={[styles.categoryIconBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
-                  <MaterialCommunityIcons
-                    name={cat.icon as any}
-                    size={28}
-                    color={colors.icon}
-                  />
-                </View>
-                <Text style={[styles.categoryText, { color: colors.textSecondary }]}>{cat.name}</Text>
+                <Text style={[styles.seeAllText, { color: colors.link }]}>Ver todas</Text>
               </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+            </View>
 
-        {/* Sugeridos para você */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Sugeridos para você</Text>
-            <TouchableOpacity>
-              <Text style={[styles.seeAllText, { color: colors.link }]}>Ver mais</Text>
-            </TouchableOpacity>
+            <View style={styles.categoriesGrid}>
+              {homeCategories.map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={styles.categoryItem}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(client)/(home)/category/[id]",
+                      params: {
+                        id: cat.name,
+                        icon: cat.icon,
+                        categoriaId: cat.id,
+                      },
+                    })
+                  }
+                >
+                  <View style={[styles.categoryIconBox, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                    <MaterialCommunityIcons
+                      name={cat.icon as any}
+                      size={28}
+                      color={colors.icon}
+                    />
+                  </View>
+                  <Text style={[styles.categoryText, { color: colors.textSecondary }]}>{cat.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalScrollContent}
-          >
-            {suggestedProfessionals.length === 0 ? (
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                Nenhum profissional sugerido.
-              </Text>
+          {/* Sugeridos para você */}
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Sugeridos para você</Text>
+              <TouchableOpacity>
+                <Text style={[styles.seeAllText, { color: colors.link }]}>Ver mais</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScrollContent}
+            >
+              {suggestedProfessionals.length === 0 ? (
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                  Nenhum profissional sugerido.
+                </Text>
+              ) : (
+                suggestedProfessionals.map((prof) => (
+                  <ProfessionalCard
+                    key={prof.id}
+                    professional={prof}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/(client)/(home)/professional/[id]",
+                        params: { id: prof.id },
+                      })
+                    }
+                  />
+                ))
+              )}
+            </ScrollView>
+          </View>
+
+          {/* Meus pedidos recentes */}
+          <View style={[styles.sectionContainerRecent, { paddingBottom: 40 }]}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Meus pedidos recentes</Text>
+              <TouchableOpacity>
+                <Text style={[styles.seeAllText, { color: colors.link }]}>Ver todos</Text>
+              </TouchableOpacity>
+            </View>
+
+            {recentOrders.length === 0 ? (
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Nenhum pedido recente.</Text>
             ) : (
-              suggestedProfessionals.map((prof) => (
-                <ProfessionalCard key={prof.id} professional={prof} />
+              recentOrders.map((order) => (
+                <OrderCard key={order.id} order={order} />
               ))
             )}
-          </ScrollView>
-        </View>
-
-        {/* Meus pedidos recentes */}
-        <View style={styles.sectionContainerRecent}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Meus pedidos recentes</Text>
-            <TouchableOpacity>
-              <Text style={[styles.seeAllText, { color: colors.link }]}>Ver todos</Text>
-            </TouchableOpacity>
           </View>
-
-          {recentOrders.length === 0 ? (
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>Nenhum pedido recente.</Text>
-          ) : (
-            recentOrders.map((order) => (
-              <OrderCard key={order.id} order={order} />
-            ))
-          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -167,7 +182,7 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    marginBottom: 24,
+    marginBottom: 40,
   },
   greetingText: { color: "#FFFFFF", fontSize: 16, marginBottom: 4 },
   mainTitle: {
@@ -190,8 +205,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   searchPlaceholder: { marginLeft: 8, color: "#9CA3AF", fontSize: 16 },
-  sectionContainer: { marginBottom: 24 },
-  sectionContainerRecent: { marginBottom: 8, paddingHorizontal: 24 },
+  sectionContainer: { marginBottom: 40 },
+  sectionContainerRecent: { marginBottom: 8 },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -224,6 +239,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   categoryText: { fontSize: 12, color: "#4B5563", textAlign: "center" },
-  horizontalScrollContent: { paddingHorizontal: 20 },
+  horizontalScrollContent: { paddingHorizontal: 20, paddingBottom: 20 },
   emptyText: { color: "#9CA3AF", paddingHorizontal: 24 },
 });
