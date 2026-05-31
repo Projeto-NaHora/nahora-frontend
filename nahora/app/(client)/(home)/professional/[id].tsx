@@ -19,11 +19,6 @@ import {
   FontAwesome,
 } from "@expo/vector-icons";
 import { api } from "@/services/api/client";
-import {
-  useIsFavorited,
-  useToggleFavorite,
-} from "@/features/profile/hooks/useFavorites";
-import { FavoriteButton } from "@/features/favorites/components/FavoriteButton";
 import { useFavoriteStatus } from "@/features/favorites/hooks/useFavoriteStatus";
 import { Snackbar } from "@/components/ui/Snackbar";
 
@@ -65,11 +60,6 @@ export default function ProfessionalProfileScreen() {
   const [profileData, setProfileData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [favToggling, setFavToggling] = useState(false);
-
-  // Favorito — compartilhado com a tela (favs) via SWR
-  const professionalId = id ? Number(id) : undefined;
-  const isFavorited = useIsFavorited(professionalId);
-  const { toggle } = useToggleFavorite();
 
   // Busca os dados do profissional assim que a tela abre
   useEffect(() => {
@@ -205,9 +195,9 @@ export default function ProfessionalProfileScreen() {
         {/* Favoritar no header (Figma: top-right circular) */}
         <TouchableOpacity
           onPress={async () => {
-            if (!professionalId) return;
+            if (!profissionalId) return;
             setFavToggling(true);
-            await toggle(professionalId, isFavorited);
+            await toggle();
             setFavToggling(false);
           }}
           disabled={favToggling}
@@ -215,9 +205,9 @@ export default function ProfessionalProfileScreen() {
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         >
           <FontAwesome
-            name={isFavorited ? "heart" : "heart-o"}
+            name={isFavorite ? "heart" : "heart-o"}
             size={22}
-            color={isFavorited ? "#f26f21" : colors.textPrimary}
+            color={isFavorite ? "#f26f21" : colors.textPrimary}
           />
         </TouchableOpacity>
       </View>
@@ -311,16 +301,16 @@ export default function ProfessionalProfileScreen() {
             ]}
             disabled={favToggling}
             onPress={async () => {
-              if (!professionalId) return;
+              if (!profissionalId) return;
               setFavToggling(true);
-              await toggle(professionalId, isFavorited);
+              await toggle();
               setFavToggling(false);
             }}
           >
             <FontAwesome
-              name={isFavorited ? "heart" : "heart-o"}
+              name={isFavorite ? "heart" : "heart-o"}
               size={20}
-              color={isFavorited ? "#f26f21" : colors.textPrimary}
+              color={isFavorite ? "#f26f21" : colors.textPrimary}
             />
           </TouchableOpacity>
 

@@ -84,15 +84,4 @@ export interface ProfessionalProfileResponse {
   statusVerificacao?: StatusVerificacao;
 }
 
-/** Profissional favorito retornado por GET /clientes/me/favoritos */
-export interface FavoriteProfessional {
-  id: number;
-  nome: string;
-  categoriaServico: string;
-  cidade?: string;
-  estado?: string;
-  mediaAvaliacao?: number;
-  totalAvaliacoes?: number;
-  fotoUrl?: string;
-}
-  
+
