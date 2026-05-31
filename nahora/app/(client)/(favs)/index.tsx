@@ -11,26 +11,29 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
-import {
-  useFavorites,
-  useToggleFavorite,
-} from "@/features/profile/hooks/useFavorites";
-import { FavoriteCard } from "@/features/profile/components/FavoriteCard";
-import type { FavoriteProfessional } from "@/features/profile/types";
+import { useFavoritesList } from "@/features/favorites/hooks/useFavoritesList";
+import { FavoriteCard } from "@/features/favorites/components/FavoriteCard";
+import { favoritesService } from "@/features/favorites/service";
+import type { FavoritoResponseDTO } from "@/features/favorites/types";
 
 export default function FavoritesScreen() {
   const router = useRouter();
-  const { data, isLoading, error } = useFavorites();
-  const { toggle } = useToggleFavorite();
+  const { favorites, totalElements, isLoading, error, mutate } =
+    useFavoritesList();
 
-  const favorites: FavoriteProfessional[] = data ?? [];
-
-  const handleToggleFavorite = async (professional: FavoriteProfessional) => {
-    await toggle(professional.id, true);
+  const handleToggleFavorite = async (professional: FavoritoResponseDTO) => {
+    try {
+      await favoritesService.desfavoritar(professional.profissionalId);
+      mutate(); // revalida
+    } catch {
+      // erro silencioso — o SWR vai revalidar na próxima montagem
+    }
   };
 
-  const handlePressProfessional = (professional: FavoriteProfessional) => {
-    router.push(`/(client)/(home)/professional/${professional.id}`);
+  const handlePressProfessional = (professional: FavoritoResponseDTO) => {
+    router.push(
+      `/(client)/(home)/professional/${professional.profissionalId}`,
+    );
   };
 
   return (
@@ -65,7 +68,7 @@ export default function FavoritesScreen() {
       ) : (
         <FlatList
           data={favorites}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.profissionalId.toString()}
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={
             <View style={styles.sectionHeader}>
@@ -110,7 +113,6 @@ const styles = StyleSheet.create({
     paddingTop: 64,
     paddingBottom: 24,
     paddingHorizontal: 32,
-    gap: 96.5,
   },
   backButton: {
     width: 44,
