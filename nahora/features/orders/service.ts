@@ -1,8 +1,16 @@
 // features/orders/service.ts
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
-import type { Pedido, PedidoPublicoResponse, CriarPedidoPayload, Page } from "./types";
-import type { PedidoResumoResponse, PedidoFiltroParams } from "@/features/professional/types";
+import type {
+  Pedido,
+  PedidoPublicoResponse,
+  CriarPedidoPayload,
+  Page,
+} from "./types";
+import type {
+  PedidoResumoResponse,
+  PedidoFiltroParams,
+} from "@/features/professional/types";
 
 /** Helper para extrair o tipo MIME a partir da extensão do arquivo */
 function mimeTypeFromUri(uri: string): string {
@@ -59,14 +67,29 @@ export const orderService = {
     await api.delete(ENDPOINTS.PEDIDO(id));
   },
 
+  /* Todo: Atualizar com o endpoint correto do backend */
+  confirmarConclusao: async (id: number): Promise<void> => {
+    await api.post(`${ENDPOINTS.PEDIDO(id)}/confirmar-conclusao`);
+  },
+
+  reportarProblema: async (id: number): Promise<void> => {
+    await api.post(`${ENDPOINTS.PEDIDO(id)}/reportar-problema`);
+  },
+
   /**
    * Atualiza um pedido aberto (PUT /pedidos/{pedidoId}).
    */
-  atualizar: async (id: number, payload: CriarPedidoPayload): Promise<Pedido> => {
+  atualizar: async (
+    id: number,
+    payload: CriarPedidoPayload,
+  ): Promise<Pedido> => {
     const { data } = await api.put<Pedido>(ENDPOINTS.PEDIDO(id), payload);
     return data;
   },
 
+  concluirServico: async (id: number): Promise<void> => {
+    await api.post(`${ENDPOINTS.PEDIDO(id)}/concluir`);
+  },
   /**
    * Lista pedidos disponíveis para profissionais aceitarem.
    */
@@ -76,8 +99,10 @@ export const orderService = {
     filtro?: PedidoFiltroParams,
   ): Promise<Page<PedidoResumoResponse>> => {
     const params: Record<string, string | number | boolean> = { page, size };
-    if (filtro?.categoria && filtro.categoria !== "TODAS") params.categoria = filtro.categoria;
-    if (filtro?.urgente !== undefined && filtro.urgente !== null) params.urgente = filtro.urgente;
+    if (filtro?.categoria && filtro.categoria !== "TODAS")
+      params.categoria = filtro.categoria;
+    if (filtro?.urgente !== undefined && filtro.urgente !== null)
+      params.urgente = filtro.urgente;
     if (filtro?.sortBy) params.sortBy = filtro.sortBy;
     const { data } = await api.get<Page<PedidoResumoResponse>>(
       ENDPOINTS.PEDIDOS_DISPONIVEIS,
@@ -86,11 +111,22 @@ export const orderService = {
     return data;
   },
 
+  listarMeusServicos: async (page = 0, size = 20, status?: string) => {
+    const params: Record<string, string | number> = { page, size };
+    if (status) params.status = status;
+    const { data } = await api.get("/pedidos/meus-servicos", {
+      params,
+    });
+    return data;
+  },
+
   /**
    * Busca detalhes públicos de um pedido (sem autenticação).
    */
   buscarPedidoPublico: async (id: number): Promise<PedidoPublicoResponse> => {
-    const { data } = await api.get<PedidoPublicoResponse>(ENDPOINTS.PEDIDO_PUBLICO(id));
+    const { data } = await api.get<PedidoPublicoResponse>(
+      ENDPOINTS.PEDIDO_PUBLICO(id),
+    );
     return data;
   },
 

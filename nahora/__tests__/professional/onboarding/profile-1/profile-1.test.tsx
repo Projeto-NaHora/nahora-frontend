@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@tests/test-utils';
-import Profile1 from '@/app/(auth)/(register)/professional/profile-1';
+import Profile1 from '@/app/(onboarding)/profile-1';
 import { useRegisterStore } from '@/store/registerStore';
 
 jest.mock('@/hooks/use-color-scheme', () => ({
@@ -25,7 +25,7 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush }),
 }));
 
-describe('Profile1Screen', () => {
+describe('OnboardingProfile1Screen', () => {
   beforeEach(() => {
     useRegisterStore.setState({
       cpf: '',

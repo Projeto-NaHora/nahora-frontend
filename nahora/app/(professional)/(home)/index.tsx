@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
-import { View, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -21,11 +22,14 @@ export default function Screen() {
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      edges={["top"]}
+      style={[styles.container, { backgroundColor: colors.brand }]}
+    >
       <ProfessionalHeader />
       <StatsCards />
       <AvailableOrdersList onPressPedido={handlePressPedido} />
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -2,9 +2,19 @@ import { renderHook, act } from '@tests/test-utils';
 import { useLogin } from '@/features/auth/hooks/useLogin';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/features/auth/service';
+import { profileService } from '@/features/profile/service';
 
 jest.mock('@/features/auth/service', () => ({
-  authService: { login: jest.fn() },
+  authService: {
+    login: jest.fn(),
+    buscarStatusVerificacao: jest.fn(),
+  },
+}));
+
+jest.mock('@/features/profile/service', () => ({
+  profileService: {
+    buscarPerfilParaEdicao: jest.fn(),
+  },
 }));
 
 jest.mock('@/utils/apiError', () => ({
@@ -17,13 +27,46 @@ jest.mock('@/utils/apiError', () => ({
 }));
 
 jest.mock('@/utils/jwt', () => ({
-  decodeJwtPayload: jest.fn(() => ({ id: 1, nome: 'João', tipo: 'CLIENTE' })),
+  decodeJwtPayload: jest.fn(() => ({ id: 1, nome: 'João', tipo: 'PROFISSIONAL' })),
 }));
+
+const mockLoginResponse = {
+  accessToken: 'test-access',
+  refreshToken: 'test-refresh',
+  tipoUsuario: 'PROFISSIONAL',
+};
+
+const setupLoginMocks = (status: string, hasAddress = true) => {
+  (authService.login as jest.Mock).mockResolvedValue(mockLoginResponse);
+  (profileService.buscarPerfilParaEdicao as jest.Mock).mockResolvedValue({
+    statusVerificacao: status,
+    logradouro: hasAddress ? 'Rua Teste' : undefined,
+    numero: hasAddress ? '123' : undefined,
+    bairro: hasAddress ? 'Centro' : undefined,
+    cidade: hasAddress ? 'São Paulo' : undefined,
+    estado: hasAddress ? 'SP' : undefined,
+  });
+};
+
+const fillAndSubmit = async (result: ReturnType<typeof renderHook>['result']) => {
+  act(() => {
+    result.current.form.setValue('identificador', 'test@test.com');
+    result.current.form.setValue('password', 'password123');
+  });
+
+  await act(async () => {
+    await result.current.onSubmit();
+  });
+};
 
 describe('useLogin', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    useAuthStore.setState({ accessToken: null, user: null });
+    useAuthStore.setState({
+      accessToken: null,
+      user: null,
+      professionalOnboarding: null,
+    });
   });
 
   test('returns form with default empty values', () => {
@@ -39,33 +82,90 @@ describe('useLogin', () => {
     expect(result.current.isSubmitting).toBe(false);
   });
 
-  test('errorMessage is null initially', () => {
-    const { result } = renderHook(() => useLogin());
-    expect(result.current.errorMessage).toBeNull();
-  });
-
   test('calls authService.login on submit', async () => {
-    const mockResponse = {
-      accessToken: 'test-access',
-      refreshToken: 'test-refresh',
-      tipoUsuario: 'CLIENTE' as const,
-    };
-    (authService.login as jest.Mock).mockResolvedValue(mockResponse);
-
+    setupLoginMocks('VERIFICADO');
     const { result } = renderHook(() => useLogin());
-
-    act(() => {
-      result.current.form.setValue('identificador', 'test@test.com');
-      result.current.form.setValue('password', 'password123');
-    });
-
-    await act(async () => {
-      await result.current.onSubmit();
-    });
+    await fillAndSubmit(result);
 
     expect(authService.login).toHaveBeenCalledWith({
       identificador: 'test@test.com',
       senha: 'password123',
     });
+  });
+
+  test('calls buscarPerfilParaEdicao after successful login', async () => {
+    setupLoginMocks('VERIFICADO');
+    const { result } = renderHook(() => useLogin());
+    await fillAndSubmit(result);
+
+    expect(profileService.buscarPerfilParaEdicao).toHaveBeenCalledTimes(1);
+  });
+
+  test('sets isSubmitting back to false after completion', async () => {
+    setupLoginMocks('VERIFICADO');
+    const { result } = renderHook(() => useLogin());
+    await fillAndSubmit(result);
+
+    expect(result.current.isSubmitting).toBe(false);
+  });
+
+  describe('status → onboarding phase mapping', () => {
+    test('CADASTRO_INCOMPLETO → cadastro_incompleto', async () => {
+      setupLoginMocks('CADASTRO_INCOMPLETO');
+      const { result } = renderHook(() => useLogin());
+      await fillAndSubmit(result);
+      expect(useAuthStore.getState().professionalOnboarding).toBe('cadastro_incompleto');
+    });
+
+    test('AGUARDANDO_VERIFICACAO → aguardando', async () => {
+      setupLoginMocks('AGUARDANDO_VERIFICACAO');
+      const { result } = renderHook(() => useLogin());
+      await fillAndSubmit(result);
+      expect(useAuthStore.getState().professionalOnboarding).toBe('aguardando');
+    });
+
+    test('VERIFICADO + no address → perfil (needs profile completion)', async () => {
+      setupLoginMocks('VERIFICADO', false);
+      const { result } = renderHook(() => useLogin());
+      await fillAndSubmit(result);
+      expect(useAuthStore.getState().professionalOnboarding).toBe('perfil');
+    });
+
+    test('VERIFICADO + address → null (already completed)', async () => {
+      setupLoginMocks('VERIFICADO', true);
+      const { result } = renderHook(() => useLogin());
+      await fillAndSubmit(result);
+      expect(useAuthStore.getState().professionalOnboarding).toBeNull();
+    });
+
+    test('REJEITADO → rejeitado', async () => {
+      setupLoginMocks('REJEITADO');
+      const { result } = renderHook(() => useLogin());
+      await fillAndSubmit(result);
+      expect(useAuthStore.getState().professionalOnboarding).toBe('rejeitado');
+    });
+  });
+
+  test('sets error message when login fails', async () => {
+    (authService.login as jest.Mock).mockRejectedValue(new Error('Credenciais inválidas'));
+
+    const { result } = renderHook(() => useLogin());
+    await fillAndSubmit(result);
+
+    expect(result.current.errorMessage).toBeTruthy();
+    expect(result.current.isSubmitting).toBe(false);
+  });
+
+  test('sets error message when profile fetch fails', async () => {
+    (authService.login as jest.Mock).mockResolvedValue(mockLoginResponse);
+    (profileService.buscarPerfilParaEdicao as jest.Mock).mockRejectedValue(
+      new Error('Erro de rede'),
+    );
+
+    const { result } = renderHook(() => useLogin());
+    await fillAndSubmit(result);
+
+    expect(result.current.errorMessage).toBeTruthy();
+    expect(result.current.isSubmitting).toBe(false);
   });
 });

@@ -6,15 +6,18 @@ import { useRegisterEmail } from "../../../features/auth/hooks/useRegisterEmail"
 
 export default function Screen() {
   const router = useRouter();
-  const { form, onSubmit, isSubmitting } = useRegisterEmail({
-    onSuccess: () => router.push("/(auth)/(register)/password"),
-  });
+  const { form, onSubmit, isSubmitting, errorMessage, errorStatus } =
+    useRegisterEmail({
+      onSuccess: () => router.push("/(auth)/(register)/password"),
+    });
 
   return (
     <EmailContent
       control={form.control}
       isSubmitting={isSubmitting}
       onSubmit={onSubmit}
+      error={errorMessage}
+      errorStatus={errorStatus}
     />
   );
 }

@@ -1,9 +1,10 @@
 import React from "react";
 import { Alert } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, Redirect } from "expo-router";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import { orderService } from "@/features/orders/service";
 import { OrderDetailOpenContent } from "@/features/orders/components/OrderDetailOpenContent";
+import { useAvaliacao } from "@/features/ratings/hooks/useAvaliacao";
 
 export default function PedidoAbertoScreen() {
   const { orderId, acceptedProposalId } = useLocalSearchParams<{
@@ -13,6 +14,15 @@ export default function PedidoAbertoScreen() {
   const router = useRouter();
   const pedidoId = Number(orderId);
   const { data: pedido, isLoading, error } = useOrderDetail(pedidoId);
+  const { jaAvaliou } = useAvaliacao(pedidoId);
+
+  if (pedido?.status === "AGUARDANDO_VALIDACAO") {
+    return <Redirect href={`/(client)/(orders)/${orderId}/validation`} />;
+  }
+
+  if (pedido?.status === "EM_ANDAMENTO") {
+    return <Redirect href={`/(client)/(orders)/${orderId}/active`} />;
+  }
 
   const handleDelete = () => {
     Alert.alert(
@@ -42,13 +52,17 @@ export default function PedidoAbertoScreen() {
       isLoading={isLoading}
       error={error}
       onBack={() => router.back()}
-      onEdit={() =>
-        router.push(`/(client)/(orders)/new?editId=${orderId}`)
-      }
+      onEdit={() => router.push(`/(client)/(orders)/new?editId=${orderId}`)}
       onDelete={handleDelete}
       onViewProposals={() =>
         router.push(`/(client)/(orders)/${orderId}/proposals`)
       }
+      onRate={
+        pedido?.status === "CONCLUIDO" && !jaAvaliou
+          ? () => router.push(`/(client)/(orders)/${orderId}/rating`)
+          : undefined
+      }
+      rateButtonLabel="Avaliar serviço"
       acceptedProposalId={
         acceptedProposalId ? Number(acceptedProposalId) : undefined
       }

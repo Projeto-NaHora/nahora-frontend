@@ -1,14 +1,15 @@
 import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { SuggestedProfessional } from "../../store/homeStore";
 
 type Props = {
   // Usamos 'any' aqui internamente apenas para garantir que ele aceite o mapeamento novo sem conflitar com o Store antigo
   professional: any;
+  onPress?: () => void;
 };
 
-export const ProfessionalCard: React.FC<Props> = ({ professional }) => {
+export const ProfessionalCard: React.FC<Props> = ({ professional, onPress }) => {
   // Extração segura das variáveis (aceita tanto o padrão em Inglês quanto o antigo em Português)
   const name = professional?.name || professional?.nome || "Sem Nome";
   const category =
@@ -23,7 +24,12 @@ export const ProfessionalCard: React.FC<Props> = ({ professional }) => {
   const avatarUrl = professional?.avatarUrl || professional?.foto || null;
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={onPress ? 0.7 : 1}
+      onPress={onPress}
+      disabled={!onPress}
+    >
       <View style={styles.imageContainer}>
         {/* Renderização condicional da foto, igual fizemos na busca */}
         {avatarUrl ? (
@@ -58,7 +64,7 @@ export const ProfessionalCard: React.FC<Props> = ({ professional }) => {
           <Text style={styles.badgePlusText}>Plus</Text>
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 

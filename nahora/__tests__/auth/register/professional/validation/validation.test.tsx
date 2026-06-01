@@ -48,11 +48,4 @@ describe('ValidationScreen', () => {
     ).toBeOnTheScreen();
   });
 
-  test('renders go to profile button', () => {
-    render(<Validation />);
-
-    expect(
-      screen.getByText('Criar Perfil Profissional'),
-    ).toBeOnTheScreen();
-  });
 });

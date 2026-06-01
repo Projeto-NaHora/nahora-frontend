@@ -35,7 +35,7 @@ export default function Profile2() {
   };
 
   const handleContinue = () => {
-    router.push("/(auth)/(register)/professional/profile-3");
+    router.push("/(onboarding)/profile-3");
   };
 
   return (

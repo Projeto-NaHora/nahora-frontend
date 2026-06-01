@@ -27,8 +27,17 @@ async function doRefresh(): Promise<boolean> {
   }
 }
 
+const PUBLIC_AUTH_PATHS = ["/auth/login", "/auth/refresh", "/auth/enviar-otp", "/auth/verificar-otp", "/auth/cadastro", "/auth/register", "/auth/forgot-password", "/auth/reset-password"];
+
+function isPublicAuthEndpoint(url?: string): boolean {
+  if (!url) return false;
+  return PUBLIC_AUTH_PATHS.some((path) => url.includes(path));
+}
+
 // Injeta o access token em cada requisição e renova proativamente se expirado
 api.interceptors.request.use(async (config) => {
+  if (isPublicAuthEndpoint(config.url)) return config;
+
   const token = useAuthStore.getState().accessToken;
 
   if (token && isTokenExpired(token)) {
@@ -73,7 +82,8 @@ api.interceptors.response.use(
     const original = error.config;
     if (
       (error.response?.status === 401 || error.response?.status === 403) &&
-      !original._retry
+      !original._retry &&
+      !isPublicAuthEndpoint(original.url)
     ) {
       original._retry = true;
 

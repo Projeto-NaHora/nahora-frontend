@@ -33,9 +33,9 @@ export type StatusPagamento =
 export type MetodoPagamento = "PIX" | "CARTAO_CREDITO";
 
 export type StatusVerificacao =
-  | "NAO_ENVIADO"
-  | "PENDENTE"
-  | "APROVADO"
+  | "CADASTRO_INCOMPLETO"
+  | "AGUARDANDO_VERIFICACAO"
+  | "VERIFICADO"
   | "REJEITADO";
 
 export type TipoNotificacao =
@@ -61,3 +61,12 @@ export type MotivoDenuncia =
 export type TipoUsuario = "CLIENTE" | "PROFISSIONAL" | "ADMIN";
 
 export type TipoUsuarioApp = Exclude<TipoUsuario, "ADMIN">;
+
+export type TagAvaliacao =
+  | "PONTUAL"
+  | "CUIDADOSO"
+  | "LIMPO"
+  | "EDUCADO"
+  | "COMUNICATIVO"
+  | "PAGOU_EM_DIA"
+  | "LOCAL_ACESSIVEL";

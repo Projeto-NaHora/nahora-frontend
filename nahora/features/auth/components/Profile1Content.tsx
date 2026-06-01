@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import {
   Image,
   Pressable,
@@ -10,11 +10,16 @@ import {
 } from "react-native";
 
 import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { formatCpf, isValidCpf, unformatCpf, formatCep } from "@/utils/formatters";
+import {
+  formatCpf,
+  isValidCpf,
+  unformatCpf,
+  formatCep,
+} from "@/utils/formatters";
 import { ProfileStepIndicator } from "./ProfileStepIndicator";
 
 type Profile1ContentProps = {
+  nome: string;
   cpf: string;
   cargo: string;
   experienceYears: string;
@@ -28,6 +33,7 @@ type Profile1ContentProps = {
   estado: string;
   raioAtuacaoKm: string;
   cepLoading: boolean;
+  onChangeNome: (value: string) => void;
   onChangeCpf: (value: string) => void;
   onChangeCargo: (value: string) => void;
   onChangeExperienceYears: (value: string) => void;
@@ -42,9 +48,25 @@ type Profile1ContentProps = {
   onCepBlur: () => void;
   onPickPhoto: () => void;
   onContinue: () => void;
+  /** Botão Voltar (opcional — usado no modo edição) */
+  onBack?: () => void;
+};
+
+type TouchedFields = {
+  cpf: boolean;
+  cargo: boolean;
+  cep: boolean;
+  logradouro: boolean;
+  numero: boolean;
+  bairro: boolean;
+  cidade: boolean;
+  estado: boolean;
+  experienceYears: boolean;
+  raioAtuacaoKm: boolean;
 };
 
 export function Profile1Content({
+  nome,
   cpf,
   cargo,
   experienceYears,
@@ -58,6 +80,7 @@ export function Profile1Content({
   estado,
   raioAtuacaoKm,
   cepLoading,
+  onChangeNome,
   onChangeCpf,
   onChangeCargo,
   onChangeExperienceYears,
@@ -72,29 +95,64 @@ export function Profile1Content({
   onCepBlur,
   onPickPhoto,
   onContinue,
+  onBack,
 }: Profile1ContentProps) {
-  const theme = useColorScheme() ?? "light";
+  const theme = "light";
   const colors = Colors[theme];
+
+  const [touched, setTouched] = useState<TouchedFields>({
+    cpf: false,
+    cargo: false,
+    cep: false,
+    logradouro: false,
+    numero: false,
+    bairro: false,
+    cidade: false,
+    estado: false,
+    experienceYears: false,
+    raioAtuacaoKm: false,
+  });
+
+  const touch = useCallback((field: keyof TouchedFields) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  }, []);
 
   const formattedCpf = formatCpf(cpf);
   const isCpfValid = isValidCpf(cpf);
   const isCargoValid = cargo.trim().length >= 4;
   const isCepValid = cep.replace(/\D/g, "").length === 8;
+  const isLogradouroValid = logradouro.trim().length >= 3;
+  const isNumeroValid = numero.trim().length >= 1;
+  const isBairroValid = bairro.trim().length >= 2;
+  const isCidadeValid = cidade.trim().length >= 3;
+  const isEstadoValid = estado.trim().length === 2;
   const isAddressValid =
-    logradouro.trim().length >= 3 &&
-    numero.trim().length >= 1 &&
-    bairro.trim().length >= 2 &&
-    cidade.trim().length >= 3 &&
-    estado.trim().length === 2;
+    isLogradouroValid &&
+    isNumeroValid &&
+    isBairroValid &&
+    isCidadeValid &&
+    isEstadoValid;
   const isExperienceValid = /^\d+$/.test(experienceYears);
-  const isRaioValid = /^\d+$/.test(raioAtuacaoKm) && parseInt(raioAtuacaoKm, 10) > 0;
-  const isValid =
-    isCpfValid &&
-    isCargoValid &&
-    isCepValid &&
-    isAddressValid &&
-    isExperienceValid &&
-    isRaioValid;
+  const isRaioValid =
+    /^\d+$/.test(raioAtuacaoKm) && parseInt(raioAtuacaoKm, 10) > 0;
+  const hasNome = !!(nome && nome.trim().length >= 3);
+  const isValid = hasNome
+    ? isCargoValid &&
+      isCepValid &&
+      isAddressValid &&
+      isExperienceValid &&
+      isRaioValid
+    : isCpfValid &&
+      isCargoValid &&
+      isCepValid &&
+      isAddressValid &&
+      isExperienceValid &&
+      isRaioValid;
+
+  const fieldBorder = (field: keyof TouchedFields, valid: boolean) => {
+    if (!touched[field]) return colors.border;
+    return valid ? colors.border : (colors.error ?? "#dc2626");
+  };
 
   const handleCpfChange = (text: string) => {
     onChangeCpf(unformatCpf(text));
@@ -113,7 +171,7 @@ export function Profile1Content({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: "#ffffff" }]}>
       <ProfileStepIndicator currentStep={1} />
 
       <Text style={[styles.heading, { color: colors.textPrimary }]}>
@@ -164,30 +222,66 @@ export function Profile1Content({
       </View>
 
       <View style={styles.form}>
-        <View style={styles.fieldGroup}>
-          <Text style={[styles.label, { color: colors.textPrimary }]}>CPF</Text>
-          <View style={styles.inputWrapper}>
-            <View style={styles.inputIconContainer}>
-              <Text style={styles.inputIcon}>🪪</Text>
+        {nome && nome.length > 0 ? (
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.label, { color: colors.textPrimary }]}>
+              Nome
+            </Text>
+            <View style={styles.inputWrapper}>
+              <View style={styles.inputIconContainer}>
+                <Text style={styles.inputIcon}>👤</Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: colors.textPrimary,
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
+                ]}
+                placeholder="Seu nome completo"
+                placeholderTextColor={colors.placeholder}
+                value={nome}
+                onChangeText={onChangeNome}
+                autoCapitalize="words"
+              />
             </View>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  color: colors.textPrimary,
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                },
-              ]}
-              placeholder="ex. 999.999.999-00"
-              placeholderTextColor={colors.placeholder}
-              value={formattedCpf}
-              onChangeText={handleCpfChange}
-              keyboardType="number-pad"
-              maxLength={14}
-            />
           </View>
-        </View>
+        ) : (
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.label, { color: colors.textPrimary }]}>
+              CPF
+            </Text>
+            <View style={styles.inputWrapper}>
+              <View style={styles.inputIconContainer}>
+                <Text style={styles.inputIcon}>🪪</Text>
+              </View>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: colors.textPrimary,
+                    backgroundColor: colors.surface,
+                    borderColor: fieldBorder("cpf", isCpfValid),
+                  },
+                ]}
+                placeholder="ex. 999.999.999-00"
+                placeholderTextColor={colors.placeholder}
+                value={formattedCpf}
+                onChangeText={handleCpfChange}
+                onBlur={() => touch("cpf")}
+                keyboardType="number-pad"
+                maxLength={14}
+              />
+            </View>
+            {touched.cpf && !isCpfValid && (
+              <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+                CPF inválido
+              </Text>
+            )}
+          </View>
+        )}
 
         <View style={styles.fieldGroup}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>
@@ -203,15 +297,21 @@ export function Profile1Content({
                 {
                   color: colors.textPrimary,
                   backgroundColor: colors.surface,
-                  borderColor: colors.border,
+                  borderColor: fieldBorder("cargo", isCargoValid),
                 },
               ]}
               placeholder="ex. Eletricista"
               placeholderTextColor={colors.placeholder}
               value={cargo}
               onChangeText={onChangeCargo}
+              onBlur={() => touch("cargo")}
             />
           </View>
+          {touched.cargo && !isCargoValid && (
+            <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+              Mínimo 4 caracteres
+            </Text>
+          )}
         </View>
 
         {/* CEP + address fields */}
@@ -220,7 +320,11 @@ export function Profile1Content({
           <View style={styles.inputWrapper}>
             <View style={styles.inputIconContainer}>
               {cepLoading ? (
-                <ActivityIndicator size="small" color={colors.brand} style={{ width: 18, height: 18 }} />
+                <ActivityIndicator
+                  size="small"
+                  color={colors.brand}
+                  style={{ width: 18, height: 18 }}
+                />
               ) : (
                 <Text style={styles.inputIcon}>📮</Text>
               )}
@@ -231,18 +335,23 @@ export function Profile1Content({
                 {
                   color: colors.textPrimary,
                   backgroundColor: colors.surface,
-                  borderColor: colors.border,
+                  borderColor: fieldBorder("cep", isCepValid),
                 },
               ]}
               placeholder="00000-000"
               placeholderTextColor={colors.placeholder}
               value={formatCep(cep)}
               onChangeText={handleCepChange}
-              onBlur={onCepBlur}
+              onBlur={() => { touch("cep"); onCepBlur(); }}
               keyboardType="number-pad"
               maxLength={9}
             />
           </View>
+          {touched.cep && !isCepValid && (
+            <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+              CEP deve ter 8 dígitos
+            </Text>
+          )}
         </View>
 
         <View style={styles.fieldRow}>
@@ -256,13 +365,14 @@ export function Profile1Content({
                 {
                   color: colors.textPrimary,
                   backgroundColor: colors.surface,
-                  borderColor: colors.border,
+                  borderColor: fieldBorder("logradouro", isLogradouroValid),
                 },
               ]}
               placeholder="Rua / Avenida"
               placeholderTextColor={colors.placeholder}
               value={logradouro}
               onChangeText={onChangeLogradouro}
+              onBlur={() => touch("logradouro")}
             />
           </View>
           <View style={styles.fieldGroupNarrow}>
@@ -275,13 +385,14 @@ export function Profile1Content({
                 {
                   color: colors.textPrimary,
                   backgroundColor: colors.surface,
-                  borderColor: colors.border,
+                  borderColor: fieldBorder("numero", isNumeroValid),
                 },
               ]}
               placeholder="123"
               placeholderTextColor={colors.placeholder}
               value={numero}
               onChangeText={onChangeNumero}
+              onBlur={() => touch("numero")}
               keyboardType="number-pad"
             />
           </View>
@@ -318,13 +429,14 @@ export function Profile1Content({
                 {
                   color: colors.textPrimary,
                   backgroundColor: colors.surface,
-                  borderColor: colors.border,
+                  borderColor: fieldBorder("bairro", isBairroValid),
                 },
               ]}
               placeholder="Bairro"
               placeholderTextColor={colors.placeholder}
               value={bairro}
               onChangeText={onChangeBairro}
+              onBlur={() => touch("bairro")}
             />
           </View>
           <View style={styles.fieldGroupHalf}>
@@ -337,13 +449,14 @@ export function Profile1Content({
                 {
                   color: colors.textPrimary,
                   backgroundColor: colors.surface,
-                  borderColor: colors.border,
+                  borderColor: fieldBorder("cidade", isCidadeValid),
                 },
               ]}
               placeholder="Cidade"
               placeholderTextColor={colors.placeholder}
               value={cidade}
               onChangeText={onChangeCidade}
+              onBlur={() => touch("cidade")}
             />
           </View>
         </View>
@@ -359,16 +472,22 @@ export function Profile1Content({
               {
                 color: colors.textPrimary,
                 backgroundColor: colors.surface,
-                borderColor: colors.border,
+                borderColor: fieldBorder("estado", isEstadoValid),
               },
             ]}
             placeholder="UF"
             placeholderTextColor={colors.placeholder}
             value={estado}
             onChangeText={(t) => onChangeEstado(t.toUpperCase().slice(0, 2))}
+            onBlur={() => touch("estado")}
             maxLength={2}
             autoCapitalize="characters"
           />
+          {touched.estado && !isEstadoValid && (
+            <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+              Use a sigla do estado (ex: SP)
+            </Text>
+          )}
         </View>
 
         <View style={styles.fieldRow}>
@@ -386,16 +505,22 @@ export function Profile1Content({
                   {
                     color: colors.textPrimary,
                     backgroundColor: colors.surface,
-                    borderColor: colors.border,
+                    borderColor: fieldBorder("experienceYears", isExperienceValid),
                   },
                 ]}
                 placeholder="ex. 8"
                 placeholderTextColor={colors.placeholder}
                 value={experienceYears}
                 onChangeText={handleExperienceYearsChange}
+                onBlur={() => touch("experienceYears")}
                 keyboardType="number-pad"
               />
             </View>
+            {touched.experienceYears && !isExperienceValid && (
+              <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+                Informe os anos de experiência
+              </Text>
+            )}
           </View>
           <View style={styles.fieldGroupHalf}>
             <Text style={[styles.label, { color: colors.textPrimary }]}>
@@ -411,27 +536,50 @@ export function Profile1Content({
                   {
                     color: colors.textPrimary,
                     backgroundColor: colors.surface,
-                    borderColor: colors.border,
+                    borderColor: fieldBorder("raioAtuacaoKm", isRaioValid),
                   },
                 ]}
                 placeholder="ex. 20"
                 placeholderTextColor={colors.placeholder}
                 value={raioAtuacaoKm}
                 onChangeText={handleRaioChange}
+                onBlur={() => touch("raioAtuacaoKm")}
                 keyboardType="number-pad"
               />
             </View>
+            {touched.raioAtuacaoKm && !isRaioValid && (
+              <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+                Informe um raio maior que 0 km
+              </Text>
+            )}
           </View>
         </View>
       </View>
 
       <View style={styles.bottomBar}>
+        {onBack && (
+          <Pressable
+            accessibilityRole="button"
+            onPress={onBack}
+            style={({ pressed }) => [
+              styles.outlineButton,
+              { borderColor: colors.border },
+              pressed && styles.buttonPressed,
+            ]}
+          >
+            <Text
+              style={[styles.outlineButtonText, { color: colors.textPrimary }]}
+            >
+              Voltar
+            </Text>
+          </Pressable>
+        )}
         <Pressable
           accessibilityRole="button"
           disabled={!isValid}
           onPress={onContinue}
           style={({ pressed }) => [
-            styles.continueButton,
+            styles.primaryButton,
             {
               backgroundColor: isValid ? colors.brand : colors.surface,
             },
@@ -440,7 +588,7 @@ export function Profile1Content({
         >
           <Text
             style={[
-              styles.continueText,
+              styles.primaryButtonText,
               { color: isValid ? colors.onBrand : colors.textSecondary },
             ]}
           >
@@ -602,24 +750,45 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   bottomBar: {
+    flexDirection: "row",
+    gap: 16,
     marginTop: 32,
     marginBottom: 24,
   },
-  continueButton: {
+  outlineButton: {
+    flex: 1,
     height: 54,
-    borderRadius: 10,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  outlineButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    lineHeight: 24,
+  },
+  primaryButton: {
+    flex: 1,
+    height: 54,
+    borderRadius: 24,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
   },
+  primaryButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    lineHeight: 24,
+  },
   buttonPressed: {
     opacity: 0.9,
   },
-  continueText: {
-    fontSize: 16,
-    fontWeight: "500",
-    lineHeight: 24,
+  fieldError: {
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 4,
   },
   arrowIcon: {
     fontSize: 18,

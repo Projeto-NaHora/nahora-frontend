@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -94,6 +94,7 @@ export default function Profile1() {
   const colors = Colors[theme];
   const [cepLoading, setCepLoading] = useState(false);
 
+  const profession = useRegisterStore((state) => state.profession);
   const cpf = useRegisterStore((state) => state.cpf);
   const cargo = useRegisterStore((state) => state.cargo);
   const experienceYears = useRegisterStore((state) => state.experienceYears);
@@ -122,6 +123,12 @@ export default function Profile1() {
   const setLongitude = useRegisterStore((state) => state.setLongitude);
   const setRaioAtuacaoKm = useRegisterStore((state) => state.setRaioAtuacaoKm);
 
+  useEffect(() => {
+    if (!cargo && profession?.label) {
+      setCargo(profession.label);
+    }
+  }, []);
+
   const handlePickPhoto = () => {
     showPickOptions((uri) => {
       setProfilePhotoUri(uri);
@@ -149,7 +156,6 @@ export default function Profile1() {
   };
 
   const handleContinue = async () => {
-    // Geocode the address before moving to next step
     if (!cepLoading) {
       try {
         const coords = await geocodeFromAddress({
@@ -167,7 +173,7 @@ export default function Profile1() {
         // proceed even if geocoding fails
       }
     }
-    router.push("/(auth)/(register)/professional/profile-2");
+    router.push("/(onboarding)/profile-2");
   };
 
   return (
@@ -186,6 +192,8 @@ export default function Profile1() {
           bounces={false}
         >
           <Profile1Content
+            nome=""
+            onChangeNome={() => {}}
             cpf={cpf}
             cargo={cargo}
             experienceYears={experienceYears}

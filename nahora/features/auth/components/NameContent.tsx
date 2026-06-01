@@ -14,6 +14,7 @@ import {
   Spacing,
 } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { AuthScreenShell } from "./AuthScreenShell";
 import type { RegisterNameFormValues } from "../types";
 
@@ -21,12 +22,16 @@ type NameContentProps = {
   control: Control<RegisterNameFormValues>;
   isSubmitting: boolean;
   onSubmit: () => void;
+  error?: string | null;
+  errorStatus?: number | null;
 };
 
 export function NameContent({
   control,
   isSubmitting,
   onSubmit,
+  error,
+  errorStatus,
 }: NameContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -107,6 +112,9 @@ export function NameContent({
             )}
           />
         </View>
+        {error && (
+          <ServerErrorBanner message={error} statusCode={errorStatus ?? undefined} />
+        )}
         <Pressable
           accessibilityRole="button"
           onPress={onSubmit}

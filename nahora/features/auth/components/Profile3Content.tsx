@@ -2,7 +2,6 @@ import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { ProfileStepIndicator } from "./ProfileStepIndicator";
 
@@ -28,11 +27,11 @@ export function Profile3Content({
   error,
   errorStatus,
 }: Profile3ContentProps) {
-  const theme = useColorScheme() ?? "light";
+  const theme = "light";
   const colors = Colors[theme];
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: "#ffffff" }]}>
       {/* Step Indicator */}
       <ProfileStepIndicator currentStep={3} />
 
