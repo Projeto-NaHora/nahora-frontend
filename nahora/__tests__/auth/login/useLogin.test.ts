@@ -2,11 +2,18 @@ import { renderHook, act } from '@tests/test-utils';
 import { useLogin } from '@/features/auth/hooks/useLogin';
 import { useAuthStore } from '@/store/authStore';
 import { authService } from '@/features/auth/service';
+import { profileService } from '@/features/profile/service';
 
 jest.mock('@/features/auth/service', () => ({
   authService: {
     login: jest.fn(),
     buscarStatusVerificacao: jest.fn(),
+  },
+}));
+
+jest.mock('@/features/profile/service', () => ({
+  profileService: {
+    buscarPerfilParaEdicao: jest.fn(),
   },
 }));
 
@@ -29,9 +36,16 @@ const mockLoginResponse = {
   tipoUsuario: 'PROFISSIONAL',
 };
 
-const setupLoginMocks = (status: string) => {
+const setupLoginMocks = (status: string, hasAddress = true) => {
   (authService.login as jest.Mock).mockResolvedValue(mockLoginResponse);
-  (authService.buscarStatusVerificacao as jest.Mock).mockResolvedValue(status);
+  (profileService.buscarPerfilParaEdicao as jest.Mock).mockResolvedValue({
+    statusVerificacao: status,
+    logradouro: hasAddress ? 'Rua Teste' : undefined,
+    numero: hasAddress ? '123' : undefined,
+    bairro: hasAddress ? 'Centro' : undefined,
+    cidade: hasAddress ? 'São Paulo' : undefined,
+    estado: hasAddress ? 'SP' : undefined,
+  });
 };
 
 const fillAndSubmit = async (result: ReturnType<typeof renderHook>['result']) => {
@@ -79,12 +93,12 @@ describe('useLogin', () => {
     });
   });
 
-  test('calls buscarStatusVerificacao after successful login', async () => {
+  test('calls buscarPerfilParaEdicao after successful login', async () => {
     setupLoginMocks('VERIFICADO');
     const { result } = renderHook(() => useLogin());
     await fillAndSubmit(result);
 
-    expect(authService.buscarStatusVerificacao).toHaveBeenCalledTimes(1);
+    expect(profileService.buscarPerfilParaEdicao).toHaveBeenCalledTimes(1);
   });
 
   test('sets isSubmitting back to false after completion', async () => {
@@ -110,11 +124,18 @@ describe('useLogin', () => {
       expect(useAuthStore.getState().professionalOnboarding).toBe('aguardando');
     });
 
-    test('VERIFICADO → perfil', async () => {
-      setupLoginMocks('VERIFICADO');
+    test('VERIFICADO + no address → perfil (needs profile completion)', async () => {
+      setupLoginMocks('VERIFICADO', false);
       const { result } = renderHook(() => useLogin());
       await fillAndSubmit(result);
       expect(useAuthStore.getState().professionalOnboarding).toBe('perfil');
+    });
+
+    test('VERIFICADO + address → null (already completed)', async () => {
+      setupLoginMocks('VERIFICADO', true);
+      const { result } = renderHook(() => useLogin());
+      await fillAndSubmit(result);
+      expect(useAuthStore.getState().professionalOnboarding).toBeNull();
     });
 
     test('REJEITADO → rejeitado', async () => {
@@ -137,7 +158,7 @@ describe('useLogin', () => {
 
   test('sets error message when profile fetch fails', async () => {
     (authService.login as jest.Mock).mockResolvedValue(mockLoginResponse);
-    (authService.buscarStatusVerificacao as jest.Mock).mockRejectedValue(
+    (profileService.buscarPerfilParaEdicao as jest.Mock).mockRejectedValue(
       new Error('Erro de rede'),
     );
 
