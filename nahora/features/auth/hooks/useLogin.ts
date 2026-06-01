@@ -1,30 +1,15 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { useAuthStore } from "@/store/authStore";
 import { parseApiError } from "@/utils/apiError";
-import type { StatusVerificacao } from "@/types/enums";
 import type { ProfessionalOnboarding } from "@/store/authStore";
+import { profileService } from "@/features/profile/service";
 import { authService } from "../service";
 import type { LoginFormValues, LoginPayload } from "../types";
 import { loginSchema } from "../types";
-
-// ── Status → onboarding phase mapping ────────────────────────────
-
-function mapStatusToOnboarding(status: StatusVerificacao): ProfessionalOnboarding {
-  switch (status) {
-    case "CADASTRO_INCOMPLETO":
-      return "cadastro_incompleto";
-    case "AGUARDANDO_VERIFICACAO":
-      return "aguardando";
-    case "VERIFICADO":
-      return "perfil";
-    case "REJEITADO":
-      return "rejeitado";
-  }
-}
 
 // ── Retry helper (exponential backoff, network/5xx only) ─────────
 
@@ -98,14 +83,32 @@ export function useLogin() {
         // Phase 2 — Set tokens so the profile API call has auth
         await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
 
-        // Phase 3 — Fetch status (with retry on network/5xx)
-        const status = await withRetry(
-          () => authService.buscarStatusVerificacao(),
+        // Phase 3 — Fetch full profile (status + address data, with retry on network/5xx)
+        const perfil = await withRetry(
+          () => profileService.buscarPerfilParaEdicao(),
           2,
         );
 
-        // Phase 4 — Redirect to correct onboarding phase
-        const phase = mapStatusToOnboarding(status);
+        // Phase 4 — Determine onboarding phase
+        let phase: ProfessionalOnboarding | null;
+
+        if (perfil.statusVerificacao === "VERIFICADO") {
+          // Verified — check if the professional has already completed
+          // their profile (address fields are only filled through profile-1,
+          // never during registration). If address data exists, onboarding
+          // is already complete.
+          const hasAddress = !!(perfil.logradouro && perfil.bairro && perfil.cidade && perfil.estado);
+          phase = hasAddress ? null : "perfil";
+        } else if (perfil.statusVerificacao === "CADASTRO_INCOMPLETO") {
+          phase = "cadastro_incompleto";
+        } else if (perfil.statusVerificacao === "AGUARDANDO_VERIFICACAO") {
+          phase = "aguardando";
+        } else if (perfil.statusVerificacao === "REJEITADO") {
+          phase = "rejeitado";
+        } else {
+          phase = null;
+        }
+
         await setProfessionalOnboarding(phase);
       } catch (error) {
         const parsed = parseApiError(error);
