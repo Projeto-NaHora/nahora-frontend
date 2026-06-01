@@ -19,7 +19,7 @@ export default function Validation() {
 
   const handleApproval = useCallback(async () => {
     await setProfessionalOnboarding("perfil");
-    router.replace("/(auth)/(register)/professional/profile-1");
+    router.replace("/(onboarding)/profile-1");
   }, [setProfessionalOnboarding, router]);
 
   useVerificacaoPolling(handleApproval);
