@@ -19,7 +19,7 @@ export default function ProServicesTabScreen() {
   );
 
   const handleOpenDetails = (serviceId: number) => {
-    router.push(`/(professional)/(services)/${serviceId}/active`);
+    router.push(`/(professional)/(services)/${serviceId}`);
   };
 
   const handleOpenChat = (propostaId: number) => {
