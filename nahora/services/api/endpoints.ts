@@ -45,7 +45,8 @@ export const ENDPOINTS = {
   CONFIRMAR_CONCLUSAO: (pedidoId: number) => `/pedidos/${pedidoId}/confirmar`,
 
   // Avaliações
-  AVALIAR: (pedidoId: number) => `/pedidos/${pedidoId}/avaliacoes`,
+  AVALIAR: (pedidoId: number) => `/pedidos/${pedidoId}/avaliacao`,
+  AVALIAR_DO_PEDIDO: (pedidoId: number) => `/pedidos/${pedidoId}/avaliacao`,
 
   // Notificações
   NOTIFICACOES: "/notificacoes",
