@@ -58,6 +58,12 @@ export function useCompleteProfessionalRegistration({ onSuccess }: Options) {
         fotoPerfil,
         profissao: state.profession?.label || undefined,
         cep: state.cep || undefined,
+        logradouro: state.logradouro || undefined,
+        numero: state.numero || undefined,
+        complemento: state.complemento || undefined,
+        bairro: state.bairro || undefined,
+        cidade: state.cidade || undefined,
+        estado: state.estado || undefined,
         anosExperiencia: anosExperiencia || undefined,
         bio: state.about || undefined,
         especialidades: state.especialidades.length
