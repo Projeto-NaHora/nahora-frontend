@@ -1,27 +1,65 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import React, { useState } from "react";
+import { Alert } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useOrderDetail } from "@/features/orders/hooks/useOrders";
+import { orderService } from "@/features/orders/service";
+import { OrderCompleteContent } from "@/features/orders/components/OrderCompleteContent";
 
-export default function Complete() {
-  const params = useLocalSearchParams();
+export default function PedidoCompleteScreen() {
+  const { orderId } = useLocalSearchParams<{ orderId: string }>();
+  const router = useRouter();
+  const pedidoId = Number(orderId);
+
+  // Consome o hook existente
+  const { data: pedido, isLoading, error } = useOrderDetail(pedidoId);
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  const handleConfirm = () => {
+    Alert.alert(
+      "Confirmar conclusão?",
+      "Ao confirmar, o pagamento será liberado ao profissional e o serviço será encerrado.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Confirmar",
+          style: "default",
+          onPress: async () => {
+            setIsConfirming(true);
+            try {
+              // 1. Chama a API para fechar o pedido e liberar pagamento
+              await orderService.confirmarConclusao(pedidoId);
+
+              // 2. Limpa a pilha de navegação (evita que o usuário volte para cá)
+              router.dismissAll();
+
+              // 3. Redireciona para a raiz da Home
+              router.replace("/(client)/(home)");
+            } catch (err) {
+              Alert.alert(
+                "Erro",
+                "Não foi possível confirmar a conclusão do serviço.",
+              );
+              setIsConfirming(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+  const handleDispute = () => {
+    // Navega para a tela de problema
+    router.push(`/(client)/(orders)/${pedidoId}/issue`);
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>
-        app/(client)/(orders)/[orderId]/complete.tsx
-      </Text>
-    </View>
+    <OrderCompleteContent
+      pedido={pedido}
+      isLoading={isLoading}
+      error={error}
+      onBack={() => router.back()}
+      onConfirm={handleConfirm}
+      isConfirming={isConfirming}
+      onDispute={handleDispute}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});

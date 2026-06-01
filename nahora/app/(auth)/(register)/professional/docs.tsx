@@ -86,7 +86,7 @@ export default function Docs() {
 
   useEffect(() => {
     if (professionalOnboarding === "perfil") {
-      router.replace("/(auth)/(register)/professional/profile-1");
+      router.replace("/(onboarding)/profile-1");
     }
   }, [professionalOnboarding, router]);
 
