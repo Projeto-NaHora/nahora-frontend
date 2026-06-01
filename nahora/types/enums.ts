@@ -61,3 +61,12 @@ export type MotivoDenuncia =
 export type TipoUsuario = "CLIENTE" | "PROFISSIONAL" | "ADMIN";
 
 export type TipoUsuarioApp = Exclude<TipoUsuario, "ADMIN">;
+
+export type TagAvaliacao =
+  | "PONTUAL"
+  | "CUIDADOSO"
+  | "LIMPO"
+  | "EDUCADO"
+  | "COMUNICATIVO"
+  | "PAGOU_EM_DIA"
+  | "LOCAL_ACESSIVEL";
