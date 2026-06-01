@@ -20,6 +20,7 @@ import type {
   VerifyOtpPayload,
   VerifyOtpResponse,
 } from "./types";
+import type { StatusVerificacao } from "@/types/enums";
 
 export const authService = {
   sendOtp: async (payload: SendOtpPayload): Promise<SendOtpResponse> => {
@@ -118,5 +119,13 @@ export const authService = {
 
   enviarDocumentos: async (payload: EnviarDocumentosPayload): Promise<void> => {
     await api.post(ENDPOINTS.PROFISSIONAL_DOCUMENTOS, payload);
+  },
+
+  /** Fetches the professional's verification status after login (or from anywhere with a token). */
+  buscarStatusVerificacao: async (): Promise<StatusVerificacao> => {
+    const { data } = await api.get<PerfilProfissionalResponse>(
+      ENDPOINTS.COMPLETAR_PERFIL,
+    );
+    return data.statusVerificacao;
   },
 };

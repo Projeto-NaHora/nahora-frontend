@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@tests/test-utils';
-import Validation from '@/app/(auth)/(register)/professional/validation';
+import Validation from '@/app/(onboarding)/validation';
 import { useRegisterStore } from '@/store/registerStore';
 
 jest.mock('@/hooks/use-color-scheme', () => ({
@@ -11,12 +11,12 @@ jest.mock('@/components/ui/icon-symbol', () => ({
   IconSymbol: () => null,
 }));
 
-const mockPush = jest.fn();
+const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ push: mockPush }),
+  useRouter: () => ({ replace: mockReplace }),
 }));
 
-describe('ValidationScreen', () => {
+describe('OnboardingValidationScreen', () => {
   beforeEach(() => {
     useRegisterStore.setState({ profession: undefined });
     jest.clearAllMocks();
@@ -47,5 +47,4 @@ describe('ValidationScreen', () => {
       screen.getByText('Eletricista · Em validação'),
     ).toBeOnTheScreen();
   });
-
 });

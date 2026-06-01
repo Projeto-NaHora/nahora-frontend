@@ -13,9 +13,12 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  Feather,
+  MaterialCommunityIcons,
+  FontAwesome,
+} from "@expo/vector-icons";
 import { api } from "@/services/api/client";
-import { FavoriteButton } from "@/features/favorites/components/FavoriteButton";
 import { useFavoriteStatus } from "@/features/favorites/hooks/useFavoriteStatus";
 import { Snackbar } from "@/components/ui/Snackbar";
 
@@ -56,6 +59,7 @@ export default function ProfessionalProfileScreen() {
   // Estados para gerenciar os dados da API
   const [profileData, setProfileData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [favToggling, setFavToggling] = useState(false);
 
   // Busca os dados do profissional assim que a tela abre
   useEffect(() => {
@@ -187,12 +191,25 @@ export default function ProfessionalProfileScreen() {
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
           Perfil do Profissional
         </Text>
-        <FavoriteButton
-          profissionalId={profissionalId}
-          isFavorite={isFavorite}
-          isLoading={isFavoriteLoading}
-          onToggle={toggle}
-        />
+
+        {/* Favoritar no header (Figma: top-right circular) */}
+        <TouchableOpacity
+          onPress={async () => {
+            if (!profissionalId) return;
+            setFavToggling(true);
+            await toggle();
+            setFavToggling(false);
+          }}
+          disabled={favToggling}
+          style={styles.headerFavBtn}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
+          <FontAwesome
+            name={isFavorite ? "heart" : "heart-o"}
+            size={22}
+            color={isFavorite ? "#f26f21" : colors.textPrimary}
+          />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -271,6 +288,46 @@ export default function ProfessionalProfileScreen() {
             <Text style={[styles.actionSecondaryText, { color: colors.brand }]}>
               Ver agenda
             </Text>
+          </TouchableOpacity>
+
+          {/* Botão Favoritar (original) */}
+          <TouchableOpacity
+            style={[
+              styles.actionMore,
+              {
+                borderColor: colors.border,
+                backgroundColor: colors.background,
+              },
+            ]}
+            disabled={favToggling}
+            onPress={async () => {
+              if (!profissionalId) return;
+              setFavToggling(true);
+              await toggle();
+              setFavToggling(false);
+            }}
+          >
+            <FontAwesome
+              name={isFavorite ? "heart" : "heart-o"}
+              size={20}
+              color={isFavorite ? "#f26f21" : colors.textPrimary}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.actionMore,
+              {
+                borderColor: colors.border,
+                backgroundColor: colors.background,
+              },
+            ]}
+          >
+            <Feather
+              name="more-horizontal"
+              size={20}
+              color={colors.textPrimary}
+            />
           </TouchableOpacity>
         </View>
 
@@ -422,6 +479,14 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
     marginLeft: -24,
+  },
+  headerFavBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(0,0,0,0.06)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   scroll: {
     paddingBottom: 32,

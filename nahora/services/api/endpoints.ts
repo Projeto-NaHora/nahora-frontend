@@ -62,8 +62,9 @@ export const ENDPOINTS = {
   PROFISSIONAIS: "/profissionais",
 
   // Favoritos
-  FAVORITO_STATUS: (profissionalId: number) =>
-    `/profissionais/${profissionalId}/favoritado`,
-  FAVORITAR: (profissionalId: number) => `/favoritos/${profissionalId}`,
-  DESFAVORITAR: (profissionalId: number) => `/favoritos/${profissionalId}`,
+  // POST/DELETE /api/v1/favoritos/{profissionalId}
+  FAVORITOS: "/favoritos",
+  FAVORITAR: (id: number) => `/favoritos/${id}`,
+  // GET /api/v1/profissionais/{profissionalId}/favoritado
+  FAVORITO_STATUS: (id: number) => `/profissionais/${id}/favoritado`,
 } as const;

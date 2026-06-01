@@ -1,20 +1,18 @@
 // features/professional/components/ProfessionalHeader.tsx
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAuthStore } from "@/store/authStore";
 import { getInitials } from "@/utils/formatters";
 
 export function ProfessionalHeader() {
-  const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
   const user = useAuthStore((s) => s.user);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 48, backgroundColor: colors.brand }]}>
+    <View style={[styles.container, { paddingTop: 48, backgroundColor: colors.brand }]}>
       {/* Top row: avatar + greeting + notification bell */}
       <View style={styles.topRow}>
         <View style={styles.greetingRow}>
