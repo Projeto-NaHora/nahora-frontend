@@ -32,8 +32,8 @@ export default function PedidoCompleteScreen() {
               // 2. Limpa a pilha de navegação (evita que o usuário volte para cá)
               router.dismissAll();
 
-              // 3. Redireciona para a raiz da Home
-              router.replace("/(client)/(home)");
+              // 3. Redireciona para a tela de avaliação
+              router.replace(`/(client)/(orders)/${pedidoId}/rating`);
             } catch (err) {
               Alert.alert(
                 "Erro",

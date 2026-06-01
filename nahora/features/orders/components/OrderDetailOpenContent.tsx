@@ -54,6 +54,8 @@ export interface OrderDetailOpenContentProps {
   onEdit: () => void;
   onDelete: () => void;
   onViewProposals: () => void;
+  onRate?: () => void;
+  rateButtonLabel?: string;
   acceptedProposalId?: number;
 }
 
@@ -65,6 +67,8 @@ export function OrderDetailOpenContent({
   onEdit,
   onDelete,
   onViewProposals,
+  onRate,
+  rateButtonLabel,
   acceptedProposalId,
 }: OrderDetailOpenContentProps) {
   const router = useRouter();
@@ -307,25 +311,27 @@ export function OrderDetailOpenContent({
           })}
         </View>
 
-        {/* Action buttons row */}
-        <View style={styles.actionRow}>
-          <TouchableOpacity
-            onPress={onEdit}
-            style={[styles.editButton, { backgroundColor: colors.surface }]}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.editButtonText, { color: colors.textPrimary }]}>
-              Editar
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={onDelete}
-            style={[styles.deleteButton, { backgroundColor: colors.surface }]}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.deleteButtonText, { color: colors.error }]}>Excluir</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Action buttons row — hidden for CONCLUIDO */}
+        {pedido.status !== "CONCLUIDO" && (
+          <View style={styles.actionRow}>
+            <TouchableOpacity
+              onPress={onEdit}
+              style={[styles.editButton, { backgroundColor: colors.surface }]}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.editButtonText, { color: colors.textPrimary }]}>
+                Editar
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onDelete}
+              style={[styles.deleteButton, { backgroundColor: colors.surface }]}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.deleteButtonText, { color: colors.error }]}>Excluir</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Main CTA — depends on order status */}
         {pedido.status === "EM_ANDAMENTO" || pedido.status === "AGUARDANDO_VALIDACAO" ? (
@@ -348,6 +354,16 @@ export function OrderDetailOpenContent({
             activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Verificar Propostas</Text>
+          </TouchableOpacity>
+        ) : pedido.status === "CONCLUIDO" && onRate ? (
+          <TouchableOpacity
+            onPress={onRate}
+            style={[styles.ctaButton, { backgroundColor: colors.brand }]}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>
+              {rateButtonLabel ?? "Avaliar serviço"}
+            </Text>
           </TouchableOpacity>
         ) : null}
       </ScrollView>
