@@ -62,6 +62,12 @@ export const ENDPOINTS = {
   PROFISSIONAL: (id: number) => `/profissionais/${id}`,
   PROFISSIONAIS: "/profissionais",
 
+  // Histórico de ganhos (profissional)
+  HISTORICO_GANHOS: (mes: number, ano: number) =>
+    `/profissionais/historico/ganhos?mes=${mes}&ano=${ano}`,
+  HISTORICO_SERVICOS: (mes: number, ano: number) =>
+    `/profissionais/historico/servicos?mes=${mes}&ano=${ano}`,
+
   // Favoritos
   // POST/DELETE /api/v1/favoritos/{profissionalId}
   FAVORITOS: "/favoritos",
