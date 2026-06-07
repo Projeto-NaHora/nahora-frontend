@@ -72,8 +72,11 @@ export const orderService = {
     await api.post(`${ENDPOINTS.PEDIDO(id)}/confirmar-conclusao`);
   },
 
-  reportarProblema: async (id: number): Promise<void> => {
-    await api.post(`${ENDPOINTS.PEDIDO(id)}/reportar-problema`);
+  reportarProblema: async (
+    id: number,
+    payload?: { motivo: string; descricao: string; evidencias: string[] },
+  ): Promise<void> => {
+    await api.post(`${ENDPOINTS.PEDIDO(id)}/reportar-problema`, payload);
   },
 
   /**
@@ -131,6 +134,13 @@ export const orderService = {
   },
 
   /**
+   * Confirma a conclusão de um pedido através da API.
+   */
+  confirmarConclusao: async (id: number): Promise<void> => {
+    await api.post(`${ENDPOINTS.PEDIDOS}/${id}/concluir`);
+  },
+
+  /**
    * Faz upload de um arquivo de mídia (imagem/vídeo) e retorna a URL pública.
    */
   uploadMidia: async (uri: string, tipo: string): Promise<string> => {
@@ -152,5 +162,19 @@ export const orderService = {
     );
 
     return data.url;
+  },
+};
+
+export const disputaService = {
+  buscarStatusPorPedido: async (pedidoId: number) => {
+    const { data } = await api.get(`/disputas/pedido/${pedidoId}`);
+    return data;
+  },
+
+  contestar: async (disputaId: number, evidenciasAdicionais: string[]) => {
+    const { data } = await api.post(`/disputas/${disputaId}/contestar`, {
+      evidenciasAdicionais,
+    });
+    return data;
   },
 };

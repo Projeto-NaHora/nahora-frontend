@@ -24,6 +24,7 @@ type Props = {
   onChat: () => void;
   onIssue: () => void;
   isOpeningChat: boolean;
+  onViewDispute: () => void;
 };
 
 export const OrderDetailActiveContent: React.FC<Props> = ({
@@ -34,6 +35,7 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
   onChat,
   onIssue,
   isOpeningChat,
+  onViewDispute,
 }) => {
   if (isLoading) {
     return (
@@ -73,6 +75,9 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
     ? `${pedido.endereco.logradouro}, ${pedido.endereco.numero} - ${pedido.endereco.bairro}, ${pedido.endereco.cidade}`
     : "Endereço não informado";
 
+  // Verifica se o pedido está em disputa
+  const isEmDisputa = pedido.status === "EM_DISPUTA";
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header Fixo */}
@@ -90,11 +95,20 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
         contentContainerStyle={styles.scrollInner}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title & Badge (Azul para Em Andamento) */}
+        {/* Title & Badge Dinâmico */}
         <View style={styles.titleRow}>
           <Text style={styles.serviceTitle}>{categoriaFormatada}</Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>Em andamento</Text>
+          <View
+            style={[
+              styles.badge,
+              isEmDisputa && { backgroundColor: "#FEE2E2" },
+            ]}
+          >
+            <Text
+              style={[styles.badgeText, isEmDisputa && { color: "#EF4444" }]}
+            >
+              {isEmDisputa ? "Em disputa" : "Em andamento"}
+            </Text>
           </View>
         </View>
 
@@ -123,16 +137,18 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
           <Text style={styles.descriptionText}>{pedido.descricao}</Text>
         </View>
 
-        {/* Aviso de Execução */}
-        <View style={styles.executionWarning}>
-          <Feather name="info" size={20} color="#417BE0" />
-          <Text style={styles.executionText}>
-            O profissional já está executando o serviço. Aguarde a conclusão
-            para liberar o pagamento.
-          </Text>
-        </View>
+        {/* Aviso de Execução - Ocultado se estiver em disputa */}
+        {!isEmDisputa && (
+          <View style={styles.executionWarning}>
+            <Feather name="info" size={20} color="#417BE0" />
+            <Text style={styles.executionText}>
+              O profissional já está executando o serviço. Aguarde a conclusão
+              para liberar o pagamento.
+            </Text>
+          </View>
+        )}
 
-        {/* Timeline (Baseado no seu print) */}
+        {/* Timeline */}
         <View style={styles.timelineContainer}>
           <Text style={styles.sectionTitle}>Linha do tempo</Text>
 
@@ -152,13 +168,23 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
             </View>
           </View>
 
-          {/* Etapa Atual - Laranja */}
+          {/* Etapa Atual - Laranja (ou Vermelho se em disputa) */}
           <View style={styles.timelineItem}>
-            <View style={[styles.timelineDot, styles.dotOrange]} />
+            <View
+              style={[
+                styles.timelineDot,
+                isEmDisputa ? { backgroundColor: "#EF4444" } : styles.dotOrange,
+              ]}
+            />
             <View style={styles.timelineLineInactive} />
             <View style={styles.timelineTextContainer}>
-              <Text style={[styles.timelineTitle, { color: "#F97316" }]}>
-                Serviço em andamento
+              <Text
+                style={[
+                  styles.timelineTitle,
+                  { color: isEmDisputa ? "#EF4444" : "#F97316" },
+                ]}
+              >
+                {isEmDisputa ? "Serviço em disputa" : "Serviço em andamento"}
               </Text>
             </View>
           </View>
@@ -173,33 +199,58 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
           </View>
         </View>
 
-        {/* Footer Actions */}
+        {/* Footer Actions Dinâmico */}
         <View style={styles.footerInline}>
-          <TouchableOpacity style={styles.secondaryButton} onPress={onIssue}>
-            <Text style={styles.secondaryButtonText}>Tive um problema</Text>
-          </TouchableOpacity>
+          {isEmDisputa ? (
+            // Ações quando o status for EM_DISPUTA
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: "#3B82F6" }]}
+              onPress={onViewDispute}
+            >
+              <Feather
+                name="shield"
+                size={20}
+                color="#FFFFFF"
+                style={{ marginRight: 8 }}
+              />
+              <Text style={styles.primaryButtonText}>Acompanhar Disputa</Text>
+            </TouchableOpacity>
+          ) : (
+            // Ações normais quando o status for EM_ANDAMENTO
+            <>
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={onIssue}
+              >
+                <Text style={styles.secondaryButtonText}>Tive um problema</Text>
+              </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.primaryButton, isOpeningChat && { opacity: 0.7 }]}
-            onPress={onChat}
-            disabled={isOpeningChat}
-          >
-            {isOpeningChat ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <>
-                <Feather
-                  name="message-square"
-                  size={20}
-                  color="#FFFFFF"
-                  style={{ marginRight: 8 }}
-                />
-                <Text style={styles.primaryButtonText}>
-                  Falar com profissional
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.primaryButton,
+                  isOpeningChat && { opacity: 0.7 },
+                ]}
+                onPress={onChat}
+                disabled={isOpeningChat}
+              >
+                {isOpeningChat ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Feather
+                      name="message-square"
+                      size={20}
+                      color="#FFFFFF"
+                      style={{ marginRight: 8 }}
+                    />
+                    <Text style={styles.primaryButtonText}>
+                      Falar com profissional
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -242,7 +293,7 @@ const styles = StyleSheet.create({
   },
   serviceTitle: { fontSize: 24, fontWeight: "700", color: "#111827", flex: 1 },
 
-  // Badge Azul
+  // Badge Base
   badge: {
     backgroundColor: "#E6F0FF",
     paddingHorizontal: 10,
@@ -327,7 +378,7 @@ const styles = StyleSheet.create({
   timelineTextContainer: { marginLeft: 16, flex: 1 },
   timelineTitle: { fontSize: 15, fontWeight: "600", color: "#111827" },
 
-  // Estilos do Footer corrigidos
+  // Estilos do Footer
   footerInline: {
     marginTop: 24,
     gap: 12,

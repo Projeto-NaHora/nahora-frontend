@@ -54,8 +54,19 @@ export default function ProServiceDetailScreen() {
   const { jaAvaliou } = useAvaliacao(pedidoId);
 
   // Redirects for non-completed statuses
-  if (pedido?.status === "EM_ANDAMENTO" || pedido?.status === "AGUARDANDO_VALIDACAO") {
+  if (
+    pedido?.status === "EM_ANDAMENTO" ||
+    pedido?.status === "AGUARDANDO_VALIDACAO"
+  ) {
     return <Redirect href={`/(professional)/(services)/${serviceId}/active`} />;
+  }
+
+  if (pedido?.status === "EM_DISPUTA") {
+    return (
+      <Redirect
+        href={`/(professional)/(services)/${serviceId}/issue/dispute`}
+      />
+    );
   }
 
   if (isLoading) {
@@ -70,7 +81,10 @@ export default function ProServiceDetailScreen() {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorText}>Erro ao carregar serviço.</Text>
-        <TouchableOpacity style={styles.backBtnFallback} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backBtnFallback}
+          onPress={() => router.back()}
+        >
           <Text style={styles.backBtnFallbackText}>Voltar</Text>
         </TouchableOpacity>
       </View>
@@ -85,9 +99,7 @@ export default function ProServiceDetailScreen() {
     ? formatDate(pedido.dataDesejada)
     : "";
   const turnoKey = getTurnoKey(pedido.dataDesejada);
-  const turnoFormatado = turnoKey
-    ? TURNO_TIME_RANGES[turnoKey].label
-    : "";
+  const turnoFormatado = turnoKey ? TURNO_TIME_RANGES[turnoKey].label : "";
   const enderecoFormatado = formatEndereco(pedido.endereco);
   const mostrarAvaliar = isConcluido && !jaAvaliou;
 
@@ -103,10 +115,7 @@ export default function ProServiceDetailScreen() {
     <View style={styles.root}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => router.back()}
-        >
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Text style={styles.backArrow}>{"←"}</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Detalhe do serviço</Text>
@@ -207,9 +216,7 @@ export default function ProServiceDetailScreen() {
           <TouchableOpacity
             style={styles.rateButton}
             onPress={() =>
-              router.push(
-                `/(professional)/(services)/${serviceId}/rating`,
-              )
+              router.push(`/(professional)/(services)/${serviceId}/rating`)
             }
             activeOpacity={0.7}
           >

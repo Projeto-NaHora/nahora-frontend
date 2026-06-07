@@ -7,9 +7,12 @@ import {
   ScrollView,
   TextInput,
   ActivityIndicator,
+  Image,
+  Alert,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as ImagePicker from "expo-image-picker";
 import { Pedido, CATEGORIA_LABEL } from "../types";
 
 // Função para pegar as iniciais do profissional
@@ -25,21 +28,61 @@ type Props = {
   pedido: Pedido | any;
   isLoading: boolean;
   isSubmitting: boolean;
+  motivosDisponiveis: string[];
   onBack: () => void;
-  onSubmit: (motivo: string, descricao: string) => void;
+  onSubmit: (motivo: string, descricao: string, fotosUris: string[]) => void;
 };
 
 export const OrderIssueContent: React.FC<Props> = ({
   pedido,
   isLoading,
   isSubmitting,
+  motivosDisponiveis,
   onBack,
   onSubmit,
 }) => {
-  const [motivo, setMotivo] = useState(
-    "Serviço não foi executado conforme combinado",
-  );
+  const [motivo, setMotivo] = useState(motivosDisponiveis[0]);
   const [descricao, setDescricao] = useState("");
+  const [fotos, setFotos] = useState<string[]>([]);
+
+  // Abrir a Câmera
+  const handleTakePhoto = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert(
+        "Permissão negada",
+        "É necessário permitir o acesso à câmera.",
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setFotos((prev) => [...prev, result.assets[0].uri]);
+    }
+  };
+
+  // Abrir a Galeria
+  const handlePickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setFotos((prev) => [...prev, result.assets[0].uri]);
+    }
+  };
+
+  // Remover foto da lista
+  const handleRemovePhoto = (indexToRemove: number) => {
+    setFotos((prev) => prev.filter((_, index) => index !== indexToRemove));
+  };
 
   if (isLoading) {
     return (
@@ -109,12 +152,40 @@ export const OrderIssueContent: React.FC<Props> = ({
           </View>
         </View>
 
-        {/* Formulário: Motivo */}
+        {/* Formulário: Motivo (Seletor Real) */}
         <Text style={styles.inputLabel}>Qual o motivo do problema?</Text>
-        <TouchableOpacity style={styles.dropdownButton}>
-          <Text style={styles.dropdownText}>{motivo}</Text>
-          <Feather name="chevron-down" size={20} color="#6B7280" />
-        </TouchableOpacity>
+        <View style={styles.optionsContainer}>
+          {motivosDisponiveis.map((item) => {
+            const isSelected = motivo === item;
+            return (
+              <TouchableOpacity
+                key={item}
+                style={[
+                  styles.optionCard,
+                  isSelected && styles.optionCardSelected,
+                ]}
+                onPress={() => setMotivo(item)}
+              >
+                <View
+                  style={[
+                    styles.radioCircle,
+                    isSelected && styles.radioCircleSelected,
+                  ]}
+                >
+                  {isSelected && <View style={styles.radioInner} />}
+                </View>
+                <Text
+                  style={[
+                    styles.optionText,
+                    isSelected && styles.optionTextSelected,
+                  ]}
+                >
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
         {/* Formulário: Descrição */}
         <Text style={styles.inputLabel}>Descreva o que aconteceu</Text>
@@ -133,10 +204,36 @@ export const OrderIssueContent: React.FC<Props> = ({
           Quanto mais detalhes, mais rápida a análise. Máx. 500 caracteres.
         </Text>
 
-        {/* Evidências (Mock Visual) */}
+        {/* Evidências */}
         <Text style={styles.inputLabel}>Evidências (fotos / prints)</Text>
+
+        {/* Lista de miniaturas das fotos escolhidas */}
+        {fotos.length > 0 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.photosList}
+          >
+            {fotos.map((uri, index) => (
+              <View key={index} style={styles.photoThumbnailContainer}>
+                <Image source={{ uri }} style={styles.photoThumbnail} />
+                <TouchableOpacity
+                  style={styles.removePhotoBtn}
+                  onPress={() => handleRemovePhoto(index)}
+                >
+                  <Feather name="x" size={14} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+        )}
+
+        {/* Botões para adicionar mais fotos */}
         <View style={styles.evidenceContainer}>
-          <TouchableOpacity style={styles.evidenceButton}>
+          <TouchableOpacity
+            style={styles.evidenceButton}
+            onPress={handleTakePhoto}
+          >
             <Feather
               name="camera"
               size={20}
@@ -145,16 +242,10 @@ export const OrderIssueContent: React.FC<Props> = ({
             />
             <Text style={styles.evidenceText}>Câmera</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.evidenceButton}>
-            <Feather
-              name="paperclip"
-              size={20}
-              color="#6B7280"
-              style={{ marginBottom: 8 }}
-            />
-            <Text style={styles.evidenceText}>Arquivo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.evidenceButton}>
+          <TouchableOpacity
+            style={styles.evidenceButton}
+            onPress={handlePickImage}
+          >
             <Feather
               name="image"
               size={20}
@@ -165,7 +256,7 @@ export const OrderIssueContent: React.FC<Props> = ({
           </TouchableOpacity>
         </View>
 
-        {/* Footer Actions (Movi para cá, dentro do ScrollView) */}
+        {/* Footer Actions */}
         <View style={styles.footer}>
           <TouchableOpacity
             style={styles.cancelButton}
@@ -176,9 +267,14 @@ export const OrderIssueContent: React.FC<Props> = ({
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.continueButton, isSubmitting && { opacity: 0.7 }]}
-            onPress={() => onSubmit(motivo, descricao)}
-            disabled={isSubmitting}
+            style={[
+              styles.continueButton,
+              (isSubmitting || descricao.trim().length < 10) && {
+                opacity: 0.5,
+              },
+            ]}
+            onPress={() => onSubmit(motivo, descricao, fotos)}
+            disabled={isSubmitting || descricao.trim().length < 10}
           >
             {isSubmitting ? (
               <ActivityIndicator color="#EF4444" />
@@ -288,17 +384,53 @@ const styles = StyleSheet.create({
     color: "#111827",
     marginBottom: 12,
   },
-  dropdownButton: {
+
+  // Novos estilos do seletor
+  optionsContainer: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  optionCard: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    padding: 16,
     borderWidth: 1,
     borderColor: "#E5E7EB",
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
+    backgroundColor: "#F9FAFB",
   },
-  dropdownText: { fontSize: 14, color: "#111827" },
+  optionCardSelected: {
+    borderColor: "#EF4444",
+    backgroundColor: "#FEF2F2",
+  },
+  radioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#D1D5DB",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  radioCircleSelected: {
+    borderColor: "#EF4444",
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#EF4444",
+  },
+  optionText: {
+    fontSize: 15,
+    color: "#4B5563",
+    flex: 1,
+  },
+  optionTextSelected: {
+    color: "#111827",
+    fontWeight: "600",
+  },
 
   textArea: {
     borderWidth: 1,
@@ -311,6 +443,23 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   charCount: { fontSize: 11, color: "#9CA3AF", marginBottom: 24 },
+
+  photosList: { marginBottom: 16 },
+  photoThumbnailContainer: { position: "relative", marginRight: 12 },
+  photoThumbnail: { width: 80, height: 80, borderRadius: 12 },
+  removePhotoBtn: {
+    position: "absolute",
+    top: -8,
+    right: -8,
+    backgroundColor: "#EF4444",
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+  },
 
   evidenceContainer: {
     flexDirection: "row",
@@ -330,11 +479,7 @@ const styles = StyleSheet.create({
   },
   evidenceText: { fontSize: 12, color: "#6B7280" },
 
-  footer: {
-    flexDirection: "row",
-    marginTop: 40, // Espaçamento extra das caixas de evidência
-    gap: 16,
-  },
+  footer: { flexDirection: "row", marginTop: 40, gap: 16 },
   cancelButton: {
     flex: 1,
     backgroundColor: "#F3F4F6",
