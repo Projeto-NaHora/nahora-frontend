@@ -134,13 +134,6 @@ export const orderService = {
   },
 
   /**
-   * Confirma a conclusão de um pedido através da API.
-   */
-  confirmarConclusao: async (id: number): Promise<void> => {
-    await api.post(`${ENDPOINTS.PEDIDOS}/${id}/concluir`);
-  },
-
-  /**
    * Faz upload de um arquivo de mídia (imagem/vídeo) e retorna a URL pública.
    */
   uploadMidia: async (uri: string, tipo: string): Promise<string> => {
