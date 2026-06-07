@@ -2,28 +2,11 @@ import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "expo-router";
 
 import { useAuthStore } from "@/store/authStore";
-import type {
-  ProfileMenuItem,
-  ProfileStats,
-  ProfessionalProfileResponse,
-} from "../types";
+import { useProfessionalProfile } from "./useProfile";
+import type { ProfileMenuItem, ProfileStats } from "../types";
 
-// ---- MOCK: remover quando o endpoint GET /profissionais/me estiver pronto ----
-const MOCK_PROFILE: ProfessionalProfileResponse = {
-  id: 1,
-  nome: "Gustavo Henrique",
-  email: "gustavo@email.com",
-  telefone: "11999998888",
-  categoriaServico: "PINTURA",
-  cidade: "Recife",
-  estado: "PE",
-  mediaAvaliacao: 4.8,
-  totalServicos: 21,
-  ganhos: "R$ 3K",
-};
-// ---------------------------------------------------------------------------
-
-function mapCategoriaServico(categoria: string): string {
+function mapProfissao(profissao?: string): string {
+  if (!profissao) return "";
   const map: Record<string, string> = {
     ELETRICA: "Eletricista",
     ENCANAMENTO: "Encanador",
@@ -31,7 +14,7 @@ function mapCategoriaServico(categoria: string): string {
     PEDREIRO: "Pedreiro",
     AR_CONDICIONADO: "Ar-condicionado",
   };
-  return map[categoria] ?? categoria;
+  return map[profissao] ?? profissao;
 }
 
 export function useProfileMenu() {
@@ -39,9 +22,12 @@ export function useProfileMenu() {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
-  // ---- MOCK: trocar useMockProfile() por useProfessionalProfile() quando a API estiver pronta ----
-  const { profile, isLoading, error, retry } = useMockProfile();
-  // const { data: profile, isLoading, error, mutate: retry } = useProfessionalProfile();
+  const {
+    data: profile,
+    isLoading,
+    error,
+    mutate: retry,
+  } = useProfessionalProfile();
 
   // Deriva os dados de exibição
   const nome = profile?.nome ?? user?.nome ?? "";
@@ -58,7 +44,7 @@ export function useProfileMenu() {
 
   const subtitle = useMemo(() => {
     if (profile) {
-      const profissao = mapCategoriaServico(profile.categoriaServico);
+      const profissao = mapProfissao(profile.profissao);
       if (profile.cidade && profile.estado) {
         return `${profissao} · ${profile.cidade}, ${profile.estado}`;
       }
@@ -69,9 +55,9 @@ export function useProfileMenu() {
 
   const stats: ProfileStats = useMemo(
     () => ({
-      servicesCount: profile?.totalServicos ?? 0,
-      rating: profile?.mediaAvaliacao ?? 0,
-      earnings: profile?.ganhos ?? "R$ 0",
+      servicesCount: profile?.totalServicosExecutados ?? 0,
+      rating: profile?.notaMedia ?? 0,
+      earnings: "R$ 0",
     }),
     [profile],
   );
@@ -147,17 +133,5 @@ export function useProfileMenu() {
     openLogoutPopup,
     closeLogoutPopup,
     confirmLogout,
-  };
-}
-
-/** Mock que simula o retorno de useProfessionalProfile enquanto a API não existe */
-function useMockProfile() {
-  // Simula um carregamento rápido, depois entrega os dados mockados
-  const profile = MOCK_PROFILE;
-  return {
-    profile,
-    isLoading: false,
-    error: null,
-    retry: () => {},
   };
 }
