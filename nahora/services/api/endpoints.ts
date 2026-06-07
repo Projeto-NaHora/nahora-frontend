@@ -57,7 +57,7 @@ export const ENDPOINTS = {
   PROFISSIONAL_CATEGORIA: "/profissionais/categoria",
   PROFISSIONAL_DOCUMENTOS: "/profissionais/documentos",
   PERFIL_CLIENTE: "/clientes/me",
-  PERFIL_PROFISSIONAL: "/profissionais/me",
+  PERFIL_PROFISSIONAL: "/profissionais/perfil",
   UPLOAD_PROFILE_PHOTO: "/files/upload/profile",
   PROFISSIONAL: (id: number) => `/profissionais/${id}`,
   PROFISSIONAIS: "/profissionais",

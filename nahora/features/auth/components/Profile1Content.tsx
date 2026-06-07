@@ -10,17 +10,11 @@ import {
 } from "react-native";
 
 import { Colors } from "@/constants/theme";
-import {
-  formatCpf,
-  isValidCpf,
-  unformatCpf,
-  formatCep,
-} from "@/utils/formatters";
+import { formatCep } from "@/utils/formatters";
 import { ProfileStepIndicator } from "./ProfileStepIndicator";
 
 type Profile1ContentProps = {
   nome: string;
-  cpf: string;
   cargo: string;
   experienceYears: string;
   profilePhotoUri: string | null;
@@ -34,7 +28,6 @@ type Profile1ContentProps = {
   raioAtuacaoKm: string;
   cepLoading: boolean;
   onChangeNome: (value: string) => void;
-  onChangeCpf: (value: string) => void;
   onChangeCargo: (value: string) => void;
   onChangeExperienceYears: (value: string) => void;
   onChangeCep: (value: string) => void;
@@ -48,12 +41,11 @@ type Profile1ContentProps = {
   onCepBlur: () => void;
   onPickPhoto: () => void;
   onContinue: () => void;
-  /** Botão Voltar (opcional — usado no modo edição) */
   onBack?: () => void;
 };
 
 type TouchedFields = {
-  cpf: boolean;
+  nome: boolean;
   cargo: boolean;
   cep: boolean;
   logradouro: boolean;
@@ -81,7 +73,6 @@ export function Profile1Content({
   raioAtuacaoKm,
   cepLoading,
   onChangeNome,
-  onChangeCpf,
   onChangeCargo,
   onChangeExperienceYears,
   onChangeCep,
@@ -101,7 +92,7 @@ export function Profile1Content({
   const colors = Colors[theme];
 
   const [touched, setTouched] = useState<TouchedFields>({
-    cpf: false,
+    nome: false,
     cargo: false,
     cep: false,
     logradouro: false,
@@ -117,8 +108,6 @@ export function Profile1Content({
     setTouched((prev) => ({ ...prev, [field]: true }));
   }, []);
 
-  const formattedCpf = formatCpf(cpf);
-  const isCpfValid = isValidCpf(cpf);
   const isCargoValid = cargo.trim().length >= 4;
   const isCepValid = cep.replace(/\D/g, "").length === 8;
   const isLogradouroValid = logradouro.trim().length >= 3;
@@ -135,27 +124,18 @@ export function Profile1Content({
   const isExperienceValid = /^\d+$/.test(experienceYears);
   const isRaioValid =
     /^\d+$/.test(raioAtuacaoKm) && parseInt(raioAtuacaoKm, 10) > 0;
-  const hasNome = !!(nome && nome.trim().length >= 3);
-  const isValid = hasNome
-    ? isCargoValid &&
-      isCepValid &&
-      isAddressValid &&
-      isExperienceValid &&
-      isRaioValid
-    : isCpfValid &&
-      isCargoValid &&
-      isCepValid &&
-      isAddressValid &&
-      isExperienceValid &&
-      isRaioValid;
+  const isNomeValid = (nome ?? "").trim().length >= 3;
+  const isValid =
+    isNomeValid &&
+    isCargoValid &&
+    isCepValid &&
+    isAddressValid &&
+    isExperienceValid &&
+    isRaioValid;
 
   const fieldBorder = (field: keyof TouchedFields, valid: boolean) => {
     if (!touched[field]) return colors.border;
     return valid ? colors.border : (colors.error ?? "#dc2626");
-  };
-
-  const handleCpfChange = (text: string) => {
-    onChangeCpf(unformatCpf(text));
   };
 
   const handleCepChange = (text: string) => {
@@ -222,66 +202,39 @@ export function Profile1Content({
       </View>
 
       <View style={styles.form}>
-        {nome && nome.length > 0 ? (
-          <View style={styles.fieldGroup}>
-            <Text style={[styles.label, { color: colors.textPrimary }]}>
-              Nome
-            </Text>
-            <View style={styles.inputWrapper}>
-              <View style={styles.inputIconContainer}>
-                <Text style={styles.inputIcon}>👤</Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    color: colors.textPrimary,
-                    backgroundColor: colors.surface,
-                    borderColor: colors.border,
-                  },
-                ]}
-                placeholder="Seu nome completo"
-                placeholderTextColor={colors.placeholder}
-                value={nome}
-                onChangeText={onChangeNome}
-                autoCapitalize="words"
-              />
+        <View style={styles.fieldGroup}>
+          <Text style={[styles.label, { color: colors.textPrimary }]}>
+            Nome
+          </Text>
+          <View style={styles.inputWrapper}>
+            <View style={styles.inputIconContainer}>
+              <Text style={styles.inputIcon}>👤</Text>
             </View>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  color: colors.textPrimary,
+                  backgroundColor: colors.surface,
+                  borderColor: fieldBorder("nome", isNomeValid),
+                },
+              ]}
+              placeholder="Seu nome completo"
+              placeholderTextColor={colors.placeholder}
+              value={nome}
+              onChangeText={onChangeNome}
+              onBlur={() => touch("nome")}
+              autoCapitalize="words"
+            />
           </View>
-        ) : (
-          <View style={styles.fieldGroup}>
-            <Text style={[styles.label, { color: colors.textPrimary }]}>
-              CPF
+          {touched.nome && !isNomeValid && (
+            <Text
+              style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}
+            >
+              Mínimo 3 caracteres
             </Text>
-            <View style={styles.inputWrapper}>
-              <View style={styles.inputIconContainer}>
-                <Text style={styles.inputIcon}>🪪</Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    color: colors.textPrimary,
-                    backgroundColor: colors.surface,
-                    borderColor: fieldBorder("cpf", isCpfValid),
-                  },
-                ]}
-                placeholder="ex. 999.999.999-00"
-                placeholderTextColor={colors.placeholder}
-                value={formattedCpf}
-                onChangeText={handleCpfChange}
-                onBlur={() => touch("cpf")}
-                keyboardType="number-pad"
-                maxLength={14}
-              />
-            </View>
-            {touched.cpf && !isCpfValid && (
-              <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
-                CPF inválido
-              </Text>
-            )}
-          </View>
-        )}
+          )}
+        </View>
 
         <View style={styles.fieldGroup}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>
@@ -308,7 +261,9 @@ export function Profile1Content({
             />
           </View>
           {touched.cargo && !isCargoValid && (
-            <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+            <Text
+              style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}
+            >
               Mínimo 4 caracteres
             </Text>
           )}
@@ -342,13 +297,18 @@ export function Profile1Content({
               placeholderTextColor={colors.placeholder}
               value={formatCep(cep)}
               onChangeText={handleCepChange}
-              onBlur={() => { touch("cep"); onCepBlur(); }}
+              onBlur={() => {
+                touch("cep");
+                onCepBlur();
+              }}
               keyboardType="number-pad"
               maxLength={9}
             />
           </View>
           {touched.cep && !isCepValid && (
-            <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+            <Text
+              style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}
+            >
               CEP deve ter 8 dígitos
             </Text>
           )}
@@ -484,7 +444,9 @@ export function Profile1Content({
             autoCapitalize="characters"
           />
           {touched.estado && !isEstadoValid && (
-            <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+            <Text
+              style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}
+            >
               Use a sigla do estado (ex: SP)
             </Text>
           )}
@@ -505,7 +467,10 @@ export function Profile1Content({
                   {
                     color: colors.textPrimary,
                     backgroundColor: colors.surface,
-                    borderColor: fieldBorder("experienceYears", isExperienceValid),
+                    borderColor: fieldBorder(
+                      "experienceYears",
+                      isExperienceValid,
+                    ),
                   },
                 ]}
                 placeholder="ex. 8"
@@ -517,7 +482,12 @@ export function Profile1Content({
               />
             </View>
             {touched.experienceYears && !isExperienceValid && (
-              <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+              <Text
+                style={[
+                  styles.fieldError,
+                  { color: colors.error ?? "#dc2626" },
+                ]}
+              >
                 Informe os anos de experiência
               </Text>
             )}
@@ -548,7 +518,12 @@ export function Profile1Content({
               />
             </View>
             {touched.raioAtuacaoKm && !isRaioValid && (
-              <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>
+              <Text
+                style={[
+                  styles.fieldError,
+                  { color: colors.error ?? "#dc2626" },
+                ]}
+              >
                 Informe um raio maior que 0 km
               </Text>
             )}
