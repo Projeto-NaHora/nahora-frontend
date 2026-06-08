@@ -11,6 +11,7 @@ export type Urgencia = "BAIXA" | "NORMAL" | "URGENTE";
 
 export type StatusPedido =
   | "ABERTO"
+  | "AGUARDANDO_PAGAMENTO"
   | "EM_ANDAMENTO"
   | "AGUARDANDO_VALIDACAO"
   | "CONCLUIDO"
@@ -28,7 +29,9 @@ export type StatusPagamento =
   | "CAPTURADO"
   | "LIBERADO"
   | "REEMBOLSO"
-  | "EM_DISPUTA";
+  | "EM_DISPUTA"
+  | "FALHOU"
+  | "EXPIRADO";
 
 export type MetodoPagamento = "PIX" | "CARTAO_CREDITO";
 

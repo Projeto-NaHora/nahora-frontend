@@ -42,6 +42,8 @@ export const ENDPOINTS = {
 
   // Pagamentos
   PAGAMENTO: (propostaId: number) => `/propostas/${propostaId}/pagamento`,
+  PAGAMENTO_SIMULAR: (pedidoId: number) => `/pedidos/${pedidoId}/pagamento/simular`,
+  PEDIDO_RECIBO: (pedidoId: number) => `/pedidos/${pedidoId}/recibo`,
   CONFIRMAR_CONCLUSAO: (pedidoId: number) => `/pedidos/${pedidoId}/confirmar`,
 
   // Avaliações
@@ -61,6 +63,12 @@ export const ENDPOINTS = {
   UPLOAD_PROFILE_PHOTO: "/files/upload/profile",
   PROFISSIONAL: (id: number) => `/profissionais/${id}`,
   PROFISSIONAIS: "/profissionais",
+
+  // Histórico de ganhos (profissional)
+  HISTORICO_GANHOS: (mes: number, ano: number) =>
+    `/profissionais/historico/ganhos?mes=${mes}&ano=${ano}`,
+  HISTORICO_SERVICOS: (mes: number, ano: number) =>
+    `/profissionais/historico/servicos?mes=${mes}&ano=${ano}`,
 
   // Favoritos
   // POST/DELETE /api/v1/favoritos/{profissionalId}

@@ -32,8 +32,9 @@ export default function PedidoCompleteScreen() {
               // 2. Limpa a pilha de navegação (evita que o usuário volte para cá)
               router.dismissAll();
 
-              // 3. Redireciona para a tela de avaliação
-              router.replace(`/(client)/(orders)/${pedidoId}/rating`);
+              // 3. Redireciona para os detalhes do pedido (status CONCLUIDO)
+              //    O usuário pode avaliar depois pela CTA "Avaliar serviço"
+              router.replace(`/(client)/(orders)/${pedidoId}`);
             } catch (err) {
               Alert.alert(
                 "Erro",

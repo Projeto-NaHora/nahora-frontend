@@ -1,6 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 type ProfessionalListCardProps = {
   name: string;
@@ -34,9 +36,11 @@ export const ProfessionalListCard: React.FC<ProfessionalListCardProps> = ({
   isPlus,
   onPress,
 }) => {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   return (
     <TouchableOpacity
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.background }]}
       activeOpacity={0.85}
       onPress={onPress}
     >
@@ -58,19 +62,19 @@ export const ProfessionalListCard: React.FC<ProfessionalListCardProps> = ({
       {/* Info */}
       <View style={styles.info}>
         <View style={styles.row}>
-          <Text style={styles.name} numberOfLines={1}>
+          <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
             {name}
           </Text>
           {isPlus && (
             <View style={styles.plusBadge}>
-              <Text style={styles.plusText}>Plus</Text>
+              <Text style={[styles.plusText, { color: colors.brand }]}>Plus</Text>
             </View>
           )}
         </View>
 
         {/*Categoria • X km */}
-        <Text style={styles.categoryDistance} numberOfLines={1}>
-          {category} <Text style={styles.dot}>•</Text> {distance.toFixed(1)} km
+        <Text style={[styles.categoryDistance, { color: colors.textSecondary }]} numberOfLines={1}>
+          {category} <Text style={[styles.dot, { color: colors.border }]}>•</Text> {distance.toFixed(1)} km
         </Text>
 
         <View style={styles.bottomRow}>
@@ -81,8 +85,8 @@ export const ProfessionalListCard: React.FC<ProfessionalListCardProps> = ({
               color="#FFA726"
               style={{ marginRight: 2 }}
             />
-            <Text style={styles.rating}>{rating.toFixed(1)}</Text>
-            <Text style={styles.reviews}>
+            <Text style={[styles.rating, { color: colors.text }]}>{rating.toFixed(1)}</Text>
+            <Text style={[styles.reviews, { color: colors.textSecondary }]}>
               <Text style={styles.dot}>•</Text> {reviews} aval.{" "}
             </Text>
           </View>
@@ -97,7 +101,6 @@ const AVATAR_BG = "#F3E8FF";
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    backgroundColor: "#fff",
     borderRadius: 14,
     padding: 16,
     marginVertical: 6,
@@ -141,29 +144,25 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#22223B",
-    maxWidth: "80%", // Previne que nomes muito longos empurrem a badge pra fora da tela
+    maxWidth: "80%",
   },
   plusBadge: {
-    backgroundColor: "#FFF7ED", // Fundo laranjinha claro
+    backgroundColor: "#FFF7ED",
     borderRadius: 8,
     paddingHorizontal: 6,
     paddingVertical: 2,
     marginLeft: 6,
   },
   plusText: {
-    color: "#F97316", // Laranja forte
     fontSize: 11,
     fontWeight: "bold",
   },
   categoryDistance: {
-    color: "#6B7280",
     fontSize: 13,
-    marginBottom: 4, // Um pouco mais de espaço embaixo
+    marginBottom: 4,
   },
   dot: {
     fontWeight: "bold",
-    color: "#D1D5DB", // Pontinho um pouco mais claro
   },
   bottomRow: {
     flexDirection: "row",
@@ -177,13 +176,11 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   rating: {
-    color: "#22223B",
     fontWeight: "bold",
     fontSize: 13,
     marginLeft: 2,
   },
   reviews: {
-    color: "#6B7280",
     fontSize: 12,
     marginLeft: 4,
   },

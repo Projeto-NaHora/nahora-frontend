@@ -15,6 +15,8 @@ import {
   TURNO_TIME_RANGES,
   Pedido,
 } from "../types";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 type Props = {
   pedido: Pedido | any;
@@ -33,10 +35,12 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
   onIssue,
   onFinish,
 }) => {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#F26F21" />
+      <SafeAreaView style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.brand} />
       </SafeAreaView>
     );
   }
@@ -49,6 +53,8 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
   const isEmAndamento = status === "EM_ANDAMENTO";
 
   const getStatusDisplay = () => {
+    if (status === "AGUARDANDO_PAGAMENTO")
+      return { text: "AGUARDANDO PAGAMENTO", color: "#2E7D32", bg: "#E8F5E9" };
     if (isEmAndamento)
       return { text: "EM ANDAMENTO", color: "#417BE0", bg: "#E6F0FF" };
     if (isAguardando)
@@ -77,16 +83,16 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
     : "Endereço não informado";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <TouchableOpacity
-          style={styles.backBtn}
+          style={[styles.backBtn, { backgroundColor: colors.surface }]}
           onPress={onBack}
           disabled={isFinishing}
         >
-          <Feather name="arrow-left" size={24} color="#111827" />
+          <Feather name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Detalhe do serviço</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do serviço</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -95,7 +101,7 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
         contentContainerStyle={styles.scrollInner}
       >
         <View style={styles.titleRow}>
-          <Text style={styles.serviceTitle}>{categoriaFormatada}</Text>
+          <Text style={[styles.serviceTitle, { color: colors.text }]}>{categoriaFormatada}</Text>
           <View style={[styles.badge, { backgroundColor: badgeInfo.bg }]}>
             <Text style={[styles.badgeText, { color: badgeInfo.color }]}>
               {badgeInfo.text}
@@ -104,33 +110,33 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
         </View>
 
         {/* Info Card */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
           <View style={styles.rowInfo}>
             <View style={styles.colInfo}>
-              <Text style={styles.label}>Data</Text>
-              <Text style={styles.value}>{dataFormatada}</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Data</Text>
+              <Text style={[styles.value, { color: colors.text }]}>{dataFormatada}</Text>
             </View>
             <View style={styles.colInfo}>
-              <Text style={styles.label}>Horário</Text>
-              <Text style={styles.value}>{turnoFormatado}</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Horário</Text>
+              <Text style={[styles.value, { color: colors.text }]}>{turnoFormatado}</Text>
             </View>
           </View>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <View style={styles.colInfo}>
-            <Text style={styles.label}>Endereço</Text>
-            <Text style={styles.value}>{enderecoFormatado}</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>Endereço</Text>
+            <Text style={[styles.value, { color: colors.text }]}>{enderecoFormatado}</Text>
           </View>
         </View>
 
         {/* Description Card */}
-        <View style={styles.card}>
-          <Text style={styles.labelDesc}>DESCRIÇÃO</Text>
-          <Text style={styles.descriptionText}>{pedido?.descricao}</Text>
+        <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
+          <Text style={[styles.labelDesc, { color: colors.textSecondary }]}>DESCRIÇÃO</Text>
+          <Text style={[styles.descriptionText, { color: colors.text }]}>{pedido?.descricao}</Text>
         </View>
 
         {/* Timeline Dinâmica */}
         <View style={styles.timelineContainer}>
-          <Text style={styles.sectionTitle}>Linha do tempo</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Linha do tempo</Text>
 
           <View style={styles.timelineItem}>
             <View style={[styles.timelineDot, styles.dotGreen]} />
@@ -153,15 +159,15 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
               style={[
                 styles.timelineDot,
                 isAguardando || isConcluido
-                  ? styles.dotGreen
-                  : styles.dotOrange,
+                  ? { backgroundColor: colors.success }
+                  : { backgroundColor: colors.brand },
               ]}
             />
             <View
               style={[
                 isAguardando || isConcluido
-                  ? styles.timelineLineActive
-                  : styles.timelineLineInactive,
+                  ? { backgroundColor: colors.success, position: "absolute", left: 7, top: 18, bottom: -24, width: 2, zIndex: 1 }
+                  : { backgroundColor: colors.border, position: "absolute", left: 7, top: 18, bottom: -24, width: 2, zIndex: 1 },
               ]}
             />
             <View style={styles.timelineTextContainer}>
@@ -169,7 +175,7 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
                 style={[
                   styles.timelineTitle,
                   {
-                    color: isAguardando || isConcluido ? "#111827" : "#F97316",
+                    color: isAguardando || isConcluido ? colors.text : colors.brand,
                   },
                 ]}
               >
@@ -183,10 +189,10 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
               style={[
                 styles.timelineDot,
                 isConcluido
-                  ? styles.dotGreen
+                  ? { backgroundColor: colors.success }
                   : isAguardando
-                    ? styles.dotOrange
-                    : styles.dotGray,
+                    ? { backgroundColor: colors.brand }
+                    : { backgroundColor: colors.border },
               ]}
             />
             <View style={styles.timelineTextContainer}>
@@ -195,10 +201,10 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
                   styles.timelineTitle,
                   {
                     color: isConcluido
-                      ? "#111827"
+                      ? colors.text
                       : isAguardando
-                        ? "#F97316"
-                        : "#9CA3AF",
+                        ? colors.brand
+                        : colors.textSecondary,
                   },
                 ]}
               >
@@ -213,25 +219,25 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
           {/* Se o pedido já estiver concluído, não mostramos os botões de ação */}
           {!isConcluido && (
             <TouchableOpacity
-              style={styles.secondaryButton}
+              style={[styles.secondaryButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={onIssue}
               disabled={isFinishing}
             >
-              <Text style={styles.secondaryButtonText}>Tive um problema</Text>
+              <Text style={[styles.secondaryButtonText, { color: colors.text }]}>Tive um problema</Text>
             </TouchableOpacity>
           )}
 
           {/* O botão "Finalizar serviço" só aparece se estiver de fato em andamento */}
           {isEmAndamento && (
             <TouchableOpacity
-              style={[styles.primaryButton, isFinishing && { opacity: 0.7 }]}
+              style={[styles.primaryButton, { backgroundColor: colors.brand }, isFinishing && { opacity: 0.7 }]}
               onPress={onFinish}
               disabled={isFinishing}
             >
               {isFinishing ? (
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Text style={styles.primaryButtonText}>Finalizar serviço</Text>
+                <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>Finalizar serviço</Text>
               )}
             </TouchableOpacity>
           )}
@@ -242,12 +248,11 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1 },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
@@ -260,11 +265,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { fontSize: 18, fontWeight: "700", color: "#111827" },
+  headerTitle: { fontSize: 18, fontWeight: "700" },
   scrollContent: { flex: 1 },
   scrollInner: { padding: 24, paddingBottom: 48 },
   titleRow: {
@@ -276,7 +280,6 @@ const styles = StyleSheet.create({
   serviceTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#111827",
     flex: 1,
     marginRight: 8,
   },
@@ -284,29 +287,26 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 10, fontWeight: "700", letterSpacing: 0.5 },
   card: {
     borderWidth: 1,
-    borderColor: "#F3F4F6",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
   },
   rowInfo: { flexDirection: "row", justifyContent: "space-between" },
   colInfo: { flex: 1 },
-  divider: { height: 1, backgroundColor: "#F3F4F6", marginVertical: 16 },
-  label: { fontSize: 12, color: "#6B7280", marginBottom: 4 },
-  value: { fontSize: 15, fontWeight: "600", color: "#111827" },
+  divider: { height: 1, marginVertical: 16 },
+  label: { fontSize: 12, marginBottom: 4 },
+  value: { fontSize: 15, fontWeight: "600" },
   labelDesc: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#9CA3AF",
     letterSpacing: 1,
     marginBottom: 8,
   },
-  descriptionText: { fontSize: 15, color: "#374151", lineHeight: 22 },
+  descriptionText: { fontSize: 15, lineHeight: 22 },
   timelineContainer: { marginBottom: 16 },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 16,
   },
   timelineItem: {
@@ -321,45 +321,21 @@ const styles = StyleSheet.create({
     marginTop: 2,
     zIndex: 2,
   },
-  dotGreen: { backgroundColor: "#10B981" },
-  dotOrange: { backgroundColor: "#F97316" },
-  dotGray: { backgroundColor: "#E5E7EB" },
-  timelineLineActive: {
-    position: "absolute",
-    left: 7,
-    top: 18,
-    bottom: -24,
-    width: 2,
-    backgroundColor: "#10B981",
-    zIndex: 1,
-  },
-  timelineLineInactive: {
-    position: "absolute",
-    left: 7,
-    top: 18,
-    bottom: -24,
-    width: 2,
-    backgroundColor: "#E5E7EB",
-    zIndex: 1,
-  },
   timelineTextContainer: { marginLeft: 16, flex: 1 },
   timelineTitle: { fontSize: 15, fontWeight: "600" },
   footer: { marginTop: 24, gap: 12 },
   primaryButton: {
-    backgroundColor: "#F26F21",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
-  primaryButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
+  primaryButtonText: { fontSize: 16, fontWeight: "700" },
   secondaryButton: {
-    backgroundColor: "#F9FAFB",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
   },
-  secondaryButtonText: { color: "#111827", fontSize: 16, fontWeight: "600" },
+  secondaryButtonText: { fontSize: 16, fontWeight: "600" },
 });

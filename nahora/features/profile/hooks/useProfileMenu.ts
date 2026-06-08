@@ -99,6 +99,11 @@ export function useProfileMenu() {
         route: "/(professional)/(account)/settings",
       },
       {
+        id: "earnings",
+        label: "Meus Ganhos",
+        route: "/(professional)/(account)/earnings",
+      },
+      {
         id: "privacy",
         label: "Privacidade",
         route: "/(professional)/(account)/settings/privacy",
