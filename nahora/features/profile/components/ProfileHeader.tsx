@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-import { Fonts } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors, Fonts } from "@/constants/theme";
 
 interface ProfileHeaderProps {
   initials: string;
@@ -14,14 +15,16 @@ export function ProfileHeader({
   name,
   subtitle,
 }: ProfileHeaderProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text style={[styles.name, { color: "#1c1c1e" }]}>{name}</Text>
-        <Text style={[styles.subtitle, { color: "#8e8e93" }]}>{subtitle}</Text>
+        <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
       </View>
       <View style={[styles.avatar, { backgroundColor: "#fef0e8" }]}>
-        <Text style={[styles.avatarText, { color: "#f26f21" }]}>
+        <Text style={[styles.avatarText, { color: colors.brand }]}>
           {initials}
         </Text>
       </View>

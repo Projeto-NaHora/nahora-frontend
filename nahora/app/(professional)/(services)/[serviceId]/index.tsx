@@ -55,6 +55,7 @@ export default function ProServiceDetailScreen() {
 
   // Redirects for non-completed statuses
   if (
+    pedido?.status === "AGUARDANDO_PAGAMENTO" ||
     pedido?.status === "EM_ANDAMENTO" ||
     pedido?.status === "AGUARDANDO_VALIDACAO"
   ) {

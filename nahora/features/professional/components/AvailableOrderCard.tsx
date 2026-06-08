@@ -76,7 +76,7 @@ export function AvailableOrderCard({
 
         {/* Client + distance + time */}
         <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-          {pedido.clienteNome} · {formatDistance(pedido.distanciaKm)} ·{" "}
+          {formatDistance(pedido.distanciaKm)} ·{" "}
           {formatTimeAgo(pedido.dataPublicacao)}
         </Text>
 

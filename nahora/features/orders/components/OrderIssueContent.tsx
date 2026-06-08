@@ -14,6 +14,8 @@ import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { Pedido, CATEGORIA_LABEL } from "../types";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 // Função para pegar as iniciais do profissional
 const getInitials = (name: string) => {
@@ -84,10 +86,12 @@ export const OrderIssueContent: React.FC<Props> = ({
     setFotos((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#EF4444" />
+      <SafeAreaView style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.error} />
       </SafeAreaView>
     );
   }
@@ -98,23 +102,24 @@ export const OrderIssueContent: React.FC<Props> = ({
   const dataFormatada = pedido?.dataDesejada
     ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
     : "";
-  const valorFormatado = Number(pedido?.orcamentoEstimado || 0).toLocaleString(
+  const valorParaExibir = pedido?.valorAcordado ?? pedido?.orcamentoEstimado ?? 0;
+  const valorFormatado = Number(valorParaExibir).toLocaleString(
     "pt-BR",
     { style: "currency", currency: "BRL" },
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header Fixo */}
       <View style={styles.header}>
         <TouchableOpacity
-          style={styles.backBtn}
+          style={[styles.backBtn, { backgroundColor: colors.surface }]}
           onPress={onBack}
           disabled={isSubmitting}
         >
-          <Feather name="arrow-left" size={24} color="#111827" />
+          <Feather name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tive um problema</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Tive um problema</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -125,30 +130,30 @@ export const OrderIssueContent: React.FC<Props> = ({
       >
         {/* Ícone de Alerta Central */}
         <View style={styles.iconWrapper}>
-          <View style={styles.iconCircle}>
+          <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
             <Text style={styles.exclamationMark}>!</Text>
           </View>
         </View>
 
-        <Text style={styles.mainTitle}>O serviço não foi concluído?</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.mainTitle, { color: colors.text }]}>O serviço não foi concluído?</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           Ao reportar um problema, o pagamento ficará retido até que a situação
           seja resolvida pela nossa equipe.
         </Text>
 
         {/* Card do Profissional */}
-        <View style={styles.providerCard}>
+        <View style={[styles.providerCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>
               {getInitials(profissionalNome)}
             </Text>
           </View>
           <View style={styles.providerInfo}>
-            <Text style={styles.providerName}>{profissionalNome}</Text>
-            <Text style={styles.providerDetails}>
+            <Text style={[styles.providerName, { color: colors.text }]}>{profissionalNome}</Text>
+            <Text style={[styles.providerDetails, { color: colors.textSecondary }]}>
               {categoriaFormatada} {dataFormatada ? `• ${dataFormatada}` : ""}
             </Text>
-            <Text style={styles.providerPrice}>{valorFormatado}</Text>
+            <Text style={[styles.providerPrice, { color: colors.success }]}>{valorFormatado}</Text>
           </View>
         </View>
 
@@ -237,7 +242,7 @@ export const OrderIssueContent: React.FC<Props> = ({
             <Feather
               name="camera"
               size={20}
-              color="#6B7280"
+              color={colors.icon}
               style={{ marginBottom: 8 }}
             />
             <Text style={styles.evidenceText}>Câmera</Text>
@@ -249,7 +254,7 @@ export const OrderIssueContent: React.FC<Props> = ({
             <Feather
               name="image"
               size={20}
-              color="#F9A8D4"
+              color={colors.icon}
               style={{ marginBottom: 8 }}
             />
             <Text style={styles.evidenceText}>Galeria</Text>
@@ -259,11 +264,11 @@ export const OrderIssueContent: React.FC<Props> = ({
         {/* Footer Actions */}
         <View style={styles.footer}>
           <TouchableOpacity
-            style={styles.cancelButton}
+            style={[styles.cancelButton, { backgroundColor: colors.surface }]}
             onPress={onBack}
             disabled={isSubmitting}
           >
-            <Text style={styles.cancelButtonText}>Cancelar</Text>
+            <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancelar</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -277,14 +282,14 @@ export const OrderIssueContent: React.FC<Props> = ({
             disabled={isSubmitting || descricao.trim().length < 10}
           >
             {isSubmitting ? (
-              <ActivityIndicator color="#EF4444" />
+              <ActivityIndicator color={colors.brand} />
             ) : (
               <>
-                <Text style={styles.continueButtonText}>Continuar</Text>
+                <Text style={[styles.continueButtonText, { color: colors.brand }]}>Continuar</Text>
                 <Feather
                   name="arrow-right"
                   size={18}
-                  color="#EF4444"
+                  color={colors.brand}
                   style={{ marginLeft: 8 }}
                 />
               </>
@@ -297,12 +302,11 @@ export const OrderIssueContent: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1 },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
@@ -315,11 +319,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { fontSize: 18, fontWeight: "700", color: "#111827" },
+  headerTitle: { fontSize: 18, fontWeight: "700" },
   scrollContent: { flex: 1 },
   scrollInner: { padding: 24, paddingBottom: 48 },
 
@@ -332,18 +335,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  exclamationMark: { fontSize: 28, color: "#111827", fontWeight: "300" },
+  exclamationMark: { fontSize: 28, fontWeight: "300" },
 
   mainTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111827",
     textAlign: "center",
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 14,
-    color: "#6B7280",
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 32,
@@ -372,16 +373,14 @@ const styles = StyleSheet.create({
   providerName: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 2,
   },
-  providerDetails: { fontSize: 12, color: "#9CA3AF", marginBottom: 4 },
-  providerPrice: { fontSize: 14, fontWeight: "700", color: "#10B981" },
+  providerDetails: { fontSize: 12, marginBottom: 4 },
+  providerPrice: { fontSize: 14, fontWeight: "700" },
 
   inputLabel: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 12,
   },
 
@@ -434,15 +433,13 @@ const styles = StyleSheet.create({
 
   textArea: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
     borderRadius: 12,
     padding: 16,
     height: 120,
     fontSize: 14,
-    color: "#111827",
     marginBottom: 8,
   },
-  charCount: { fontSize: 11, color: "#9CA3AF", marginBottom: 24 },
+  charCount: { fontSize: 11, marginBottom: 24 },
 
   photosList: { marginBottom: 16 },
   photoThumbnailContainer: { position: "relative", marginRight: 12 },
@@ -470,33 +467,29 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 90,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
     borderStyle: "dashed",
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F9FAFB",
   },
-  evidenceText: { fontSize: 12, color: "#6B7280" },
+  evidenceText: { fontSize: 12 },
 
   footer: { flexDirection: "row", marginTop: 40, gap: 16 },
   cancelButton: {
     flex: 1,
-    backgroundColor: "#F3F4F6",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
-  cancelButtonText: { color: "#111827", fontSize: 15, fontWeight: "700" },
+  cancelButtonText: { fontSize: 15, fontWeight: "700" },
   continueButton: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: "#FEE2E2",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
-  continueButtonText: { color: "#EF4444", fontSize: 15, fontWeight: "700" },
+  continueButtonText: { fontSize: 15, fontWeight: "700" },
 });

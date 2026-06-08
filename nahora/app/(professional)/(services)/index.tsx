@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useProOrders } from "@/features/orders/hooks/useOrders";
 import { ProServicesListContent } from "@/features/orders/components/ProServicesListContent";
@@ -10,6 +10,13 @@ export default function ProServicesTabScreen() {
   const { data, isLoading, mutate } = useProOrders();
 
   const pedidos = data?.content || data || [];
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await mutate();
+    setRefreshing(false);
+  }, [mutate]);
 
   // 2. Toda vez que o usuário abrir essa aba, forçamos a busca na API
   useFocusEffect(
@@ -34,6 +41,8 @@ export default function ProServicesTabScreen() {
       isLoading={isLoading}
       onPressDetails={handleOpenDetails}
       onPressChat={handleOpenChat}
+      refreshing={refreshing}
+      onRefresh={handleRefresh}
     />
   );
 }

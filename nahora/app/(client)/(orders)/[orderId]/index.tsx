@@ -28,6 +28,10 @@ export default function PedidoAbertoScreen() {
     return <Redirect href={`/(client)/(orders)/${orderId}/active`} />;
   }
 
+  if (pedido?.status === "AGUARDANDO_PAGAMENTO") {
+    return <Redirect href={`/(client)/(orders)/${orderId}/payment`} />;
+  }
+
   const handleDelete = () => {
     Alert.alert(
       "Excluir pedido",
