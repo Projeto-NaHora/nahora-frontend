@@ -52,9 +52,10 @@ export default function DetalhePropostaScreen() {
             setLoading(true);
             try {
               await acceptProposal(proposal.id);
-              router.replace(
-                `/(client)/(orders)/${orderId}/payment`,
-              );
+              router.replace({
+                pathname: `/(client)/(orders)/${orderId}/payment`,
+                params: { valor: String(proposal.valor) },
+              });
             } catch {
               Alert.alert("Erro", "Não foi possível aceitar a proposta.");
             } finally {

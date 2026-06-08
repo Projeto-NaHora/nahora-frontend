@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useProposalsByPedido } from "@/features/proposals/hooks/useProposals";
+import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import { paymentsService } from "@/features/payments/service";
 import { PaymentTotalCard } from "@/features/payments/components/PaymentTotalCard";
 import { PixQrCodeCard } from "@/features/payments/components/PixQrCodeCard";
@@ -25,14 +25,12 @@ export default function PixPaymentScreen() {
   const router = useRouter();
   const pedidoId = Number(orderId);
 
-  // Obtém o valor da proposta aceita (fonte primária); param é fallback
-  const { proposals, isLoading: isLoadingProposta } =
-    useProposalsByPedido(pedidoId);
-  const acceptedProposal = useMemo(
-    () => proposals?.find((p) => p.status === "ACEITA") ?? null,
-    [proposals],
-  );
-  const valor = acceptedProposal?.valor ?? (Number(valorParam) || 0);
+  // The order's valorAcordado is the authoritative source after acceptance.
+  // Navigation param is fallback (flow from the payment-options screen).
+  const { data: pedido, isLoading: isLoadingProposta } = useOrderDetail(pedidoId);
+  const valorAcordado = pedido?.valorAcordado ?? 0;
+  const parametroValor = Number(valorParam) || 0;
+  const valor = valorAcordado || parametroValor;
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +79,7 @@ export default function PixPaymentScreen() {
 
       {/* Total a pagar */}
       <View style={styles.totalSection}>
-        {isLoadingProposta && !acceptedProposal ? (
+        {isLoadingProposta && valor === 0 ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#f27b24" />
             <Text style={styles.loadingText}>Carregando valor...</Text>

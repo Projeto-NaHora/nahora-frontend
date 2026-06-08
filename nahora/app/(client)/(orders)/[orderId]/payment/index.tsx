@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,25 +8,29 @@ import {
   StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useProposalsByPedido } from "@/features/proposals/hooks/useProposals";
+import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import { PaymentTotalCard } from "@/features/payments/components/PaymentTotalCard";
 import { PaymentMethodCard } from "@/features/payments/components/PaymentMethodCard";
 
 type MetodoSelecionado = "PIX" | "CARTAO_CREDITO";
 
 export default function PaymentOptionsScreen() {
-  const { orderId } = useLocalSearchParams<{ orderId: string }>();
+  const { orderId, valor: valorParam } = useLocalSearchParams<{
+    orderId: string;
+    valor?: string;
+  }>();
   const router = useRouter();
   const pedidoId = Number(orderId);
 
-  const { proposals, isLoading } = useProposalsByPedido(pedidoId);
+  // The order's valorAcordado is set when a proposal is accepted —
+  // it's the authoritative source, unlike the proposals list which
+  // the API clears once a proposal is accepted.
+  const { data: pedido, isLoading } = useOrderDetail(pedidoId);
 
-  const acceptedProposal = useMemo(
-    () => proposals?.find((p) => p.status === "ACEITA") ?? null,
-    [proposals],
-  );
-
-  const valor = acceptedProposal?.valor ?? 0;
+  const valorAcordado = pedido?.valorAcordado ?? 0;
+  const parametroValor = Number(valorParam) || 0;
+  const valor = valorAcordado || parametroValor;
+  const hasAcceptedProposal = valor > 0;
 
   const [selectedMethod, setSelectedMethod] = useState<MetodoSelecionado>("PIX");
 
@@ -51,12 +55,12 @@ export default function PaymentOptionsScreen() {
 
       {/* Total a pagar */}
       <View style={styles.totalSection}>
-        {isLoading ? (
+        {isLoading && !hasAcceptedProposal ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#f27b24" />
             <Text style={styles.loadingText}>Carregando valor...</Text>
           </View>
-        ) : !acceptedProposal ? (
+        ) : !hasAcceptedProposal ? (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>
               Nenhuma proposta aceita para este pedido.
