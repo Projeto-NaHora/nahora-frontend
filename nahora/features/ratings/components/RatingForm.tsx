@@ -66,6 +66,11 @@ export function RatingForm({
       ? "/(professional)/(home)"
       : "/(client)/(home)";
 
+  const listRoute =
+    papel === "PROFISSIONAL"
+      ? "/(professional)/(services)"
+      : "/(client)/(orders)";
+
   const goHome = useCallback(() => {
     router.replace(homeRoute);
   }, [router, homeRoute]);
@@ -111,7 +116,7 @@ export function RatingForm({
         <Text style={styles.headerTitle}>Avaliação</Text>
         <TouchableOpacity
           style={styles.menuBtn}
-          onPress={() => router.back()}
+          onPress={() => router.replace(listRoute)}
           disabled={desabilitado}
         >
           <Feather name="x" size={18} color="#111827" />

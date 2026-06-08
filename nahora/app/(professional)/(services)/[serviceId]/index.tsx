@@ -54,7 +54,11 @@ export default function ProServiceDetailScreen() {
   const { jaAvaliou } = useAvaliacao(pedidoId);
 
   // Redirects for non-completed statuses
-  if (pedido?.status === "EM_ANDAMENTO" || pedido?.status === "AGUARDANDO_VALIDACAO") {
+  if (
+    pedido?.status === "AGUARDANDO_PAGAMENTO" ||
+    pedido?.status === "EM_ANDAMENTO" ||
+    pedido?.status === "AGUARDANDO_VALIDACAO"
+  ) {
     return <Redirect href={`/(professional)/(services)/${serviceId}/active`} />;
   }
 
