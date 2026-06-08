@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -23,6 +24,8 @@ type Props = {
   isLoading: boolean;
   onPressDetails: (pedidoId: number) => void;
   onPressChat: (propostaId: number) => void;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 };
 
 export const ProServicesListContent: React.FC<Props> = ({
@@ -30,6 +33,8 @@ export const ProServicesListContent: React.FC<Props> = ({
   isLoading,
   onPressDetails,
   onPressChat,
+  refreshing,
+  onRefresh,
 }) => {
   const [activeTab, setActiveTab] = useState<"ANDAMENTO" | "HISTORICO">(
     "ANDAMENTO",
@@ -39,7 +44,7 @@ export const ProServicesListContent: React.FC<Props> = ({
   // Usamos os status que você enviou no Java: EM_ANDAMENTO, AGUARDANDO_VALIDACAO, EM_DISPUTA, CONCLUIDO
   const pedidosFiltrados = pedidos.filter((pedido) => {
     if (activeTab === "ANDAMENTO") {
-      return ["EM_ANDAMENTO", "AGUARDANDO_VALIDACAO", "EM_DISPUTA"].includes(
+      return ["AGUARDANDO_PAGAMENTO", "EM_ANDAMENTO", "AGUARDANDO_VALIDACAO", "EM_DISPUTA"].includes(
         pedido.status,
       );
     }
@@ -203,6 +208,13 @@ export const ProServicesListContent: React.FC<Props> = ({
             renderItem={renderItem}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing ?? false}
+                onRefresh={onRefresh}
+                tintColor="#F26F21"
+              />
+            }
             ListEmptyComponent={() => (
               <View style={styles.emptyContainer}>
                 <Feather name="inbox" size={48} color="#D1D5DB" />

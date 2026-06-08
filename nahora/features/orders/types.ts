@@ -21,6 +21,7 @@ export interface Pedido {
   endereco?: EnderecoDTO | null;
   urgencia: string;
   orcamentoEstimado?: number | null;
+  valorAcordado?: number | null;
   dataDesejada: string;
   status: string;
   criadoEm: string;
@@ -113,6 +114,7 @@ export const CATEGORIA_LABEL: Record<string, string> = {
 
 export const STATUS_LABEL: Record<string, string> = {
   ABERTO: "Em aberto",
+  AGUARDANDO_PAGAMENTO: "Aguardando pagamento",
   EM_ANDAMENTO: "Em andamento",
   AGUARDANDO_VALIDACAO: "Aguardando validação",
   CONCLUIDO: "Concluído",
@@ -193,6 +195,7 @@ export const ESTADO_OPTIONS = [
 
 export const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   ABERTO: { bg: "#FEF0E8", text: "#F26F21" },
+  AGUARDANDO_PAGAMENTO: { bg: "#E8F5E9", text: "#2E7D32" },
   EM_ANDAMENTO: { bg: "#E6F0FF", text: "#417BE0" },
   AGUARDANDO_VALIDACAO: { bg: "#FFF3CD", text: "#856404" },
   CONCLUIDO: { bg: "#E2F6ED", text: "#1AAE6F" },
@@ -214,6 +217,6 @@ export const FILTRO_OPTIONS: { value: FiltroStatus; label: string }[] = [
 export const STATUS_FILTER_MAP: Record<FiltroStatus, string> = {
   TODOS: "",
   ABERTO: "ABERTO",
-  EM_ANDAMENTO: "EM_ANDAMENTO,AGUARDANDO_VALIDACAO",
+  EM_ANDAMENTO: "AGUARDANDO_PAGAMENTO,EM_ANDAMENTO,AGUARDANDO_VALIDACAO",
   CONCLUIDOS: "CONCLUIDO,CANCELADO,EM_DISPUTA",
 };

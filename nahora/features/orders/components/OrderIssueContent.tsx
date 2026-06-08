@@ -55,7 +55,8 @@ export const OrderIssueContent: React.FC<Props> = ({
   const dataFormatada = pedido?.dataDesejada
     ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
     : "";
-  const valorFormatado = Number(pedido?.orcamentoEstimado || 0).toLocaleString(
+  const valorParaExibir = pedido?.valorAcordado ?? pedido?.orcamentoEstimado ?? 0;
+  const valorFormatado = Number(valorParaExibir).toLocaleString(
     "pt-BR",
     { style: "currency", currency: "BRL" },
   );

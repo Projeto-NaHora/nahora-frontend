@@ -129,7 +129,7 @@ export const OrderCompleteContent: React.FC<Props> = ({
           {isConfirming ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.primaryButtonText}>Confirmar e pagar</Text>
+            <Text style={styles.primaryButtonText}>Confirmar conclusão</Text>
           )}
         </TouchableOpacity>
 

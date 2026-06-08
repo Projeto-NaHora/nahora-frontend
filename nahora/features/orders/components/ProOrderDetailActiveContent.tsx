@@ -49,6 +49,8 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
   const isEmAndamento = status === "EM_ANDAMENTO";
 
   const getStatusDisplay = () => {
+    if (status === "AGUARDANDO_PAGAMENTO")
+      return { text: "AGUARDANDO PAGAMENTO", color: "#2E7D32", bg: "#E8F5E9" };
     if (isEmAndamento)
       return { text: "EM ANDAMENTO", color: "#417BE0", bg: "#E6F0FF" };
     if (isAguardando)
