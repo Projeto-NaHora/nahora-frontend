@@ -1,24 +1,37 @@
 // features/professional/historico/types.ts
-
-import type { CategoriaServico, StatusPedido } from "@/types/enums";
+// Aligned with backend DTOs:
+//   GanhosMesResponse.java – GET /api/v1/profissionais/historico/ganhos
+//   ServicoMesResponse.java  – GET /api/v1/profissionais/historico/servicos
 
 /** GET /api/v1/profissionais/historico/ganhos?mes={MM}&ano={YYYY} */
 export interface GanhosMensaisResponse {
   mes: number;
   ano: number;
-  valorTotal: number | string;
-  totalConcluidos: number;
+  totalRecebido: number | string;
   totalServicos: number;
+  taxaConclusao: number; // percentage, e.g. 85.5
 }
 
 /** GET /api/v1/profissionais/historico/servicos?mes={MM}&ano={YYYY} */
-export interface ServicoHistoricoResponse {
-  id: number;
-  categoria: CategoriaServico;
-  descricao: string;
-  dataRealizacao: string; // ISO date string
-  valorRecebido: number | string;
-  status: StatusPedido;
+export interface ServicoMesResponse {
+  pedidoId: number;
+  titulo: string;
   clienteNome: string;
   clienteIniciais: string;
+  clienteFotoUrl?: string;
+  dataPagamento: string; // yyyy-MM-dd
+  valorRecebido: number | string;
+  statusPagamento: string; // "RECEBIDO" | "PENDENTE" | "CAPTURADO" | ...
+}
+
+/** @deprecated Use ServicoMesResponse instead */
+export type ServicoHistoricoResponse = ServicoMesResponse;
+
+/** Spring Page wrapper returned by the servicos endpoint */
+export interface Page<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
 }

@@ -1,7 +1,7 @@
 // features/professional/historico/service.ts
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
-import type { GanhosMensaisResponse, ServicoHistoricoResponse } from "./types";
+import type { GanhosMensaisResponse, ServicoMesResponse, Page } from "./types";
 
 export const historicoService = {
   buscarGanhos: async (
@@ -14,15 +14,20 @@ export const historicoService = {
     return data;
   },
 
+  /**
+   * Backend returns Page<ServicoMesResponse> (Spring Page wrapper).
+   * We extract the content array — pagination metadata is ignored for now.
+   */
   buscarServicos: async (
     mes: number,
     ano: number,
-  ): Promise<ServicoHistoricoResponse[]> => {
-    const { data } = await api.get(ENDPOINTS.HISTORICO_SERVICOS(mes, ano));
-    // Se o backend retornar um wrapper (ex.: { content: [...] }), extrai o array
-    if (Array.isArray(data)) return data;
+  ): Promise<ServicoMesResponse[]> => {
+    const { data } = await api.get<Page<ServicoMesResponse>>(
+      ENDPOINTS.HISTORICO_SERVICOS(mes, ano),
+    );
     if (data && Array.isArray(data.content)) return data.content;
-    if (data && Array.isArray(data.data)) return data.data;
+    // Fallback: backend might return a plain array (legacy)
+    if (Array.isArray(data)) return data;
     return [];
   },
 };

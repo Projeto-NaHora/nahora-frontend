@@ -2,7 +2,7 @@
 import useSWR from "swr";
 import { useCallback, useState } from "react";
 import { historicoService } from "../service";
-import type { GanhosMensaisResponse, ServicoHistoricoResponse } from "../types";
+import type { GanhosMensaisResponse, ServicoMesResponse } from "../types";
 
 const NOW = new Date();
 
@@ -22,6 +22,7 @@ export function useEarningsHistory() {
     data: ganhos,
     isLoading: isLoadingGanhos,
     error: errorGanhos,
+    mutate: mutateGanhos,
   } = useSWR<GanhosMensaisResponse>(
     ganhosKeys.ganhos(mesAtual, anoAtual),
     () => historicoService.buscarGanhos(mesAtual, anoAtual),
@@ -32,7 +33,8 @@ export function useEarningsHistory() {
     data: servicos,
     isLoading: isLoadingServicos,
     error: errorServicos,
-  } = useSWR<ServicoHistoricoResponse[]>(
+    mutate: mutateServicos,
+  } = useSWR<ServicoMesResponse[]>(
     ganhosKeys.servicos(mesAtual, anoAtual),
     () => historicoService.buscarServicos(mesAtual, anoAtual),
     { revalidateOnFocus: false },
@@ -61,6 +63,11 @@ export function useEarningsHistory() {
   const isCurrentMonth =
     mesAtual === NOW.getMonth() + 1 && anoAtual === NOW.getFullYear();
 
+  const refetch = useCallback(() => {
+    mutateGanhos();
+    mutateServicos();
+  }, [mutateGanhos, mutateServicos]);
+
   return {
     ganhos,
     servicos,
@@ -71,5 +78,6 @@ export function useEarningsHistory() {
     irParaMesAnterior,
     irParaMesProximo,
     isCurrentMonth,
+    refetch,
   };
 }

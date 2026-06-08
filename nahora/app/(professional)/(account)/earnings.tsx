@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import {
   ActivityIndicator,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -33,7 +34,16 @@ export default function EarningsScreen() {
     irParaMesAnterior,
     irParaMesProximo,
     isCurrentMonth,
+    refetch,
   } = useEarningsHistory();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   if (isLoading) {
     return (
@@ -56,8 +66,10 @@ export default function EarningsScreen() {
   return (
     <ScrollView
       style={styles.root}
-      bounces={false}
       showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#ffffff" />
+      }
     >
       {/* ======== HEADER LARANJA ======== */}
       <View style={styles.header}>
@@ -110,7 +122,7 @@ export default function EarningsScreen() {
         <View style={styles.valueSection}>
           <Text style={styles.valueLabel}>Total no mês</Text>
           <Text style={styles.valueAmount}>
-            {ganhos ? formatarMoeda(ganhos.valorTotal) : "R$ 0,00"}
+            {ganhos ? formatarMoeda(ganhos.totalRecebido) : "R$ 0,00"}
           </Text>
         </View>
 
@@ -125,9 +137,11 @@ export default function EarningsScreen() {
 
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>
-              {ganhos?.totalConcluidos ?? 0}
+              {ganhos?.taxaConclusao != null
+                ? `${ganhos.taxaConclusao}%`
+                : "—"}
             </Text>
-            <Text style={styles.statLabel}>CONCLUÍDOS</Text>
+            <Text style={styles.statLabel}>TAXA</Text>
           </View>
         </View>
       </View>
@@ -153,15 +167,13 @@ export default function EarningsScreen() {
         <View style={styles.cardsContainer}>
           {Array.isArray(servicos) &&
             servicos.map((servico) => (
-              <View key={servico.id} style={styles.cardMargin}>
+              <View key={servico.pedidoId} style={styles.cardMargin}>
                 <View style={styles.card}>
                   {/* Top row: status badge + date */}
                   <View style={styles.cardTopRow}>
                     <View style={styles.statusBadge}>
                       <Text style={styles.statusText}>
-                        {servico.status === "CONCLUIDO"
-                          ? "RECEBIDO"
-                          : servico.status.replace(/_/g, " ")}
+                        {(servico.statusPagamento ?? "—").replace(/_/g, " ")}
                       </Text>
                     </View>
 
@@ -171,7 +183,7 @@ export default function EarningsScreen() {
                         <Text style={styles.dateIconText}>📅</Text>
                       </View>
                       <Text style={styles.dateText}>
-                        {formatarDataRelativa(servico.dataRealizacao)}
+                        {formatarDataRelativa(servico.dataPagamento)}
                       </Text>
                     </View>
                   </View>
@@ -179,7 +191,7 @@ export default function EarningsScreen() {
                   {/* Service name + price */}
                   <View style={styles.cardMidRow}>
                     <Text style={styles.serviceName} numberOfLines={2}>
-                      {servico.descricao}
+                      {servico.titulo}
                     </Text>
                     <View style={styles.priceBadge}>
                       <Text style={styles.priceText}>
@@ -224,9 +236,10 @@ export default function EarningsScreen() {
   );
 }
 
-/** Formata data ISO → "Hoje, dd/mm" ou "dd/mm" */
-function formatarDataRelativa(iso: string): string {
-  const date = new Date(iso);
+/** Formata data yyyy-MM-dd → "Hoje, dd/mm" ou "dd/mm". Retorna "—" se nula. */
+function formatarDataRelativa(dataStr: string | null | undefined): string {
+  if (!dataStr) return "—";
+  const date = new Date(dataStr + "T00:00:00");
   const hoje = new Date();
   const dia = String(date.getDate()).padStart(2, "0");
   const mes = String(date.getMonth() + 1).padStart(2, "0");
