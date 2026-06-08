@@ -42,6 +42,8 @@ export const ENDPOINTS = {
 
   // Pagamentos
   PAGAMENTO: (propostaId: number) => `/propostas/${propostaId}/pagamento`,
+  PAGAMENTO_SIMULAR: (pedidoId: number) => `/pedidos/${pedidoId}/pagamento/simular`,
+  PEDIDO_RECIBO: (pedidoId: number) => `/pedidos/${pedidoId}/recibo`,
   CONFIRMAR_CONCLUSAO: (pedidoId: number) => `/pedidos/${pedidoId}/confirmar`,
 
   // Avaliações
