@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
 import { ProfileStepIndicator } from "./ProfileStepIndicator";
@@ -24,7 +25,7 @@ export function Profile2Content({
   onBack,
   onContinue,
 }: Profile2ContentProps) {
-  const theme = "light";
+  const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
   const [tagInput, setTagInput] = useState("");

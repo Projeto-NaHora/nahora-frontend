@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import {
   formatCpf,
@@ -97,7 +98,7 @@ export function Profile1Content({
   onContinue,
   onBack,
 }: Profile1ContentProps) {
-  const theme = "light";
+  const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
   const [touched, setTouched] = useState<TouchedFields>({

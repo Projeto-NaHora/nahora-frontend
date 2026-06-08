@@ -3,6 +3,8 @@ import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 const cardSchema = z.object({
   numeroCartao: z
@@ -27,6 +29,8 @@ interface CardFormProps {
 }
 
 export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const {
     control,
     handleSubmit,
@@ -52,17 +56,17 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
     <View>
       {/* Número do cartão */}
       <View style={styles.field}>
-        <Text style={styles.label}>Número do cartão</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Número do cartão</Text>
         <Controller
           control={control}
           name="numeroCartao"
           render={({ field: { onChange, value } }) => (
-            <View style={styles.inputRow}>
-              <View style={styles.cardIcon} />
+            <View style={[styles.inputRow, { backgroundColor: colors.background, borderColor: colors.border }]}>
+              <View style={[styles.cardIcon, { borderColor: colors.icon }]} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="0000 0000 0000 0000"
-                placeholderTextColor="#8c8c8c"
+                placeholderTextColor={colors.placeholder}
                 keyboardType="number-pad"
                 maxLength={19}
                 value={value}
@@ -79,21 +83,21 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
           )}
         />
         {errors.numeroCartao && (
-          <Text style={styles.error}>{errors.numeroCartao.message}</Text>
+          <Text style={[styles.error, { color: colors.error }]}>{errors.numeroCartao.message}</Text>
         )}
       </View>
 
       {/* Nome no cartão */}
       <View style={styles.field}>
-        <Text style={styles.label}>Nome no cartão</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Nome no cartão</Text>
         <Controller
           control={control}
           name="nomeCartao"
           render={({ field: { onChange, value } }) => (
             <TextInput
-              style={styles.inputSimple}
+              style={[styles.inputSimple, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
               placeholder="Como está impresso"
-              placeholderTextColor="#8c8c8c"
+              placeholderTextColor={colors.placeholder}
               autoCapitalize="characters"
               value={value}
               onChangeText={onChange}
@@ -101,22 +105,22 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
           )}
         />
         {errors.nomeCartao && (
-          <Text style={styles.error}>{errors.nomeCartao.message}</Text>
+          <Text style={[styles.error, { color: colors.error }]}>{errors.nomeCartao.message}</Text>
         )}
       </View>
 
       {/* Validade + CVV */}
       <View style={styles.row}>
         <View style={styles.halfField}>
-          <Text style={styles.label}>Validade</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Validade</Text>
           <Controller
             control={control}
             name="validade"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                style={styles.inputSimple}
+                style={[styles.inputSimple, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                 placeholder="MM/AA"
-                placeholderTextColor="#8c8c8c"
+                placeholderTextColor={colors.placeholder}
                 keyboardType="number-pad"
                 maxLength={5}
                 value={value}
@@ -132,19 +136,19 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
             )}
           />
           {errors.validade && (
-            <Text style={styles.error}>{errors.validade.message}</Text>
+            <Text style={[styles.error, { color: colors.error }]}>{errors.validade.message}</Text>
           )}
         </View>
         <View style={styles.halfField}>
-          <Text style={styles.label}>CVV</Text>
+          <Text style={[styles.label, { color: colors.text }]}>CVV</Text>
           <Controller
             control={control}
             name="cvv"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                style={styles.inputSimple}
+                style={[styles.inputSimple, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                 placeholder="•••"
-                placeholderTextColor="#8c8c8c"
+                placeholderTextColor={colors.placeholder}
                 keyboardType="number-pad"
                 maxLength={4}
                 secureTextEntry
@@ -154,14 +158,14 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
             )}
           />
           {errors.cvv && (
-            <Text style={styles.error}>{errors.cvv.message}</Text>
+            <Text style={[styles.error, { color: colors.error }]}>{errors.cvv.message}</Text>
           )}
         </View>
       </View>
 
       {/* Parcelas */}
       <View style={styles.field}>
-        <Text style={styles.label}>Parcelas</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Parcelas</Text>
         <Controller
           control={control}
           name="parcelas"
@@ -174,15 +178,15 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
                   style={[
                     styles.parcelaChip,
                     value === n
-                      ? styles.parcelaChipSelected
-                      : styles.parcelaChipDefault,
+                      ? { backgroundColor: colors.surface, borderColor: colors.brand }
+                      : { backgroundColor: colors.background, borderColor: colors.border },
                   ]}
                 >
                   <Text
                     style={
                       value === n
-                        ? styles.parcelaTextSelected
-                        : styles.parcelaTextDefault
+                        ? [styles.parcelaText, { color: colors.brand }]
+                        : [styles.parcelaText, { color: colors.textSecondary }]
                     }
                   >
                     {n}x
@@ -193,7 +197,7 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
           )}
         />
         {errors.parcelas && (
-          <Text style={styles.error}>{errors.parcelas.message}</Text>
+          <Text style={[styles.error, { color: colors.error }]}>{errors.parcelas.message}</Text>
         )}
       </View>
 
@@ -209,12 +213,13 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
             <View
               style={[
                 styles.checkbox,
-                value && styles.checkboxChecked,
+                { borderColor: colors.border },
+                value && { backgroundColor: colors.brand, borderColor: colors.brand },
               ]}
             >
-              {value && <Text style={styles.checkmark}>✓</Text>}
+              {value && <Text style={[styles.checkmark, { color: colors.onBrand }]}>✓</Text>}
             </View>
-            <Text style={styles.checkboxLabel}>
+            <Text style={[styles.checkboxLabel, { color: colors.textSecondary }]}>
               Salvar cartão para futuras compras
             </Text>
           </Pressable>
@@ -225,9 +230,9 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
       <Pressable
         onPress={handleSubmit(onSubmit)}
         disabled={loading}
-        style={[styles.payButton, loading && styles.payButtonDisabled]}
+        style={[styles.payButton, { backgroundColor: colors.brand }, loading && styles.payButtonDisabled]}
       >
-        <Text style={styles.payButtonText}>
+        <Text style={[styles.payButtonText, { color: colors.onBrand }]}>
           {loading ? "Processando..." : `Pagar ${formatted}`}
         </Text>
       </Pressable>
@@ -242,42 +247,34 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#111111",
     marginBottom: 6,
   },
   inputRow: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#eaeaea",
     borderRadius: 16,
     height: 56,
     paddingHorizontal: 16,
-    backgroundColor: "#ffffff",
   },
   cardIcon: {
     width: 20,
     height: 14,
     borderWidth: 1,
-    borderColor: "#8c8c8c",
     borderRadius: 2,
     marginRight: 12,
   },
   input: {
     flex: 1,
     fontSize: 15,
-    color: "#111111",
     fontFamily: "monospace",
   },
   inputSimple: {
     borderWidth: 1,
-    borderColor: "#eaeaea",
     borderRadius: 16,
     height: 56,
     paddingHorizontal: 16,
     fontSize: 15,
-    color: "#111111",
-    backgroundColor: "#ffffff",
   },
   row: {
     flexDirection: "row",
@@ -298,23 +295,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderWidth: 1,
   },
-  parcelaChipSelected: {
-    backgroundColor: "#fff2e5",
-    borderColor: "#f27b24",
-  },
-  parcelaChipDefault: {
-    backgroundColor: "#ffffff",
-    borderColor: "#eaeaea",
-  },
-  parcelaTextSelected: {
+  parcelaText: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#f27b24",
-  },
-  parcelaTextDefault: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#8c8c8c",
   },
   checkboxRow: {
     flexDirection: "row",
@@ -329,22 +312,14 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
-    borderColor: "#eaeaea",
-  },
-  checkboxChecked: {
-    backgroundColor: "#f27b24",
-    borderColor: "#f27b24",
   },
   checkmark: {
-    color: "#ffffff",
     fontSize: 12,
   },
   checkboxLabel: {
     fontSize: 14,
-    color: "#8c8c8c",
   },
   payButton: {
-    backgroundColor: "#f27b24",
     borderRadius: 16,
     height: 56,
     alignItems: "center",
@@ -356,10 +331,8 @@ const styles = StyleSheet.create({
   payButtonText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#ffffff",
   },
   error: {
-    color: "#ef4444",
     fontSize: 12,
     marginTop: 4,
   },

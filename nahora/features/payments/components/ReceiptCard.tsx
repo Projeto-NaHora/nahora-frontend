@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 interface ReceiptCardProps {
   valor: number;
@@ -19,6 +21,8 @@ export function ReceiptCard({
   metodo,
   codigoTransacao,
 }: ReceiptCardProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const formattedValor = new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
@@ -37,26 +41,26 @@ export function ReceiptCard({
   };
 
   return (
-    <View style={styles.card}>
-      <View style={styles.valorSection}>
-        <Text style={styles.valorLabel}>Valor pago</Text>
-        <Text style={styles.valorValue}>{formattedValor}</Text>
+    <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
+      <View style={[styles.valorSection, { borderBottomColor: colors.border }]}>
+        <Text style={[styles.valorLabel, { color: colors.textSecondary }]}>Valor pago</Text>
+        <Text style={[styles.valorValue, { color: colors.text }]}>{formattedValor}</Text>
       </View>
 
       <View style={styles.details}>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Data e Hora</Text>
-          <Text style={styles.detailValue}>{formatDate(dataPagamento)}</Text>
+          <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Data e Hora</Text>
+          <Text style={[styles.detailValue, { color: colors.text }]}>{formatDate(dataPagamento)}</Text>
         </View>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Método</Text>
-          <Text style={styles.detailValue}>
+          <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>Método</Text>
+          <Text style={[styles.detailValue, { color: colors.text }]}>
             {METODO_LABEL[metodo] ?? metodo}
           </Text>
         </View>
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>Transação</Text>
-          <Text style={styles.transactionValue}>
+          <Text style={[styles.transactionValue, { color: colors.brand }]}>
             {codigoTransacao ?? "—"}
           </Text>
         </View>
@@ -67,10 +71,8 @@ export function ReceiptCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#ffffff",
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: "#eaeaea",
     padding: 24,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -87,13 +89,11 @@ const styles = StyleSheet.create({
   },
   valorLabel: {
     fontSize: 14,
-    color: "#8c8c8c",
     marginBottom: 2,
   },
   valorValue: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#111111",
     lineHeight: 48,
   },
   details: {
@@ -106,16 +106,13 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 14,
-    color: "#8c8c8c",
   },
   detailValue: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#111111",
   },
   transactionValue: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#f27b24",
   },
 });

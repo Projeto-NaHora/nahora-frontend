@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 interface PaymentMethodCardProps {
   title: string;
@@ -18,26 +20,33 @@ export function PaymentMethodCard({
   badge,
   onPress,
 }: PaymentMethodCardProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   return (
     <Pressable
       onPress={onPress}
-      style={[styles.card, selected ? styles.cardSelected : styles.cardDefault]}
+      style={[
+        styles.card,
+        selected
+          ? { backgroundColor: colors.surface, borderColor: colors.brand }
+          : { backgroundColor: colors.background, borderColor: colors.border },
+      ]}
     >
       <View style={styles.iconContainer}>{icon}</View>
       <View style={styles.textContainer}>
         <View style={styles.titleRow}>
-          <Text style={styles.title}>{title}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
           {badge && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{badge}</Text>
             </View>
           )}
         </View>
-        <Text style={styles.subtitle}>{subtitle}</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
       </View>
       <View style={styles.radioContainer}>
-        <View style={[styles.radio, selected && styles.radioSelected]}>
-          {selected && <View style={styles.radioInner} />}
+        <View style={[styles.radio, selected && { borderColor: colors.brand }]}>
+          {selected && <View style={[styles.radioInner, { backgroundColor: colors.brand }]} />}
         </View>
       </View>
     </Pressable>
@@ -76,7 +85,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#111111",
   },
   badge: {
     backgroundColor: "#dff6e6",
@@ -93,7 +101,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 13,
-    color: "#8c8c8c",
     marginTop: 2,
     lineHeight: 17.88,
   },
@@ -117,6 +124,5 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#f27b24",
   },
 });

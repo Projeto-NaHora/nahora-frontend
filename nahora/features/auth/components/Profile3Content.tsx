@@ -1,6 +1,7 @@
 import React from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import { ServerErrorBanner } from "@/components/ui/server-error-banner";
 import { ProfileStepIndicator } from "./ProfileStepIndicator";
@@ -27,7 +28,7 @@ export function Profile3Content({
   error,
   errorStatus,
 }: Profile3ContentProps) {
-  const theme = "light";
+  const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
   return (

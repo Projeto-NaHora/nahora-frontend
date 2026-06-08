@@ -9,6 +9,8 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CATEGORIA_LABEL, Pedido } from "../types";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 type Props = {
   pedido: Pedido | any;
@@ -39,10 +41,12 @@ export const OrderCompleteContent: React.FC<Props> = ({
   isConfirming,
   onDispute,
 }) => {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#F26F21" />
+      <SafeAreaView style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.brand} />
       </SafeAreaView>
     );
   }
@@ -68,32 +72,32 @@ export const OrderCompleteContent: React.FC<Props> = ({
     : "";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
-          style={styles.backBtn}
+          style={[styles.backBtn, { backgroundColor: colors.surface }]}
           onPress={onBack}
           disabled={isConfirming}
         >
-          <Feather name="arrow-left" size={24} color="#111827" />
+          <Feather name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Confirmar conclusão</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Confirmar conclusão</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <View style={styles.content}>
         {/* Ícone de Sucesso Central */}
         <View style={styles.iconWrapper}>
-          <View style={styles.iconCircle}>
+          <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
             <Feather name="check" size={32} color="#065F46" />
           </View>
         </View>
 
         {/* Textos Principais */}
-        <Text style={styles.title}>Serviço concluído?</Text>
-        <Text style={styles.subtitle}>
-          <Text style={{ fontWeight: "700", color: "#374151" }}>
+        <Text style={[styles.title, { color: colors.text }]}>Serviço concluído?</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          <Text style={{ fontWeight: "700", color: colors.text }}>
             {nomeProfissional}
           </Text>{" "}
           marcou o serviço como concluído. Confirme para liberar o pagamento e a
@@ -101,15 +105,15 @@ export const OrderCompleteContent: React.FC<Props> = ({
         </Text>
 
         {/* Card do Profissional */}
-        <View style={styles.providerCard}>
+        <View style={[styles.providerCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>
               {getInitials(nomeProfissional)}
             </Text>
           </View>
           <View style={styles.providerInfo}>
-            <Text style={styles.providerName}>{nomeProfissional}</Text>
-            <Text style={styles.providerDetails}>
+            <Text style={[styles.providerName, { color: colors.text }]}>{nomeProfissional}</Text>
+            <Text style={[styles.providerDetails, { color: colors.textSecondary }]}>
               {categoriaFormatada} {dataFormatada ? `• ${dataFormatada}` : ""}
             </Text>
           </View>
@@ -117,19 +121,20 @@ export const OrderCompleteContent: React.FC<Props> = ({
       </View>
 
       {/* Botões de Ação na base */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: colors.background }]}>
         <TouchableOpacity
           style={[
             styles.primaryButton,
+            { backgroundColor: colors.brand },
             isConfirming && styles.primaryButtonDisabled,
           ]}
           onPress={onConfirm}
           disabled={isConfirming}
         >
           {isConfirming ? (
-            <ActivityIndicator color="#FFFFFF" />
+            <ActivityIndicator color={colors.onBrand} />
           ) : (
-            <Text style={styles.primaryButtonText}>Confirmar conclusão</Text>
+            <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>Confirmar conclusão</Text>
           )}
         </TouchableOpacity>
 
@@ -148,13 +153,11 @@ export const OrderCompleteContent: React.FC<Props> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
   },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
@@ -167,14 +170,12 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
   },
   content: {
     flex: 1,
@@ -190,20 +191,17 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#E6F4EA",
     alignItems: "center",
     justifyContent: "center",
   },
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 12,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 15,
-    color: "#6B7280",
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 32,
@@ -213,7 +211,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#F3F4F6",
     borderRadius: 16,
     padding: 16,
     width: "100%",
@@ -238,20 +235,16 @@ const styles = StyleSheet.create({
   providerName: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 4,
   },
   providerDetails: {
     fontSize: 13,
-    color: "#6B7280",
   },
   footer: {
     padding: 24,
     gap: 12,
-    backgroundColor: "#FFFFFF",
   },
   primaryButton: {
-    backgroundColor: "#F26F21",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
@@ -260,7 +253,6 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   primaryButtonText: {
-    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
   },
@@ -282,11 +274,9 @@ const styles = StyleSheet.create({
   },
   backBtnFallback: {
     padding: 12,
-    backgroundColor: "#F3F4F6",
     borderRadius: 8,
   },
   backBtnFallbackText: {
-    color: "#374151",
     fontWeight: "600",
   },
 });
