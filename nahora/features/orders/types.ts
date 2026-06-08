@@ -157,8 +157,8 @@ export const URGENCIA_LABEL: Record<string, string> = {
 };
 
 export const URGENCIA_OPTIONS = [
-  { value: "NORMAL", label: "Normal" },
   { value: "BAIXA", label: "Baixa" },
+  { value: "NORMAL", label: "Normal" },
   { value: "URGENTE", label: "Urgente" },
 ];
 
