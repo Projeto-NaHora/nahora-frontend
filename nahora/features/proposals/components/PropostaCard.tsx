@@ -27,7 +27,11 @@ interface PropostaCardProps {
 function getCategoriaLabel(proposta: Proposta): string | null {
   const prof = proposta.profissional;
   if (prof.especialidades?.length) return prof.especialidades[0];
-  if (prof.categoriasAtendidas?.length) return CATEGORIA_LABEL[prof.categoriasAtendidas[0]] ?? prof.categoriasAtendidas[0];
+  if (prof.categoriasAtendidas?.length)
+    return (
+      CATEGORIA_LABEL[prof.categoriasAtendidas[0]] ??
+      prof.categoriasAtendidas[0]
+    );
   return null;
 }
 
@@ -59,7 +63,9 @@ export function PropostaCard({
     >
       {destacada && (
         <View style={[styles.badge, { backgroundColor: colors.brand }]}>
-          <Text style={[styles.badgeText, { color: colors.onBrand }]}>MELHOR AVALIADO</Text>
+          <Text style={[styles.badgeText, { color: colors.onBrand }]}>
+            MELHOR AVALIADO
+          </Text>
         </View>
       )}
 
@@ -71,26 +77,39 @@ export function PropostaCard({
               style={styles.avatarImage}
             />
           ) : (
-            <Text style={[styles.avatarText, { color: colors.onBrand }]}>{iniciais}</Text>
+            <Text style={[styles.avatarText, { color: colors.onBrand }]}>
+              {iniciais}
+            </Text>
           )}
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={[styles.name, { color: colors.textPrimary }]}>{proposta.profissional.nome}</Text>
+          <Text style={[styles.name, { color: colors.textPrimary }]}>
+            {proposta.profissional.nome}
+          </Text>
           {subtitulo ? (
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitulo}</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              {subtitulo}
+            </Text>
           ) : null}
           <TouchableOpacity onPress={onVerPerfil}>
-            <Text style={[styles.verPerfilText, { color: colors.brand }]}>Ver perfil</Text>
+            <Text style={[styles.verPerfilText, { color: colors.brand }]}>
+              Ver perfil
+            </Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={[styles.price, { color: colors.success }]}>R$ {(proposta.valor ?? 0).toFixed(0)}</Text>
+        <Text style={[styles.price, { color: colors.success }]}>
+          R$ {(proposta.valor ?? 0).toFixed(0)}
+        </Text>
       </View>
 
       {proposta.descricao ? (
         <View style={[styles.quoteBox, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.quoteText, { color: colors.textSecondary }]} numberOfLines={4}>
+          <Text
+            style={[styles.quoteText, { color: colors.textSecondary }]}
+            numberOfLines={4}
+          >
             &ldquo;{proposta.descricao}&rdquo;
           </Text>
         </View>
@@ -102,7 +121,9 @@ export function PropostaCard({
         </Text>
         {proposta.profissional.distancia != null && (
           <>
-            <Text style={[styles.statsText, { color: colors.textSecondary }]}>·</Text>
+            <Text style={[styles.statsText, { color: colors.textSecondary }]}>
+              ·
+            </Text>
             <Text style={[styles.statsText, { color: colors.textSecondary }]}>
               {proposta.profissional.distancia} km de você
             </Text>
@@ -111,11 +132,23 @@ export function PropostaCard({
       </View>
 
       <View style={styles.buttonsRow}>
-        <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.brand }]} onPress={onNegociar}>
-          <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>Negociar</Text>
+        <TouchableOpacity
+          style={[styles.primaryButton, { backgroundColor: colors.brand }]}
+          onPress={onNegociar}
+        >
+          <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>
+            Negociar
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.secondaryButton, { backgroundColor: colors.surface }]} onPress={onVerProposta}>
-          <Text style={[styles.secondaryButtonText, { color: colors.textPrimary }]}>Ver proposta</Text>
+        <TouchableOpacity
+          style={[styles.secondaryButton, { backgroundColor: colors.surface }]}
+          onPress={onVerProposta}
+        >
+          <Text
+            style={[styles.secondaryButtonText, { color: colors.textPrimary }]}
+          >
+            Ver proposta
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

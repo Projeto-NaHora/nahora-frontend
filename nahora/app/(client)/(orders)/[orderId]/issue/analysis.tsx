@@ -1,34 +1,22 @@
 import React from "react";
-import { ActivityIndicator, View, Text } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { DisputeAnalysisContent } from "@/features/orders/components/DisputeAnalysisContent";
-import { useDisputaStatus } from "@/features/orders/hooks/useOrders";
+import { useDisputaStatus } from "@/features/orders/hooks/useOrders"; // Importe o novo hook
 
-export default function DisputeScreen() {
+export default function DisputeAnalysisScreen() {
   const router = useRouter();
-  const { serviceId } = useLocalSearchParams<{ serviceId: string }>();
+  const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
-  // Busca os dados da disputa do backend
-  const { disputa, isLoading } = useDisputaStatus(Number(serviceId));
+  const { disputa, isLoading } = useDisputaStatus(Number(orderId));
 
   const handleGoHome = () => {
     router.dismissAll();
-    router.replace("/(professional)/(services)");
+    router.replace("/(client)/(home)");
   };
 
   const handleViewDecision = () => {
-    if (!disputa?.decisao) return;
-
-    // Roteamento inteligente baseado no resultado do backend
-    if (disputa.decisao.resultado === "FAVORAVEL_CLIENTE") {
-      router.push(
-        `/(professional)/(services)/${serviceId}/issue/resolution-client`,
-      );
-    } else {
-      router.push(
-        `/(professional)/(services)/${serviceId}/issue/resolution-provider`,
-      );
-    }
+    router.push(`/(client)/(orders)/${orderId}/issue/decision`);
   };
 
   if (isLoading || !disputa) {
@@ -46,18 +34,24 @@ export default function DisputeScreen() {
     );
   }
 
-  // Mapeamento do status Java para o Frontend
+  // Mapeia o status do Java para o status esperado pelo componente visual
+  // O Java retorna: EM_ANALISE, EM_CONTESTACAO, DECIDIDA, ENCERRADA
   let statusConvertido:
     | "ANALISANDO_EVIDENCIAS"
     | "DECISAO_TOMADA"
     | "ENCERRADA" = "ANALISANDO_EVIDENCIAS";
+
   if (disputa.status === "DECIDIDA") {
     statusConvertido = "DECISAO_TOMADA";
   } else if (disputa.status === "ENCERRADA") {
     statusConvertido = "ENCERRADA";
   }
 
-  const dataDenuncia = disputa.etapas?.[0]?.descricao || "Recente";
+  // Pegamos a data da primeira etapa (Denúncia recebida) para exibir no topo
+  const dataDenuncia =
+    disputa.etapas && disputa.etapas.length > 0
+      ? disputa.etapas[0].descricao
+      : "";
 
   return (
     <DisputeAnalysisContent

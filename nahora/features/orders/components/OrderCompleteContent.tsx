@@ -106,7 +106,7 @@ export const OrderCompleteContent: React.FC<Props> = ({
 
         {/* Card do Profissional */}
         <View style={[styles.providerCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
-          <View style={styles.avatar}>
+          <View style={[styles.avatar, { backgroundColor: colors.surfaceAccent }]}>
             <Text style={styles.avatarText}>
               {getInitials(nomeProfissional)}
             </Text>

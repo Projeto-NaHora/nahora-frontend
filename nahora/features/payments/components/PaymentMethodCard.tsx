@@ -61,14 +61,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 2,
   },
-  cardSelected: {
-    backgroundColor: "#fff2e5",
-    borderColor: "#f27b24",
-  },
-  cardDefault: {
-    backgroundColor: "#ffffff",
-    borderColor: "#eaeaea",
-  },
   iconContainer: {
     marginRight: 16,
     width: 48,
