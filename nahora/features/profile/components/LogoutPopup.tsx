@@ -73,7 +73,7 @@ export function LogoutPopup({
         >
           {/* Ícone */}
           <View style={styles.iconWrapper}>
-            <View style={styles.iconCircle}>
+            <View style={[styles.iconCircle, { backgroundColor: colors.surfaceRed }]}>
               <IconSymbol name={"close" as any} size={26} color={colors.error} />
             </View>
           </View>

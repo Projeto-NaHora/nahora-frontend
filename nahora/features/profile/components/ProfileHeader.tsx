@@ -23,7 +23,7 @@ export function ProfileHeader({
         <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
       </View>
-      <View style={[styles.avatar, { backgroundColor: "#fef0e8" }]}>
+      <View style={[styles.avatar, { backgroundColor: colors.surfaceAccent }]}>
         <Text style={[styles.avatarText, { color: colors.brand }]}>
           {initials}
         </Text>

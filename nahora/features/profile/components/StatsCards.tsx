@@ -20,25 +20,25 @@ export function StatsCards({ stats }: StatsCardsProps) {
             {stats.servicesCount}
           </Text>
         </View>
-        <Text style={styles.cardLabel}>Serviços</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Serviços</Text>
       </View>
 
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={styles.cardValueWrapper}>
           <Text style={[styles.cardValue, { color: colors.text }]}>
             {stats.rating}
           </Text>
         </View>
-        <Text style={styles.cardLabel}>Avaliação</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Avaliação</Text>
       </View>
 
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={styles.cardValueWrapper}>
           <Text style={[styles.cardValue, { color: colors.success }]}>
             {stats.earnings}
           </Text>
         </View>
-        <Text style={styles.cardLabel}>Ganhos</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Ganhos</Text>
       </View>
     </View>
   );
