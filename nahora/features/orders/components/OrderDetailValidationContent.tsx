@@ -119,7 +119,7 @@ export const OrderDetailValidationContent: React.FC<Props> = ({
       >
         <View style={styles.titleRow}>
           <Text style={[styles.serviceTitle, { color: colors.text }]}>{categoriaFormatada}</Text>
-          <View style={styles.badge}>
+          <View style={[styles.badge, { backgroundColor: colors.surfaceYellow }]}>
             <Text style={styles.badgeText}>Aguardando validação</Text>
           </View>
         </View>

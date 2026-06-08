@@ -94,7 +94,7 @@ export function OrderDetailOpenContent({
   if (!pedido) return null;
 
   const statusColor = STATUS_COLORS[pedido.status] ?? {
-    bg: "#FEF0E8",
+    bg: colors.surfaceAccent,
     text: "#F26F21",
   };
   const statusLabel = STATUS_LABEL[pedido.status] ?? "Em aberto";

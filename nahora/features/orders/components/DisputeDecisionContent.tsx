@@ -8,6 +8,8 @@ import {
 } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 type Props = {
   isFavorableToClient: boolean;
@@ -30,14 +32,16 @@ export const DisputeDecisionContent: React.FC<Props> = ({
   onContest,
   onPay,
 }) => {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={onGoHome}>
-          <Feather name="arrow-left" size={24} color="#111827" />
+        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={onGoHome}>
+          <Feather name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Resultado da Disputa</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Resultado da Disputa</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -50,7 +54,7 @@ export const DisputeDecisionContent: React.FC<Props> = ({
           <View
             style={[
               styles.iconCircle,
-              isFavorableToClient ? styles.bgGreenIcon : styles.bgBlueIcon,
+              { backgroundColor: isFavorableToClient ? colors.surfaceGreen : colors.surfaceBlue },
             ]}
           >
             {isFavorableToClient ? (
@@ -63,10 +67,10 @@ export const DisputeDecisionContent: React.FC<Props> = ({
               />
             )}
           </View>
-          <Text style={styles.title}>
+          <Text style={[styles.title, { color: colors.text }]}>
             {isFavorableToClient ? "Resolvido a seu favor" : "Pedido concluído"}
           </Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             {isFavorableToClient
               ? "Nossa equipe analisou as evidências e tomou uma decisão. Veja o resultado abaixo."
               : "Nossa equipe analisou as evidências e entendeu que o serviço foi entregue. O pagamento será processado."}
@@ -77,7 +81,7 @@ export const DisputeDecisionContent: React.FC<Props> = ({
         <View
           style={[
             styles.resultCard,
-            isFavorableToClient ? styles.cardGreen : styles.cardBlue,
+            { backgroundColor: isFavorableToClient ? colors.surfaceGreen : colors.surfaceBlue, borderColor: isFavorableToClient ? "#A7F3D0" : "#BFDBFE" },
           ]}
         >
           <Text
@@ -92,7 +96,7 @@ export const DisputeDecisionContent: React.FC<Props> = ({
           </Text>
 
           {/* 👇 Exibe o texto do Admin, ou um fallback se não vier nada */}
-          <Text style={styles.resultDescription}>
+          <Text style={[styles.resultDescription, { color: colors.textSecondary }]}>
             {descricaoResultado ||
               (isFavorableToClient
                 ? "O serviço não foi executado conforme combinado. O pedido foi cancelado e nenhum valor será cobrado."
@@ -100,10 +104,11 @@ export const DisputeDecisionContent: React.FC<Props> = ({
           </Text>
 
           {/* Inner Card Branco */}
-          <View style={styles.innerWhiteCard}>
+          <View style={[styles.innerWhiteCard, { backgroundColor: colors.background }]}>
             <Text
               style={[
                 styles.innerTitle,
+                { color: colors.text },
                 isFavorableToClient ? styles.textGreen : styles.textBlue,
               ]}
             >
@@ -111,7 +116,7 @@ export const DisputeDecisionContent: React.FC<Props> = ({
                 ? "Nenhum valor cobrado"
                 : "Realize o pagamento"}
             </Text>
-            <Text style={styles.innerSubtitle}>
+            <Text style={[styles.innerSubtitle, { color: colors.textSecondary }]}>
               {isFavorableToClient ? "R$ 0,00 · Pedido cancelado" : valor}
             </Text>
           </View>
@@ -119,16 +124,16 @@ export const DisputeDecisionContent: React.FC<Props> = ({
 
         {/* Card de Ação / Aviso */}
         {isFavorableToClient ? (
-          <View style={styles.warningCard}>
+          <View style={[styles.warningCard, { backgroundColor: colors.surfaceYellow, borderColor: "#FDE68A" }]}>
             <Text style={styles.warningHeader}>AÇÃO SOBRE O PROFISSIONAL</Text>
-            <Text style={styles.warningText}>
+            <Text style={[styles.warningText, { color: colors.textSecondary }]}>
               {profissionalNome} recebeu uma{" "}
               <Text style={styles.boldText}>advertência formal</Text>. Em caso
               de reincidência, a conta poderá ser suspensa por 7 dias.
             </Text>
           </View>
         ) : (
-          <View style={styles.infoRowCard}>
+          <View style={[styles.infoRowCard, { backgroundColor: colors.surfaceYellow, borderColor: "#FDE68A" }]}>
             <Feather
               name="info"
               size={18}
@@ -152,8 +157,8 @@ export const DisputeDecisionContent: React.FC<Props> = ({
             <TouchableOpacity style={styles.primaryBtn} onPress={onPay}>
               <Text style={styles.primaryBtnText}>Pagar o serviço</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.secondaryBtn} onPress={onContest}>
-              <Text style={styles.secondaryBtnText}>Contestar decisão</Text>
+            <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: colors.surfaceGray }]} onPress={onContest}>
+              <Text style={[styles.secondaryBtnText, { color: colors.text }]}>Contestar decisão</Text>
             </TouchableOpacity>
           </>
         ) : (
@@ -167,7 +172,7 @@ export const DisputeDecisionContent: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -179,11 +184,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { fontSize: 18, fontWeight: "700", color: "#111827" },
+  headerTitle: { fontSize: 18, fontWeight: "700" },
 
   scrollContent: { paddingHorizontal: 24, paddingBottom: 40 },
   centerSection: { alignItems: "center", marginTop: 16, marginBottom: 32 },
@@ -195,17 +199,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 20,
   },
-  bgGreenIcon: { backgroundColor: "#D1FAE5" },
-  bgBlueIcon: { backgroundColor: "#EFF6FF" },
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 13,
-    color: "#6B7280",
     textAlign: "center",
     lineHeight: 20,
     paddingHorizontal: 10,
@@ -217,8 +217,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 16,
   },
-  cardGreen: { borderColor: "#A7F3D0", backgroundColor: "#F0FDF4" },
-  cardBlue: { borderColor: "#BFDBFE", backgroundColor: "#EFF6FF" },
   resultHeader: {
     fontSize: 11,
     fontWeight: "800",
@@ -235,20 +233,17 @@ const styles = StyleSheet.create({
   },
 
   innerWhiteCard: {
-    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
   },
   innerTitle: { fontSize: 15, fontWeight: "700", marginBottom: 4 },
-  innerSubtitle: { fontSize: 13, color: "#6B7280" },
+  innerSubtitle: { fontSize: 13 },
 
   warningCard: {
-    backgroundColor: "#FFFBEB",
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#FDE68A",
     marginBottom: 32,
   },
   warningHeader: {
@@ -258,17 +253,15 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     marginBottom: 8,
   },
-  warningText: { fontSize: 13, color: "#4B5563", lineHeight: 20 },
-  boldText: { fontWeight: "700", color: "#111827" },
+  warningText: { fontSize: 13, lineHeight: 20 },
+  boldText: { fontWeight: "700" },
 
   infoRowCard: {
     flexDirection: "row",
     gap: 12,
-    backgroundColor: "#FFFBEB",
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#FDE68A",
     marginBottom: 32,
   },
   infoTextWarning: { flex: 1, fontSize: 13, color: "#B45309", lineHeight: 18 },
@@ -282,10 +275,9 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
   secondaryBtn: {
-    backgroundColor: "#F3F4F6",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
   },
-  secondaryBtnText: { color: "#111827", fontSize: 16, fontWeight: "600" },
+  secondaryBtnText: { fontSize: 16, fontWeight: "600" },
 });

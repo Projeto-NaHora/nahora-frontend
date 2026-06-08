@@ -58,11 +58,11 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
     if (isEmAndamento)
       return { text: "EM ANDAMENTO", color: "#417BE0", bg: "#E6F0FF" };
     if (isAguardando)
-      return { text: "AGUARDANDO CLIENTE", color: "#D97706", bg: "#FEF3C7" };
+      return { text: "AGUARDANDO CLIENTE", color: "#D97706", bg: colors.surfaceYellow };
     if (isConcluido)
       return { text: "CONCLUÍDO", color: "#10B981", bg: "#D1FAE5" };
     if (isEmDisputa)
-      return { text: "EM DISPUTA", color: "#DC2626", bg: "#FEE2E2" };
+      return { text: "EM DISPUTA", color: "#DC2626", bg: colors.surfaceRed };
     return { text: status || "SERVIÇO", color: "#6B7280", bg: "#F3F4F6" };
   };
 

@@ -8,6 +8,8 @@ import {
 } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 type Props = {
   protocolo: string;
@@ -26,6 +28,8 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
   onGoHome,
   onViewDecision,
 }) => {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   // Lógica de progresso baseada no status: agora bate 100% quando a decisão sai
   const getProgress = () => {
     if (statusDisputa === "DECISAO_TOMADA" || statusDisputa === "ENCERRADA")
@@ -37,55 +41,55 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
   const isDecididaOuEncerrada = statusDisputa !== "ANALISANDO_EVIDENCIAS";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={onBack}>
-          <Feather name="arrow-left" size={24} color="#111827" />
+        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={onBack}>
+          <Feather name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Disputa em Análise</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Disputa em Análise</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Ícone e Título Central */}
         <View style={styles.centerSection}>
-          <View style={styles.iconCircle}>
+          <View style={[styles.iconCircle, { backgroundColor: colors.surfaceGray }]}>
             <MaterialCommunityIcons
               name="scale-balance"
               size={40}
-              color="#4B5563"
+              color={colors.icon}
             />
           </View>
-          <Text style={styles.title}>Em moderação</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.text }]}>Em moderação</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Nossa equipe está analisando as evidências. Você receberá uma
             notificação assim que houver uma decisão.
           </Text>
         </View>
 
         {/* Linha do Tempo da Disputa */}
-        <View style={styles.timelineCard}>
+        <View style={[styles.timelineCard, { borderColor: colors.border }]}>
           {/* Passo 1 */}
           <View style={styles.timelineItem}>
-            <View style={[styles.timelineDot, styles.dotGreen]}>
+            <View style={[styles.timelineDot, { backgroundColor: colors.success }]}>
               <Feather name="check" size={12} color="#FFF" />
             </View>
             <View style={styles.timelineLineActive} />
             <View style={styles.timelineTextContainer}>
-              <Text style={styles.stepTitle}>Denúncia recebida</Text>
-              <Text style={styles.stepSubtitle}>{protocolo}</Text>
+              <Text style={[styles.stepTitle, { color: colors.text }]}>Denúncia recebida</Text>
+              <Text style={[styles.stepSubtitle, { color: colors.textSecondary }]}>{protocolo}</Text>
             </View>
           </View>
 
           {/* Passo 2 */}
           <View style={styles.timelineItem}>
-            <View style={[styles.timelineDot, styles.dotGreen]}>
+            <View style={[styles.timelineDot, { backgroundColor: colors.success }]}>
               <Feather name="check" size={12} color="#FFF" />
             </View>
             <View style={styles.timelineLineActive} />
             <View style={styles.timelineTextContainer}>
-              <Text style={styles.stepTitle}>Evidências coletadas</Text>
-              <Text style={styles.stepSubtitle}>Fotos e prints analisados</Text>
+              <Text style={[styles.stepTitle, { color: colors.text }]}>Evidências coletadas</Text>
+              <Text style={[styles.stepSubtitle, { color: colors.textSecondary }]}>Fotos e prints analisados</Text>
             </View>
           </View>
 
@@ -94,7 +98,7 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
             <View
               style={[
                 styles.timelineDot,
-                isDecididaOuEncerrada ? styles.dotGreen : styles.dotOrange,
+                { backgroundColor: isDecididaOuEncerrada ? colors.success : colors.brand },
               ]}
             >
               {isDecididaOuEncerrada ? (
@@ -114,12 +118,13 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
               <Text
                 style={[
                   styles.stepTitle,
+                  { color: colors.text },
                   !isDecididaOuEncerrada && { color: "#D97706" },
                 ]}
               >
                 Moderação tomando decisão
               </Text>
-              <Text style={styles.stepSubtitle}>
+              <Text style={[styles.stepSubtitle, { color: colors.textSecondary }]}>
                 Revisão das evidências de ambas as partes
               </Text>
             </View>
@@ -130,7 +135,7 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
             <View
               style={[
                 styles.timelineDot,
-                isDecididaOuEncerrada ? styles.dotGreen : styles.dotGray,
+                { backgroundColor: isDecididaOuEncerrada ? colors.success : colors.surfaceGray },
               ]}
             >
               {isDecididaOuEncerrada ? (
@@ -139,7 +144,7 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
                 <Text
                   style={[
                     styles.dotText,
-                    !isDecididaOuEncerrada && { color: "#9CA3AF" },
+                    !isDecididaOuEncerrada && { color: colors.icon },
                   ]}
                 >
                   4
@@ -150,7 +155,8 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
               <Text
                 style={[
                   styles.stepTitle,
-                  !isDecididaOuEncerrada && { color: "#9CA3AF" },
+                  { color: colors.text },
+                  !isDecididaOuEncerrada && { color: colors.icon },
                 ]}
               >
                 Resolução e encerramento
@@ -161,18 +167,18 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
 
         {/* Barra de Progresso */}
         <View style={styles.progressSection}>
-          <View style={styles.progressBarBg}>
+          <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceGray }]}>
             <View
               style={[styles.progressBarFill, { width: `${getProgress()}%` }]}
             />
           </View>
-          <Text style={styles.progressText}>
+          <Text style={[styles.progressText, { color: colors.textSecondary }]}>
             {getProgress()}% do prazo decorrido
           </Text>
         </View>
 
         {/* Info Box */}
-        <View style={styles.infoBox}>
+        <View style={[styles.infoBox, { backgroundColor: colors.surfaceBlue, borderColor: "#BFDBFE" }]}>
           <Feather
             name="smartphone"
             size={20}
@@ -186,15 +192,15 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
       </ScrollView>
 
       {/* Botões do Rodapé */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
         {isDecididaOuEncerrada ? (
           <TouchableOpacity style={styles.primaryBtn} onPress={onViewDecision}>
             <Text style={styles.primaryBtnText}>Decisão da moderação</Text>
           </TouchableOpacity>
         ) : null}
 
-        <TouchableOpacity style={styles.secondaryBtn} onPress={onGoHome}>
-          <Text style={styles.secondaryBtnText}>Voltar ao início</Text>
+        <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={onGoHome}>
+          <Text style={[styles.secondaryBtnText, { color: colors.text }]}>Voltar ao início</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -202,7 +208,7 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -214,11 +220,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { fontSize: 18, fontWeight: "700", color: "#111827" },
+  headerTitle: { fontSize: 18, fontWeight: "700" },
   scrollContent: { paddingHorizontal: 24, paddingBottom: 40 },
 
   centerSection: { alignItems: "center", marginTop: 24, marginBottom: 32 },
@@ -226,22 +231,19 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
-  title: { fontSize: 24, fontWeight: "700", color: "#111827", marginBottom: 8 },
+  title: { fontSize: 24, fontWeight: "700", marginBottom: 8 },
   subtitle: {
     fontSize: 14,
-    color: "#6B7280",
     textAlign: "center",
     lineHeight: 20,
   },
 
   timelineCard: {
     borderWidth: 1,
-    borderColor: "#F3F4F6",
     borderRadius: 16,
     padding: 24,
     marginBottom: 24,
@@ -260,9 +262,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  dotGreen: { backgroundColor: "#10B981" },
-  dotOrange: { backgroundColor: "#F59E0B" },
-  dotGray: { backgroundColor: "#F3F4F6" },
   dotText: { fontSize: 10, fontWeight: "700", color: "#FFF" },
   timelineLineActive: {
     position: "absolute",
@@ -286,33 +285,28 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 2,
   },
-  stepSubtitle: { fontSize: 13, color: "#6B7280" },
+  stepSubtitle: { fontSize: 13 },
 
   progressSection: { marginBottom: 24 },
   progressBarBg: {
     height: 8,
-    backgroundColor: "#F3F4F6",
     borderRadius: 4,
     marginBottom: 8,
   },
   progressBarFill: { height: 8, backgroundColor: "#F26F21", borderRadius: 4 },
   progressText: {
     fontSize: 12,
-    color: "#6B7280",
     textAlign: "center",
     fontWeight: "600",
   },
 
   infoBox: {
     flexDirection: "row",
-    backgroundColor: "#EFF6FF",
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#BFDBFE",
   },
   infoText: {
     flex: 1,
@@ -325,9 +319,7 @@ const styles = StyleSheet.create({
   footer: {
     padding: 24,
     gap: 12,
-    backgroundColor: "#FFF",
     borderTopWidth: 1,
-    borderTopColor: "#F3F4F6",
   },
   primaryBtn: {
     backgroundColor: "#F26F21",
@@ -337,12 +329,10 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
   secondaryBtn: {
-    backgroundColor: "#FFFFFF",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
   },
-  secondaryBtnText: { color: "#111827", fontSize: 16, fontWeight: "600" },
+  secondaryBtnText: { fontSize: 16, fontWeight: "600" },
 });

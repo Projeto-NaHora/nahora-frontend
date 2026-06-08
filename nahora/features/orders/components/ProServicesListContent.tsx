@@ -84,7 +84,7 @@ export const ProServicesListContent: React.FC<Props> = ({
           <View
             style={[
               styles.badge,
-              isEmAndamento ? styles.badgeAndamento : styles.badgeConfirmado,
+              { backgroundColor: isEmAndamento ? colors.surfaceBlue : colors.surfaceYellow },
             ]}
           >
             <Text

@@ -130,8 +130,8 @@ export const OrderIssueContent: React.FC<Props> = ({
       >
         {/* Ícone de Alerta Central */}
         <View style={styles.iconWrapper}>
-          <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
-            <Text style={styles.exclamationMark}>!</Text>
+          <View style={[styles.iconCircle, { backgroundColor: colors.surfaceRed }]}>
+            <Text style={[styles.exclamationMark, { color: colors.error }]}>!</Text>
           </View>
         </View>
 
@@ -143,7 +143,7 @@ export const OrderIssueContent: React.FC<Props> = ({
 
         {/* Card do Profissional */}
         <View style={[styles.providerCard, { backgroundColor: colors.background, borderColor: colors.border }]}>
-          <View style={styles.avatar}>
+          <View style={[styles.avatar, { backgroundColor: colors.surfaceAccent }]}>
             <Text style={styles.avatarText}>
               {getInitials(profissionalNome)}
             </Text>
@@ -158,7 +158,7 @@ export const OrderIssueContent: React.FC<Props> = ({
         </View>
 
         {/* Formulário: Motivo (Seletor Real) */}
-        <Text style={styles.inputLabel}>Qual o motivo do problema?</Text>
+        <Text style={[styles.inputLabel, { color: colors.text }]}>Qual o motivo do problema?</Text>
         <View style={styles.optionsContainer}>
           {motivosDisponiveis.map((item) => {
             const isSelected = motivo === item;
@@ -167,22 +167,25 @@ export const OrderIssueContent: React.FC<Props> = ({
                 key={item}
                 style={[
                   styles.optionCard,
-                  isSelected && styles.optionCardSelected,
+                  { backgroundColor: colors.surfaceGray, borderColor: colors.border },
+                  isSelected && { borderColor: colors.error, backgroundColor: colors.surfaceRed },
                 ]}
                 onPress={() => setMotivo(item)}
               >
                 <View
                   style={[
                     styles.radioCircle,
-                    isSelected && styles.radioCircleSelected,
+                    { borderColor: colors.border },
+                    isSelected && { borderColor: colors.error },
                   ]}
                 >
-                  {isSelected && <View style={styles.radioInner} />}
+                  {isSelected && <View style={[styles.radioInner, { backgroundColor: colors.error }]} />}
                 </View>
                 <Text
                   style={[
                     styles.optionText,
-                    isSelected && styles.optionTextSelected,
+                    { color: colors.textSecondary },
+                    isSelected && { color: colors.text },
                   ]}
                 >
                   {item}
@@ -193,11 +196,11 @@ export const OrderIssueContent: React.FC<Props> = ({
         </View>
 
         {/* Formulário: Descrição */}
-        <Text style={styles.inputLabel}>Descreva o que aconteceu</Text>
+        <Text style={[styles.inputLabel, { color: colors.text }]}>Descreva o que aconteceu</Text>
         <TextInput
-          style={styles.textArea}
+          style={[styles.textArea, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }]}
           placeholder="Ex: O profissional realizou apenas parte do serviço e foi embora sem avisar..."
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={colors.placeholder}
           multiline
           numberOfLines={4}
           maxLength={500}
@@ -205,12 +208,12 @@ export const OrderIssueContent: React.FC<Props> = ({
           onChangeText={setDescricao}
           textAlignVertical="top"
         />
-        <Text style={styles.charCount}>
+        <Text style={[styles.charCount, { color: colors.textSecondary }]}>
           Quanto mais detalhes, mais rápida a análise. Máx. 500 caracteres.
         </Text>
 
         {/* Evidências */}
-        <Text style={styles.inputLabel}>Evidências (fotos / prints)</Text>
+        <Text style={[styles.inputLabel, { color: colors.text }]}>Evidências (fotos / prints)</Text>
 
         {/* Lista de miniaturas das fotos escolhidas */}
         {fotos.length > 0 && (
@@ -236,7 +239,7 @@ export const OrderIssueContent: React.FC<Props> = ({
         {/* Botões para adicionar mais fotos */}
         <View style={styles.evidenceContainer}>
           <TouchableOpacity
-            style={styles.evidenceButton}
+            style={[styles.evidenceButton, { borderColor: colors.border }]}
             onPress={handleTakePhoto}
           >
             <Feather
@@ -245,10 +248,10 @@ export const OrderIssueContent: React.FC<Props> = ({
               color={colors.icon}
               style={{ marginBottom: 8 }}
             />
-            <Text style={styles.evidenceText}>Câmera</Text>
+            <Text style={[styles.evidenceText, { color: colors.textSecondary }]}>Câmera</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.evidenceButton}
+            style={[styles.evidenceButton, { borderColor: colors.border }]}
             onPress={handlePickImage}
           >
             <Feather
@@ -257,7 +260,7 @@ export const OrderIssueContent: React.FC<Props> = ({
               color={colors.icon}
               style={{ marginBottom: 8 }}
             />
-            <Text style={styles.evidenceText}>Galeria</Text>
+            <Text style={[styles.evidenceText, { color: colors.textSecondary }]}>Galeria</Text>
           </TouchableOpacity>
         </View>
 
@@ -274,6 +277,7 @@ export const OrderIssueContent: React.FC<Props> = ({
           <TouchableOpacity
             style={[
               styles.continueButton,
+              { backgroundColor: colors.surface },
               (isSubmitting || descricao.trim().length < 10) && {
                 opacity: 0.5,
               },
@@ -331,7 +335,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: "#FCE8E8",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -354,7 +357,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#F3F4F6",
     borderRadius: 16,
     padding: 16,
     marginBottom: 32,
@@ -363,7 +365,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#FFF7F2",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 16,
@@ -394,41 +395,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
     borderRadius: 12,
-    backgroundColor: "#F9FAFB",
-  },
-  optionCardSelected: {
-    borderColor: "#EF4444",
-    backgroundColor: "#FEF2F2",
   },
   radioCircle: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "#D1D5DB",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
-  },
-  radioCircleSelected: {
-    borderColor: "#EF4444",
   },
   radioInner: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#EF4444",
   },
   optionText: {
     fontSize: 15,
-    color: "#4B5563",
     flex: 1,
-  },
-  optionTextSelected: {
-    color: "#111827",
-    fontWeight: "600",
   },
 
   textArea: {

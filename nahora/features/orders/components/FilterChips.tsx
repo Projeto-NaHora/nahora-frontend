@@ -35,7 +35,7 @@ export default function FilterChips({ selected, onSelect }: FilterChipsProps) {
               style={[
                 styles.chip,
                 isActive
-                  ? styles.chipActive
+                  ? { backgroundColor: colors.surfaceAccent, borderColor: colors.brand }
                   : [
                       styles.chipInactive,
                       {

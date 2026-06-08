@@ -105,7 +105,7 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
           <View
             style={[
               styles.badge,
-              isEmDisputa && { backgroundColor: "#FEE2E2" },
+              isEmDisputa && { backgroundColor: colors.surfaceRed },
             ]}
           >
             <Text
