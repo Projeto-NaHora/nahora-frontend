@@ -3,8 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 export default function ReportedScreen() {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const router = useRouter();
   const { serviceId } = useLocalSearchParams<{ serviceId: string }>();
 
@@ -18,13 +22,13 @@ export default function ReportedScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <View style={styles.iconCircle}>
+        <View style={[styles.iconCircle, { backgroundColor: colors.surfaceGreen }]}>
           <Feather name="check" size={48} color="#10B981" />
         </View>
-        <Text style={styles.title}>Denúncia enviada</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.text }]}>Denúncia enviada</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           Sua contestação foi registrada com sucesso. O pagamento do serviço
           ficará retido até que a moderação tome uma decisão.
         </Text>
@@ -37,8 +41,8 @@ export default function ReportedScreen() {
         >
           <Text style={styles.primaryBtnText}>Acompanhar análise</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryBtn} onPress={handleGoHome}>
-          <Text style={styles.secondaryBtnText}>Voltar aos meus serviços</Text>
+        <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: colors.surfaceGray }]} onPress={handleGoHome}>
+          <Text style={[styles.secondaryBtnText, { color: colors.text }]}>Voltar aos meus serviços</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -46,7 +50,7 @@ export default function ReportedScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1 },
   content: {
     flex: 1,
     alignItems: "center",
@@ -57,7 +61,6 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: "#D1FAE5",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 24,
@@ -65,12 +68,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 15,
-    color: "#6B7280",
     textAlign: "center",
     lineHeight: 22,
   },
@@ -83,10 +84,9 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
   secondaryBtn: {
-    backgroundColor: "#F3F4F6",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
   },
-  secondaryBtnText: { color: "#111827", fontSize: 16, fontWeight: "600" },
+  secondaryBtnText: { fontSize: 16, fontWeight: "600" },
 });
