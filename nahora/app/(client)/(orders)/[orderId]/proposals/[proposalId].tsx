@@ -53,7 +53,7 @@ export default function DetalhePropostaScreen() {
             try {
               await acceptProposal(proposal.id);
               router.replace(
-                `/(client)/(orders)/${orderId}?acceptedProposalId=${proposal.id}`,
+                `/(client)/(orders)/${orderId}/payment`,
               );
             } catch {
               Alert.alert("Erro", "Não foi possível aceitar a proposta.");
