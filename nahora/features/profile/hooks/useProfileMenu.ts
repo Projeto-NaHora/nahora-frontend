@@ -57,6 +57,7 @@ export function useProfileMenu() {
     () => ({
       servicesCount: profile?.totalServicosExecutados ?? 0,
       rating: profile?.notaMedia ?? 0,
+    //earnings: profile?.ganhos ?? "R$ 0",
       earnings: "R$ 0",
     }),
     [profile],
