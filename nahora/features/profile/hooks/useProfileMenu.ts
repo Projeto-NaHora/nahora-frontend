@@ -125,6 +125,7 @@ export function useProfileMenu() {
     isLoading,
     error,
     retry,
+    nome,
     initials,
     subtitle,
     stats,
