@@ -151,6 +151,20 @@ Full testing guide, troubleshooting table, and TDD workflow are in `.docs/tests/
 - `npm test` passes
 - No inline mocks duplicate global `__mocks__/` mocks
 
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked via GitHub Issues. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five canonical triage labels are used with default names. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context project with `.docs/CONTEXT.md`. See `docs/agents/domain.md`.
+  
 ## Reference documents
 
 - `.docs/CONTEXT.md` — full agent rules, architecture, test infrastructure
