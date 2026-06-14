@@ -1,6 +1,7 @@
 // features/professional/components/ProfessionalHeader.tsx
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAuthStore } from "@/store/authStore";
@@ -10,6 +11,7 @@ export function ProfessionalHeader() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
   const user = useAuthStore((s) => s.user);
+  const router = useRouter();
 
   return (
     <View style={[styles.container, { paddingTop: 48, backgroundColor: colors.brand }]}>
@@ -29,9 +31,11 @@ export function ProfessionalHeader() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.notifButton} activeOpacity={0.7}>
-          <Text style={styles.bellIcon}>🔔</Text>
-          <View style={styles.notifBadge} />
+        <TouchableOpacity
+          style={styles.notifButton}
+          activeOpacity={0.7}
+          onPress={() => router.push("/(professional)/(home)/notifications")}
+          >
         </TouchableOpacity>
       </View>
 
