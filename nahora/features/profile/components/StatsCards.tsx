@@ -6,39 +6,62 @@ import { Colors, Fonts } from "@/constants/theme";
 import type { ProfileStats } from "../types";
 
 interface StatsCardsProps {
-  stats: ProfileStats;
+  stats: ProfileStats | null;
 }
 
 export function StatsCards({ stats }: StatsCardsProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
+
+  if (!stats) return null;
   return (
     <View style={styles.container}>
-      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
+      >
         <View style={styles.cardValueWrapper}>
           <Text style={[styles.cardValue, { color: colors.text }]}>
             {stats.servicesCount}
           </Text>
         </View>
-        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Serviços</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>
+          Serviços
+        </Text>
       </View>
 
-      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
+      >
         <View style={styles.cardValueWrapper}>
           <Text style={[styles.cardValue, { color: colors.text }]}>
             {stats.rating}
           </Text>
         </View>
-        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Avaliação</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>
+          Avaliação
+        </Text>
       </View>
 
-      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+        ]}
+      >
         <View style={styles.cardValueWrapper}>
           <Text style={[styles.cardValue, { color: colors.success }]}>
             {stats.earnings}
           </Text>
         </View>
-        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Ganhos</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>
+          Ganhos
+        </Text>
       </View>
     </View>
   );
