@@ -9,7 +9,8 @@ import {
 } from "react-native";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors, Fonts } from "@/constants/theme";
 
 interface LogoutPopupProps {
   visible: boolean;
@@ -22,6 +23,8 @@ export function LogoutPopup({
   onConfirm,
   onCancel,
 }: LogoutPopupProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   const sheetTranslateY = useRef(new Animated.Value(600)).current;
 
@@ -65,21 +68,21 @@ export function LogoutPopup({
         <Animated.View
           style={[
             styles.sheet,
-            { transform: [{ translateY: sheetTranslateY }] },
+            { backgroundColor: colors.background, transform: [{ translateY: sheetTranslateY }] },
           ]}
         >
           {/* Ícone */}
           <View style={styles.iconWrapper}>
-            <View style={styles.iconCircle}>
-              <IconSymbol name={"close" as any} size={26} color="#e02424" />
+            <View style={[styles.iconCircle, { backgroundColor: colors.surfaceRed }]}>
+              <IconSymbol name={"close" as any} size={26} color={colors.error} />
             </View>
           </View>
 
           {/* Título */}
-          <Text style={styles.title}>Sair do aplicativo?</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Sair do aplicativo?</Text>
 
           {/* Descrição */}
-          <Text style={styles.description}>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
             Tem certeza que deseja sair da sua conta? Você{"\n"}
             precisará fazer login novamente para solicitar{"\n"}
             serviços.
@@ -91,20 +94,22 @@ export function LogoutPopup({
               onPress={onConfirm}
               style={({ pressed }) => [
                 styles.confirmButton,
+                { backgroundColor: colors.error },
                 pressed && styles.buttonPressed,
               ]}
             >
-              <Text style={styles.confirmButtonText}>Sair da conta</Text>
+              <Text style={[styles.confirmButtonText, { color: colors.onBrand }]}>Sair da conta</Text>
             </Pressable>
 
             <Pressable
               onPress={onCancel}
               style={({ pressed }) => [
                 styles.cancelButton,
+                { backgroundColor: colors.surface },
                 pressed && styles.buttonPressed,
               ]}
             >
-              <Text style={styles.cancelButtonText}>Cancelar</Text>
+              <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancelar</Text>
             </Pressable>
           </View>
         </Animated.View>
@@ -123,7 +128,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
   sheet: {
-    backgroundColor: "#ffffff",
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     paddingHorizontal: 24,
@@ -153,7 +157,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "700",
     lineHeight: 27.5,
-    color: "#111111",
     textAlign: "center",
     marginBottom: 8,
   },
@@ -162,7 +165,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "400",
     lineHeight: 24.38,
-    color: "#8c8c8c",
     textAlign: "center",
     paddingHorizontal: 18,
     marginBottom: 24,
@@ -173,7 +175,6 @@ const styles = StyleSheet.create({
   confirmButton: {
     height: 56,
     borderRadius: 24,
-    backgroundColor: "#e02424",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -182,12 +183,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     lineHeight: 24,
-    color: "#ffffff",
   },
   cancelButton: {
     height: 56,
     borderRadius: 24,
-    backgroundColor: "#f8f9fa",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -196,7 +195,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     lineHeight: 24,
-    color: "#111111",
   },
   buttonPressed: {
     opacity: 0.8,

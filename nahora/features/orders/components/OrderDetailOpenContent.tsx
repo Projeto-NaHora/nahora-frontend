@@ -94,7 +94,7 @@ export function OrderDetailOpenContent({
   if (!pedido) return null;
 
   const statusColor = STATUS_COLORS[pedido.status] ?? {
-    bg: "#FEF0E8",
+    bg: colors.surfaceAccent,
     text: "#F26F21",
   };
   const statusLabel = STATUS_LABEL[pedido.status] ?? "Em aberto";
@@ -105,6 +105,7 @@ export function OrderDetailOpenContent({
   function getActiveStage(status: string): number {
     switch (status) {
       case "ABERTO": return 1;
+      case "AGUARDANDO_PAGAMENTO": return 1;
       case "EM_ANDAMENTO": return 2;
       case "AGUARDANDO_VALIDACAO": return 2;
       case "CONCLUIDO": return 4;
@@ -346,6 +347,16 @@ export function OrderDetailOpenContent({
             activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Falar com prestador</Text>
+          </TouchableOpacity>
+        ) : pedido.status === "AGUARDANDO_PAGAMENTO" ? (
+          <TouchableOpacity
+            onPress={() => {
+              router.push(`/(client)/(orders)/${pedido.id}/payment`);
+            }}
+            style={[styles.ctaButton, { backgroundColor: colors.brand }]}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Pagar serviço</Text>
           </TouchableOpacity>
         ) : pedido.status === "ABERTO" ? (
           <TouchableOpacity

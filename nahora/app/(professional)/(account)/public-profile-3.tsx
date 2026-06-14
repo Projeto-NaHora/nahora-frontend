@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Profile3Content } from "@/features/auth/components/Profile3Content";
 import { useEditProfileForm } from "@/features/profile/hooks/useEditProfileForm";
 import { SuccessPopup } from "@/components/ui/SuccessPopup";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
 const MAX_PHOTOS = 10;
@@ -79,7 +80,7 @@ function showPickOptions(onSelect: (uri: string) => void) {
 
 export default function PublicProfile3() {
   const router = useRouter();
-  const theme = "light";
+  const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
   const {

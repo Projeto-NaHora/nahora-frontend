@@ -37,6 +37,8 @@ const MAPPING = {
   lock: "lock",
   logout: "logout",
   close: "close",
+  "eye.fill": "visibility",
+  "eye.slash.fill": "visibility-off",
 } as Partial<IconMapping>;
 
 /**

@@ -317,7 +317,7 @@ export function OrderFormContent({
                       styles.turnoChip,
                       selected
                         ? {
-                            backgroundColor: "#FCE8D5",
+                            backgroundColor: colors.surfaceAccent,
                             borderColor: colors.brand,
                           }
                         : {
@@ -702,7 +702,7 @@ export function OrderFormContent({
         </Text>
         <View style={styles.mediaRow}>
           <Pressable
-            style={[styles.mediaButton, { backgroundColor: "#FCE8D5" }]}
+            style={[styles.mediaButton, { backgroundColor: colors.surfaceAccent }]}
             onPress={onPickFromCamera}
             disabled={isSubmitting || isUploadingMedia}
           >
@@ -712,7 +712,7 @@ export function OrderFormContent({
             </Text>
           </Pressable>
           <Pressable
-            style={[styles.mediaButton, { backgroundColor: "#FCE8D5" }]}
+            style={[styles.mediaButton, { backgroundColor: colors.surfaceAccent }]}
             onPress={onPickFromGallery}
             disabled={isSubmitting || isUploadingMedia}
           >
@@ -782,7 +782,7 @@ export function OrderFormContent({
                       styles.turnoChip,
                       selected
                         ? {
-                            backgroundColor: "#FCE8D5",
+                            backgroundColor: colors.surfaceAccent,
                             borderColor: colors.brand,
                           }
                         : {

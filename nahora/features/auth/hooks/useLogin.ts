@@ -84,42 +84,44 @@ export function useLogin() {
         await setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
 
         // Phase 3 — Fetch full profile (status + address data, with retry on network/5xx)
-        const perfil = await withRetry(
-          () => profileService.buscarPerfilParaEdicao(),
-          2,
-        );
+        if (data.tipoUsuario === "PROFISSIONAL") {
+          const perfil = await withRetry(
+            () => profileService.buscarPerfilParaEdicao(),
+            2,
+          );
 
-        // Phase 4 — Determine onboarding phase
-        let phase: ProfessionalOnboarding | null;
+          // Phase 4 — Determine onboarding phase
+          let phase: ProfessionalOnboarding | null;
 
-        if (perfil.statusVerificacao === "VERIFICADO") {
-          // Verified — check if the professional has already completed
-          // their profile (address fields are only filled through profile-1,
-          // never during registration). If address data exists, onboarding
-          // is already complete.
-          const hasAddress = !!(perfil.logradouro && perfil.bairro && perfil.cidade && perfil.estado);
-          phase = hasAddress ? null : "perfil";
-        } else if (perfil.statusVerificacao === "CADASTRO_INCOMPLETO") {
-          phase = "cadastro_incompleto";
-        } else if (perfil.statusVerificacao === "AGUARDANDO_VERIFICACAO") {
-          phase = "aguardando";
-        } else if (perfil.statusVerificacao === "REJEITADO") {
-          phase = "rejeitado";
-        } else {
-          phase = null;
+          if (perfil.statusVerificacao === "VERIFICADO") {
+            // Verified — check if the professional has already completed
+            // their profile (address fields are only filled through profile-1,
+            // never during registration). If address data exists, onboarding
+            // is already complete.
+            const hasAddress = !!(perfil.logradouro && perfil.bairro && perfil.cidade && perfil.estado);
+            phase = hasAddress ? null : "perfil";
+          } else if (perfil.statusVerificacao === "CADASTRO_INCOMPLETO") {
+            phase = "cadastro_incompleto";
+          } else if (perfil.statusVerificacao === "AGUARDANDO_VERIFICACAO") {
+            phase = "aguardando";
+          } else if (perfil.statusVerificacao === "REJEITADO") {
+            phase = "rejeitado";
+          } else {
+            phase = null;
+          }
+
+          await setProfessionalOnboarding(phase);
         }
-
-        await setProfessionalOnboarding(phase);
       } catch (error) {
         const parsed = parseApiError(error);
         setErrorMessage(parsed.message);
         setErrorStatus(parsed.statusCode ?? null);
-      } finally {
-        setIsLoading(false);
-      }
-    }),
-    [trigger, setTokens, setProfessionalOnboarding],
-  );
+        } finally {
+          setIsLoading(false);
+        }
+      }),
+      [trigger, setTokens, setProfessionalOnboarding],
+    );
 
   return {
     form,
