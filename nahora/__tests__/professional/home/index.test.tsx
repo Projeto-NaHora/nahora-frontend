@@ -18,36 +18,27 @@ jest.mock("expo-router", () => ({
   useRouter: () => ({ push: mockPush, back: jest.fn(), replace: jest.fn() }),
 }));
 jest.mock("@/features/professional/hooks/usePedidosDisponiveis", () => ({
-  enrichWithMockData: (pedidos: any) => {
-    if (!pedidos) return [];
-    return pedidos.map((p: any, i: number) => ({
-      ...p,
-      clienteNome: ["Maria Silva", "João Lima", "Ana Costa", "Carlos Souza", "Fernanda Rocha"][i % 5],
-    }));
-  },
   usePedidosDisponiveis: () => ({
     pedidos: [
       {
         id: 1,
-        descricao: "Descrição do pedido 1",
+        titulo: "Descrição do pedido 1",
         categoria: "ELETRICA" as const,
         distanciaKm: 1.2,
-        dataPublicacao: "2026-05-17T10:00:00Z",
-        urgente: true,
-        faixaValorMin: 50,
-        faixaValorMax: 150,
-        contadorPropostas: 2,
+        criadoEm: "2026-05-17T10:00:00",
+        nomeCliente: "Maria Silva",
+        avaliacaoCliente: 4.8,
+        statusPedido: "ABERTO" as const,
       },
       {
         id: 2,
-        descricao: "Descrição do pedido 2",
+        titulo: "Descrição do pedido 2",
         categoria: "PEDREIRO" as const,
         distanciaKm: 2.5,
-        dataPublicacao: "2026-05-17T09:00:00Z",
-        urgente: false,
-        faixaValorMin: 100,
-        faixaValorMax: 300,
-        contadorPropostas: 0,
+        criadoEm: "2026-05-17T09:00:00",
+        nomeCliente: "João Lima",
+        avaliacaoCliente: 4.5,
+        statusPedido: "ABERTO" as const,
       },
     ],
     isLoading: false,

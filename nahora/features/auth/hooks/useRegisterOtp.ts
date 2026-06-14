@@ -18,12 +18,22 @@ export function useRegisterOtp({ onSuccess }: UseRegisterOtpOptions) {
 
   const { trigger, isMutating, error } = useSWRMutation(
     "register-otp",
-    async () => authService.verifyOtp({ telefone: phone, codigo: code }),
+    async () => {
+      console.log("[DEBUG-b8a1] SWR mutation START — phone:", phone, "code:", code);
+      return authService.verifyOtp({ telefone: phone, codigo: code });
+    },
     {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        console.log("[DEBUG-b8a1] SWR mutation SUCCESS — data:", JSON.stringify(data));
         onSuccess();
       },
       onError: (error) => {
+        console.log("[DEBUG-b8a1] SWR mutation ERROR —", JSON.stringify({
+          message: error?.message,
+          code: error?.code,
+          status: error?.response?.status,
+          data: error?.response?.data,
+        }));
         const parsed = parseApiError(error);
         setErrorStatus(parsed.statusCode ?? null);
         Alert.alert("Erro", parsed.message);

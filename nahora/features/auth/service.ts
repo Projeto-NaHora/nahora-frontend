@@ -32,10 +32,12 @@ export const authService = {
   },
 
   verifyOtp: async (payload: VerifyOtpPayload): Promise<VerifyOtpResponse> => {
+    console.log("[DEBUG-b8a1] verifyOtp CALL — payload:", JSON.stringify(payload));
     const { data } = await api.post<VerifyOtpResponse>(
       ENDPOINTS.VERIFICAR_OTP,
       payload,
     );
+    console.log("[DEBUG-b8a1] verifyOtp OK — data:", JSON.stringify(data));
     return data;
   },
 
