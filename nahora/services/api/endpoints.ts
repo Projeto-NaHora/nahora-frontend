@@ -42,7 +42,8 @@ export const ENDPOINTS = {
 
   // Pagamentos
   PAGAMENTO: (propostaId: number) => `/propostas/${propostaId}/pagamento`,
-  PAGAMENTO_SIMULAR: (pedidoId: number) => `/pedidos/${pedidoId}/pagamento/simular`,
+  PAGAMENTO_SIMULAR: (pedidoId: number) =>
+    `/pedidos/${pedidoId}/pagamento/simular`,
   PEDIDO_RECIBO: (pedidoId: number) => `/pedidos/${pedidoId}/recibo`,
   CONFIRMAR_CONCLUSAO: (pedidoId: number) => `/pedidos/${pedidoId}/confirmar`,
 
@@ -53,6 +54,12 @@ export const ENDPOINTS = {
   // Notificações
   NOTIFICACOES: "/notificacoes",
   MARCAR_LIDA: (id: number) => `/notificacoes/${id}/lida`,
+
+  // Preferências do usuário
+  PREFERENCIAS: "/usuarios/preferencias",
+
+  // Alterar senha (autenticado)
+  ALTERAR_SENHA: "/usuarios/senha",
 
   // Perfil / cadastro profissional
   COMPLETAR_PERFIL: "/profissionais/perfil",
