@@ -25,6 +25,7 @@ export default function Screen() {
     user,
     isLoading,
     error,
+    nome,
     initials,
     subtitle,
     stats,
@@ -85,7 +86,7 @@ export default function Screen() {
       >
         <ProfileHeader
           initials={initials}
-          name={user?.nome ?? "Usuário"}
+          name={nome || "Usuário"}
           subtitle={subtitle}
         />
 

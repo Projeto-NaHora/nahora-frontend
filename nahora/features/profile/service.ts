@@ -1,7 +1,6 @@
 // features/profile/service.ts
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
-import type { ProfessionalProfileResponse } from "./types";
 import type { PerfilProfissionalDTO, ProfissionalPerfilRequest } from "./types";
 import type { ClientePerfilResponse, ClientePerfilRequest } from "./types";
 import type { EnderecoResponse, EnderecoRequest } from "./types";
