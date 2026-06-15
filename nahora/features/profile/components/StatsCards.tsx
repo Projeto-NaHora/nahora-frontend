@@ -5,11 +5,19 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors, Fonts } from "@/constants/theme";
 import type { ProfileStats } from "../types";
 
-interface StatsCardsProps {
-  stats: ProfileStats;
+export interface StatsCardsLabels {
+  services?: string;
+  rating?: string;
+  earnings?: string;
 }
 
-export function StatsCards({ stats }: StatsCardsProps) {
+interface StatsCardsProps {
+  stats: ProfileStats;
+  /** Labels customizados — quando omitidos, usa os defaults em português */
+  labels?: StatsCardsLabels;
+}
+
+export function StatsCards({ stats, labels }: StatsCardsProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
   return (
@@ -20,7 +28,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
             {stats.servicesCount}
           </Text>
         </View>
-        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Serviços</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{labels?.services ?? "Serviços"}</Text>
       </View>
 
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -29,7 +37,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
             {stats.rating}
           </Text>
         </View>
-        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Avaliação</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{labels?.rating ?? "Avaliação"}</Text>
       </View>
 
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -38,7 +46,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
             {stats.earnings}
           </Text>
         </View>
-        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>Ganhos</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{labels?.earnings ?? "Ganhos"}</Text>
       </View>
     </View>
   );
