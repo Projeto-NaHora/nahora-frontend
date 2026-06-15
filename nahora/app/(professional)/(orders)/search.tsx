@@ -75,12 +75,14 @@ export default function SearchScreen() {
       />
 
       <View style={[styles.content, { backgroundColor: colors.background }]}>
-        <ProfessionalFilters
-          selectedCategoria={categoriaFilter}
-          onSelectCategoria={setCategoriaFilter}
-          selectedUrgencia={urgenciaFilter}
-          onSelectUrgencia={setUrgenciaFilter}
-        />
+        <View style={{ paddingLeft: 16 }}>
+          <ProfessionalFilters 
+            selectedCategoria={categoriaFilter}
+            onSelectCategoria={setCategoriaFilter}
+            selectedUrgencia={urgenciaFilter}
+            onSelectUrgencia={setUrgenciaFilter}
+          />
+        </View>
 
         {isLoading ? (
           <View style={styles.centered}>
