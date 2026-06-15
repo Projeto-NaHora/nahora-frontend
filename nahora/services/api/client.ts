@@ -3,8 +3,9 @@ import { useAuthStore } from "@/store/authStore";
 import { storage } from "@/utils/storage";
 import { isTokenExpired } from "@/utils/jwt";
 import { logAxiosError } from "@/utils/apiError";
+import { API_URL } from "./endpoints";
 
-export const api = axios.create({ baseURL: process.env.EXPO_PUBLIC_API_URL });
+export const api = axios.create({ baseURL: API_URL });
 
 let refreshing: Promise<boolean> | null = null;
 
@@ -12,10 +13,9 @@ async function doRefresh(): Promise<boolean> {
   try {
     const refreshToken = await storage.get("refreshToken");
     if (!refreshToken) return false;
-    const { data } = await axios.post(
-      `${process.env.EXPO_PUBLIC_API_URL}/auth/refresh`,
-      { refreshToken },
-    );
+    const { data } = await axios.post(`${API_URL}/auth/refresh`, {
+      refreshToken,
+    });
     await useAuthStore
       .getState()
       .setTokens(data.accessToken, data.refreshToken, data.tipoUsuario);
@@ -27,7 +27,16 @@ async function doRefresh(): Promise<boolean> {
   }
 }
 
-const PUBLIC_AUTH_PATHS = ["/auth/login", "/auth/refresh", "/auth/enviar-otp", "/auth/verificar-otp", "/auth/cadastro", "/auth/register", "/auth/forgot-password", "/auth/reset-password"];
+const PUBLIC_AUTH_PATHS = [
+  "/auth/login",
+  "/auth/refresh",
+  "/auth/enviar-otp",
+  "/auth/verificar-otp",
+  "/auth/cadastro",
+  "/auth/register",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+];
 
 function isPublicAuthEndpoint(url?: string): boolean {
   if (!url) return false;
@@ -56,7 +65,13 @@ api.interceptors.request.use(async (config) => {
   }
 
   if (config.url?.includes("disponiveis")) {
-    console.log("[DEBUG-d4f2] REQ →", config.method?.toUpperCase(), config.baseURL + config.url, "params:", JSON.stringify(config.params));
+    console.log(
+      "[DEBUG-d4f2] REQ →",
+      config.method?.toUpperCase(),
+      config.baseURL + config.url,
+      "params:",
+      JSON.stringify(config.params),
+    );
   }
 
   return config;
@@ -67,10 +82,14 @@ api.interceptors.response.use(
   (res) => {
     if (res.config.url?.includes("disponiveis")) {
       console.log(
-        "[DEBUG-d4f2] RES ← status:", res.status,
-        "totalElements:", res.data?.totalElements,
-        "contentLength:", res.data?.content?.length,
-        "empty:", res.data?.empty,
+        "[DEBUG-d4f2] RES ← status:",
+        res.status,
+        "totalElements:",
+        res.data?.totalElements,
+        "contentLength:",
+        res.data?.content?.length,
+        "empty:",
+        res.data?.empty,
       );
     }
     return res;

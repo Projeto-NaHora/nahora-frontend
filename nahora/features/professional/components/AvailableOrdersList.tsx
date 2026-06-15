@@ -12,7 +12,6 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import {
   usePedidosDisponiveis,
-  enrichWithMockData,
 } from "../hooks/usePedidosDisponiveis";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { AvailableOrderCard } from "./AvailableOrderCard";
@@ -54,8 +53,6 @@ export function AvailableOrdersList({ onPressPedido }: AvailableOrdersListProps)
     loadMore,
   } = usePedidosDisponiveis(filtro);
 
-  const enriched = useMemo(() => enrichWithMockData(pedidos), [pedidos]);
-
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     await refresh();
@@ -84,7 +81,7 @@ export function AvailableOrdersList({ onPressPedido }: AvailableOrdersListProps)
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
-        data={enriched}
+        data={pedidos}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={{
           paddingHorizontal: 20,

@@ -1,4 +1,9 @@
 // services/api/endpoints.ts
+
+export const API_URL =
+  "https://nahora-backend-staging-v2.up.railway.app/api/v1";
+export const WS_URL = "wss://nahora-backend-staging-v2.up.railway.app/ws";
+
 export const ENDPOINTS = {
   // Upload de arquivos
   UPLOAD_DOCUMENTO: "/files/upload",
@@ -42,7 +47,8 @@ export const ENDPOINTS = {
 
   // Pagamentos
   PAGAMENTO: (propostaId: number) => `/propostas/${propostaId}/pagamento`,
-  PAGAMENTO_SIMULAR: (pedidoId: number) => `/pedidos/${pedidoId}/pagamento/simular`,
+  PAGAMENTO_SIMULAR: (pedidoId: number) =>
+    `/pedidos/${pedidoId}/pagamento/simular`,
   PEDIDO_RECIBO: (pedidoId: number) => `/pedidos/${pedidoId}/recibo`,
   CONFIRMAR_CONCLUSAO: (pedidoId: number) => `/pedidos/${pedidoId}/confirmar`,
 

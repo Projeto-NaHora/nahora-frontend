@@ -59,7 +59,14 @@ function extractUserFromToken(
     return null;
   }
 
-  console.log("[AuthStore] JWT payload keys:", Object.keys(payload), "tipoUsuario arg:", tipoUsuario, 'jwt:', accessToken);
+  console.log(
+    "[AuthStore] JWT payload keys:",
+    Object.keys(payload),
+    "tipoUsuario arg:",
+    tipoUsuario,
+    "jwt:",
+    accessToken,
+  );
 
   // ID: prefere `id` (numérico) sobre `sub` que é o email
   const id = Number(
@@ -121,10 +128,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       const savedOnboarding = await storage.get("professionalOnboarding");
 
       const { default: axios } = await import("axios");
-      const { data } = await axios.post(
-        `${process.env.EXPO_PUBLIC_API_URL}/auth/refresh`,
-        { refreshToken },
-      );
+      const { API_URL } = await import("@/services/api/endpoints");
+      const { data } = await axios.post(`${API_URL}/auth/refresh`, {
+        refreshToken,
+      });
 
       await storage.set("refreshToken", data.refreshToken);
       const user = extractUserFromToken(data.accessToken, data.tipoUsuario);

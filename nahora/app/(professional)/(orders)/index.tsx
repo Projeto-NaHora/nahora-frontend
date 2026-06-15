@@ -1,22 +1,38 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useCallback } from "react";
+import { StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { OrdersHeader } from "@/features/professional/components/OrdersHeader";
+import { AvailableOrdersList } from "@/features/professional/components/AvailableOrdersList";
+import type { PedidoDisponivel } from "@/features/professional/types";
 
-export default function Screen() {
+export default function OrdersScreen() {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
+  const router = useRouter();
+
+  const handlePressPedido = useCallback(
+    (pedido: PedidoDisponivel) => {
+      router.push(`/(professional)/(orders)/${pedido.id}`);
+    },
+    [router],
+  );
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>app/(professional)/(orders)/index.tsx</Text>
-    </View>
+    <SafeAreaView
+      edges={["top"]}
+      style={[styles.container, { backgroundColor: colors.brand }]}
+    >
+      <OrdersHeader />
+      <AvailableOrdersList onPressPedido={handlePressPedido} />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
   },
 });
