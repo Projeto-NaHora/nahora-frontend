@@ -5,11 +5,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Profile2Content } from "@/features/auth/components/Profile2Content";
 import { useEditProfileForm } from "@/features/profile/hooks/useEditProfileForm";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
 export default function PublicProfile2() {
   const router = useRouter();
-  const theme = "light";
+  const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
   const { about, especialidades, setAbout, setEspecialidades } =

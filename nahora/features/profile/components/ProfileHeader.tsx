@@ -1,29 +1,38 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { Image, View, Text, StyleSheet } from "react-native";
 
-import { Fonts } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors, Fonts } from "@/constants/theme";
 
 interface ProfileHeaderProps {
   initials: string;
   name: string;
   subtitle: string;
+  photoUri?: string | null;
 }
 
 export function ProfileHeader({
   initials,
   name,
   subtitle,
+  photoUri,
 }: ProfileHeaderProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
-        <Text style={[styles.name, { color: "#1c1c1e" }]}>{name}</Text>
-        <Text style={[styles.subtitle, { color: "#8e8e93" }]}>{subtitle}</Text>
+        <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
       </View>
       <View style={[styles.avatar, { backgroundColor: "#fef0e8" }]}>
-        <Text style={[styles.avatarText, { color: "#f26f21" }]}>
-          {initials}
-        </Text>
+        {photoUri ? (
+          <Image source={{ uri: photoUri }} style={styles.avatarImage} />
+        ) : (
+          <Text style={[styles.avatarText, { color: "#f26f21" }]}>
+            {initials}
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -58,9 +67,15 @@ const styles = StyleSheet.create({
   avatar: {
     width: 106,
     height: 104,
-    borderRadius: 33554400,
+    borderRadius: 53,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: 106,
+    height: 104,
+    borderRadius: 53,
   },
   avatarText: {
     fontSize: 30,

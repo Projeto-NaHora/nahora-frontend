@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Profile1Content } from "@/features/auth/components/Profile1Content";
 import { useEditProfileForm } from "@/features/profile/hooks/useEditProfileForm";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import { buscarCep } from "@/services/cep";
 import { geocodeAddress } from "@/services/geocode";
@@ -86,7 +87,7 @@ async function geocodeFromAddress(params: {
 
 export default function PublicProfile1() {
   const router = useRouter();
-  const theme = "light";
+  const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
   const [cepLoading, setCepLoading] = useState(false);
 
@@ -189,8 +190,6 @@ export default function PublicProfile1() {
           <Profile1Content
             nome={nome}
             onChangeNome={setNome}
-            cpf=""
-            onChangeCpf={() => {}}
             onBack={handleBack}
             cargo={cargo}
             experienceYears={experienceYears}

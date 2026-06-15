@@ -1,6 +1,6 @@
 // features/orders/hooks/useOrders.ts
 import useSWR from "swr";
-import { orderService } from "../service";
+import { disputaService, orderService } from "../service";
 import { STATUS_FILTER_MAP } from "../types";
 import type { FiltroStatus } from "../types";
 
@@ -28,6 +28,20 @@ export const useAvailableOrders = () => {
     queryKey: ["pedidos", "disponiveis"],
     queryFn: () => orderService.listarDisponiveis(),
   });
+};
+
+export const useDisputaStatus = (pedidoId: number | null) => {
+  const { data, error, mutate, isLoading } = useSWR(
+    pedidoId ? `/disputas/pedido/${pedidoId}` : null,
+    () => disputaService.buscarStatusPorPedido(pedidoId!),
+  );
+
+  return {
+    disputa: data,
+    isLoading,
+    isError: error,
+    mutate,
+  };
 };
 
 export const useProOrders = () => {

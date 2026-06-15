@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -7,44 +7,36 @@ import {
   BackHandler,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function IssueSuccessScreen() {
   const router = useRouter();
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
-  // Aqui criamos um número de disputa falso inspirado no seu design
-  const numeroDisputa = `#DIS-${new Date().getFullYear()}-${orderId.padStart(5, "0")}`;
+  // Bloqueia o botão físico de voltar do Android para não reabrir o formulário
+  useEffect(() => {
+    const onBackPress = () => {
+      handleGoHome();
+      return true;
+    };
 
-  // === PREVINE O BOTÃO FÍSICO DE VOLTAR DO ANDROID ===
-  // Intercepta o clique no botão físico de voltar e redireciona para a Home
-  // para evitar que o usuário volte para o formulário já enviado.
-  useFocusEffect(
-    React.useCallback(() => {
-      const onBackPress = () => {
-        handleGoHome();
-        return true;
-      };
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      onBackPress,
+    );
 
-      // Salva a inscrição (subscription) na variável
-      const subscription = BackHandler.addEventListener(
-        "hardwareBackPress",
-        onBackPress,
-      );
-
-      return () => subscription.remove();
-    }, []),
-  );
+    return () => subscription.remove();
+  }, []);
 
   const handleGoHome = () => {
     router.dismissAll();
-    router.replace("/(client)/(home)");
+    router.replace("/(client)/(home)"); // Ajuste para (professional) se necessário
   };
 
-  const handleGoToOrder = () => {
-    router.dismissAll();
-    router.push(`/(client)/(orders)/${orderId}`);
+  const handleTrackAnalysis = () => {
+    // Leva para a tela C103 (Análise da Disputa)
+    router.push(`/(client)/(orders)/${orderId}/issue/analysis`);
   };
 
   return (
@@ -52,43 +44,47 @@ export default function IssueSuccessScreen() {
       <View style={styles.header}>
         <View style={{ width: 40 }} />
         <TouchableOpacity style={styles.closeBtn} onPress={handleGoHome}>
-          <Feather name="x" size={20} color="#111827" />
+          <Feather name="x" size={24} color="#111827" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
         <View style={styles.iconCircle}>
-          <Feather name="check" size={32} color="#10B981" />
+          <Feather name="check" size={40} color="#10B981" />
         </View>
 
-        <Text style={styles.title}>Problema reportado com sucesso!</Text>
+        <Text style={styles.title}>Problema reportado{"\n"}com sucesso!</Text>
         <Text style={styles.subtitle}>
           Recebemos sua denúncia e as evidências.
         </Text>
 
-        <View style={styles.infoCard}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Número da Disputa</Text>
-            <Text style={styles.value}>{numeroDisputa}</Text>
+        {/* Box do Protocolo */}
+        <View style={styles.protocolBox}>
+          <View style={styles.protocolRow}>
+            <Text style={styles.protocolLabel}>Número da Disputa</Text>
+            <Text style={styles.protocolValue}>#DIS-2026-04789</Text>
           </View>
           <View style={styles.divider} />
-          <View style={styles.rowWarning}>
+          <View style={styles.infoRow}>
             <Feather
               name="clock"
               size={16}
               color="#3B82F6"
               style={{ marginTop: 2 }}
             />
-            <Text style={styles.warningText}>
-              Nossa equipe de moderação avaliará o caso e dará um retorno em até{" "}
-              <Text style={{ fontWeight: "700" }}>48 horas</Text>.
+            <Text style={styles.infoText}>
+              Nossa equipe de moderação avaliará o caso e dará um retorno em até
+              48 horas.
             </Text>
           </View>
         </View>
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.primaryBtn} onPress={handleGoToOrder}>
+        <TouchableOpacity
+          style={styles.primaryBtn}
+          onPress={handleTrackAnalysis}
+        >
           <Text style={styles.primaryBtnText}>Acompanhar análise</Text>
           <Feather
             name="arrow-right"
@@ -99,14 +95,13 @@ export default function IssueSuccessScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.secondaryBtn} onPress={handleGoHome}>
-          <Text style={styles.secondaryBtnText}>Voltar ao inicio</Text>
+          <Text style={styles.secondaryBtnText}>Voltar ao início</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 }
 
-// ... os styles permanecem idênticos, não precisei alterá-los ...
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
   header: {
@@ -122,6 +117,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   content: {
     flex: 1,
     alignItems: "center",
@@ -129,13 +125,13 @@ const styles = StyleSheet.create({
     paddingTop: 40,
   },
   iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     backgroundColor: "#D1FAE5",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 24,
+    marginBottom: 32,
   },
   title: {
     fontSize: 24,
@@ -143,30 +139,34 @@ const styles = StyleSheet.create({
     color: "#111827",
     textAlign: "center",
     marginBottom: 12,
+    lineHeight: 32,
   },
   subtitle: {
     fontSize: 15,
     color: "#6B7280",
     textAlign: "center",
-    marginBottom: 32,
+    marginBottom: 40,
   },
-  infoCard: {
+
+  protocolBox: {
     width: "100%",
     borderWidth: 1,
     borderColor: "#E5E7EB",
     borderRadius: 16,
-    padding: 16,
+    padding: 20,
+    backgroundColor: "#F9FAFB",
   },
-  row: {
+  protocolRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  label: { fontSize: 13, color: "#6B7280" },
-  value: { fontSize: 14, fontWeight: "700", color: "#111827" },
-  divider: { height: 1, backgroundColor: "#F3F4F6", marginVertical: 16 },
-  rowWarning: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
-  warningText: { flex: 1, fontSize: 13, color: "#3B82F6", lineHeight: 20 },
+  protocolLabel: { fontSize: 13, color: "#6B7280" },
+  protocolValue: { fontSize: 14, fontWeight: "700", color: "#111827" },
+  divider: { height: 1, backgroundColor: "#E5E7EB", marginVertical: 16 },
+  infoRow: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  infoText: { flex: 1, fontSize: 13, color: "#4B5563", lineHeight: 20 },
+
   footer: { padding: 24, gap: 12 },
   primaryBtn: {
     flexDirection: "row",
@@ -178,11 +178,12 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
   secondaryBtn: {
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "#F9FAFB",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
-    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
-  secondaryBtnText: { color: "#111827", fontSize: 16, fontWeight: "700" },
+  secondaryBtnText: { color: "#111827", fontSize: 16, fontWeight: "600" },
 });

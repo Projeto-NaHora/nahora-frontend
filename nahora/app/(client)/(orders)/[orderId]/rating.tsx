@@ -1,6 +1,7 @@
 import React from "react";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { mutate } from "swr";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import { avaliacaoService } from "@/features/ratings/service";
 import { RatingForm } from "@/features/ratings/components/RatingForm";
@@ -53,6 +54,7 @@ export default function ClientRatingScreen() {
       papel="CLIENTE"
       onSubmit={async ({ nota, comentario, tags }) => {
         await avaliacaoService.criar(pedidoId, { nota, comentario, tags });
+        await mutate(`avaliacao-pedido-${pedidoId}`);
       }}
     />
   );

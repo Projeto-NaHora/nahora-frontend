@@ -16,12 +16,20 @@ export default function PedidoAbertoScreen() {
   const { data: pedido, isLoading, error } = useOrderDetail(pedidoId);
   const { jaAvaliou } = useAvaliacao(pedidoId);
 
+  if (pedido?.status === "EM_DISPUTA") {
+    return <Redirect href={`/(client)/(orders)/${orderId}/issue/analysis`} />;
+  }
+
   if (pedido?.status === "AGUARDANDO_VALIDACAO") {
     return <Redirect href={`/(client)/(orders)/${orderId}/validation`} />;
   }
 
   if (pedido?.status === "EM_ANDAMENTO") {
     return <Redirect href={`/(client)/(orders)/${orderId}/active`} />;
+  }
+
+  if (pedido?.status === "AGUARDANDO_PAGAMENTO") {
+    return <Redirect href={`/(client)/(orders)/${orderId}/payment`} />;
   }
 
   const handleDelete = () => {

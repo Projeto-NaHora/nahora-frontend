@@ -1,8 +1,10 @@
 // features/profile/hooks/useEditProfileForm.ts
 import { useCallback, useEffect } from "react";
+import { mutate } from "swr";
 import { useEditProfileStore } from "@/store/editProfileStore";
 import { useAuthStore } from "@/store/authStore";
 import { profileService } from "@/features/profile/service";
+import { profileKeys } from "@/features/profile/hooks/useProfile";
 
 export function useEditProfileForm(opts?: { initialize?: boolean }) {
   const store = useEditProfileStore();
@@ -89,7 +91,11 @@ export function useEditProfileForm(opts?: { initialize?: boolean }) {
       longitude: s.longitude ?? undefined,
       urlsFotosPortfolio: portfolioUrls.length ? portfolioUrls : undefined,
     });
+
+    // Invalida o cache do SWR para forçar o refetch dos dados do perfil
+    await mutate(profileKeys.professionalProfile);
   }, []);
+
 
   return {
     nome: store.nome,

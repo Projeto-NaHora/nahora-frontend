@@ -1,41 +1,52 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-import { Fonts } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors, Fonts } from "@/constants/theme";
 import type { ProfileStats } from "../types";
+
+export interface StatsCardsLabels {
+  services?: string;
+  rating?: string;
+  earnings?: string;
+}
 
 interface StatsCardsProps {
   stats: ProfileStats;
+  /** Labels customizados — quando omitidos, usa os defaults em português */
+  labels?: StatsCardsLabels;
 }
 
-export function StatsCards({ stats }: StatsCardsProps) {
+export function StatsCards({ stats, labels }: StatsCardsProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   return (
     <View style={styles.container}>
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={styles.cardValueWrapper}>
-          <Text style={[styles.cardValue, { color: "#1c1c1e" }]}>
+          <Text style={[styles.cardValue, { color: colors.text }]}>
             {stats.servicesCount}
           </Text>
         </View>
-        <Text style={styles.cardLabel}>Serviços</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{labels?.services ?? "Serviços"}</Text>
       </View>
 
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={styles.cardValueWrapper}>
-          <Text style={[styles.cardValue, { color: "#1c1c1e" }]}>
+          <Text style={[styles.cardValue, { color: colors.text }]}>
             {stats.rating}
           </Text>
         </View>
-        <Text style={styles.cardLabel}>Avaliação</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{labels?.rating ?? "Avaliação"}</Text>
       </View>
 
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={styles.cardValueWrapper}>
-          <Text style={[styles.cardValue, { color: "#009966" }]}>
+          <Text style={[styles.cardValue, { color: colors.success }]}>
             {stats.earnings}
           </Text>
         </View>
-        <Text style={styles.cardLabel}>Ganhos</Text>
+        <Text style={[styles.cardLabel, { color: colors.textSecondary }]}>{labels?.earnings ?? "Ganhos"}</Text>
       </View>
     </View>
   );
@@ -50,10 +61,8 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#f0f0f04d",
     paddingVertical: 18,
     alignItems: "center",
     justifyContent: "center",
@@ -72,6 +81,5 @@ const styles = StyleSheet.create({
     fontFamily: Fonts?.sans,
     fontWeight: "400",
     lineHeight: 21,
-    color: "#8e8e93",
   },
 });

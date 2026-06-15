@@ -9,8 +9,12 @@ import {
 import { Feather } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 export default function ProFinishSuccessScreen() {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const router = useRouter();
   const { serviceId } = useLocalSearchParams<{ serviceId: string }>();
 
@@ -39,19 +43,19 @@ export default function ProFinishSuccessScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <View style={styles.iconCircle}>
+        <View style={[styles.iconCircle, { backgroundColor: colors.surfaceGreen }]}>
           <Feather name="check" size={40} color="#10B981" />
         </View>
 
-        <Text style={styles.title}>Serviço concluído!</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.text }]}>Serviço concluído!</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           Você mandou este serviço como finalizado com sucesso.
         </Text>
 
         {/* Caixa de aviso amarela */}
-        <View style={styles.warningBox}>
+        <View style={[styles.warningBox, { backgroundColor: colors.surfaceYellow }]}>
           <Feather
             name="alert-triangle"
             size={16}
@@ -73,8 +77,8 @@ export default function ProFinishSuccessScreen() {
           <Text style={styles.primaryBtnText}>Acompanhe o processo</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.secondaryBtn} onPress={handleGoHome}>
-          <Text style={styles.secondaryBtnText}>Voltar ao início</Text>
+        <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={handleGoHome}>
+          <Text style={[styles.secondaryBtnText, { color: colors.text }]}>Voltar ao início</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -82,7 +86,7 @@ export default function ProFinishSuccessScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1 },
   content: {
     flex: 1,
     alignItems: "center",
@@ -93,7 +97,6 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: "#D1FAE5",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 32,
@@ -101,13 +104,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#111827",
     textAlign: "center",
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 16,
-    color: "#6B7280",
     textAlign: "center",
     lineHeight: 24,
     marginBottom: 40,
@@ -116,7 +117,6 @@ const styles = StyleSheet.create({
 
   warningBox: {
     flexDirection: "row",
-    backgroundColor: "#FEF3C7",
     padding: 16,
     borderRadius: 12,
     alignItems: "flex-start",
@@ -133,12 +133,10 @@ const styles = StyleSheet.create({
   },
   primaryBtnText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
   secondaryBtn: {
-    backgroundColor: "#FFFFFF",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
   },
-  secondaryBtnText: { color: "#111827", fontSize: 16, fontWeight: "600" },
+  secondaryBtnText: { fontSize: 16, fontWeight: "600" },
 });

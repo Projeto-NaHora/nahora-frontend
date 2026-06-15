@@ -25,6 +25,7 @@ export default function Screen() {
     user,
     isLoading,
     error,
+    nome,
     initials,
     subtitle,
     stats,
@@ -80,12 +81,12 @@ export default function Screen() {
   return (
     <>
       <ScrollView
-        style={[styles.container, { backgroundColor: "#ffffff" }]}
+        style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={styles.content}
       >
         <ProfileHeader
           initials={initials}
-          name={user?.nome ?? "Usuário"}
+          name={nome || "Usuário"}
           subtitle={subtitle}
         />
 
@@ -95,11 +96,11 @@ export default function Screen() {
           {menuItems.map((item, index) => (
             <React.Fragment key={item.id}>
               <MenuItem item={item} onPress={handleMenuItemPress} />
-              {index < menuItems.length - 1 && <View style={styles.divider} />}
+              {index < menuItems.length - 1 && <View style={[styles.divider, { backgroundColor: colors.border }]} />}
             </React.Fragment>
           ))}
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
           <MenuItem
             item={{

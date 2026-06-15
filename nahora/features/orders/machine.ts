@@ -3,7 +3,8 @@ import type { StatusPedido } from "@/types/enums";
 
 // Mapa de quais ações são permitidas em cada status
 export const TRANSICOES_PEDIDO: Record<StatusPedido, StatusPedido[]> = {
-  ABERTO: ["EM_ANDAMENTO", "CANCELADO"],
+  ABERTO: ["AGUARDANDO_PAGAMENTO", "CANCELADO"],
+  AGUARDANDO_PAGAMENTO: ["EM_ANDAMENTO", "CANCELADO"],
   EM_ANDAMENTO: ["AGUARDANDO_VALIDACAO"],
   AGUARDANDO_VALIDACAO: ["CONCLUIDO", "EM_DISPUTA"],
   CONCLUIDO: [],

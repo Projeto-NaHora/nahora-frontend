@@ -1,25 +1,24 @@
 import { useMemo } from "react";
-import { usePedidosDisponiveis, enrichWithMockData } from "./usePedidosDisponiveis";
+import { usePedidosDisponiveis } from "./usePedidosDisponiveis";
 import type { Pedido } from "@/features/orders/types";
-import type { PedidoResumoResponse } from "../types";
+import type { PedidoDisponivelResponse } from "../types";
 
-function mapResumoToPedido(
-  resumo: PedidoResumoResponse,
-  clienteNome: string,
+function mapDisponivelToPedido(
+  disponivel: PedidoDisponivelResponse,
 ): Pedido {
   return {
-    id: resumo.id,
+    id: disponivel.id,
     clienteId: 0,
-    clienteNome,
-    categoria: resumo.categoria,
-    descricao: resumo.descricao,
+    clienteNome: disponivel.nomeCliente,
+    categoria: disponivel.categoria,
+    descricao: disponivel.titulo,
     fotos: [],
     endereco: undefined,
-    urgencia: resumo.urgente ? "URGENTE" : "NORMAL",
+    urgencia: "NORMAL",
     orcamentoEstimado: undefined,
     dataDesejada: "",
-    status: "ABERTO",
-    criadoEm: resumo.dataPublicacao,
+    status: disponivel.statusPedido,
+    criadoEm: disponivel.criadoEm,
   };
 }
 
@@ -28,10 +27,9 @@ export function usePedidoResumoFromList(orderId: number) {
 
   const pedido = useMemo(() => {
     if (!pedidos || pedidos.length === 0) return undefined;
-    const resumo = pedidos.find((p) => p.id === orderId);
-    if (!resumo) return undefined;
-    const enriquecido = enrichWithMockData([resumo])[0];
-    return mapResumoToPedido(resumo, enriquecido.clienteNome);
+    const disponivel = pedidos.find((p) => p.id === orderId);
+    if (!disponivel) return undefined;
+    return mapDisponivelToPedido(disponivel);
   }, [pedidos, orderId]);
 
   return {

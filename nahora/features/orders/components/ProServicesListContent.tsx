@@ -6,9 +6,12 @@ import {
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 const getInitials = (name: string) => {
   if (!name) return "CL";
@@ -23,6 +26,8 @@ type Props = {
   isLoading: boolean;
   onPressDetails: (pedidoId: number) => void;
   onPressChat: (propostaId: number) => void;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 };
 
 export const ProServicesListContent: React.FC<Props> = ({
@@ -30,7 +35,11 @@ export const ProServicesListContent: React.FC<Props> = ({
   isLoading,
   onPressDetails,
   onPressChat,
+  refreshing,
+  onRefresh,
 }) => {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const [activeTab, setActiveTab] = useState<"ANDAMENTO" | "HISTORICO">(
     "ANDAMENTO",
   );
@@ -39,7 +48,7 @@ export const ProServicesListContent: React.FC<Props> = ({
   // Usamos os status que você enviou no Java: EM_ANDAMENTO, AGUARDANDO_VALIDACAO, EM_DISPUTA, CONCLUIDO
   const pedidosFiltrados = pedidos.filter((pedido) => {
     if (activeTab === "ANDAMENTO") {
-      return ["EM_ANDAMENTO", "AGUARDANDO_VALIDACAO", "EM_DISPUTA"].includes(
+      return ["AGUARDANDO_PAGAMENTO", "EM_ANDAMENTO", "AGUARDANDO_VALIDACAO", "EM_DISPUTA"].includes(
         pedido.status,
       );
     }
@@ -69,13 +78,13 @@ export const ProServicesListContent: React.FC<Props> = ({
     const infoDataHorario = `${item.data || "Sem data"} ${item.periodo ? `• ${item.periodo}` : ""}`;
 
     return (
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
         {/* Topo do Card: Status e Data */}
         <View style={styles.cardHeader}>
           <View
             style={[
               styles.badge,
-              isEmAndamento ? styles.badgeAndamento : styles.badgeConfirmado,
+              { backgroundColor: isEmAndamento ? colors.surfaceBlue : colors.surfaceYellow },
             ]}
           >
             <Text
@@ -90,14 +99,14 @@ export const ProServicesListContent: React.FC<Props> = ({
             </Text>
           </View>
           <View style={styles.dateRow}>
-            <Feather name="calendar" size={12} color="#9CA3AF" />
-            <Text style={styles.dateText}>{infoDataHorario}</Text>
+            <Feather name="calendar" size={12} color={colors.icon} />
+            <Text style={[styles.dateText, { color: colors.textSecondary }]}>{infoDataHorario}</Text>
           </View>
         </View>
 
         {/* Título e Endereço */}
         <View style={styles.titleRow}>
-          <Text style={styles.serviceTitle} numberOfLines={2}>
+          <Text style={[styles.serviceTitle, { color: colors.text }]} numberOfLines={2}>
             {item.titulo || "Serviço"}
           </Text>
         </View>
@@ -106,23 +115,23 @@ export const ProServicesListContent: React.FC<Props> = ({
           <Feather
             name="map-pin"
             size={14}
-            color="#6B7280"
+            color={colors.icon}
             style={{ marginTop: 2 }}
           />
-          <Text style={styles.locationText} numberOfLines={2}>
+          <Text style={[styles.locationText, { color: colors.textSecondary }]} numberOfLines={2}>
             {item.endereco || "Endereço não informado"}
           </Text>
         </View>
 
         {/* Cliente e Chat */}
-        <View style={styles.clientRow}>
+        <View style={[styles.clientRow, { borderTopColor: colors.border }]}>
           <View style={styles.clientInfo}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
                 {getInitials(item.clienteNome)}
               </Text>
             </View>
-            <Text style={styles.clientName}>
+            <Text style={[styles.clientName, { color: colors.text }]}>
               {item.clienteNome || "Cliente"}
             </Text>
           </View>
@@ -130,12 +139,12 @@ export const ProServicesListContent: React.FC<Props> = ({
           {/* Só mostra botão de chat se não tiver concluído */}
           {activeTab === "ANDAMENTO" && (
             <TouchableOpacity
-              style={styles.chatButton}
+              style={[styles.chatButton, { borderColor: colors.border }]}
               // Aqui idealmente o backend enviaria a propostaId. Como é PedidoCardDTO,
               // você pode precisar ajustar a navegação do chat depois
               onPress={() => onPressChat(item.id)}
             >
-              <Feather name="message-circle" size={20} color="#F26F21" />
+              <Feather name="message-circle" size={20} color={colors.brand} />
             </TouchableOpacity>
           )}
         </View>
@@ -145,7 +154,7 @@ export const ProServicesListContent: React.FC<Props> = ({
           style={styles.detailsButton}
           onPress={() => onPressDetails(item.id)}
         >
-          <Text style={styles.detailsButtonText}>Ver detalhes do serviço</Text>
+          <Text style={[styles.detailsButtonText, { color: colors.text }]}>Ver detalhes do serviço</Text>
         </TouchableOpacity>
       </View>
     );
@@ -154,8 +163,8 @@ export const ProServicesListContent: React.FC<Props> = ({
   return (
     <View style={styles.container}>
       {/* Header Laranja */}
-      <SafeAreaView style={styles.orangeHeader} edges={["top"]}>
-        <Text style={styles.headerTitle}>Meus Serviços</Text>
+      <SafeAreaView style={[styles.orangeHeader, { backgroundColor: colors.brand }]} edges={["top"]}>
+        <Text style={[styles.headerTitle, { color: colors.onBrand }]}>Meus Serviços</Text>
 
         {/* Tabs */}
         <View style={styles.tabsContainer}>
@@ -173,7 +182,7 @@ export const ProServicesListContent: React.FC<Props> = ({
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === "HISTORICO" && styles.tabActive]}
+            style={[styles.tab, activeTab === "HISTORICO" && { backgroundColor: colors.background }]}
             onPress={() => setActiveTab("HISTORICO")}
           >
             <Text
@@ -189,11 +198,11 @@ export const ProServicesListContent: React.FC<Props> = ({
       </SafeAreaView>
 
       {/* Lista com sobreposição */}
-      <View style={styles.listWrapper}>
+      <View style={[styles.listWrapper, { backgroundColor: colors.surface }]}>
         {isLoading ? (
           <ActivityIndicator
             size="large"
-            color="#F26F21"
+            color={colors.brand}
             style={{ marginTop: 40 }}
           />
         ) : (
@@ -203,10 +212,17 @@ export const ProServicesListContent: React.FC<Props> = ({
             renderItem={renderItem}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing ?? false}
+                onRefresh={onRefresh}
+                tintColor={colors.brand}
+              />
+            }
             ListEmptyComponent={() => (
               <View style={styles.emptyContainer}>
-                <Feather name="inbox" size={48} color="#D1D5DB" />
-                <Text style={styles.emptyText}>
+                <Feather name="inbox" size={48} color={colors.icon} />
+                <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
                   {activeTab === "ANDAMENTO"
                     ? "Você ainda não tem serviços em andamento."
                     : "Você ainda não possui histórico de serviços."}
@@ -221,16 +237,14 @@ export const ProServicesListContent: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9FAFB" },
+  container: { flex: 1 },
   orangeHeader: {
-    backgroundColor: "#F26F21",
     paddingHorizontal: 24,
     paddingBottom: 48,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#FFFFFF",
     marginTop: 16,
     marginBottom: 24,
   },
@@ -241,24 +255,19 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   tab: { flex: 1, paddingVertical: 10, alignItems: "center", borderRadius: 20 },
-  tabActive: { backgroundColor: "#FFFFFF" },
-  tabText: { color: "#FFFFFF", fontSize: 14, fontWeight: "600" },
-  tabTextActive: { color: "#F26F21" },
+  tabText: { fontSize: 14, fontWeight: "600" },
   listWrapper: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     marginTop: -24,
   },
   listContent: { padding: 24, paddingBottom: 100 },
   card: {
-    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#F3F4F6",
     elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -278,7 +287,7 @@ const styles = StyleSheet.create({
   badgeTextAndamento: { color: "#417BE0" },
   badgeTextConfirmado: { color: "#D97706" },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 4 },
-  dateText: { fontSize: 12, color: "#9CA3AF" },
+  dateText: { fontSize: 12 },
   titleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -286,21 +295,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     gap: 12,
   },
-  serviceTitle: { fontSize: 16, fontWeight: "700", color: "#111827", flex: 1 },
+  serviceTitle: { fontSize: 16, fontWeight: "700", flex: 1 },
   locationRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 6,
     marginBottom: 16,
   },
-  locationText: { fontSize: 13, color: "#6B7280", flex: 1, lineHeight: 18 },
+  locationText: { fontSize: 13, flex: 1, lineHeight: 18 },
   clientRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
     borderTopWidth: 1,
-    borderTopColor: "#F3F4F6",
     paddingTop: 16,
   },
   clientInfo: { flexDirection: "row", alignItems: "center", gap: 12 },
@@ -313,28 +321,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   avatarText: { fontSize: 12, fontWeight: "700", color: "#4F46E5" },
-  clientName: { fontSize: 14, fontWeight: "600", color: "#111827" },
+  clientName: { fontSize: 14, fontWeight: "600" },
   chatButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: "#FFEDD5",
     alignItems: "center",
     justifyContent: "center",
   },
   detailsButton: {
-    backgroundColor: "#F9FAFB",
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
   },
-  detailsButtonText: { color: "#111827", fontSize: 14, fontWeight: "600" },
+  detailsButtonText: { fontSize: 14, fontWeight: "600" },
   emptyContainer: { alignItems: "center", marginTop: 60 },
   emptyText: {
     marginTop: 16,
     fontSize: 16,
-    color: "#6B7280",
     textAlign: "center",
   },
 });

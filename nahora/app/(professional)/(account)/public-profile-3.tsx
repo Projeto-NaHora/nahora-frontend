@@ -6,6 +6,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Profile3Content } from "@/features/auth/components/Profile3Content";
 import { useEditProfileForm } from "@/features/profile/hooks/useEditProfileForm";
+import { SuccessPopup } from "@/components/ui/SuccessPopup";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
 const MAX_PHOTOS = 10;
@@ -78,7 +80,7 @@ function showPickOptions(onSelect: (uri: string) => void) {
 
 export default function PublicProfile3() {
   const router = useRouter();
-  const theme = "light";
+  const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
   const {
@@ -89,6 +91,7 @@ export default function PublicProfile3() {
   } = useEditProfileForm();
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [showSuccess, setShowSuccess] = React.useState(false);
 
   const handlePickPhoto = () => {
     if (portfolioPhotos.length >= MAX_PHOTOS) {
@@ -112,16 +115,21 @@ export default function PublicProfile3() {
   };
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      await saveProfile();
+      setIsSubmitting(true);
+      try {
+        await saveProfile();
+        setShowSuccess(true);
+      } catch {
+        Alert.alert("Erro", "Não foi possível salvar as alterações.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    };
+  
+    const handleSuccessDismiss = () => {
+      setShowSuccess(false);
       router.replace("/(professional)/(account)");
-    } catch {
-      Alert.alert("Erro", "Não foi possível salvar as alterações.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    };
 
   return (
     <SafeAreaView
@@ -145,6 +153,12 @@ export default function PublicProfile3() {
           errorStatus={null}
         />
       </ScrollView>
+      <SuccessPopup
+        visible={showSuccess}
+        message="Dados atualizado com sucesso!"
+        onDismiss={handleSuccessDismiss}
+      />
+
     </SafeAreaView>
   );
 }
