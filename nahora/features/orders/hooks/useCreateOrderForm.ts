@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useSWRConfig } from "swr";
+import useSWR from "swr";
 
 import { orderService } from "../service";
 import { useOrderDetail } from "./useOrders";
@@ -12,6 +13,8 @@ import { buscarCep } from "@/services/cep";
 import { geocodeAddress } from "@/services/geocode";
 import { parseApiError } from "@/utils/apiError";
 import { getTurnoKey } from "../types";
+import { profileService } from "@/features/profile/service";
+import type { EnderecoResponse } from "@/features/profile/types";
 import type { CriarPedidoFormValues, EnderecoRequest } from "../types";
 import type { CategoriaServico, Urgencia } from "@/types/enums";
 
@@ -88,6 +91,14 @@ export function useCreateOrderForm(editId?: number) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const midiasPicker = useMidiasPicker();
+
+  // Fetch saved addresses to find default
+  const { data: savedAddresses } = useSWR<EnderecoResponse[]>(
+    "saved-addresses",
+    () => profileService.listarEnderecos(),
+    { revalidateOnFocus: false },
+  );
+  const defaultAddress = savedAddresses?.find((a) => a.padrao) ?? null;
 
   const form = useForm<CriarPedidoFormValues>({
     resolver: zodResolver(schema),
@@ -213,8 +224,10 @@ export function useCreateOrderForm(editId?: number) {
           fotosUrls = await midiasPicker.uploadAll();
         }
 
-        // 2. Monta objeto EnderecoRequest se o toggle estiver ativo
+        // 2. Monta objeto EnderecoRequest se o toggle estiver ativo;
+        // caso contrário, usa o endereço padrão salvo
         let endereco: EnderecoRequest | undefined;
+        let enderecoId: number | undefined;
         if (data.enderecoDiferente) {
           endereco = {
             cep: data.cep,
@@ -237,6 +250,8 @@ export function useCreateOrderForm(editId?: number) {
           } catch {
             // prossegue sem coordenadas se o geocoding falhar
           }
+        } else if (defaultAddress) {
+          enderecoId = defaultAddress.id;
         }
 
         // 3. Monta dataDesejada = 1 semana a partir de hoje + turno
@@ -246,6 +261,7 @@ export function useCreateOrderForm(editId?: number) {
           categoria: data.categoria as CategoriaServico,
           descricao: data.descricao,
           endereco,
+          enderecoId,
           fotos: fotosUrls,
           urgencia: data.urgencia as Urgencia,
           orcamentoEstimado: 0,
@@ -312,6 +328,7 @@ export function useCreateOrderForm(editId?: number) {
     errorMessage,
     errors,
     enderecoDiferente,
+    defaultAddress,
     midiasPicker,
     isEditing: !!editId,
     onSubmit: handleSubmit(onSubmit),

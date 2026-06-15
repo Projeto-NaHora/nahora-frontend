@@ -11,6 +11,14 @@ export interface EnderecoDTO {
   cep?: string;
 }
 
+export interface PagamentoResumo {
+  status: string;
+  valor: number;
+  metodo: string;
+  dataPagamento: string;
+  codigoTransacao: string;
+}
+
 export interface Pedido {
   id: number;
   clienteId: number;
@@ -26,6 +34,10 @@ export interface Pedido {
   status: string;
   criadoEm: string;
   propostaId?: number;
+  profissionalAtribuidoId?: number | null;
+  profissionalAtribuidoNome?: string | null;
+  avaliacaoNota?: number | null;
+  pagamento?: PagamentoResumo | null;
 }
 
 /** Espelha PedidoPublicoResponse do backend (GET /pedidos/{id}/public) */
@@ -74,9 +86,9 @@ export interface EnderecoRequest {
 export interface CriarPedidoPayload {
   categoria: CategoriaServico;
   descricao: string;
-  /** Indice do endereco salvo (preferivel a endereco quando ja existe) */
-  enderecoSalvoIndex?: number;
-  /** Objeto de endereco completo (usado quando enderecoSalvoIndex nao e informado) */
+  /** ID do endereço salvo (preferível a endereco quando já existe) */
+  enderecoId?: number;
+  /** Objeto de endereco completo (usado quando enderecoId nao e informado) */
   endereco?: EnderecoRequest;
   /** URLs das fotos enviadas (maximo 5) */
   fotos?: string[];

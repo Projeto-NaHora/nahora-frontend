@@ -82,4 +82,17 @@ export const ENDPOINTS = {
   FAVORITAR: (id: number) => `/favoritos/${id}`,
   // GET /api/v1/profissionais/{profissionalId}/favoritado
   FAVORITO_STATUS: (id: number) => `/profissionais/${id}/favoritado`,
+
+  // Histórico do cliente
+  HISTORICO_RESUMO: "/pedidos/historico/resumo",
+
+  // Endereços do cliente
+  CLIENTES_ENDERECOS: "/clientes/enderecos",
+  CLIENTE_ENDERECO: (id: number) => `/clientes/enderecos/${id}`,
+  CLIENTE_ENDERECO_PADRAO: (id: number) => `/clientes/enderecos/${id}/padrao`,
+
+  // Configurações da conta
+  USUARIOS_PREFERENCIAS: "/usuarios/preferencias",
+  USUARIOS_SENHA: "/usuarios/senha",
+  USUARIOS_CONTA: "/usuarios/conta",
 } as const;
