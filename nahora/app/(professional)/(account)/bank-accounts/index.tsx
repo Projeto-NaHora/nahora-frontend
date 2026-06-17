@@ -1,29 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-
-import { Colors, FontSizes } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { UnderConstruction } from "@/components/UnderConstruction";
 
 export default function Screen() {
-  const theme = useColorScheme() ?? "light";
-  const colors = Colors[theme];
-
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.text, { color: colors.textSecondary }]}>
-        Contas Bancárias e PIX
-      </Text>
-    </View>
+    <UnderConstruction path="app/(professional)/(account)/bank-accounts/index.tsx" />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  text: {
-    fontSize: FontSizes.body,
-  },
-});

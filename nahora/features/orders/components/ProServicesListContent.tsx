@@ -169,13 +169,14 @@ export const ProServicesListContent: React.FC<Props> = ({
         {/* Tabs */}
         <View style={styles.tabsContainer}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === "ANDAMENTO" && styles.tabActive]}
+            style={[styles.tab, activeTab === "ANDAMENTO" && { backgroundColor: colors.background }]}
             onPress={() => setActiveTab("ANDAMENTO")}
           >
             <Text
               style={[
                 styles.tabText,
-                activeTab === "ANDAMENTO" && styles.tabTextActive,
+                { color: colors.onBrand },
+                activeTab === "ANDAMENTO" && { color: colors.text },
               ]}
             >
               Em andamento
@@ -188,7 +189,8 @@ export const ProServicesListContent: React.FC<Props> = ({
             <Text
               style={[
                 styles.tabText,
-                activeTab === "HISTORICO" && styles.tabTextActive,
+                { color: colors.onBrand },
+                activeTab === "HISTORICO" && { color: colors.text },
               ]}
             >
               Histórico

@@ -1,22 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { UnderConstruction } from "@/components/UnderConstruction";
 
 export default function Providers() {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>app/(client)/(home)/providers.tsx</Text>
-    </View>
-  );
+  return <UnderConstruction path="app/(client)/(home)/providers.tsx" />;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});

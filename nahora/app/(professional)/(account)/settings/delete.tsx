@@ -1,24 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { UnderConstruction } from "@/components/UnderConstruction";
 
 export default function Delete() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>
-        app/(professional)/(account)/settings/delete.tsx
-      </Text>
-    </View>
+    <UnderConstruction path="app/(professional)/(account)/settings/delete.tsx" />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});
