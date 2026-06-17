@@ -140,6 +140,13 @@ export interface AtualizarSenhaRequest {
   confirmacaoNovaSenha: string;
 }
 
+/** Resposta da API GET /profissionais/historico/resumo */
+export interface HistoricoProfissionalResumoResponse {
+  totalServicos: number;
+  totalRecebido: string; // BigDecimal serializado como string
+  mediaAvaliacoes: number;
+}
+
 /** Resposta da API GET /profissionais/me */
 export interface ProfessionalProfileResponse {
   id: number;

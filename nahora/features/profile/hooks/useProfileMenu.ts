@@ -1,9 +1,15 @@
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "expo-router";
+import useSWR from "swr";
 
 import { useAuthStore } from "@/store/authStore";
 import { useProfessionalProfile } from "./useProfile";
-import type { ProfileMenuItem, ProfileStats } from "../types";
+import { profileService } from "../service";
+import type {
+  ProfileMenuItem,
+  ProfileStats,
+  HistoricoProfissionalResumoResponse,
+} from "../types";
 
 function mapProfissao(profissao?: string): string {
   if (!profissao) return "";
@@ -17,6 +23,16 @@ function mapProfissao(profissao?: string): string {
   return map[profissao] ?? profissao;
 }
 
+function formatCurrency(value: string | undefined | null): string {
+  if (value == null || value === "") return "R$ 0";
+  const num = Number(value);
+  if (Number.isNaN(num)) return "R$ 0";
+  return num.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
 export function useProfileMenu() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
@@ -24,10 +40,22 @@ export function useProfileMenu() {
 
   const {
     data: profile,
-    isLoading,
-    error,
+    isLoading: profileLoading,
+    error: profileError,
     mutate: retry,
   } = useProfessionalProfile();
+
+  const {
+    data: resumo,
+    isLoading: resumoLoading,
+    error: resumoError,
+  } = useSWR<HistoricoProfissionalResumoResponse>(
+    "historico-profissional-resumo",
+    () => profileService.buscarResumoProfissional(),
+  );
+
+  const isLoading = profileLoading || resumoLoading;
+  const error = profileError || resumoError;
 
   // Deriva os dados de exibição
   const nome = profile?.nome ?? user?.nome ?? "";
@@ -55,12 +83,11 @@ export function useProfileMenu() {
 
   const stats: ProfileStats = useMemo(
     () => ({
-      servicesCount: profile?.totalServicosExecutados ?? 0,
+      servicesCount: resumo?.totalServicos ?? profile?.totalServicosExecutados ?? 0,
       rating: profile?.notaMedia ?? 0,
-    //earnings: profile?.ganhos ?? "R$ 0",
-      earnings: "R$ 0",
+      earnings: formatCurrency(resumo?.totalRecebido),
     }),
-    [profile],
+    [profile, resumo],
   );
 
   const menuItems: ProfileMenuItem[] = useMemo(
