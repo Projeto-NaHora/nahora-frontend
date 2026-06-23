@@ -5,7 +5,11 @@ import type { Mensagem } from "../types";
 
 const IA_BLOCK_TIMEOUT = 3000;
 
-export function useChat(conversaId: number, onMessage?: (msg: Mensagem) => void) {
+export function useChat(
+  conversaId: number,
+  onMessage?: (msg: Mensagem) => void,
+  onEcho?: (conteudo: string) => void,
+) {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(
     chatWsManager.connectionStatus,
   );
@@ -38,16 +42,23 @@ export function useChat(conversaId: number, onMessage?: (msg: Mensagem) => void)
     }
 
     chatWsManager.subscribe(conversaId, (msg: Mensagem) => {
-      if (
+      const isEcho =
         lastSentRef.current &&
         timeoutRef.current &&
-        msg.conteudo === lastSentRef.current
-      ) {
+        msg.conteudo === lastSentRef.current;
+
+      if (isEcho) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
         lastSentRef.current = null;
         setIsSending(false);
+        // Notifica que o echo chegou → status pode transicionar para ENTREGUE
+        onEcho?.(msg.conteudo);
+        // Não chama onMessage para evitar duplicação (echo já representa
+        // a mensagem que entrará na lista com status ENVIADA do backend)
+        return;
       }
+
       onMessage?.(msg);
     });
 

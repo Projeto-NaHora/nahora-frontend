@@ -43,6 +43,23 @@ export function useMessages(conversaId: number) {
     setAllMessages((prev) => [...prev, msg]);
   }, []);
 
+  /** Atualiza o status da primeira mensagem própria com o conteúdo informado.
+   *  Usado quando o echo STOMP confirma que a mensagem foi entregue ao servidor. */
+  const updateMessageStatusByContent = useCallback(
+    (conteudo: string, novoStatus: Mensagem["status"]) => {
+      setAllMessages((prev) => {
+        const idx = prev.findLastIndex(
+          (m) => m.conteudo === conteudo && m.status === "ENVIADA",
+        );
+        if (idx === -1) return prev;
+        const updated = [...prev];
+        updated[idx] = { ...updated[idx], status: novoStatus };
+        return updated;
+      });
+    },
+    [],
+  );
+
   return {
     messages: allMessages,
     isLoading: page === 0 && (isLoading || (isValidating && allMessages.length === 0)),
@@ -52,5 +69,6 @@ export function useMessages(conversaId: number) {
     hasMore,
     refresh: mutate,
     appendIncoming,
+    updateMessageStatusByContent,
   };
 }
