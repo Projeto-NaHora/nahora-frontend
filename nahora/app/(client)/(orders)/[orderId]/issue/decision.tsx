@@ -17,13 +17,16 @@ export default function DisputeDecisionScreen() {
   };
 
   const handleContest = async () => {
-    // Integração com a rota POST /contestar
     try {
-      await disputaService.contestar(disputa.disputaId, []);
+      await disputaService.contestar(
+        disputa.disputaId,
+        "Solicito revisão da decisão.",
+        [],
+      );
 
       Alert.alert("Sucesso", "Sua contestação foi enviada para revisão.");
-      mutate(); // Recarrega os dados da disputa para atualizar a tela
-      router.back(); // Volta para a tela de análise (linha do tempo)
+      mutate();
+      router.back();
     } catch (error) {
       Alert.alert(
         "Erro",
@@ -66,10 +69,11 @@ export default function DisputeDecisionScreen() {
   return (
     <DisputeDecisionContent
       isFavorableToClient={disputa.decisao.resultado === "FAVORAVEL_CLIENTE"}
-      valor={`R$ ${disputa.decisao.valorCobrado?.toFixed(2).replace(".", ",") || "0,00"}`}
+      valor={`R$ ${decisao.valorCobrado?.toFixed(2).replace(".", ",") || "0,00"}`}
       dataDecisao={disputa.etapas?.[2]?.descricao || "Hoje"}
       descricaoResultado={disputa.decisao.descricaoResultado}
       onGoHome={handleGoHome}
+      onContest={handleContest}
     />
   );
 }

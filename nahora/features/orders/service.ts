@@ -166,8 +166,9 @@ export const disputaService = {
     return data;
   },
 
-  contestar: async (disputaId: number, evidenciasAdicionais: string[]) => {
+  contestar: async (disputaId: number, justificativa: string, evidenciasAdicionais: string[]) => {
     const { data } = await api.post(`/disputas/${disputaId}/contestar`, {
+      justificativa,
       evidenciasAdicionais,
     });
     return data;
