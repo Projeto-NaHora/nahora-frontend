@@ -213,6 +213,34 @@ export default function ProServiceDetailScreen() {
             );
           })}
         </View>
+
+        {/* Avaliação do cliente */}
+        {isConcluido && pedido.avaliacaoNota != null && (
+          <View style={[styles.card, { borderColor: colors.border }]}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Avaliação do cliente</Text>
+            <View style={styles.ratingRow}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Text
+                  key={star}
+                  style={[
+                    styles.starIcon,
+                    {
+                      color:
+                        star <= pedido.avaliacaoNota
+                          ? "#F59E0B"
+                          : colors.surfaceGray,
+                    },
+                  ]}
+                >
+                  ★
+                </Text>
+              ))}
+              <Text style={[styles.ratingValue, { color: colors.text }]}>
+                {pedido.avaliacaoNota}/5
+              </Text>
+            </View>
+          </View>
+        )}
       </ScrollView>
 
       {/* Rate button footer */}
@@ -396,6 +424,22 @@ const styles = StyleSheet.create({
   timelineSub: {
     fontSize: 12,
     marginTop: 2,
+  },
+
+  // Rating
+  ratingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  starIcon: {
+    fontSize: 22,
+    lineHeight: 28,
+  },
+  ratingValue: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
   },
 
   // Footer
