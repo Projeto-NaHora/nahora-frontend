@@ -1,5 +1,6 @@
 import { api } from "@/services/api/client";
-import { ENDPOINTS } from "@/services/api/endpoints";
+import { API_URL, ENDPOINTS } from "@/services/api/endpoints";
+import { useAuthStore } from "@/store/authStore";
 import type {
   SimularPagamentoRequest,
   PagamentoConfirmadoResponse,
@@ -18,12 +19,20 @@ export const paymentsService = {
     return data;
   },
 
-  /** Baixa o recibo de pagamento em PDF (retorna bytes) */
+  /** Baixa o recibo de pagamento em PDF (retorna ArrayBuffer) */
   baixarRecibo: async (pedidoId: number): Promise<ArrayBuffer> => {
-    const { data } = await api.get<ArrayBuffer>(
-      ENDPOINTS.PEDIDO_RECIBO(pedidoId),
-      { responseType: "arraybuffer" },
-    );
-    return data;
+    const token = useAuthStore.getState().accessToken;
+    const response = await fetch(`${API_URL}${ENDPOINTS.PEDIDO_RECIBO(pedidoId)}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro ao baixar recibo: ${response.status}`);
+    }
+
+    return response.arrayBuffer();
   },
 };
