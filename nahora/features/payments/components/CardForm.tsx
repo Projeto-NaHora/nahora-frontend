@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
+import { storage } from "@/utils/storage";
+
+const SAVED_CARD_KEY = "nahora_saved_card";
+
+interface SavedCardData {
+  numeroCartao: string;
+  nomeCartao: string;
+  validade: string;
+}
 
 const cardSchema = z.object({
   numeroCartao: z
@@ -14,7 +23,20 @@ const cardSchema = z.object({
   nomeCartao: z.string().min(3, "Nome é obrigatório"),
   validade: z
     .string()
-    .regex(/^\d{2}\/\d{2}$/, "Use o formato MM/AA"),
+    .regex(/^\d{2}\/\d{2}$/, "Use o formato MM/AA")
+    .refine(
+      (val) => {
+        const [mm, aa] = val.split("/").map(Number);
+        if (mm < 1 || mm > 12) return false;
+        const now = new Date();
+        const currentYear = now.getFullYear() % 100;
+        const currentMonth = now.getMonth() + 1;
+        if (aa < currentYear) return false;
+        if (aa === currentYear && mm < currentMonth) return false;
+        return true;
+      },
+      { message: "Cartão expirado ou data inválida" },
+    ),
   cvv: z.string().regex(/^\d{3,4}$/, "CVV inválido"),
   parcelas: z.coerce.number().int().min(1).max(12).default(1),
   salvarCartao: z.boolean().default(false),
@@ -34,6 +56,7 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<CardFormValues>({
     resolver: zodResolver(cardSchema),
@@ -46,6 +69,41 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
       salvarCartao: false,
     },
   });
+
+  // Load saved card data on mount
+  useEffect(() => {
+    storage.get(SAVED_CARD_KEY).then((json) => {
+      if (!json) return;
+      try {
+        const saved: SavedCardData = JSON.parse(json);
+        reset({
+          numeroCartao: saved.numeroCartao ?? "",
+          nomeCartao: saved.nomeCartao ?? "",
+          validade: saved.validade ?? "",
+          cvv: "",
+          parcelas: 1,
+          salvarCartao: true,
+        });
+      } catch {
+        // Corrupted data — ignore and let user type fresh
+      }
+    });
+  }, [reset]);
+
+  const handleFormSubmit = (values: CardFormValues) => {
+    // Save card data (without CVV) if user opted in
+    if (values.salvarCartao) {
+      const toSave: SavedCardData = {
+        numeroCartao: values.numeroCartao,
+        nomeCartao: values.nomeCartao,
+        validade: values.validade,
+      };
+      storage.set(SAVED_CARD_KEY, JSON.stringify(toSave));
+    } else {
+      storage.delete(SAVED_CARD_KEY);
+    }
+    onSubmit(values);
+  };
 
   const formatted = new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -228,7 +286,7 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
 
       {/* Botão de pagamento */}
       <Pressable
-        onPress={handleSubmit(onSubmit)}
+        onPress={handleSubmit(handleFormSubmit)}
         disabled={loading}
         style={[styles.payButton, { backgroundColor: colors.brand }, loading && styles.payButtonDisabled]}
       >
