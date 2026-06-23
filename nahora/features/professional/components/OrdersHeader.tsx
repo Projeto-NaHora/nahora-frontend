@@ -56,7 +56,6 @@ export function OrdersHeader({
       {/* Cidade + dropdown */}
       <View style={styles.locationRow}>
         <Text style={styles.cityName}>Recife, PE</Text>
-        <Feather name="chevron-down" size={20} color="rgba(255,255,255,0.8)" />
       </View>
 
       {/* Raio */}
