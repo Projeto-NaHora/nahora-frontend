@@ -1,8 +1,7 @@
+// app/(client)/(home)/notifications.tsx
 import React from "react";
-import { UnderConstruction } from "@/components/UnderConstruction";
+import { NotificationCenter } from "@/features/notifications/components/NotificationCenter";
 
 export default function Notifications() {
-  return (
-    <UnderConstruction path="app/(client)/(home)/notifications.tsx" />
-  );
+  return <NotificationCenter />;
 }

@@ -12,6 +12,7 @@ import {
   Feather,
   MaterialCommunityIcons,
   FontAwesome,
+  Ionicons,
 } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -55,10 +56,23 @@ export default function HomeScreen() {
       >
         {/* Header Laranja (orange, sits on top of brand bg) */}
         <View style={[styles.header, { backgroundColor: colors.brand }]}>
-          <Text style={[styles.greetingText, { color: colors.onBrand }]}>
-            Olá, {user?.nome?.split(" ")[0] || "Usuário"} 👋
-          </Text>
-          <Text style={[styles.mainTitle, { color: colors.onBrand }]}>O que você precisa hoje?</Text>
+          <View style={styles.headerTopRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.greetingText, { color: colors.onBrand }]}>
+                Olá, {user?.nome?.split(" ")[0] || "Usuário"} 👋
+              </Text>
+              <Text style={[styles.mainTitle, { color: colors.onBrand }]}>O que você precisa hoje?</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.notifButton}
+              activeOpacity={0.7}
+              onPress={() => router.push("/(client)/(home)/notifications")}
+            >
+              <Ionicons name="notifications-outline" size={22} color="#FFFFFF" />
+              <View style={styles.notifBadge} />
+            </TouchableOpacity>
+          </View>
+
 
           <TouchableOpacity
             activeOpacity={0.8}
@@ -238,7 +252,33 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 8,
   },
+
+  headerTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+  },
+  notifButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 4,
+  },
+  notifBadge: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#FF4D4F",
+  },
+
   categoryText: { fontSize: 12, color: "#4B5563", textAlign: "center" },
   horizontalScrollContent: { paddingHorizontal: 20, paddingBottom: 20 },
   emptyText: { color: "#9CA3AF", paddingHorizontal: 24 },
 });
+
