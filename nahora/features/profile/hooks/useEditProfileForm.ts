@@ -71,7 +71,7 @@ export function useEditProfileForm(opts?: { initialize?: boolean }) {
     const anos = s.experienceYears ? Number(s.experienceYears) : undefined;
     const raio = s.raioAtuacaoKm ? Number(s.raioAtuacaoKm) : undefined;
 
-    await profileService.salvarPerfil({
+    const perfilAtualizado = await profileService.salvarPerfil({
       nome: s.nome || undefined,
       profissao: s.cargo || undefined,
       anosExperiencia: anos && !Number.isNaN(anos) ? anos : undefined,
@@ -91,6 +91,15 @@ export function useEditProfileForm(opts?: { initialize?: boolean }) {
       longitude: s.longitude ?? undefined,
       urlsFotosPortfolio: portfolioUrls.length ? portfolioUrls : undefined,
     });
+
+    // Re-hidrata a store com os dados retornados pelo backend,
+    // garantindo que o portfolio reflita o estado persistido
+    if (perfilAtualizado) {
+      useEditProfileStore.getState().hydrate({
+        portfolioPhotos: perfilAtualizado.portfolio ?? portfolioUrls,
+        profilePhotoUri: perfilAtualizado.foto ?? perfilAtualizado.fotoPerfil ?? fotoUrl,
+      });
+    }
 
     // Invalida o cache do SWR para forçar o refetch dos dados do perfil
     await mutate(profileKeys.professionalProfile);

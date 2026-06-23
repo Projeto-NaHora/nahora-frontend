@@ -88,7 +88,7 @@ export default function PublicProfile3() {
     addPortfolioPhoto,
     removePortfolioPhoto,
     saveProfile,
-  } = useEditProfileForm();
+  } = useEditProfileForm({ initialize: true });
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
