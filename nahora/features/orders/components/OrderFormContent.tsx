@@ -668,24 +668,30 @@ export function OrderFormContent({
           control={control}
           name="descricao"
           render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={[
-                styles.textArea,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                  color: colors.textPrimary,
-                },
-              ]}
-              placeholder="Ex: Necessito um pintor para pintar meu muro."
-              placeholderTextColor={colors.placeholder}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-            />
+            <>
+              <TextInput
+                style={[
+                  styles.textArea,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  },
+                ]}
+                placeholder="Ex: Necessito um pintor para pintar meu muro."
+                placeholderTextColor={colors.placeholder}
+                multiline
+                numberOfLines={4}
+                maxLength={500}
+                textAlignVertical="top"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+              />
+              <Text style={[styles.charCounter, { color: colors.textSecondary }]}>
+                {(value ?? "").length}/500
+              </Text>
+            </>
           )}
         />
         {errors.descricao?.message && (
@@ -997,6 +1003,12 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     lineHeight: 27,
     minHeight: 140,
+  },
+  charCounter: {
+    textAlign: "right",
+    fontSize: 13,
+    marginTop: 4,
+    marginRight: 4,
   },
   // TextInput single-line (endereço fields)
   textInput: {
