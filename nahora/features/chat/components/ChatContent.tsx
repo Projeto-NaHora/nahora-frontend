@@ -46,6 +46,8 @@ export function ChatContent({ propostaId }: Props) {
     clearIaBlocked,
     conversa,
     connectionError,
+    validationError,
+    clearValidationError,
   } = useChatScreen(propostaId);
 
   const isReadOnly =
@@ -164,6 +166,15 @@ export function ChatContent({ propostaId }: Props) {
             Mensagem nao transmitida devido as diretrizes do sistema.
           </Text>
           <TouchableOpacity onPress={clearIaBlocked}>
+            <Text style={styles.iaDismiss}>X</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {validationError && (
+        <View style={styles.validationErrorBanner}>
+          <Text style={styles.validationErrorText}>{validationError}</Text>
+          <TouchableOpacity onPress={clearValidationError}>
             <Text style={styles.iaDismiss}>X</Text>
           </TouchableOpacity>
         </View>
@@ -289,6 +300,20 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontSize: 12,
     color: "#856404",
+    flex: 1,
+  },
+  validationErrorBanner: {
+    backgroundColor: "#fde8e8",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  validationErrorText: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    color: "#dc2626",
     flex: 1,
   },
   iaDismiss: {

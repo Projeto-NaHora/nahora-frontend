@@ -1,8 +1,9 @@
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { useMessages } from "./useMessages";
 import { useChat } from "./useChat";
 import { useConversaPorProposta } from "./useConversa";
 import { groupMessagesByDate } from "@/utils/formatters";
+import { validarMensagem } from "../validation";
 import type { ConnectionStatus } from "../stompClient";
 
 export function useChatScreen(propostaId: number) {
@@ -18,7 +19,15 @@ export function useChatScreen(propostaId: number) {
     hasMore,
     refresh,
     appendIncoming,
+    updateMessageStatusByContent,
   } = useMessages(conversaId);
+
+  const onEcho = useCallback(
+    (conteudo: string) => {
+      updateMessageStatusByContent(conteudo, "ENTREGUE");
+    },
+    [updateMessageStatusByContent],
+  );
 
   const {
     connectionStatus,
@@ -28,7 +37,9 @@ export function useChatScreen(propostaId: number) {
     sendMessage,
     clearIaBlocked,
     connectionError,
-  } = useChat(conversaId, appendIncoming);
+  } = useChat(conversaId, appendIncoming, onEcho);
+
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const groupedMessages = useMemo(
     () => groupMessagesByDate(messages),
@@ -38,10 +49,20 @@ export function useChatScreen(propostaId: number) {
   const sendWithFeedback = useCallback(
     (text: string) => {
       clearIaBlocked();
+      setValidationError(null);
+
+      const resultado = validarMensagem(text);
+      if (!resultado.valida) {
+        setValidationError(resultado.erro ?? null);
+        return;
+      }
+
       sendMessage(text);
     },
     [sendMessage, clearIaBlocked],
   );
+
+  const clearValidationError = useCallback(() => setValidationError(null), []);
 
   const isLoading = msgsLoading || conversaLoading;
 
@@ -62,5 +83,7 @@ export function useChatScreen(propostaId: number) {
     clearIaBlocked,
     conversa,
     connectionError,
+    validationError,
+    clearValidationError,
   };
 }
