@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -140,6 +141,27 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
           <Text style={[styles.labelDesc, { color: colors.textSecondary }]}>DESCRIÇÃO</Text>
           <Text style={[styles.descriptionText, { color: colors.text }]}>{pedido.descricao}</Text>
         </View>
+
+        {/* Fotos do pedido */}
+        {pedido.fotos && pedido.fotos.length > 0 && (
+          <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
+            <Text style={[styles.labelDesc, { color: colors.textSecondary }]}>FOTOS</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginTop: 8 }}
+            >
+              {pedido.fotos.map((uri, index) => (
+                <Image
+                  key={index}
+                  source={{ uri }}
+                  style={[styles.photoThumb, { backgroundColor: colors.surface }]}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* Aviso de Execução - Ocultado se estiver em disputa */}
         {!isEmDisputa && (
@@ -321,6 +343,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   descriptionText: { fontSize: 15, lineHeight: 22 },
+  photoThumb: {
+    width: 120,
+    height: 120,
+    borderRadius: 12,
+    marginRight: 8,
+  },
 
   executionWarning: {
     flexDirection: "row",

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
@@ -224,6 +225,34 @@ export function OrderDetailOpenContent({
             {pedido.descricao}
           </Text>
         </View>
+
+        {/* Fotos do pedido */}
+        {pedido.fotos && pedido.fotos.length > 0 && (
+          <View style={styles.section}>
+            <Text
+              style={[
+                styles.sectionLabel,
+                { color: colors.textSecondary },
+              ]}
+            >
+              FOTOS
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.photosScroll}
+            >
+              {pedido.fotos.map((uri, index) => (
+                <Image
+                  key={index}
+                  source={{ uri }}
+                  style={[styles.photoThumb, { backgroundColor: colors.surface }]}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* Timeline */}
         <View
@@ -508,6 +537,17 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "400",
     lineHeight: 20,
+  },
+
+  // Photos
+  photosScroll: {
+    marginTop: 8,
+  },
+  photoThumb: {
+    width: 120,
+    height: 120,
+    borderRadius: 12,
+    marginRight: 8,
   },
 
   // Timeline
