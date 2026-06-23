@@ -1,6 +1,7 @@
 import { Client, StompSubscription } from "@stomp/stompjs";
 import { AppState } from "react-native";
 import type { Mensagem } from "./types";
+import { WS_URL } from "@/services/api/endpoints";
 
 export type ConnectionStatus =
   | "CONNECTING"
@@ -43,14 +44,13 @@ class ChatWebSocketManager {
     if (this.client?.active) return;
     if (!this._authToken) return;
 
-    const brokerURL = process.env.EXPO_PUBLIC_WS_URL;
-    if (!brokerURL) return;
+    if (!WS_URL) return;
 
     this._lastError = null;
     this.setConnectionStatus("CONNECTING");
 
     this.client = new Client({
-      brokerURL,
+      brokerURL: WS_URL,
       connectHeaders: {
         Authorization: `Bearer ${this._authToken}`,
       },
@@ -60,7 +60,7 @@ class ChatWebSocketManager {
       connectionTimeout: 10_000,
       debug: __DEV__ ? (msg: string) => console.log("[WS]", msg) : () => {},
 
-      webSocketFactory: () => new WebSocket(brokerURL),
+      webSocketFactory: () => new WebSocket(WS_URL),
 
       onConnect: () => {
         this._lastError = null;
@@ -187,16 +187,13 @@ class ChatWebSocketManager {
     for (const id of ids) {
       const handler = this.messageHandlers.get(id);
       if (handler && this.client?.connected) {
-        const sub = this.client.subscribe(
-          `/topic/conversa/${id}`,
-          (frame) => {
-            const h = this.messageHandlers.get(id);
-            if (h) {
-              const msg: Mensagem = JSON.parse(frame.body);
-              h(msg);
-            }
-          },
-        );
+        const sub = this.client.subscribe(`/topic/conversa/${id}`, (frame) => {
+          const h = this.messageHandlers.get(id);
+          if (h) {
+            const msg: Mensagem = JSON.parse(frame.body);
+            h(msg);
+          }
+        });
         this.subscriptions.set(id, sub);
       }
     }
@@ -206,10 +203,7 @@ class ChatWebSocketManager {
     this.teardownAppState();
     this.appStateSub = AppState.addEventListener("change", (state) => {
       if (state === "active") {
-        if (
-          this._connectionStatus === "DISCONNECTED" &&
-          !this.client?.active
-        ) {
+        if (this._connectionStatus === "DISCONNECTED" && !this.client?.active) {
           this.connect();
         }
       } else {

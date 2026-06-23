@@ -10,6 +10,8 @@ import {
 import { FontAwesome } from "@expo/vector-icons";
 
 import type { FavoritoResponseDTO } from "../types";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 const AVATAR_COLORS: { bg: string; text: string }[] = [
   { bg: "#fef0e8", text: "#f26f21" },
@@ -43,6 +45,8 @@ export function FavoriteCard({
   onPress,
   onToggleFavorite,
 }: FavoriteCardProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const rating = professional.mediaAvaliacao ?? 0;
   const totalReviews = professional.totalAvaliacoes ?? 0;
   const avatarColors = getAvatarColor(professional.profissionalId);
@@ -50,7 +54,7 @@ export function FavoriteCard({
 
   return (
     <TouchableOpacity
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}
       activeOpacity={0.7}
       onPress={onPress}
     >
@@ -71,11 +75,11 @@ export function FavoriteCard({
 
       {/* Info */}
       <View style={styles.infoContainer}>
-        <Text style={styles.name} numberOfLines={1}>
+        <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
           {professional.nomeProfissional}
         </Text>
         {categoriaLabel ? (
-          <Text style={styles.subtitle} numberOfLines={1}>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]} numberOfLines={1}>
             {categoriaLabel}
           </Text>
         ) : null}
@@ -93,9 +97,9 @@ export function FavoriteCard({
               />
             ))}
           </View>
-          <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
+          <Text style={[styles.ratingText, { color: colors.text }]}>{rating.toFixed(1)}</Text>
           {totalReviews > 0 && (
-            <Text style={styles.reviewCount}>
+            <Text style={[styles.reviewCount, { color: colors.textSecondary }]}>
               · {totalReviews} avaliação{totalReviews !== 1 ? "ões" : "ão"}
             </Text>
           )}
@@ -108,7 +112,7 @@ export function FavoriteCard({
         onPress={onToggleFavorite}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
-        <FontAwesome name="heart" size={24} color="#f26f21" />
+        <FontAwesome name="heart" size={24} color={colors.brand} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -118,12 +122,10 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
     borderWidth: 1,
-    borderColor: "#f0f0f0",
     borderRadius: 32,
     padding: 16,
-    marginBottom:16,
+    marginBottom: 16,
     gap: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -153,14 +155,12 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontFamily: "Inter",
     fontWeight: "700",
-    color: "#1c1c1e",
     lineHeight: 21.25,
   },
   subtitle: {
     fontSize: 14,
     fontFamily: "Inter",
     fontWeight: "400",
-    color: "#8e8e93",
     lineHeight: 21,
   },
   ratingRow: {
@@ -178,7 +178,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Inter",
     fontWeight: "700",
-    color: "#1c1c1e",
     lineHeight: 19.5,
     marginLeft: 4,
   },
@@ -186,7 +185,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Inter",
     fontWeight: "400",
-    color: "#8e8e93",
     lineHeight: 19.5,
   },
   heartButton: {

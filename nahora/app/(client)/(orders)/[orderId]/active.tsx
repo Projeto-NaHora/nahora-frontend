@@ -3,7 +3,7 @@ import { Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import { OrderDetailActiveContent } from "@/features/orders/components/OrderDetailActiveContent";
-import { chatService } from "@/features/chat/service"; // Ajuste o caminho de importação se necessário
+import { chatService } from "@/features/chat/service";
 
 export default function PedidoEmAndamentoScreen() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
@@ -39,6 +39,10 @@ export default function PedidoEmAndamentoScreen() {
     router.push(`/(client)/(orders)/${pedidoId}/issue`);
   };
 
+  const handleViewDispute = () => {
+    router.push(`/(client)/(orders)/${pedidoId}/issue/analysis`);
+  };
+
   return (
     <OrderDetailActiveContent
       pedido={pedido}
@@ -47,7 +51,8 @@ export default function PedidoEmAndamentoScreen() {
       onBack={() => router.back()}
       onChat={handleChat}
       onIssue={handleIssue}
-      isOpeningChat={isOpeningChat} // Passando o novo estado para o botão
+      onViewDispute={handleViewDispute}
+      isOpeningChat={isOpeningChat}
     />
   );
 }

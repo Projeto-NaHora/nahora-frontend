@@ -51,13 +51,17 @@ export interface PropostaResponseRaw {
   profissionalFotoUrl?: string;
   notaMedia?: number;
   numeroAvaliacoes?: number;
+  numeroServicosRealizados?: number;
   totalServicosExecutados?: number;
   distancia?: number;
+  distanciaKm?: number;
   localidade?: string;
   especialidades?: string[];
   valor?: number;
   valorOferecido?: number;
+  valorProposto?: number;
   descricao?: string;
+  mensagem?: string;
   tempoEstimado?: string;
   status: "PENDENTE" | "ACEITA" | "REJEITADA" | "EXPIRADA";
   expiraEm?: string;

@@ -107,6 +107,9 @@ export default function Profile1() {
   const cidade = useRegisterStore((state) => state.cidade);
   const estado = useRegisterStore((state) => state.estado);
   const raioAtuacaoKm = useRegisterStore((state) => state.raioAtuacaoKm);
+  const nome = useRegisterStore((state) => state.nome);
+  const firstName = useRegisterStore((state) => state.firstName);
+  const lastName = useRegisterStore((state) => state.lastName);
 
   const setCpf = useRegisterStore((state) => state.setCpf);
   const setCargo = useRegisterStore((state) => state.setCargo);
@@ -122,10 +125,21 @@ export default function Profile1() {
   const setLatitude = useRegisterStore((state) => state.setLatitude);
   const setLongitude = useRegisterStore((state) => state.setLongitude);
   const setRaioAtuacaoKm = useRegisterStore((state) => state.setRaioAtuacaoKm);
+  const setNome = useRegisterStore((state) => state.setNome);
+  const setName = useRegisterStore((state) => state.setName);
 
   useEffect(() => {
     if (!cargo && profession?.label) {
       setCargo(profession.label);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!nome && (firstName || lastName)) {
+      const fullName = `${firstName} ${lastName}`.trim();
+      if (fullName) {
+        setNome(fullName);
+      }
     }
   }, []);
 
@@ -192,9 +206,10 @@ export default function Profile1() {
           bounces={false}
         >
           <Profile1Content
-            nome=""
-            onChangeNome={() => {}}
+            nome={nome}
+            onChangeNome={setNome}
             cpf={cpf}
+            onChangeCpf={setCpf}
             cargo={cargo}
             experienceYears={experienceYears}
             profilePhotoUri={profilePhotoUri}

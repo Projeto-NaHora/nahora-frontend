@@ -1,44 +1,43 @@
-import type { PedidoResumoResponse } from "@/features/professional/types";
+import type { PedidoDisponivelResponse } from "@/features/professional/types";
 import type { Page } from "@/features/orders/types";
 
-export function createMockPedidoResumo(
-  overrides?: Partial<PedidoResumoResponse>,
-): PedidoResumoResponse {
+export function createMockPedidoDisponivel(
+  overrides?: Partial<PedidoDisponivelResponse>,
+): PedidoDisponivelResponse {
   return {
     id: 1,
-    descricao: "Instalar tomadas no quarto e sala. Tenho os materiais.",
+    titulo: "Instalar tomadas no quarto e sala. Tenho os materiais.",
     categoria: "ELETRICA",
     distanciaKm: 1.2,
-    dataPublicacao: "2026-05-17T10:00:00Z",
-    urgente: true,
-    faixaValorMin: 50,
-    faixaValorMax: 150,
-    contadorPropostas: 2,
+    criadoEm: "2026-05-17T10:00:00",
+    nomeCliente: "Maria Silva",
+    avaliacaoCliente: 4.8,
+    statusPedido: "ABERTO",
     ...overrides,
   };
 }
 
-export function createMockPedidoResumoList(
+export function createMockPedidoDisponivelList(
   count = 3,
-): PedidoResumoResponse[] {
+): PedidoDisponivelResponse[] {
   return Array.from({ length: count }, (_, i) =>
-    createMockPedidoResumo({
+    createMockPedidoDisponivel({
       id: i + 1,
-      descricao: `Descrição do pedido ${i + 1}`,
-      urgente: i === 0,
+      titulo: `Descrição do pedido ${i + 1}`,
       distanciaKm: 1.2 + i * 1.5,
+      nomeCliente: ["Maria Silva", "João Lima", "Ana Costa"][i % 3],
     }),
   );
 }
 
-export function createMockPedidoResumoPage(
+export function createMockPedidoDisponivelPage(
   count = 3,
   totalElements = 3,
   page = 0,
   size = 20,
-): Page<PedidoResumoResponse> {
+): Page<PedidoDisponivelResponse> {
   return {
-    content: createMockPedidoResumoList(count),
+    content: createMockPedidoDisponivelList(count),
     totalElements,
     totalPages: Math.ceil(totalElements / size),
     number: page,

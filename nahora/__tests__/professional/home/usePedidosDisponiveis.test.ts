@@ -1,7 +1,7 @@
 import { renderHook, waitFor, act } from "@tests/test-utils";
-import { usePedidosDisponiveis, enrichWithMockData } from "@/features/professional/hooks/usePedidosDisponiveis";
+import { usePedidosDisponiveis } from "@/features/professional/hooks/usePedidosDisponiveis";
 import { orderService } from "@/features/orders/service";
-import { createMockPedidoResumoPage } from "@tests/factories/professional";
+import { createMockPedidoDisponivelPage } from "@tests/factories/professional";
 
 jest.mock("@/features/orders/service", () => ({
   orderService: { listarDisponiveis: jest.fn() },
@@ -13,7 +13,7 @@ describe("usePedidosDisponiveis", () => {
   });
 
   test("returns flat pedidos array from first page", async () => {
-    const page = createMockPedidoResumoPage(3, 10, 0, 20);
+    const page = createMockPedidoDisponivelPage(3, 10, 0, 20);
     (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
 
     const { result } = renderHook(() => usePedidosDisponiveis());
@@ -26,9 +26,9 @@ describe("usePedidosDisponiveis", () => {
   });
 
   test("loadMore fetches next page and appends pedidos", async () => {
-    const page0 = createMockPedidoResumoPage(3, 10, 0, 20);
+    const page0 = createMockPedidoDisponivelPage(3, 10, 0, 20);
     page0.last = false;
-    const page1 = createMockPedidoResumoPage(3, 10, 1, 20);
+    const page1 = createMockPedidoDisponivelPage(3, 10, 1, 20);
     (orderService.listarDisponiveis as jest.Mock).mockImplementation(
       (_page: number, _size: number, _filtro?: unknown) => {
         if (_page === 0) return Promise.resolve(page0);
@@ -54,7 +54,7 @@ describe("usePedidosDisponiveis", () => {
   });
 
   test("refresh resets and re-fetches from page 0", async () => {
-    const page = createMockPedidoResumoPage(2, 2, 0, 20);
+    const page = createMockPedidoDisponivelPage(2, 2, 0, 20);
     (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
 
     const { result } = renderHook(() => usePedidosDisponiveis());
@@ -75,7 +75,7 @@ describe("usePedidosDisponiveis", () => {
   });
 
   test("hasMore is false when last page reached", async () => {
-    const page = createMockPedidoResumoPage(3, 3, 0, 20);
+    const page = createMockPedidoDisponivelPage(3, 3, 0, 20);
     page.last = true;
     (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
 
@@ -87,7 +87,7 @@ describe("usePedidosDisponiveis", () => {
   });
 
   test("hasMore is true when more pages exist", async () => {
-    const page = createMockPedidoResumoPage(3, 10, 0, 3);
+    const page = createMockPedidoDisponivelPage(3, 10, 0, 3);
     page.last = false;
     page.totalPages = 4;
     (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
@@ -100,9 +100,9 @@ describe("usePedidosDisponiveis", () => {
   });
 
   test("isLoadingMore is true while fetching next page", async () => {
-    const page0 = createMockPedidoResumoPage(3, 10, 0, 20);
+    const page0 = createMockPedidoDisponivelPage(3, 10, 0, 20);
     page0.last = false;
-    const page1 = createMockPedidoResumoPage(3, 10, 1, 20);
+    const page1 = createMockPedidoDisponivelPage(3, 10, 1, 20);
     let resolvePage1: (value: typeof page1) => void;
     const page1Promise = new Promise<typeof page1>((resolve) => {
       resolvePage1 = resolve;
@@ -139,7 +139,7 @@ describe("usePedidosDisponiveis", () => {
   });
 
   test("passes filter params to listarDisponiveis", async () => {
-    const page = createMockPedidoResumoPage(3, 3, 0, 20);
+    const page = createMockPedidoDisponivelPage(3, 3, 0, 20);
     (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
 
     const filtro = { categoria: "ELETRICA" as const, urgente: true };
@@ -151,7 +151,7 @@ describe("usePedidosDisponiveis", () => {
   });
 
   test("does not send TODAS categoria or null urgente to backend", async () => {
-    const page = createMockPedidoResumoPage(3, 3, 0, 20);
+    const page = createMockPedidoDisponivelPage(3, 3, 0, 20);
     (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
 
     renderHook(() => usePedidosDisponiveis());
@@ -160,29 +160,16 @@ describe("usePedidosDisponiveis", () => {
       expect(orderService.listarDisponiveis).toHaveBeenCalledWith(0, 20, undefined);
     });
   });
-});
 
-describe("enrichWithMockData", () => {
-  test("adds clienteNome to each pedido", () => {
-    const input = [1, 2].map((id) => ({
-      id,
-      descricao: `Descrição do pedido ${id}`,
-      categoria: "ELETRICA" as const,
-      distanciaKm: 1.2,
-      dataPublicacao: "2026-05-17T10:00:00Z",
-      urgente: true,
-      faixaValorMin: 50,
-      faixaValorMax: 150,
-      contadorPropostas: 2,
-    }));
-    const result = enrichWithMockData(input);
+  test("passes termo filter to listarDisponiveis", async () => {
+    const page = createMockPedidoDisponivelPage(1, 1, 0, 20);
+    (orderService.listarDisponiveis as jest.Mock).mockResolvedValue(page);
 
-    expect(result).toHaveLength(2);
-    expect(result[0].clienteNome).toBe("Maria Silva");
-    expect(result[1].clienteNome).toBe("João Lima");
-  });
+    const filtro = { termo: "eletricista" };
+    renderHook(() => usePedidosDisponiveis(filtro));
 
-  test("returns empty array for undefined", () => {
-    expect(enrichWithMockData(undefined)).toEqual([]);
+    await waitFor(() => {
+      expect(orderService.listarDisponiveis).toHaveBeenCalledWith(0, 20, filtro);
+    });
   });
 });

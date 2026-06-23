@@ -15,6 +15,8 @@ import {
   TURNO_TIME_RANGES,
 } from "@/features/orders/types";
 import { useAvaliacao } from "@/features/ratings/hooks/useAvaliacao";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -50,28 +52,45 @@ export default function ProServiceDetailScreen() {
   const { serviceId } = useLocalSearchParams<{ serviceId: string }>();
   const router = useRouter();
   const pedidoId = Number(serviceId);
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const { data: pedido, isLoading, error } = useOrderDetail(pedidoId);
   const { jaAvaliou } = useAvaliacao(pedidoId);
 
   // Redirects for non-completed statuses
-  if (pedido?.status === "EM_ANDAMENTO" || pedido?.status === "AGUARDANDO_VALIDACAO") {
+  if (
+    pedido?.status === "AGUARDANDO_PAGAMENTO" ||
+    pedido?.status === "EM_ANDAMENTO" ||
+    pedido?.status === "AGUARDANDO_VALIDACAO"
+  ) {
     return <Redirect href={`/(professional)/(services)/${serviceId}/active`} />;
+  }
+
+  if (pedido?.status === "EM_DISPUTA") {
+    return (
+      <Redirect
+        href={`/(professional)/(services)/${serviceId}/issue/dispute`}
+      />
+    );
   }
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#F26F21" />
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.brand} />
       </View>
     );
   }
 
   if (error || !pedido) {
     return (
-      <View style={styles.centered}>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
         <Text style={styles.errorText}>Erro ao carregar serviço.</Text>
-        <TouchableOpacity style={styles.backBtnFallback} onPress={() => router.back()}>
-          <Text style={styles.backBtnFallbackText}>Voltar</Text>
+        <TouchableOpacity
+          style={[styles.backBtnFallback, { backgroundColor: colors.surfaceGray }]}
+          onPress={() => router.back()}
+        >
+          <Text style={[styles.backBtnFallbackText, { color: colors.text }]}>Voltar</Text>
         </TouchableOpacity>
       </View>
     );
@@ -85,9 +104,7 @@ export default function ProServiceDetailScreen() {
     ? formatDate(pedido.dataDesejada)
     : "";
   const turnoKey = getTurnoKey(pedido.dataDesejada);
-  const turnoFormatado = turnoKey
-    ? TURNO_TIME_RANGES[turnoKey].label
-    : "";
+  const turnoFormatado = turnoKey ? TURNO_TIME_RANGES[turnoKey].label : "";
   const enderecoFormatado = formatEndereco(pedido.endereco);
   const mostrarAvaliar = isConcluido && !jaAvaliou;
 
@@ -100,16 +117,13 @@ export default function ProServiceDetailScreen() {
   ];
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backArrow}>{"←"}</Text>
+        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={() => router.back()}>
+          <Text style={[styles.backArrow, { color: colors.text }]}>{"←"}</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Detalhe do serviço</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do serviço</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -119,7 +133,7 @@ export default function ProServiceDetailScreen() {
       >
         {/* Category + status */}
         <View style={styles.categoryRow}>
-          <Text style={styles.categoryHeading}>{categoria}</Text>
+          <Text style={[styles.categoryHeading, { color: colors.text }]}>{categoria}</Text>
           <View style={[styles.badge, { backgroundColor: badge.bg }]}>
             <Text style={[styles.badgeText, { color: badge.color }]}>
               {badge.text}
@@ -128,33 +142,33 @@ export default function ProServiceDetailScreen() {
         </View>
 
         {/* Info card */}
-        <View style={styles.card}>
+        <View style={[styles.card, { borderColor: colors.border }]}>
           <View style={styles.infoRow}>
             <View style={styles.infoCol}>
-              <Text style={styles.infoLabel}>Data</Text>
-              <Text style={styles.infoValue}>{dataFormatada}</Text>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Data</Text>
+              <Text style={[styles.infoValue, { color: colors.text }]}>{dataFormatada}</Text>
             </View>
             <View style={styles.infoCol}>
-              <Text style={styles.infoLabel}>Horário</Text>
-              <Text style={styles.infoValue}>{turnoFormatado}</Text>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Horário</Text>
+              <Text style={[styles.infoValue, { color: colors.text }]}>{turnoFormatado}</Text>
             </View>
           </View>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <View style={styles.infoBlock}>
-            <Text style={styles.infoLabel}>Endereço</Text>
-            <Text style={styles.infoValue}>{enderecoFormatado}</Text>
+            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Endereço</Text>
+            <Text style={[styles.infoValue, { color: colors.text }]}>{enderecoFormatado}</Text>
           </View>
         </View>
 
         {/* Description card */}
-        <View style={styles.card}>
-          <Text style={styles.sectionLabel}>DESCRIÇÃO</Text>
-          <Text style={styles.descriptionText}>{pedido.descricao}</Text>
+        <View style={[styles.card, { borderColor: colors.border }]}>
+          <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>DESCRIÇÃO</Text>
+          <Text style={[styles.descriptionText, { color: colors.textSecondary }]}>{pedido.descricao}</Text>
         </View>
 
         {/* Timeline */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Linha do tempo</Text>
+        <View style={[styles.card, { borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Linha do tempo</Text>
           {timelineStages.map((item, index) => {
             const isLast = index === timelineStages.length - 1;
             return (
@@ -164,8 +178,8 @@ export default function ProServiceDetailScreen() {
                     style={[
                       styles.timelineDot,
                       {
-                        backgroundColor: item.done ? "#10B981" : "#E5E7EB",
-                        borderColor: item.done ? "#10B981" : "#E5E7EB",
+                        backgroundColor: item.done ? colors.success : colors.surfaceGray,
+                        borderColor: item.done ? colors.success : colors.surfaceGray,
                       },
                     ]}
                   />
@@ -174,7 +188,7 @@ export default function ProServiceDetailScreen() {
                       style={[
                         styles.timelineLine,
                         {
-                          backgroundColor: item.done ? "#10B981" : "#E5E7EB",
+                          backgroundColor: item.done ? colors.success : colors.surfaceGray,
                         },
                       ]}
                     />
@@ -185,14 +199,14 @@ export default function ProServiceDetailScreen() {
                     style={[
                       styles.timelineLabel,
                       {
-                        color: item.done ? "#111827" : "#9CA3AF",
+                        color: item.done ? colors.text : colors.icon,
                       },
                     ]}
                   >
                     {item.label}
                   </Text>
                   {isLast && !isConcluido && (
-                    <Text style={styles.timelineSub}>—</Text>
+                    <Text style={[styles.timelineSub, { color: colors.textSecondary }]}>—</Text>
                   )}
                 </View>
               </View>
@@ -203,13 +217,11 @@ export default function ProServiceDetailScreen() {
 
       {/* Rate button footer */}
       {mostrarAvaliar && (
-        <View style={styles.footer}>
+        <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
           <TouchableOpacity
             style={styles.rateButton}
             onPress={() =>
-              router.push(
-                `/(professional)/(services)/${serviceId}/rating`,
-              )
+              router.push(`/(professional)/(services)/${serviceId}/rating`)
             }
             activeOpacity={0.7}
           >
@@ -222,15 +234,11 @@ export default function ProServiceDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
+  root: { flex: 1 },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
   },
   errorText: {
     fontSize: 14,
@@ -239,11 +247,9 @@ const styles = StyleSheet.create({
   },
   backBtnFallback: {
     padding: 12,
-    backgroundColor: "#F3F4F6",
     borderRadius: 8,
   },
   backBtnFallbackText: {
-    color: "#374151",
     fontWeight: "600",
   },
 
@@ -260,20 +266,17 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
   },
   backArrow: {
     fontSize: 22,
     fontWeight: "600",
-    color: "#111827",
   },
   headerTitle: {
     flex: 1,
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
   },
   headerSpacer: {
     width: 44,
@@ -299,7 +302,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
   },
   badge: {
     borderRadius: 100,
@@ -315,7 +317,6 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#F3F4F6",
     padding: 20,
   },
 
@@ -334,13 +335,11 @@ const styles = StyleSheet.create({
   infoLabel: {
     fontSize: 12,
     fontWeight: "400",
-    color: "#6B7280",
     textTransform: "uppercase",
   },
   infoValue: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#111827",
   },
   divider: {
     height: 1,
@@ -352,14 +351,12 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: "400",
-    color: "#6B7280",
     letterSpacing: 1,
     marginBottom: 8,
   },
   descriptionText: {
     fontSize: 14,
     fontWeight: "400",
-    color: "#374151",
     lineHeight: 20,
   },
 
@@ -367,7 +364,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 16,
   },
   timelineRow: {
@@ -399,7 +395,6 @@ const styles = StyleSheet.create({
   },
   timelineSub: {
     fontSize: 12,
-    color: "#6B7280",
     marginTop: 2,
   },
 
@@ -407,9 +402,7 @@ const styles = StyleSheet.create({
   footer: {
     padding: 24,
     paddingBottom: 48,
-    backgroundColor: "#FFFFFF",
     borderTopWidth: 1,
-    borderTopColor: "#F3F4F6",
   },
   rateButton: {
     backgroundColor: "#F26F21",

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
@@ -94,7 +95,7 @@ export function OrderDetailOpenContent({
   if (!pedido) return null;
 
   const statusColor = STATUS_COLORS[pedido.status] ?? {
-    bg: "#FEF0E8",
+    bg: colors.surfaceAccent,
     text: "#F26F21",
   };
   const statusLabel = STATUS_LABEL[pedido.status] ?? "Em aberto";
@@ -105,6 +106,7 @@ export function OrderDetailOpenContent({
   function getActiveStage(status: string): number {
     switch (status) {
       case "ABERTO": return 1;
+      case "AGUARDANDO_PAGAMENTO": return 1;
       case "EM_ANDAMENTO": return 2;
       case "AGUARDANDO_VALIDACAO": return 2;
       case "CONCLUIDO": return 4;
@@ -223,6 +225,34 @@ export function OrderDetailOpenContent({
             {pedido.descricao}
           </Text>
         </View>
+
+        {/* Fotos do pedido */}
+        {pedido.fotos && pedido.fotos.length > 0 && (
+          <View style={styles.section}>
+            <Text
+              style={[
+                styles.sectionLabel,
+                { color: colors.textSecondary },
+              ]}
+            >
+              FOTOS
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.photosScroll}
+            >
+              {pedido.fotos.map((uri, index) => (
+                <Image
+                  key={index}
+                  source={{ uri }}
+                  style={[styles.photoThumb, { backgroundColor: colors.surface }]}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         {/* Timeline */}
         <View
@@ -346,6 +376,16 @@ export function OrderDetailOpenContent({
             activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Falar com prestador</Text>
+          </TouchableOpacity>
+        ) : pedido.status === "AGUARDANDO_PAGAMENTO" ? (
+          <TouchableOpacity
+            onPress={() => {
+              router.push(`/(client)/(orders)/${pedido.id}/payment`);
+            }}
+            style={[styles.ctaButton, { backgroundColor: colors.brand }]}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Pagar serviço</Text>
           </TouchableOpacity>
         ) : pedido.status === "ABERTO" ? (
           <TouchableOpacity
@@ -497,6 +537,17 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "400",
     lineHeight: 20,
+  },
+
+  // Photos
+  photosScroll: {
+    marginTop: 8,
+  },
+  photoThumb: {
+    width: 120,
+    height: 120,
+    borderRadius: 12,
+    marginRight: 8,
   },
 
   // Timeline

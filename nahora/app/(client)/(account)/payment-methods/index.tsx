@@ -1,24 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { UnderConstruction } from "@/components/UnderConstruction";
 
 export default function Screen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>
-        app/(client)/(account)/payment-methods/index.tsx
-      </Text>
-    </View>
+    <UnderConstruction path="app/(client)/(account)/payment-methods/index.tsx" />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});

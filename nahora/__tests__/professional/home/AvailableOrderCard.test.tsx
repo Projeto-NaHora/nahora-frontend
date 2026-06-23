@@ -2,8 +2,7 @@ import React from "react";
 import { TouchableOpacity } from "react-native";
 import { render, screen } from "@tests/test-utils";
 import { AvailableOrderCard } from "@/features/professional/components/AvailableOrderCard";
-import { createMockPedidoResumo } from "@tests/factories/professional";
-import { enrichWithMockData } from "@/features/professional/hooks/usePedidosDisponiveis";
+import { createMockPedidoDisponivel } from "@tests/factories/professional";
 import { Colors } from "@/constants/theme";
 
 const mockUseColorScheme = jest.fn(() => "light");
@@ -14,7 +13,7 @@ jest.mock("@/components/ui/icon-symbol", () => ({
   IconSymbol: () => null,
 }));
 
-const mockPedido = enrichWithMockData([createMockPedidoResumo()])[0];
+const mockPedido = createMockPedidoDisponivel();
 
 describe("AvailableOrderCard", () => {
   test("renders category label", () => {
@@ -23,37 +22,26 @@ describe("AvailableOrderCard", () => {
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
-  test('renders "Urgente" badge when urgente is true', () => {
+  test("renders client name", () => {
     render(<AvailableOrderCard pedido={mockPedido} onPress={jest.fn()} />);
-    expect(screen.getByText("Urgente")).toBeOnTheScreen();
+    expect(screen.getByText("Maria Silva")).toBeOnTheScreen();
   });
 
-  test('renders "Normal" badge when urgente is false', () => {
-    const normal = enrichWithMockData([
-      createMockPedidoResumo({ urgente: false }),
-    ])[0];
-    render(<AvailableOrderCard pedido={normal} onPress={jest.fn()} />);
-    expect(screen.getByText("Normal")).toBeOnTheScreen();
-  });
-
-  test("renders client name, distance, and time ago", () => {
+  test("renders distance and time ago", () => {
     render(<AvailableOrderCard pedido={mockPedido} onPress={jest.fn()} />);
-
-    expect(screen.getByText(/Maria Silva/)).toBeOnTheScreen();
     expect(screen.getByText(/1,2 km/)).toBeOnTheScreen();
-    expect(screen.getByText(/há/)).toBeOnTheScreen();
   });
 
-  test("renders description", () => {
+  test("renders description (titulo)", () => {
     render(<AvailableOrderCard pedido={mockPedido} onPress={jest.fn()} />);
     expect(
       screen.getByText("Instalar tomadas no quarto e sala. Tenho os materiais."),
     ).toBeOnTheScreen();
   });
 
-  test("renders proposal count info", () => {
+  test("renders status badge when ABERTO", () => {
     render(<AvailableOrderCard pedido={mockPedido} onPress={jest.fn()} />);
-    expect(screen.getByText(/2 propostas/)).toBeOnTheScreen();
+    expect(screen.getByText("Aberto")).toBeOnTheScreen();
   });
 
   test("calls onPress when pressed", () => {

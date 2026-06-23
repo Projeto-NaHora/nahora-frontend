@@ -8,7 +8,7 @@ import type {
   Page,
 } from "./types";
 import type {
-  PedidoResumoResponse,
+  PedidoDisponivelResponse,
   PedidoFiltroParams,
 } from "@/features/professional/types";
 
@@ -72,8 +72,11 @@ export const orderService = {
     await api.post(`${ENDPOINTS.PEDIDO(id)}/confirmar-conclusao`);
   },
 
-  reportarProblema: async (id: number): Promise<void> => {
-    await api.post(`${ENDPOINTS.PEDIDO(id)}/reportar-problema`);
+  reportarProblema: async (
+    id: number,
+    payload?: { motivo: string; descricao: string; evidencias: string[] },
+  ): Promise<void> => {
+    await api.post(`${ENDPOINTS.PEDIDO(id)}/reportar-problema`, payload);
   },
 
   /**
@@ -97,14 +100,16 @@ export const orderService = {
     page: number = 0,
     size: number = 20,
     filtro?: PedidoFiltroParams,
-  ): Promise<Page<PedidoResumoResponse>> => {
+  ): Promise<Page<PedidoDisponivelResponse>> => {
     const params: Record<string, string | number | boolean> = { page, size };
     if (filtro?.categoria && filtro.categoria !== "TODAS")
       params.categoria = filtro.categoria;
     if (filtro?.urgente !== undefined && filtro.urgente !== null)
       params.urgente = filtro.urgente;
     if (filtro?.sortBy) params.sortBy = filtro.sortBy;
-    const { data } = await api.get<Page<PedidoResumoResponse>>(
+    if (filtro?.termo && filtro.termo.trim().length >= 2)
+      params.termo = filtro.termo.trim();
+    const { data } = await api.get<Page<PedidoDisponivelResponse>>(
       ENDPOINTS.PEDIDOS_DISPONIVEIS,
       { params },
     );
@@ -152,5 +157,20 @@ export const orderService = {
     );
 
     return data.url;
+  },
+};
+
+export const disputaService = {
+  buscarStatusPorPedido: async (pedidoId: number) => {
+    const { data } = await api.get(`/disputas/pedido/${pedidoId}`);
+    return data;
+  },
+
+  contestar: async (disputaId: number, justificativa: string, evidenciasAdicionais: string[]) => {
+    const { data } = await api.post(`/disputas/${disputaId}/contestar`, {
+      justificativa,
+      evidenciasAdicionais,
+    });
+    return data;
   },
 };

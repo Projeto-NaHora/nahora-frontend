@@ -19,6 +19,8 @@ import {
   TAG_LABEL,
   NOTA_LABEL,
 } from "../types";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 type PapelAvaliacao = "CLIENTE" | "PROFISSIONAL";
 type SubmitStatus = "idle" | "submitting" | "success" | "error";
@@ -52,6 +54,8 @@ export function RatingForm({
   papel,
   onSubmit,
 }: RatingFormProps) {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   const router = useRouter();
   const [nota, setNota] = useState(0);
   const [comentario, setComentario] = useState("");
@@ -65,6 +69,11 @@ export function RatingForm({
     papel === "PROFISSIONAL"
       ? "/(professional)/(home)"
       : "/(client)/(home)";
+
+  const listRoute =
+    papel === "PROFISSIONAL"
+      ? "/(professional)/(services)"
+      : "/(client)/(orders)";
 
   const goHome = useCallback(() => {
     router.replace(homeRoute);
@@ -98,23 +107,23 @@ export function RatingForm({
   const labelNota = nota > 0 ? NOTA_LABEL[nota] : "";
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
-          style={styles.backBtn}
+          style={[styles.backBtn, { backgroundColor: colors.surface }]}
           onPress={() => router.back()}
           disabled={desabilitado}
         >
-          <Feather name="arrow-left" size={22} color="#111827" />
+          <Feather name="arrow-left" size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Avaliação</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Avaliação</Text>
         <TouchableOpacity
-          style={styles.menuBtn}
-          onPress={() => router.back()}
+          style={[styles.menuBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          onPress={() => router.replace(listRoute)}
           disabled={desabilitado}
         >
-          <Feather name="x" size={18} color="#111827" />
+          <Feather name="x" size={18} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -126,17 +135,17 @@ export function RatingForm({
         {/* Avatar + Nome */}
         <View style={styles.profileSection}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{iniciais}</Text>
+            <Text style={[styles.avatarText, { color: colors.brand }]}>{iniciais}</Text>
           </View>
-          <Text style={styles.nome}>{nomeAvaliado}</Text>
-          <Text style={styles.meta}>
+          <Text style={[styles.nome, { color: colors.text }]}>{nomeAvaliado}</Text>
+          <Text style={[styles.meta, { color: colors.textSecondary }]}>
             {categoria} · {data}
           </Text>
         </View>
 
         {/* Estrelas */}
         <View style={styles.starsSection}>
-          <Text style={styles.sectionTitle}>Como foi o serviço?</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Como foi o serviço?</Text>
           <View style={styles.starsRow}>
             {STARS.map((star) => (
               <TouchableOpacity
@@ -154,7 +163,7 @@ export function RatingForm({
             ))}
           </View>
           {labelNota ? (
-            <Text style={styles.notaLabel}>{labelNota}</Text>
+            <Text style={[styles.notaLabel, { color: colors.brand }]}>{labelNota}</Text>
           ) : null}
         </View>
 
@@ -172,14 +181,14 @@ export function RatingForm({
                   style={[
                     styles.tagChip,
                     ativa
-                      ? styles.tagChipAtiva
-                      : styles.tagChipInativa,
+                      ? { backgroundColor: colors.brand, borderColor: colors.brand }
+                      : { backgroundColor: colors.background, borderColor: colors.border },
                   ]}
                 >
                   <Text
                     style={[
                       styles.tagText,
-                      ativa ? styles.tagTextAtiva : styles.tagTextInativa,
+                      ativa ? { color: colors.onBrand } : { color: colors.text },
                     ]}
                   >
                     {TAG_LABEL[tag]}
@@ -193,9 +202,9 @@ export function RatingForm({
         {/* Comentário */}
         <View style={styles.commentSection}>
           <TextInput
-            style={styles.commentInput}
+            style={[styles.commentInput, { borderColor: colors.border, color: colors.text }]}
             placeholder="Conte mais sobre sua experiência (opcional)"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.placeholder}
             value={comentario}
             onChangeText={setComentario}
             multiline
@@ -203,21 +212,21 @@ export function RatingForm({
             textAlignVertical="top"
             editable={!desabilitado}
           />
-          <Text style={styles.charCount}>{comentario.length}/500</Text>
+          <Text style={[styles.charCount, { color: colors.textSecondary }]}>{comentario.length}/500</Text>
         </View>
       </ScrollView>
 
       {/* Footer */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: colors.background }]}>
         <TouchableOpacity
-          style={[styles.submitBtn, !podeEnviar && styles.submitBtnDisabled]}
+          style={[styles.submitBtn, { backgroundColor: colors.brand }, !podeEnviar && styles.submitBtnDisabled]}
           onPress={handleSubmit}
           disabled={!podeEnviar}
         >
           {submitStatus === "submitting" ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.submitBtnText}>Enviar Avaliação</Text>
+            <Text style={[styles.submitBtnText, { color: colors.onBrand }]}>Enviar Avaliação</Text>
           )}
         </TouchableOpacity>
 
@@ -226,7 +235,7 @@ export function RatingForm({
           onPress={goHome}
           disabled={desabilitado}
         >
-          <Text style={styles.backLinkText}>Voltar para o Início</Text>
+          <Text style={[styles.backLinkText, { color: colors.brand }]}>Voltar para o Início</Text>
         </TouchableOpacity>
       </View>
 
@@ -238,20 +247,20 @@ export function RatingForm({
         onRequestClose={goHome}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
             <View style={[styles.modalIconCircle, styles.modalIconSuccess]}>
               <Feather name="check" size={36} color="#065F46" />
             </View>
-            <Text style={styles.modalTitle}>Avaliação enviada!</Text>
-            <Text style={styles.modalMessage}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Avaliação enviada!</Text>
+            <Text style={[styles.modalMessage, { color: colors.textSecondary }]}>
               Sua avaliação foi registrada com sucesso.
             </Text>
             <TouchableOpacity
-              style={styles.modalButton}
+              style={[styles.modalButton, { backgroundColor: colors.brand }]}
               onPress={goHome}
               activeOpacity={0.7}
             >
-              <Text style={styles.modalButtonText}>Voltar para o Início</Text>
+              <Text style={[styles.modalButtonText, { color: colors.onBrand }]}>Voltar para o Início</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -265,28 +274,28 @@ export function RatingForm({
         onRequestClose={handleRetry}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { backgroundColor: colors.background }]}>
             <View style={[styles.modalIconCircle, styles.modalIconError]}>
               <Feather name="x" size={36} color="#DC2626" />
             </View>
-            <Text style={styles.modalTitle}>Ops, algo deu errado!</Text>
-            <Text style={styles.modalMessage}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Ops, algo deu errado!</Text>
+            <Text style={[styles.modalMessage, { color: colors.textSecondary }]}>
               Não foi possível enviar sua avaliação. Verifique sua conexão e
               tente novamente.
             </Text>
             <TouchableOpacity
-              style={styles.modalButton}
+              style={[styles.modalButton, { backgroundColor: colors.brand }]}
               onPress={handleRetry}
               activeOpacity={0.7}
             >
-              <Text style={styles.modalButtonText}>Tentar novamente</Text>
+              <Text style={[styles.modalButtonText, { color: colors.onBrand }]}>Tentar novamente</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.modalLink}
               onPress={goHome}
               activeOpacity={0.7}
             >
-              <Text style={styles.modalLinkText}>Voltar para o Início</Text>
+              <Text style={[styles.modalLinkText, { color: colors.brand }]}>Voltar para o Início</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -298,7 +307,6 @@ export function RatingForm({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
   },
 
   // Header
@@ -314,22 +322,18 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#1C1C1E",
   },
   menuBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F8F9FA",
     borderWidth: 1,
-    borderColor: "#EAEAEA",
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
@@ -366,17 +370,14 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#E67215",
   },
   nome: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 4,
   },
   meta: {
     fontSize: 14,
-    color: "#8C8C8C",
   },
 
   // Stars
@@ -387,7 +388,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 16,
   },
   starsRow: {
@@ -398,7 +398,6 @@ const styles = StyleSheet.create({
   notaLabel: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#F27B24",
     marginTop: 4,
   },
 
@@ -416,25 +415,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
-  tagChipAtiva: {
-    backgroundColor: "#FFCDB5",
+  tagChip: {
+    borderRadius: 23,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderWidth: 1,
-    borderColor: "#FEF1EB",
-  },
-  tagChipInativa: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#DEDEDE",
   },
   tagText: {
     fontSize: 14,
     fontWeight: "700",
-  },
-  tagTextAtiva: {
-    color: "#F37021",
-  },
-  tagTextInativa: {
-    color: "#000000",
   },
 
   // Comment
@@ -443,18 +432,15 @@ const styles = StyleSheet.create({
   },
   commentInput: {
     borderWidth: 1,
-    borderColor: "#DEDEDE",
     borderRadius: 12,
     padding: 16,
     fontSize: 14,
-    color: "#111827",
     minHeight: 120,
     fontFamily: "Inter",
   },
   charCount: {
     textAlign: "right",
     fontSize: 12,
-    color: "#9CA3AF",
     marginTop: 4,
   },
 
@@ -462,10 +448,8 @@ const styles = StyleSheet.create({
   footer: {
     padding: 24,
     gap: 12,
-    backgroundColor: "#FFFFFF",
   },
   submitBtn: {
-    backgroundColor: "#F26F21",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
@@ -474,7 +458,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   submitBtnText: {
-    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
   },
@@ -533,7 +516,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   modalButton: {
-    backgroundColor: "#F26F21",
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 12,
@@ -541,7 +523,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   modalButtonText: {
-    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "700",
   },
@@ -553,6 +534,5 @@ const styles = StyleSheet.create({
   modalLinkText: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#F97415",
   },
 });

@@ -1,4 +1,9 @@
 // services/api/endpoints.ts
+
+export const API_URL =
+  "https://nahora-backend-staging-v2.up.railway.app/api/v1";
+export const WS_URL = "wss://nahora-backend-staging-v2.up.railway.app/ws";
+
 export const ENDPOINTS = {
   // Upload de arquivos
   UPLOAD_DOCUMENTO: "/files/upload",
@@ -42,6 +47,9 @@ export const ENDPOINTS = {
 
   // Pagamentos
   PAGAMENTO: (propostaId: number) => `/propostas/${propostaId}/pagamento`,
+  PAGAMENTO_SIMULAR: (pedidoId: number) =>
+    `/pedidos/${pedidoId}/pagamento/simular`,
+  PEDIDO_RECIBO: (pedidoId: number) => `/pedidos/${pedidoId}/recibo`,
   CONFIRMAR_CONCLUSAO: (pedidoId: number) => `/pedidos/${pedidoId}/confirmar`,
 
   // Avaliações
@@ -62,10 +70,35 @@ export const ENDPOINTS = {
   PROFISSIONAL: (id: number) => `/profissionais/${id}`,
   PROFISSIONAIS: "/profissionais",
 
+  // Histórico de ganhos (profissional)
+  HISTORICO_PROFISSIONAL_RESUMO: "/profissionais/historico/resumo",
+  HISTORICO_GANHOS: (mes: number, ano: number) =>
+    `/profissionais/historico/ganhos?mes=${mes}&ano=${ano}`,
+  HISTORICO_SERVICOS: (mes: number, ano: number) =>
+    `/profissionais/historico/servicos?mes=${mes}&ano=${ano}`,
+
   // Favoritos
   // POST/DELETE /api/v1/favoritos/{profissionalId}
   FAVORITOS: "/favoritos",
   FAVORITAR: (id: number) => `/favoritos/${id}`,
   // GET /api/v1/profissionais/{profissionalId}/favoritado
   FAVORITO_STATUS: (id: number) => `/profissionais/${id}/favoritado`,
+
+  // Histórico do cliente
+  HISTORICO_RESUMO: "/pedidos/historico/resumo",
+
+  // Endereços do cliente
+  CLIENTES_ENDERECOS: "/clientes/enderecos",
+  CLIENTE_ENDERECO: (id: number) => `/clientes/enderecos/${id}`,
+  CLIENTE_ENDERECO_PADRAO: (id: number) => `/clientes/enderecos/${id}/padrao`,
+
+  // Endereços do profissional
+  PROFISSIONAIS_ENDERECOS: "/profissionais/enderecos",
+  PROFISSIONAL_ENDERECO: (id: number) => `/profissionais/enderecos/${id}`,
+  PROFISSIONAL_ENDERECO_PADRAO: (id: number) => `/profissionais/enderecos/${id}/padrao`,
+
+  // Configurações da conta
+  USUARIOS_PREFERENCIAS: "/usuarios/preferencias",
+  USUARIOS_SENHA: "/usuarios/senha",
+  USUARIOS_CONTA: "/usuarios/conta",
 } as const;

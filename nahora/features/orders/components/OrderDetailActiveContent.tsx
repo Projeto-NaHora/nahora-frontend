@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,6 +16,8 @@ import {
   TURNO_TIME_RANGES,
   Pedido,
 } from "../types";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Colors } from "@/constants/theme";
 
 type Props = {
   pedido: Pedido | any;
@@ -24,6 +27,7 @@ type Props = {
   onChat: () => void;
   onIssue: () => void;
   isOpeningChat: boolean;
+  onViewDispute: () => void;
 };
 
 export const OrderDetailActiveContent: React.FC<Props> = ({
@@ -34,11 +38,14 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
   onChat,
   onIssue,
   isOpeningChat,
+  onViewDispute,
 }) => {
+  const theme = useColorScheme() ?? "light";
+  const colors = Colors[theme];
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#417BE0" />
+      <SafeAreaView style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.brand} />
       </SafeAreaView>
     );
   }
@@ -46,7 +53,7 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
   if (error || !pedido) {
     return (
       <SafeAreaView style={styles.centerContainer}>
-        <Text style={styles.errorText}>
+        <Text style={[styles.errorText, { color: colors.error }]}>
           Erro ao carregar detalhes do pedido.
         </Text>
         <TouchableOpacity style={styles.backButtonCenter} onPress={onBack}>
@@ -73,14 +80,17 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
     ? `${pedido.endereco.logradouro}, ${pedido.endereco.numero} - ${pedido.endereco.bairro}, ${pedido.endereco.cidade}`
     : "Endereço não informado";
 
+  // Verifica se o pedido está em disputa
+  const isEmDisputa = pedido.status === "EM_DISPUTA";
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header Fixo */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={onBack}>
-          <Feather name="arrow-left" size={24} color="#111827" />
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surface }]} onPress={onBack}>
+          <Feather name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Detalhe do Pedido</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do Pedido</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -90,116 +100,183 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
         contentContainerStyle={styles.scrollInner}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title & Badge (Azul para Em Andamento) */}
+        {/* Title & Badge Dinâmico */}
         <View style={styles.titleRow}>
           <Text style={styles.serviceTitle}>{categoriaFormatada}</Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>Em andamento</Text>
+          <View
+            style={[
+              styles.badge,
+              isEmDisputa && { backgroundColor: colors.surfaceRed },
+            ]}
+          >
+            <Text
+              style={[styles.badgeText, isEmDisputa && { color: "#EF4444" }]}
+            >
+              {isEmDisputa ? "Em disputa" : "Em andamento"}
+            </Text>
           </View>
         </View>
 
         {/* Info Card */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
           <View style={styles.rowInfo}>
             <View style={styles.colInfo}>
-              <Text style={styles.label}>Data</Text>
-              <Text style={styles.value}>{dataFormatada}</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Data</Text>
+              <Text style={[styles.value, { color: colors.text }]}>{dataFormatada}</Text>
             </View>
             <View style={styles.colInfo}>
-              <Text style={styles.label}>Horário</Text>
-              <Text style={styles.value}>{turnoFormatado}</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Horário</Text>
+              <Text style={[styles.value, { color: colors.text }]}>{turnoFormatado}</Text>
             </View>
           </View>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <View style={styles.colInfo}>
-            <Text style={styles.label}>Endereço</Text>
-            <Text style={styles.value}>{enderecoFormatado}</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>Endereço</Text>
+            <Text style={[styles.value, { color: colors.text }]}>{enderecoFormatado}</Text>
           </View>
         </View>
 
         {/* Description Card */}
-        <View style={styles.card}>
-          <Text style={styles.labelDesc}>DESCRIÇÃO</Text>
-          <Text style={styles.descriptionText}>{pedido.descricao}</Text>
+        <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
+          <Text style={[styles.labelDesc, { color: colors.textSecondary }]}>DESCRIÇÃO</Text>
+          <Text style={[styles.descriptionText, { color: colors.text }]}>{pedido.descricao}</Text>
         </View>
 
-        {/* Aviso de Execução */}
-        <View style={styles.executionWarning}>
-          <Feather name="info" size={20} color="#417BE0" />
-          <Text style={styles.executionText}>
-            O profissional já está executando o serviço. Aguarde a conclusão
-            para liberar o pagamento.
-          </Text>
-        </View>
+        {/* Fotos do pedido */}
+        {pedido.fotos && pedido.fotos.length > 0 && (
+          <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
+            <Text style={[styles.labelDesc, { color: colors.textSecondary }]}>FOTOS</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginTop: 8 }}
+            >
+              {pedido.fotos.map((uri, index) => (
+                <Image
+                  key={index}
+                  source={{ uri }}
+                  style={[styles.photoThumb, { backgroundColor: colors.surface }]}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
-        {/* Timeline (Baseado no seu print) */}
+        {/* Aviso de Execução - Ocultado se estiver em disputa */}
+        {!isEmDisputa && (
+          <View style={styles.executionWarning}>
+            <Feather name="info" size={20} color="#417BE0" />
+            <Text style={styles.executionText}>
+              O profissional já está executando o serviço. Aguarde a conclusão
+              para liberar o pagamento.
+            </Text>
+          </View>
+        )}
+
+        {/* Timeline */}
         <View style={styles.timelineContainer}>
-          <Text style={styles.sectionTitle}>Linha do tempo</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Linha do tempo</Text>
 
           <View style={styles.timelineItem}>
-            <View style={[styles.timelineDot, styles.dotGreen]} />
-            <View style={styles.timelineLineActive} />
+            <View style={[styles.timelineDot, { backgroundColor: colors.success }]} />
+            <View style={[styles.timelineLineActive, { backgroundColor: colors.success }]} />
             <View style={styles.timelineTextContainer}>
-              <Text style={styles.timelineTitle}>Pedido criado</Text>
+              <Text style={[styles.timelineTitle, { color: colors.text }]}>Pedido criado</Text>
             </View>
           </View>
 
           <View style={styles.timelineItem}>
-            <View style={[styles.timelineDot, styles.dotGreen]} />
-            <View style={styles.timelineLineActive} />
+            <View style={[styles.timelineDot, { backgroundColor: colors.success }]} />
+            <View style={[styles.timelineLineActive, { backgroundColor: colors.success }]} />
             <View style={styles.timelineTextContainer}>
-              <Text style={styles.timelineTitle}>Avaliação de propostas</Text>
+              <Text style={[styles.timelineTitle, { color: colors.text }]}>Avaliação de propostas</Text>
             </View>
           </View>
 
-          {/* Etapa Atual - Laranja */}
+          {/* Etapa Atual - Laranja (ou Vermelho se em disputa) */}
           <View style={styles.timelineItem}>
-            <View style={[styles.timelineDot, styles.dotOrange]} />
+            <View
+              style={[
+                styles.timelineDot,
+                isEmDisputa ? { backgroundColor: "#EF4444" } : styles.dotOrange,
+              ]}
+            />
             <View style={styles.timelineLineInactive} />
             <View style={styles.timelineTextContainer}>
-              <Text style={[styles.timelineTitle, { color: "#F97316" }]}>
-                Serviço em andamento
+              <Text
+                style={[
+                  styles.timelineTitle,
+                  { color: isEmDisputa ? "#EF4444" : "#F97316" },
+                ]}
+              >
+                {isEmDisputa ? "Serviço em disputa" : "Serviço em andamento"}
               </Text>
             </View>
           </View>
 
           <View style={styles.timelineItem}>
-            <View style={[styles.timelineDot, styles.dotGray]} />
+            <View style={[styles.timelineDot, { backgroundColor: colors.border }]} />
             <View style={styles.timelineTextContainer}>
-              <Text style={[styles.timelineTitle, { color: "#9CA3AF" }]}>
+              <Text style={[styles.timelineTitle, { color: colors.textSecondary }]}>
                 Concluído
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Footer Actions */}
+        {/* Footer Actions Dinâmico */}
         <View style={styles.footerInline}>
-          <TouchableOpacity style={styles.secondaryButton} onPress={onIssue}>
-            <Text style={styles.secondaryButtonText}>Tive um problema</Text>
-          </TouchableOpacity>
+          {isEmDisputa ? (
+            // Ações quando o status for EM_DISPUTA
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: "#3B82F6" }]}
+              onPress={onViewDispute}
+            >
+              <Feather
+                name="shield"
+                size={20}
+                color="#FFFFFF"
+                style={{ marginRight: 8 }}
+              />
+              <Text style={styles.primaryButtonText}>Acompanhar Disputa</Text>
+            </TouchableOpacity>
+          ) : (
+            // Ações normais quando o status for EM_ANDAMENTO
+            <>
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={onIssue}
+              >
+                <Text style={styles.secondaryButtonText}>Tive um problema</Text>
+              </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.primaryButton, isOpeningChat && { opacity: 0.7 }]}
-            onPress={onChat}
-            disabled={isOpeningChat}
-          >
-            {isOpeningChat ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <>
-                <Feather
-                  name="message-square"
-                  size={20}
-                  color="#FFFFFF"
-                  style={{ marginRight: 8 }}
-                />
-                <Text style={styles.primaryButtonText}>
-                  Falar com profissional
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.primaryButton,
+                  isOpeningChat && { opacity: 0.7 },
+                ]}
+                onPress={onChat}
+                disabled={isOpeningChat}
+              >
+                {isOpeningChat ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Feather
+                      name="message-square"
+                      size={20}
+                      color="#FFFFFF"
+                      style={{ marginRight: 8 }}
+                    />
+                    <Text style={styles.primaryButtonText}>
+                      Falar com profissional
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -207,12 +284,11 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  container: { flex: 1 },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
   },
   header: {
     flexDirection: "row",
@@ -221,17 +297,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
   },
   backBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: { fontSize: 18, fontWeight: "700", color: "#111827" },
+  headerTitle: { fontSize: 18, fontWeight: "700" },
   scrollContent: { flex: 1 },
   scrollInner: { padding: 24, paddingBottom: 48 },
   titleRow: {
@@ -240,9 +314,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 24,
   },
-  serviceTitle: { fontSize: 24, fontWeight: "700", color: "#111827", flex: 1 },
+  serviceTitle: { fontSize: 24, fontWeight: "700", flex: 1 },
 
-  // Badge Azul
+  // Badge Base
   badge: {
     backgroundColor: "#E6F0FF",
     paddingHorizontal: 10,
@@ -253,42 +327,43 @@ const styles = StyleSheet.create({
 
   card: {
     borderWidth: 1,
-    borderColor: "#F3F4F6",
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
   },
   rowInfo: { flexDirection: "row", justifyContent: "space-between" },
   colInfo: { flex: 1 },
-  divider: { height: 1, backgroundColor: "#F3F4F6", marginVertical: 16 },
-  label: { fontSize: 12, color: "#6B7280", marginBottom: 4 },
-  value: { fontSize: 15, fontWeight: "600", color: "#111827" },
+  divider: { height: 1, marginVertical: 16 },
+  label: { fontSize: 12, marginBottom: 4 },
+  value: { fontSize: 15, fontWeight: "600" },
   labelDesc: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#9CA3AF",
     letterSpacing: 1,
     marginBottom: 8,
   },
-  descriptionText: { fontSize: 15, color: "#374151", lineHeight: 22 },
+  descriptionText: { fontSize: 15, lineHeight: 22 },
+  photoThumb: {
+    width: 120,
+    height: 120,
+    borderRadius: 12,
+    marginRight: 8,
+  },
 
-  // Caixa de aviso informativa
   executionWarning: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#EFF6FF",
     padding: 16,
     borderRadius: 12,
     marginBottom: 24,
     gap: 12,
   },
-  executionText: { color: "#1E3A8A", fontSize: 14, flex: 1, lineHeight: 20 },
+  executionText: { fontSize: 14, flex: 1, lineHeight: 20 },
 
   timelineContainer: { marginBottom: 16 },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
     marginBottom: 16,
   },
   timelineItem: {
@@ -303,54 +378,29 @@ const styles = StyleSheet.create({
     marginTop: 2,
     zIndex: 2,
   },
-  dotGreen: { backgroundColor: "#10B981" },
-  dotOrange: { backgroundColor: "#F97316" },
-  dotGray: { backgroundColor: "#E5E7EB" },
-  timelineLineActive: {
-    position: "absolute",
-    left: 7,
-    top: 18,
-    bottom: -24,
-    width: 2,
-    backgroundColor: "#10B981",
-    zIndex: 1,
-  },
-  timelineLineInactive: {
-    position: "absolute",
-    left: 7,
-    top: 18,
-    bottom: -24,
-    width: 2,
-    backgroundColor: "#E5E7EB",
-    zIndex: 1,
-  },
   timelineTextContainer: { marginLeft: 16, flex: 1 },
-  timelineTitle: { fontSize: 15, fontWeight: "600", color: "#111827" },
+  timelineTitle: { fontSize: 15, fontWeight: "600" },
 
-  // Estilos do Footer corrigidos
+  // Estilos do Footer
   footerInline: {
     marginTop: 24,
     gap: 12,
-    backgroundColor: "#FFFFFF",
   },
   primaryButton: {
     flexDirection: "row",
-    backgroundColor: "#F97316",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
-  primaryButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
+  primaryButtonText: { fontSize: 16, fontWeight: "700" },
   secondaryButton: {
-    backgroundColor: "#F9FAFB",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
   },
-  secondaryButtonText: { color: "#111827", fontSize: 16, fontWeight: "600" },
+  secondaryButtonText: { fontSize: 16, fontWeight: "600" },
 
   errorText: { color: "#EF4444", fontSize: 16, marginBottom: 16 },
   backButtonCenter: {

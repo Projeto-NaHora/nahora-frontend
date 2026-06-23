@@ -15,12 +15,24 @@ const borderLight = "#D9D9D9";
 const placeholderLight = "#CCCCCC";
 const onBrandLight = "#FAFAFA";
 const textSecondaryLight = "#9CA3AF";
+const surfaceAccentLight = "#FEF0E8";
+const surfaceRedLight = "#FCE8E8";
+const surfaceYellowLight = "#FEF3C7";
+const surfaceGreenLight = "#D1FAE5";
+const surfaceBlueLight = "#E6F0FF";
+const surfaceGrayLight = "#F3F4F6";
 
 const surfaceMutedDark = "#1E1E1E";
 const borderDark = "#3A3A3A";
 const placeholderDark = "#6D6D6D";
 const onBrandDark = "#FAFAFA";
 const textSecondaryDark = "#9BA1A6";
+const surfaceAccentDark = "#2A1A10";
+const surfaceRedDark = "#2A1515";
+const surfaceYellowDark = "#2A2510";
+const surfaceGreenDark = "#152A1A";
+const surfaceBlueDark = "#15202A";
+const surfaceGrayDark = "#2A2A2A";
 
 const chatLight = {
   brandOrange: "#f27b24",
@@ -73,6 +85,12 @@ export const Colors = {
     onBrand: onBrandLight,
     link: brandColor,
     chat: chatLight,
+    surfaceAccent: surfaceAccentLight,
+    surfaceRed: surfaceRedLight,
+    surfaceYellow: surfaceYellowLight,
+    surfaceGreen: surfaceGreenLight,
+    surfaceBlue: surfaceBlueLight,
+    surfaceGray: surfaceGrayLight,
   },
   dark: {
     text: "#ECEDEE",
@@ -92,6 +110,12 @@ export const Colors = {
     onBrand: onBrandDark,
     link: brandColor,
     chat: chatDark,
+    surfaceAccent: surfaceAccentDark,
+    surfaceRed: surfaceRedDark,
+    surfaceYellow: surfaceYellowDark,
+    surfaceGreen: surfaceGreenDark,
+    surfaceBlue: surfaceBlueDark,
+    surfaceGray: surfaceGrayDark,
   },
 };
 

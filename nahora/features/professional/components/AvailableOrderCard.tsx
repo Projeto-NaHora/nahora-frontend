@@ -1,5 +1,5 @@
 // features/professional/components/AvailableOrderCard.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -16,7 +16,7 @@ function formatDistance(km: number | null | undefined): string {
   return km.toFixed(1).replace(".", ",") + " km";
 }
 
-function formatTimeAgo(iso: string): string {
+function computeTimeAgo(iso: string): string {
   if (!iso) return "";
   const date = new Date(iso);
   if (isNaN(date.getTime())) return "";
@@ -31,6 +31,21 @@ function formatTimeAgo(iso: string): string {
   return `há ${diffD}d`;
 }
 
+function useRelativeTime(iso: string | undefined, intervalMs = 30000) {
+  const [label, setLabel] = useState(() => computeTimeAgo(iso ?? ""));
+
+  useEffect(() => {
+    if (!iso) return;
+    setLabel(computeTimeAgo(iso));
+    const timer = setInterval(() => {
+      setLabel(computeTimeAgo(iso));
+    }, intervalMs);
+    return () => clearInterval(timer);
+  }, [iso, intervalMs]);
+
+  return label;
+}
+
 export function AvailableOrderCard({
   pedido,
   onPress,
@@ -39,6 +54,7 @@ export function AvailableOrderCard({
   const colors = Colors[theme];
   const categoryLabel =
     CATEGORIA_LABEL[pedido.categoria] ?? pedido.categoria;
+  const timeAgo = useRelativeTime(pedido.criadoEm);
 
   return (
     <TouchableOpacity
@@ -50,51 +66,38 @@ export function AvailableOrderCard({
       <View style={styles.accentBar} />
 
       <View style={styles.content}>
-        {/* Top row: category + urgency badge */}
+        {/* Top row: category + client name */}
         <View style={styles.topRow}>
           <Text style={[styles.categoryTitle, { color: colors.textPrimary }]} numberOfLines={1}>
             {categoryLabel}
           </Text>
-          <View
-            style={[
-              styles.urgencyBadge,
-              {
-                backgroundColor: pedido.urgente ? "#FFF1E6" : "#FFF8CC",
-              },
-            ]}
-          >
-            <Text
-              style={[
-                styles.urgencyText,
-                { color: pedido.urgente ? "#E66A20" : "#D48806" },
-              ]}
-            >
-              {pedido.urgente ? "Urgente" : "Normal"}
-            </Text>
-          </View>
+          <Text style={[styles.clientName, { color: colors.textSecondary }]} numberOfLines={1}>
+            {pedido.nomeCliente ?? ""}
+          </Text>
         </View>
 
-        {/* Client + distance + time */}
+        {/* Distance + time */}
         <Text style={[styles.metaText, { color: colors.textSecondary }]}>
-          {pedido.clienteNome} · {formatDistance(pedido.distanciaKm)} ·{" "}
-          {formatTimeAgo(pedido.dataPublicacao)}
+          {formatDistance(pedido.distanciaKm)}{" "}
+          {pedido.criadoEm ? `· ${timeAgo}` : ""}
         </Text>
 
-        {/* Description */}
+        {/* Description (titulo) */}
         <Text style={[styles.description, { color: colors.textPrimary }]} numberOfLines={2}>
-          {pedido.descricao}
+          {pedido.titulo}
         </Text>
 
-        {/* Footer */}
+        {/* Footer: category pill + status */}
         <View style={styles.footer}>
           <View style={[styles.categoryPill, { borderColor: colors.border }]}>
             <Text style={styles.categoryIcon}>⚡</Text>
             <Text style={[styles.categoryPillText, { color: colors.textSecondary }]}>{categoryLabel}</Text>
           </View>
-          <Text style={[styles.proposalText, { color: colors.brand }]}>
-            {pedido.contadorPropostas}{" "}
-            {pedido.contadorPropostas === 1 ? "proposta" : "propostas"}
-          </Text>
+          {pedido.statusPedido === "ABERTO" && (
+            <View style={[styles.statusBadge, { backgroundColor: "#E8F5E9" }]}>
+              <Text style={[styles.statusText, { color: "#2E7D32" }]}>Aberto</Text>
+            </View>
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -134,15 +137,10 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
   },
-  urgencyBadge: {
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  urgencyText: {
-    fontSize: 11,
+  clientName: {
+    fontSize: 13,
     fontFamily: "Inter",
-    fontWeight: "700",
+    fontWeight: "500",
   },
   metaText: {
     fontSize: 13,
@@ -179,9 +177,14 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontWeight: "500",
   },
-  proposalText: {
-    fontSize: 13,
+  statusBadge: {
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  statusText: {
+    fontSize: 11,
     fontFamily: "Inter",
-    fontWeight: "500",
+    fontWeight: "700",
   },
 });

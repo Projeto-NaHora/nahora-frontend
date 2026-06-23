@@ -7,6 +7,7 @@ export interface PerfilProfissionalDTO {
   id: number;
   nome: string;
   foto?: string;
+  fotoPerfil?: string;
   profissao?: string;
   cep?: string;
   logradouro?: string;
@@ -66,6 +67,87 @@ export interface ProfileMenuItem {
   isDanger?: boolean;
 }
 
+/** Resposta da API GET /pedidos/historico/resumo */
+export interface HistoricoResumoResponse {
+  totalServicos: number;
+  totalPago: number;
+  mediaAvaliacoes: number;
+}
+
+/** Resposta da API GET /clientes/me */
+export interface ClientePerfilResponse {
+  nome: string;
+  email: string;
+  telefone: string;
+  foto: string | null;
+  cidade: string | null;
+}
+
+/** Request da API PUT /clientes/me */
+export interface ClientePerfilRequest {
+  nome: string;
+  email: string;
+  telefone: string;
+  foto?: string | null;
+}
+
+// ---- Endereços ----
+
+export type TipoEndereco = "CASA" | "TRABALHO" | "OUTRO";
+
+export interface EnderecoResponse {
+  id: number;
+  tipo: TipoEndereco;
+  apelido: string | null;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento: string | null;
+  bairro: string;
+  cidade: string;
+  uf: string;
+  padrao: boolean;
+}
+
+export interface EnderecoRequest {
+  tipo: TipoEndereco;
+  apelido?: string | null;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento?: string | null;
+  bairro: string;
+  cidade: string;
+  uf: string;
+}
+
+export const TIPO_ENDERECO_LABEL: Record<TipoEndereco, string> = {
+  CASA: "Casa",
+  TRABALHO: "Trabalho",
+  OUTRO: "Outro",
+};
+
+// ---- Configurações ----
+
+export interface PreferenciasNotificacao {
+  notificacoesPush: boolean;
+  mensagensWhatsapp: boolean;
+  emailsPromocionais: boolean;
+}
+
+export interface AtualizarSenhaRequest {
+  senhaAtual: string;
+  senhaNova: string;
+  confirmacaoNovaSenha: string;
+}
+
+/** Resposta da API GET /profissionais/historico/resumo */
+export interface HistoricoProfissionalResumoResponse {
+  totalServicos: number;
+  totalRecebido: string; // BigDecimal serializado como string
+  mediaAvaliacoes: number;
+}
+
 /** Resposta da API GET /profissionais/me */
 export interface ProfessionalProfileResponse {
   id: number;
@@ -83,5 +165,4 @@ export interface ProfessionalProfileResponse {
   anosExperiencia?: number;
   statusVerificacao?: StatusVerificacao;
 }
-
 
