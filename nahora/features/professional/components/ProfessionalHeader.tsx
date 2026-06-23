@@ -35,7 +35,9 @@ export function ProfessionalHeader() {
           style={styles.notifButton}
           activeOpacity={0.7}
           onPress={() => router.push("/(professional)/(home)/notifications")}
-          >
+        >
+          <Text style={styles.bellIcon}>🔔</Text>
+          <View style={styles.notifBadge} />
         </TouchableOpacity>
       </View>
 

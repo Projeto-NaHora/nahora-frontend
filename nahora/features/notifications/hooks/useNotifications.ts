@@ -1,8 +1,8 @@
 // features/notifications/hooks/useNotifications.ts
 import { useCallback, useMemo } from "react";
-import useSWR, { mutate } from "swr";
-import { useRouter } from "expo-router";
 import { Alert } from "react-native";
+import { useRouter } from "expo-router";
+import useSWR, { mutate } from "swr";
 
 import { notificationService } from "../service";
 import type { NotificacaoDTO, NotificacoesAgrupadas } from "../types";
