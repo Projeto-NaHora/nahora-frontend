@@ -12,14 +12,14 @@ export function mapRawToProposta(raw: PropostaResponseRaw): Proposta {
       foto: raw.profissionalFotoUrl,
       notaMedia: raw.notaMedia ?? 0,
       totalAvaliacoes: raw.numeroAvaliacoes ?? 0,
-      totalServicosExecutados: raw.totalServicosExecutados ?? 0,
-      distancia: raw.distancia,
+      totalServicosExecutados: raw.totalServicosExecutados ?? raw.numeroServicosRealizados ?? 0,
+      distancia: raw.distancia ?? raw.distanciaKm,
       localidade: raw.localidade,
       especialidades: raw.especialidades,
       disponivel: true,
     },
-    valor: raw.valor ?? raw.valorOferecido ?? 0,
-    descricao: raw.descricao,
+    valor: raw.valorProposto ?? raw.valor ?? raw.valorOferecido ?? 0,
+    descricao: raw.mensagem ?? raw.descricao,
     tempoEstimado: raw.tempoEstimado,
     status: raw.status,
     expiraEm: raw.expiraEm,
@@ -51,6 +51,6 @@ export const proposalsService = {
   },
 
   recusar: async (pedidoId: number, propostaId: number): Promise<void> => {
-    await api.post(ENDPOINTS.RECUSAR_PROPOSTA(pedidoId, propostaId));
+    await api.patch(ENDPOINTS.RECUSAR_PROPOSTA(pedidoId, propostaId));
   },
 };
