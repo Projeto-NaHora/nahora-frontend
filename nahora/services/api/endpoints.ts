@@ -91,6 +91,11 @@ export const ENDPOINTS = {
   CLIENTE_ENDERECO: (id: number) => `/clientes/enderecos/${id}`,
   CLIENTE_ENDERECO_PADRAO: (id: number) => `/clientes/enderecos/${id}/padrao`,
 
+  // Endereços do profissional
+  PROFISSIONAIS_ENDERECOS: "/profissionais/enderecos",
+  PROFISSIONAL_ENDERECO: (id: number) => `/profissionais/enderecos/${id}`,
+  PROFISSIONAL_ENDERECO_PADRAO: (id: number) => `/profissionais/enderecos/${id}/padrao`,
+
   // Configurações da conta
   USUARIOS_PREFERENCIAS: "/usuarios/preferencias",
   USUARIOS_SENHA: "/usuarios/senha",

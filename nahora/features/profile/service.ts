@@ -112,6 +112,45 @@ export const profileService = {
     await api.delete(ENDPOINTS.CLIENTE_ENDERECO(id));
   },
 
+  // ---- Endereços (Profissional) ----
+
+  listarEnderecosProfissional: async (): Promise<EnderecoResponse[]> => {
+    const { data } = await api.get<EnderecoResponse[]>(
+      ENDPOINTS.PROFISSIONAIS_ENDERECOS,
+    );
+    return data;
+  },
+
+  criarEnderecoProfissional: async (payload: EnderecoRequest): Promise<EnderecoResponse> => {
+    const { data } = await api.post<EnderecoResponse>(
+      ENDPOINTS.PROFISSIONAIS_ENDERECOS,
+      payload,
+    );
+    return data;
+  },
+
+  editarEnderecoProfissional: async (
+    id: number,
+    payload: EnderecoRequest,
+  ): Promise<EnderecoResponse> => {
+    const { data } = await api.put<EnderecoResponse>(
+      ENDPOINTS.PROFISSIONAL_ENDERECO(id),
+      payload,
+    );
+    return data;
+  },
+
+  definirEnderecoPadraoProfissional: async (id: number): Promise<EnderecoResponse> => {
+    const { data } = await api.patch<EnderecoResponse>(
+      ENDPOINTS.PROFISSIONAL_ENDERECO_PADRAO(id),
+    );
+    return data;
+  },
+
+  deletarEnderecoProfissional: async (id: number): Promise<void> => {
+    await api.delete(ENDPOINTS.PROFISSIONAL_ENDERECO(id));
+  },
+
   // ---- Configurações ----
   buscarPreferencias: async (): Promise<PreferenciasNotificacao> => {
     const { data } = await api.get<PreferenciasNotificacao>(
