@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -135,8 +135,16 @@ export function useCreateOrderForm(editId?: number) {
   const editIdNum = editId ?? 0;
   const { data: existingOrder } = useOrderDetail(editIdNum);
 
+  // Ref para evitar que o reset() seja chamado multiplas vezes
+  // quando o SWR revalida o existingOrder (ex.: ao focar a tela)
+  const initializedEditId = useRef<number | undefined>(undefined);
+
   useEffect(() => {
     if (!editId || !existingOrder) return;
+
+    // Só inicializa o formulário uma vez por editId
+    if (initializedEditId.current === editId) return;
+    initializedEditId.current = editId;
 
     const turno = getTurnoKey(existingOrder.dataDesejada) ?? "MANHA";
 
@@ -198,19 +206,27 @@ export function useCreateOrderForm(editId?: number) {
     };
   }, [cepValue, enderecoDiferente]);
 
-  /** Data desejada = 1 semana a partir de hoje + hora do turno */
-  const buildDataDesejada = useCallback((turno: string): string => {
+  /** Data desejada: preserva a data original na edicao, alterando apenas o horario do turno */
+  const buildDataDesejada = useCallback((turno: string, dataOriginal?: string): string => {
     const horaMap: Record<string, string> = {
       MANHA: "08:00:00",
       TARDE: "14:00:00",
       NOITE: "19:00:00",
     };
+    const hora = horaMap[turno] ?? "08:00:00";
+
+    // Na edicao, preserva a data original, trocando apenas o horario
+    if (editId && dataOriginal) {
+      const data = dataOriginal.slice(0, 10); // "YYYY-MM-DD"
+      return `${data}T${hora}`;
+    }
+
+    // Na criacao, usa 1 semana a partir de hoje
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
     const data = nextWeek.toISOString().slice(0, 10);
-    const hora = horaMap[turno] ?? "08:00:00";
     return `${data}T${hora}`;
-  }, []);
+  }, [editId]);
 
   const onSubmit = useCallback(
     async (data: CriarPedidoFormValues) => {
@@ -254,8 +270,9 @@ export function useCreateOrderForm(editId?: number) {
           enderecoId = defaultAddress.id;
         }
 
-        // 3. Monta dataDesejada = 1 semana a partir de hoje + turno
-        const dataDesejada = buildDataDesejada(data.turno);
+        // 3. Monta dataDesejada
+        // Na edicao, preserva a data original; na criacao, usa 1 semana a partir de hoje
+        const dataDesejada = buildDataDesejada(data.turno, existingOrder?.dataDesejada);
 
         const payload = {
           categoria: data.categoria as CategoriaServico,
@@ -283,9 +300,25 @@ export function useCreateOrderForm(editId?: number) {
       } catch (error) {
         const parsed = parseApiError(
           error,
-          "Erro ao salvar pedido. Tente novamente.",
+          editId
+            ? "Erro ao salvar pedido. Tente novamente."
+            : "Erro ao criar pedido. Tente novamente.",
         );
-        setErrorMessage(parsed.message);
+
+        // Mensagem mais especifica baseada no status code
+        let mensagem = parsed.message;
+        if (!parsed.fieldErrors || Object.keys(parsed.fieldErrors).length === 0) {
+          if (parsed.statusCode === 400) {
+            mensagem = parsed.message || "Dados inválidos. Verifique os campos e tente novamente.";
+          } else if (parsed.statusCode === 422) {
+            mensagem = parsed.message || "Não foi possível processar o pedido. Verifique os dados.";
+          } else if (parsed.statusCode === 500) {
+            mensagem = "Erro interno do servidor. Tente novamente mais tarde.";
+          } else if (parsed.statusCode === undefined) {
+            mensagem = "Erro de conexão. Verifique sua internet e tente novamente.";
+          }
+        }
+        setErrorMessage(mensagem);
 
         for (const [field, message] of Object.entries(parsed.fieldErrors)) {
           if (field in form.getValues()) {
