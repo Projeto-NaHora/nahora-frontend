@@ -135,7 +135,7 @@ export default function Screen() {
             <NotificationRow
               icon="bubble.left.and.bubble.right.fill"
               title="Notificações por WhatsApp"
-              subtitle="Contatos dos clientes"
+              subtitle="Contato direto com clientes"
               value={prefs?.mensagensWhatsapp ?? false}
               onToggle={(v) => togglePref("mensagensWhatsapp", v)}
               colors={colors}

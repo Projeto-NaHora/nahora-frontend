@@ -14,6 +14,7 @@ interface EditProfileState {
   estado: string;
   raioAtuacaoKm: string;
   about: string;
+  cpf: string;
   especialidades: string[];
   portfolioPhotos: string[];
   categorias: string[];
@@ -36,6 +37,7 @@ interface EditProfileActions {
   setCidade: (v: string) => void;
   setEstado: (v: string) => void;
   setRaioAtuacaoKm: (v: string) => void;
+  setCpf: (v: string) => void;
   setAbout: (v: string) => void;
   setEspecialidades: (v: string[]) => void;
   setCategorias: (v: string[]) => void;
@@ -63,6 +65,7 @@ const initialState: EditProfileState = {
   estado: "",
   raioAtuacaoKm: "",
   about: "",
+  cpf: "",
   especialidades: [],
   portfolioPhotos: [],
   categorias: [],
@@ -87,6 +90,7 @@ export const useEditProfileStore = create<EditProfileState & EditProfileActions>
     setCidade: (v) => set({ cidade: v }),
     setEstado: (v) => set({ estado: v }),
     setRaioAtuacaoKm: (v) => set({ raioAtuacaoKm: v }),
+    setCpf: (v) => set({ cpf: v }),
     setAbout: (v) => set({ about: v }),
     setEspecialidades: (v) => set({ especialidades: v }),
     setCategorias: (v) => set({ categorias: v }),

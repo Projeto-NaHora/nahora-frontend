@@ -11,11 +11,12 @@ import {
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
-import { formatCep } from "@/utils/formatters";
+import { formatCep, formatCpf } from "@/utils/formatters";
 import { ProfileStepIndicator } from "./ProfileStepIndicator";
 
 type Profile1ContentProps = {
   nome: string;
+  cpf: string;
   cargo: string;
   experienceYears: string;
   profilePhotoUri: string | null;
@@ -29,6 +30,7 @@ type Profile1ContentProps = {
   raioAtuacaoKm: string;
   cepLoading: boolean;
   onChangeNome: (value: string) => void;
+  onChangeCpf: (value: string) => void;
   onChangeCargo: (value: string) => void;
   onChangeExperienceYears: (value: string) => void;
   onChangeCep: (value: string) => void;
@@ -47,6 +49,7 @@ type Profile1ContentProps = {
 
 type TouchedFields = {
   nome: boolean;
+  cpf: boolean;
   cargo: boolean;
   cep: boolean;
   logradouro: boolean;
@@ -74,6 +77,7 @@ export function Profile1Content({
   raioAtuacaoKm,
   cepLoading,
   onChangeNome,
+  onChangeCpf,
   onChangeCargo,
   onChangeExperienceYears,
   onChangeCep,
@@ -94,6 +98,7 @@ export function Profile1Content({
 
   const [touched, setTouched] = useState<TouchedFields>({
     nome: false,
+    cpf: false,
     cargo: false,
     cep: false,
     logradouro: false,
@@ -109,6 +114,7 @@ export function Profile1Content({
     setTouched((prev) => ({ ...prev, [field]: true }));
   }, []);
 
+  const isCpfValid = cpf.replace(/\D/g, "").length === 11;
   const isCargoValid = cargo.trim().length >= 4;
   const isCepValid = cep.replace(/\D/g, "").length === 8;
   const isLogradouroValid = logradouro.trim().length >= 3;
@@ -128,6 +134,7 @@ export function Profile1Content({
   const isNomeValid = (nome ?? "").trim().length >= 3;
   const isValid =
     isNomeValid &&
+    isCpfValid &&
     isCargoValid &&
     isCepValid &&
     isAddressValid &&
@@ -137,6 +144,10 @@ export function Profile1Content({
   const fieldBorder = (field: keyof TouchedFields, valid: boolean) => {
     if (!touched[field]) return colors.border;
     return valid ? colors.border : (colors.error ?? "#dc2626");
+  };
+
+  const handleCpfChange = (text: string) => {
+    onChangeCpf(text.replace(/\D/g, "").slice(0, 11));
   };
 
   const handleCepChange = (text: string) => {
@@ -233,6 +244,41 @@ export function Profile1Content({
               style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}
             >
               Mínimo 3 caracteres
+            </Text>
+          )}
+        </View>
+
+        <View style={styles.fieldGroup}>
+          <Text style={[styles.label, { color: colors.textPrimary }]}>
+            CPF
+          </Text>
+          <View style={styles.inputWrapper}>
+            <View style={styles.inputIconContainer}>
+              <Text style={styles.inputIcon}>🪪</Text>
+            </View>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  color: colors.textPrimary,
+                  backgroundColor: colors.surface,
+                  borderColor: fieldBorder("cpf", isCpfValid),
+                },
+              ]}
+              placeholder="000.000.000-00"
+              placeholderTextColor={colors.placeholder}
+              value={formatCpf(cpf)}
+              onChangeText={handleCpfChange}
+              onBlur={() => touch("cpf")}
+              keyboardType="number-pad"
+              maxLength={14}
+            />
+          </View>
+          {touched.cpf && !isCpfValid && (
+            <Text
+              style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}
+            >
+              CPF deve ter 11 dígitos
             </Text>
           )}
         </View>

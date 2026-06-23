@@ -38,6 +38,7 @@ type RegisterState = {
   latitude: number | null;
   longitude: number | null;
   raioAtuacaoKm: string;
+  nome: string;
   // Profile step 2 — Specialties
   about: string;
   especialidades: string[];
@@ -70,6 +71,7 @@ type RegisterState = {
   setLatitude: (latitude: number | null) => void;
   setLongitude: (longitude: number | null) => void;
   setRaioAtuacaoKm: (raioAtuacaoKm: string) => void;
+  setNome: (nome: string) => void;
   setAbout: (about: string) => void;
   setEspecialidades: (tags: string[]) => void;
   addPortfolioPhoto: (uri: string) => void;
@@ -106,6 +108,7 @@ const initialState = {
   latitude: null,
   longitude: null,
   raioAtuacaoKm: "",
+  nome: "",
   about: "",
   especialidades: [],
   portfolioPhotos: [],
@@ -140,6 +143,7 @@ export const useRegisterStore = create<RegisterState>((set) => ({
   setLatitude: (latitude) => set({ latitude }),
   setLongitude: (longitude) => set({ longitude }),
   setRaioAtuacaoKm: (raioAtuacaoKm) => set({ raioAtuacaoKm }),
+  setNome: (nome) => set({ nome }),
   setAbout: (about) => set({ about }),
   setEspecialidades: (especialidades) => set({ especialidades }),
   addPortfolioPhoto: (uri) =>

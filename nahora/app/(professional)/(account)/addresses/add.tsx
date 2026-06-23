@@ -5,12 +5,12 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
 } from "react-native";
-import { router } from "expo-router";
-import useSWR, { mutate } from "swr";
+import { useLocalSearchParams, router } from "expo-router";
 
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -18,40 +18,65 @@ import { Colors, Fonts } from "@/constants/theme";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { buscarCep } from "@/services/cep";
 import { profileService } from "@/features/profile/service";
-import type { PerfilProfissionalDTO } from "@/features/profile/types";
+import type {
+  EnderecoResponse,
+  EnderecoRequest,
+  TipoEndereco,
+} from "@/features/profile/types";
+import { TIPO_ENDERECO_LABEL } from "@/features/profile/types";
+import useSWR from "swr";
+
+const TIPO_OPTIONS: { value: TipoEndereco; label: string }[] = [
+  { value: "CASA", label: "Casa" },
+  { value: "TRABALHO", label: "Trabalho" },
+  { value: "OUTRO", label: "Outro" },
+];
 
 export default function AddScreen() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const isEditing = !!id;
+  const editId = id ? Number(id) : undefined;
 
-  const { data: profile } = useSWR<PerfilProfissionalDTO>(
-    "perfil-profissional",
-    () => profileService.buscarPerfilParaEdicao(),
+  // Fetch existing address if editing
+  const { data: addresses } = useSWR<EnderecoResponse[]>(
+    isEditing ? "enderecos-profissional" : null,
+    () => profileService.listarEnderecosProfissional(),
   );
 
+  const existingAddress = isEditing
+    ? addresses?.find((a) => a.id === editId)
+    : undefined;
+
+  const [tipo, setTipo] = useState<TipoEndereco>("CASA");
   const [cep, setCep] = useState("");
   const [logradouro, setLogradouro] = useState("");
   const [numero, setNumero] = useState("");
   const [complemento, setComplemento] = useState("");
   const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
-  const [estado, setEstado] = useState("");
+  const [uf, setUf] = useState("");
+  const [padrao, setPadrao] = useState(false);
   const [cepBuscando, setCepBuscando] = useState(false);
   const [saving, setSaving] = useState(false);
+
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (profile && !loaded) {
-      setCep(profile.cep ?? "");
-      setLogradouro(profile.logradouro ?? "");
-      setNumero(profile.numero ?? "");
-      setComplemento(profile.complemento ?? "");
-      setBairro(profile.bairro ?? "");
-      setCidade(profile.cidade ?? "");
-      setEstado(profile.estado ?? "");
+    if (existingAddress && !loaded) {
+      setTipo(existingAddress.tipo);
+      setCep(existingAddress.cep);
+      setLogradouro(existingAddress.logradouro ?? "");
+      setNumero(existingAddress.numero ?? "");
+      setComplemento(existingAddress.complemento ?? "");
+      setBairro(existingAddress.bairro ?? "");
+      setCidade(existingAddress.cidade ?? "");
+      setUf(existingAddress.uf ?? "");
+      setPadrao(existingAddress.padrao ?? false);
       setLoaded(true);
     }
-  }, [profile, loaded]);
+  }, [existingAddress, loaded]);
 
   const handleCepBlur = useCallback(async () => {
     const digits = cep.replace(/\D/g, "");
@@ -64,7 +89,7 @@ export default function AddScreen() {
         setLogradouro(result.logradouro ?? "");
         setBairro(result.bairro ?? "");
         setCidade(result.cidade ?? "");
-        setEstado(result.estado ?? "");
+        setUf(result.estado ?? "");
       }
     } catch {
       // Silently ignore CEP lookup errors
@@ -82,21 +107,26 @@ export default function AddScreen() {
   }, []);
 
   const handleSave = useCallback(async () => {
+    const payload: EnderecoRequest = {
+      tipo,
+      cep: cep.replace(/\D/g, ""),
+      logradouro,
+      numero,
+      complemento: complemento || null,
+      bairro,
+      cidade,
+      uf,
+    };
+
     setSaving(true);
     try {
-      await profileService.salvarPerfil({
-        cep: cep.replace(/\D/g, "") || undefined,
-        logradouro: logradouro || undefined,
-        numero: numero || undefined,
-        complemento: complemento || undefined,
-        bairro: bairro || undefined,
-        cidade: cidade || undefined,
-        estado: estado || undefined,
-      });
-
-      // Invalidate caches so the address list + profile pick up the new address
-      await mutate("perfil-profissional");
-
+      if (isEditing && editId) {
+        await profileService.editarEnderecoProfissional(editId, payload);
+        if (padrao) await profileService.definirEnderecoPadraoProfissional(editId);
+      } else {
+        const created = await profileService.criarEnderecoProfissional(payload);
+        if (padrao) await profileService.definirEnderecoPadraoProfissional(created.id);
+      }
       Alert.alert("Sucesso", "Endereço salvo com sucesso.", [
         { text: "OK", onPress: () => router.back() },
       ]);
@@ -108,15 +138,9 @@ export default function AddScreen() {
     } finally {
       setSaving(false);
     }
-  }, [cep, logradouro, numero, complemento, bairro, cidade, estado]);
+  }, [tipo, cep, logradouro, numero, complemento, bairro, cidade, uf, padrao, isEditing, editId]);
 
-  const isValid =
-    cep.replace(/\D/g, "").length === 8 &&
-    logradouro &&
-    numero &&
-    bairro &&
-    cidade &&
-    estado;
+  const isValid = cep.replace(/\D/g, "").length === 8 && logradouro && numero && bairro && cidade && uf;
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -134,13 +158,13 @@ export default function AddScreen() {
         </Pressable>
 
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-          Editar endereço
+          {isEditing ? "Editar endereço" : "Adicionar novo endereço"}
         </Text>
 
         <View style={styles.headerSpacer} />
       </View>
 
-      {!profile && !loaded ? (
+      {isEditing && !existingAddress && !loaded ? (
         <View style={[styles.centered, { backgroundColor: colors.background }]}>
           <ActivityIndicator size="large" color={colors.brand} />
         </View>
@@ -311,8 +335,8 @@ export default function AddScreen() {
               >
                 <TextInput
                   style={styles.input}
-                  value={estado}
-                  onChangeText={(t) => setEstado(t.toUpperCase().slice(0, 2))}
+                  value={uf}
+                  onChangeText={(t) => setUf(t.toUpperCase().slice(0, 2))}
                   placeholder="UF"
                   placeholderTextColor="#8c8c8c"
                   maxLength={2}
@@ -320,6 +344,77 @@ export default function AddScreen() {
                 />
               </View>
             </View>
+          </View>
+
+          {/* Tipo de endereço */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Tipo de endereço</Text>
+            <View style={styles.tipoRow}>
+              {TIPO_OPTIONS.map((opt) => {
+                const selected = tipo === opt.value;
+                return (
+                  <Pressable
+                    key={opt.value}
+                    onPress={() => setTipo(opt.value)}
+                    style={({ pressed }) => [
+                      styles.tipoPill,
+                      {
+                        backgroundColor: selected
+                          ? "#fff2e5"
+                          : colors.background,
+                        borderColor: selected ? "#fad3bc" : "#eaeaea",
+                      },
+                      pressed && styles.tipoPillPressed,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.tipoPillText,
+                        {
+                          color: selected ? "#e67215" : "#8c8c8c",
+                        },
+                      ]}
+                    >
+                      {opt.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* Tornar padrão */}
+          <View
+            style={[
+              styles.padraoCard,
+              {
+                backgroundColor: colors.background,
+                borderColor: "#eaeaea",
+              },
+            ]}
+          >
+            <View style={styles.padraoContent}>
+              <Text
+                style={[styles.padraoTitle, { color: colors.textPrimary }]}
+              >
+                Tornar endereço padrão
+              </Text>
+              <Text
+                style={[
+                  styles.padraoDescription,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                Usar este endereço automaticamente nas{"\n"}
+                próximas buscas
+              </Text>
+            </View>
+            <Switch
+              value={padrao}
+              onValueChange={setPadrao}
+              trackColor={{ false: "#d1d5db", true: "#f27b24" }}
+              thumbColor="#ffffff"
+            />
           </View>
         </ScrollView>
       )}
@@ -460,6 +555,59 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     gap: 16,
+  },
+
+  // Tipo
+  tipoRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  tipoPill: {
+    flex: 1,
+    borderRadius: 9999,
+    height: 44,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tipoPillPressed: {
+    opacity: 0.7,
+  },
+  tipoPillText: {
+    fontFamily: Fonts?.sans,
+    fontSize: 14,
+    fontWeight: "700",
+    lineHeight: 21,
+  },
+
+  // Padrão toggle
+  padraoCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  padraoContent: {
+    flex: 1,
+    gap: 4,
+  },
+  padraoTitle: {
+    fontFamily: Fonts?.sans,
+    fontSize: 15,
+    fontWeight: "700",
+    lineHeight: 22.5,
+  },
+  padraoDescription: {
+    fontFamily: Fonts?.sans,
+    fontSize: 13,
+    fontWeight: "400",
+    lineHeight: 19.5,
   },
 
   // Bottom bar

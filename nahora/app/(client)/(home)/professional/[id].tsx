@@ -156,8 +156,8 @@ export default function ProfessionalProfileScreen() {
     biografia:
       profileData.sobreDescricao ||
       "Este profissional ainda não adicionou uma biografia.",
-    avatarUrl: profileData.foto || null,
-    portfolio: profileData.portfolioFotos || [],
+    avatarUrl: profileData.foto || profileData.fotoPerfil || null,
+    portfolio: profileData.portfolioFotos || profileData.portfolio || [],
     totalPortfolio: profileData.totalPortfolioFotos || 0,
   };
 

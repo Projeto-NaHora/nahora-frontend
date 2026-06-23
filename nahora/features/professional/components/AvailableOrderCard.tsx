@@ -1,5 +1,5 @@
 // features/professional/components/AvailableOrderCard.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -16,7 +16,7 @@ function formatDistance(km: number | null | undefined): string {
   return km.toFixed(1).replace(".", ",") + " km";
 }
 
-function formatTimeAgo(iso: string): string {
+function computeTimeAgo(iso: string): string {
   if (!iso) return "";
   const date = new Date(iso);
   if (isNaN(date.getTime())) return "";
@@ -31,6 +31,21 @@ function formatTimeAgo(iso: string): string {
   return `há ${diffD}d`;
 }
 
+function useRelativeTime(iso: string | undefined, intervalMs = 30000) {
+  const [label, setLabel] = useState(() => computeTimeAgo(iso ?? ""));
+
+  useEffect(() => {
+    if (!iso) return;
+    setLabel(computeTimeAgo(iso));
+    const timer = setInterval(() => {
+      setLabel(computeTimeAgo(iso));
+    }, intervalMs);
+    return () => clearInterval(timer);
+  }, [iso, intervalMs]);
+
+  return label;
+}
+
 export function AvailableOrderCard({
   pedido,
   onPress,
@@ -39,6 +54,7 @@ export function AvailableOrderCard({
   const colors = Colors[theme];
   const categoryLabel =
     CATEGORIA_LABEL[pedido.categoria] ?? pedido.categoria;
+  const timeAgo = useRelativeTime(pedido.criadoEm);
 
   return (
     <TouchableOpacity
@@ -63,7 +79,7 @@ export function AvailableOrderCard({
         {/* Distance + time */}
         <Text style={[styles.metaText, { color: colors.textSecondary }]}>
           {formatDistance(pedido.distanciaKm)}{" "}
-          {pedido.criadoEm ? `· ${formatTimeAgo(pedido.criadoEm)}` : ""}
+          {pedido.criadoEm ? `· ${timeAgo}` : ""}
         </Text>
 
         {/* Description (titulo) */}

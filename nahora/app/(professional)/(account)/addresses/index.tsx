@@ -1,8 +1,9 @@
-import React, { useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   ActivityIndicator,
+  Alert,
+  FlatList,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -15,39 +16,103 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors, Fonts } from "@/constants/theme";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { profileService } from "@/features/profile/service";
-import type { PerfilProfissionalDTO } from "@/features/profile/types";
+import type { EnderecoResponse } from "@/features/profile/types";
+import { TIPO_ENDERECO_LABEL } from "@/features/profile/types";
 
-function formatAddressLine(profile: PerfilProfissionalDTO): string {
-  const parts = [profile.logradouro, profile.numero];
-  if (profile.complemento) parts.push(profile.complemento);
-  return parts.filter(Boolean).join(", ");
-}
-
-function formatNeighborhood(profile: PerfilProfissionalDTO): string {
-  const parts = [profile.bairro, profile.cidade, profile.estado];
-  return parts.filter(Boolean).join(", ");
-}
-
-function hasAddress(profile: PerfilProfissionalDTO): boolean {
-  return !!(profile.cep || profile.logradouro || profile.cidade);
+function formatAddressLine(end: EnderecoResponse): string {
+  const parts = [end.logradouro, end.numero];
+  if (end.complemento) parts.push(end.complemento);
+  return parts.join(", ");
 }
 
 export default function Screen() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
+  const [refreshing, setRefreshing] = useState(false);
 
   const {
-    data: profile,
+    data: addresses,
     isLoading,
     error,
     mutate,
-  } = useSWR<PerfilProfissionalDTO>("perfil-profissional", () =>
-    profileService.buscarPerfilParaEdicao(),
+  } = useSWR<EnderecoResponse[]>("enderecos-profissional", () =>
+    profileService.listarEnderecosProfissional(),
   );
 
-  const handleEdit = useCallback(() => {
-    router.push("/(professional)/(account)/addresses/add");
-  }, []);
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await mutate();
+    setRefreshing(false);
+  }, [mutate]);
+
+  const showActions = useCallback(
+    (endereco: EnderecoResponse) => {
+      Alert.alert(
+        TIPO_ENDERECO_LABEL[endereco.tipo] ?? endereco.apelido ?? "Endereço",
+        undefined,
+        [
+          {
+            text: "Editar",
+            onPress: () =>
+              router.push(
+                `/(professional)/(account)/addresses/add?id=${endereco.id}`,
+              ),
+          },
+          ...(endereco.padrao
+            ? []
+            : [
+                {
+                  text: "Tornar padrão",
+                  onPress: async () => {
+                    try {
+                      await profileService.definirEnderecoPadraoProfissional(endereco.id);
+                      mutate();
+                    } catch (err: any) {
+                      Alert.alert(
+                        "Erro",
+                        getApiErrorMessage(err, "Não foi possível alterar."),
+                      );
+                    }
+                  },
+                },
+              ] as any),
+          {
+            text: "Excluir",
+            style: "destructive" as const,
+            onPress: () => {
+              Alert.alert(
+                "Excluir endereço",
+                "Tem certeza que deseja excluir este endereço?",
+                [
+                  { text: "Cancelar", style: "cancel" },
+                  {
+                    text: "Excluir",
+                    style: "destructive",
+                    onPress: async () => {
+                      try {
+                        await profileService.deletarEnderecoProfissional(endereco.id);
+                        mutate();
+                      } catch (err: any) {
+                        Alert.alert(
+                          "Erro",
+                          getApiErrorMessage(
+                            err,
+                            "Não foi possível excluir.",
+                          ),
+                        );
+                      }
+                    },
+                  },
+                ],
+              );
+            },
+          },
+          { text: "Cancelar", style: "cancel" },
+        ],
+      );
+    },
+    [mutate],
+  );
 
   if (isLoading) {
     return (
@@ -58,7 +123,7 @@ export default function Screen() {
   }
 
   if (error) {
-    console.error("[PA01] Erro ao carregar perfil:", error);
+    console.error("[A01] Erro ao carregar endereços:", error);
     const mensagem = getApiErrorMessage(
       error,
       "Erro de conexão com o servidor",
@@ -67,7 +132,7 @@ export default function Screen() {
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
         <Text style={[styles.errorIcon]}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
-          Não foi possível carregar seu endereço
+          Não foi possível carregar seus endereços
         </Text>
         <Text style={[styles.errorDetail, { color: colors.textSecondary }]}>
           {mensagem}
@@ -88,8 +153,6 @@ export default function Screen() {
     );
   }
 
-  const addressExists = profile ? hasAddress(profile) : false;
-
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       {/* Header */}
@@ -106,137 +169,145 @@ export default function Screen() {
         </Pressable>
 
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-          Endereço de atendimento
+          Endereços salvos
         </Text>
 
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Endereço de atendimento</Text>
-        </View>
+      <FlatList
+        data={addresses ?? []}
+        keyExtractor={(item) => String(item.id)}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
+        ListHeaderComponent={
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Endereços salvos</Text>
+          </View>
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+              Nenhum endereço salvo
+            </Text>
+          </View>
+        }
+        renderItem={({ item }) => {
+          const title =
+            item.tipo === "OUTRO" && item.apelido
+              ? item.apelido
+              : TIPO_ENDERECO_LABEL[item.tipo] ?? item.tipo;
+          return (
+            <View style={styles.cardWrapper}>
+              <View
+                style={[
+                  styles.card,
+                  {
+                    backgroundColor: colors.background,
+                    borderColor: "#eaeaea",
+                  },
+                ]}
+              >
+                {/* Left icon */}
+                <View style={styles.cardIcon}>
+                  <IconSymbol
+                    name="location-on"
+                    size={20}
+                    color="#f27b24"
+                  />
+                </View>
 
-        {addressExists && profile ? (
-          <View style={styles.cardWrapper}>
-            <View
-              style={[
-                styles.card,
+                {/* Content */}
+                <View style={styles.cardContent}>
+                  {/* Title row */}
+                  <View style={styles.cardTitleRow}>
+                    <View style={styles.cardTitleLeft}>
+                      <Text
+                        style={[
+                          styles.cardTitle,
+                          { color: colors.textPrimary },
+                        ]}
+                      >
+                        {title}
+                      </Text>
+                      {item.padrao && (
+                        <View style={styles.padraoBadge}>
+                          <Text style={styles.padraoBadgeText}>PADRÃO</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    <Pressable
+                      onPress={() => showActions(item)}
+                      hitSlop={8}
+                      style={styles.menuButton}
+                    >
+                      <IconSymbol
+                        name="edit"
+                        size={18}
+                        color="#8c8c8c"
+                      />
+                    </Pressable>
+                  </View>
+
+                  {/* Address line */}
+                  <Text
+                    style={[
+                      styles.addressLine,
+                      { color: colors.textSecondary },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {formatAddressLine(item)}
+                  </Text>
+
+                  {/* Neighborhood / city */}
+                  <Text
+                    style={[
+                      styles.neighborhoodLine,
+                      { color: "rgba(140,140,140,0.8)" },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {item.bairro}, {item.cidade} - {item.uf}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          );
+        }}
+        ListFooterComponent={
+          <View style={styles.footerSection}>
+            <View style={styles.footerBorder} />
+            <Pressable
+              onPress={() =>
+                router.push("/(professional)/(account)/addresses/add")
+              }
+              style={({ pressed }) => [
+                styles.addButton,
                 {
                   backgroundColor: colors.background,
                   borderColor: "#eaeaea",
                 },
+                pressed && styles.addButtonPressed,
               ]}
             >
-              {/* Left icon */}
-              <View style={styles.cardIcon}>
+              <View style={styles.addIconWrapper}>
                 <IconSymbol
                   name="location-on"
                   size={20}
-                  color="#f27b24"
+                  color="#e67215"
                 />
               </View>
-
-              {/* Content */}
-              <View style={styles.cardContent}>
-                {/* Title row */}
-                <View style={styles.cardTitleRow}>
-                  <Text
-                    style={[
-                      styles.cardTitle,
-                      { color: colors.textPrimary },
-                    ]}
-                  >
-                    {profile.profissao ?? "Endereço"}
-                  </Text>
-
-                  <Pressable
-                    onPress={handleEdit}
-                    hitSlop={8}
-                    style={styles.menuButton}
-                  >
-                    <IconSymbol
-                      name="edit"
-                      size={18}
-                      color="#8c8c8c"
-                    />
-                  </Pressable>
-                </View>
-
-                {/* Address line */}
-                <Text
-                  style={[
-                    styles.addressLine,
-                    { color: colors.textSecondary },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {formatAddressLine(profile)}
-                </Text>
-
-                {/* Neighborhood / city */}
-                <Text
-                  style={[
-                    styles.neighborhoodLine,
-                    { color: "rgba(140,140,140,0.8)" },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {formatNeighborhood(profile)}
-                </Text>
-
-                {/* CEP */}
-                {profile.cep ? (
-                  <Text
-                    style={[
-                      styles.cepLine,
-                      { color: "rgba(140,140,140,0.7)" },
-                    ]}
-                  >
-                    CEP {profile.cep.replace(/(\d{5})(\d{3})/, "$1-$2")}
-                  </Text>
-                ) : null}
-              </View>
-            </View>
+              <Text style={styles.addButtonText}>
+                Adicionar novo endereço
+              </Text>
+            </Pressable>
           </View>
-        ) : (
-          <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-              Nenhum endereço cadastrado
-            </Text>
-          </View>
-        )}
-
-        {/* Footer */}
-        <View style={styles.footerSection}>
-          <View style={styles.footerBorder} />
-          <Pressable
-            onPress={handleEdit}
-            style={({ pressed }) => [
-              styles.addButton,
-              {
-                backgroundColor: colors.background,
-                borderColor: "#eaeaea",
-              },
-              pressed && styles.addButtonPressed,
-            ]}
-          >
-            <View style={styles.addIconWrapper}>
-              <IconSymbol
-                name="location-on"
-                size={20}
-                color="#e67215"
-              />
-            </View>
-            <Text style={styles.addButtonText}>
-              {addressExists ? "Editar endereço" : "Adicionar endereço"}
-            </Text>
-          </Pressable>
-        </View>
-      </ScrollView>
+        }
+      />
     </View>
   );
 }
@@ -307,7 +378,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     flex: 1,
     fontFamily: Fonts?.sans,
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "700",
     lineHeight: 27,
     textAlign: "center",
@@ -316,10 +387,8 @@ const styles = StyleSheet.create({
     width: 44,
   },
 
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
+  // List
+  listContent: {
     paddingBottom: 40,
   },
 
@@ -384,11 +453,30 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  cardTitleLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   cardTitle: {
     fontFamily: Fonts?.sans,
     fontSize: 16,
     fontWeight: "700",
     lineHeight: 16,
+  },
+  padraoBadge: {
+    backgroundColor: "#fff2e5",
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+  },
+  padraoBadgeText: {
+    fontFamily: Fonts?.sans,
+    fontSize: 10,
+    fontWeight: "700",
+    lineHeight: 10,
+    color: "#e67215",
+    letterSpacing: 0.5,
   },
   menuButton: {
     padding: 4,
@@ -404,13 +492,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "400",
     lineHeight: 17.88,
-  },
-  cepLine: {
-    fontFamily: Fonts?.sans,
-    fontSize: 12,
-    fontWeight: "400",
-    lineHeight: 16,
-    marginTop: 2,
   },
 
   // Footer

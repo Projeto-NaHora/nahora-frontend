@@ -117,13 +117,13 @@ export default function PrivacyScreen() {
               { backgroundColor: colors.background, borderColor: "#eaeaea" },
             ]}
           >
-            <Row icon="location-on" title="Localização" subtitle="Necessário para atender serviços próximos" colors={colors} />
+            <Row icon="location-on" title="Localização" subtitle="Necessário para encontrar serviços próximos" colors={colors} />
             <View style={styles.divider} />
             <Row icon="magnifyingglass" title="Câmera" subtitle="Para enviar fotos dos serviços" colors={colors} />
             <View style={styles.divider} />
-            <Row icon="doc.text.fill" title="Galeria" subtitle="Anexar imagens aos serviços" colors={colors} />
+            <Row icon="doc.text.fill" title="Galeria" subtitle="Anexar imagens aos pedidos" colors={colors} />
             <View style={styles.divider} />
-            <Row icon="bell.fill" title="Notificações" subtitle="Alertas sobre novos pedidos e propostas" colors={colors} />
+            <Row icon="bell.fill" title="Notificações" subtitle="Alertas sobre propostas e serviços" colors={colors} />
           </View>
         </View>
 

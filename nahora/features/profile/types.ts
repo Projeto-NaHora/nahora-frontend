@@ -7,6 +7,7 @@ export interface PerfilProfissionalDTO {
   id: number;
   nome: string;
   foto?: string;
+  fotoPerfil?: string;
   profissao?: string;
   cep?: string;
   logradouro?: string;

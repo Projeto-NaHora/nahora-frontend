@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  Image,
 } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -137,6 +138,24 @@ export function ProfessionalOrderDetailContent({
             </Text>
           </View>
         </View>
+
+        {/* Fotos do pedido */}
+        {pedido.fotos && pedido.fotos.length > 0 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={{ marginTop: 12 }}
+          >
+            {pedido.fotos.map((uri, index) => (
+              <Image
+                key={index}
+                source={{ uri }}
+                style={[styles.photoThumb, { backgroundColor: colors.surface }]}
+                resizeMode="cover"
+              />
+            ))}
+          </ScrollView>
+        )}
 
         {/* Details Card */}
         <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
@@ -319,6 +338,12 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     fontWeight: "500",
     lineHeight: 24.38,
+  },
+  photoThumb: {
+    width: 120,
+    height: 120,
+    borderRadius: 12,
+    marginRight: 8,
   },
 
   // Details grid

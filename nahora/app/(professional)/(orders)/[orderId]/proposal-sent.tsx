@@ -9,6 +9,15 @@ export default function ProposalSentScreen() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
+  const handleGoHome = () => {
+    // Dismiss the current stack back to the orders tab root, then switch to home
+    router.dismissAll();
+    // Small delay to let dismiss complete, then navigate
+    setTimeout(() => {
+      router.replace("/(professional)/(home)");
+    }, 0);
+  };
+
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
@@ -28,7 +37,7 @@ export default function ProposalSentScreen() {
       <View style={[styles.bottomBar, { borderTopColor: colors.border }]}>
         <TouchableOpacity
           style={[styles.button, { borderColor: colors.border }]}
-          onPress={() => router.replace("/(professional)/(home)")}
+          onPress={handleGoHome}
         >
           <Text style={[styles.buttonText, { color: colors.textPrimary }]}>Voltar ao início</Text>
         </TouchableOpacity>

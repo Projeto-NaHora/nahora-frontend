@@ -51,7 +51,7 @@ export function useCompleteProfessionalRegistration({ onSuccess }: Options) {
       const raioAtuacaoKm = parseFloat(state.raioAtuacaoKm) || undefined;
 
       const profileData = await profileService.salvarPerfil({
-        nome: `${state.firstName} ${state.lastName}`.trim() || undefined,
+        nome: state.nome.trim() || undefined,
         email: state.email || undefined,
         cpf: state.cpf || undefined,
         celular: state.phone || undefined,

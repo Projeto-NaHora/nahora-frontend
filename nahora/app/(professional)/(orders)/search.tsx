@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -28,6 +28,19 @@ export default function SearchScreen() {
   const router = useRouter();
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 400);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [searchTerm]);
+
   const [categoriaFilter, setCategoriaFilter] =
     useState<CategoriaFilter>("TODAS");
   const [urgenciaFilter, setUrgenciaFilter] =
@@ -35,12 +48,12 @@ export default function SearchScreen() {
 
   const filtro: PedidoFiltroParams = useMemo(() => {
     const params: PedidoFiltroParams = {};
-    if (searchTerm.trim().length >= 2) params.termo = searchTerm.trim();
+    if (debouncedSearchTerm.trim().length >= 2) params.termo = debouncedSearchTerm.trim();
     if (categoriaFilter !== "TODAS") params.categoria = categoriaFilter;
     if (urgenciaFilter !== "TODAS")
       params.urgente = urgenciaFilter === "URGENTE";
     return params;
-  }, [categoriaFilter, urgenciaFilter, searchTerm]);
+  }, [categoriaFilter, urgenciaFilter, debouncedSearchTerm]);
 
   const {
     pedidos,
