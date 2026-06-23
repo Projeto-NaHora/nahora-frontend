@@ -27,7 +27,7 @@ export function useEditProfileForm(opts?: { initialize?: boolean }) {
           cargo: data.profissao ?? "",
           experienceYears:
             data.anosExperiencia != null ? String(data.anosExperiencia) : "",
-          profilePhotoUri: data.foto ?? null,
+          profilePhotoUri: data.foto ?? data.fotoPerfil ?? null,
           cep: data.cep ?? "",
           logradouro: data.logradouro ?? "",
           numero: data.numero ?? "",
