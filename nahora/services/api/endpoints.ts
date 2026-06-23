@@ -71,6 +71,7 @@ export const ENDPOINTS = {
   PROFISSIONAIS: "/profissionais",
 
   // Histórico de ganhos (profissional)
+  HISTORICO_PROFISSIONAL_RESUMO: "/profissionais/historico/resumo",
   HISTORICO_GANHOS: (mes: number, ano: number) =>
     `/profissionais/historico/ganhos?mes=${mes}&ano=${ano}`,
   HISTORICO_SERVICOS: (mes: number, ano: number) =>

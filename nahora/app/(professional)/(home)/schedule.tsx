@@ -1,22 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { UnderConstruction } from "@/components/UnderConstruction";
 
 export default function Schedule() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>app/(professional)/(home)/schedule.tsx</Text>
-    </View>
+    <UnderConstruction path="app/(professional)/(home)/schedule.tsx" />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 16,
-  },
-});
