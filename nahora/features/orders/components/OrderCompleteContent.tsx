@@ -67,9 +67,6 @@ export const OrderCompleteContent: React.FC<Props> = ({
   const nomeProfissional = pedido.profissionalNome || "Profissional";
   const categoriaFormatada =
     CATEGORIA_LABEL[pedido.categoria] || pedido.categoria || "Serviço";
-  const dataFormatada = pedido.dataDesejada
-    ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
-    : "";
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -114,7 +111,7 @@ export const OrderCompleteContent: React.FC<Props> = ({
           <View style={styles.providerInfo}>
             <Text style={[styles.providerName, { color: colors.text }]}>{nomeProfissional}</Text>
             <Text style={[styles.providerDetails, { color: colors.textSecondary }]}>
-              {categoriaFormatada} {dataFormatada ? `• ${dataFormatada}` : ""}
+              {categoriaFormatada}
             </Text>
           </View>
         </View>

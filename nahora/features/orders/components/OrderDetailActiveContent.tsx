@@ -67,10 +67,6 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
   const categoriaFormatada =
     CATEGORIA_LABEL[pedido.categoria] || pedido.categoria || "Serviço";
 
-  const dataFormatada = pedido.dataDesejada
-    ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
-    : "A combinar";
-
   const turnoKey = getTurnoKey(pedido.dataDesejada);
   const turnoFormatado = turnoKey
     ? TURNO_TIME_RANGES[turnoKey].label
@@ -120,10 +116,6 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
         {/* Info Card */}
         <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
           <View style={styles.rowInfo}>
-            <View style={styles.colInfo}>
-              <Text style={[styles.label, { color: colors.textSecondary }]}>Data</Text>
-              <Text style={[styles.value, { color: colors.text }]}>{dataFormatada}</Text>
-            </View>
             <View style={styles.colInfo}>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Horário</Text>
               <Text style={[styles.value, { color: colors.text }]}>{turnoFormatado}</Text>

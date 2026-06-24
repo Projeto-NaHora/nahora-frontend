@@ -29,13 +29,6 @@ function formatCurrency(value: number | undefined | null): string {
   });
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  const dia = String(d.getDate()).padStart(2, "0");
-  const mes = String(d.getMonth() + 1).padStart(2, "0");
-  return `${dia}/${mes}/${d.getFullYear()}`;
-}
-
 function getInitials(name: string): string {
   return name
     ? name
@@ -271,8 +264,6 @@ export default function HistoryScreen() {
                   numberOfLines={1}
                 >
                   {item.profissionalAtribuidoNome ?? "—"}
-                  {" · "}
-                  {formatDate(item.dataDesejada)}
                 </Text>
               </View>
 

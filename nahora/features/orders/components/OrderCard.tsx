@@ -11,14 +11,6 @@ interface OrderCardProps {
   onPress: (pedido: Pedido) => void;
 }
 
-/** Formata data ISO para "dd/mm/aaaa" */
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  const dia = String(d.getDate()).padStart(2, "0");
-  const mes = String(d.getMonth() + 1).padStart(2, "0");
-  return `${dia}/${mes}/${d.getFullYear()}`;
-}
-
 /** Extrai o período do dia a partir da hora */
 function getPeriodo(iso: string): string {
   const hora = new Date(iso).getHours();
@@ -65,10 +57,10 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
         </View>
       </View>
 
-      {/* Data desejada + período */}
+      {/* Turno */}
       <View style={styles.dateRow}>
         <Text style={[styles.dateText, { color: colors.textSecondary }]}>
-          {formatDate(pedido.dataDesejada)} - {getPeriodo(pedido.dataDesejada)}
+          {getPeriodo(pedido.dataDesejada)}
         </Text>
       </View>
 

@@ -177,14 +177,6 @@ export function OrderDetailOpenContent({
           <View style={styles.infoRow}>
             <View style={styles.infoCol}>
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
-                Data
-              </Text>
-              <Text style={[styles.infoValue, { color: colors.textPrimary }]}>
-                {formatDate(pedido.dataDesejada)}
-              </Text>
-            </View>
-            <View style={styles.infoCol}>
-              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
                 Turno
               </Text>
               <Text style={[styles.infoValue, { color: colors.textPrimary }]}>

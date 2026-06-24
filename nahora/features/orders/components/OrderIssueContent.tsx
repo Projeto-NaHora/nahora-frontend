@@ -99,9 +99,6 @@ export const OrderIssueContent: React.FC<Props> = ({
   const profissionalNome = pedido?.profissionalAtribuidoNome || "Profissional";
   const categoriaFormatada =
     CATEGORIA_LABEL[pedido?.categoria] || pedido?.categoria || "Serviço";
-  const dataFormatada = pedido?.dataDesejada
-    ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
-    : "";
   const valorParaExibir = pedido?.valorAcordado ?? pedido?.orcamentoEstimado ?? 0;
   const valorFormatado = Number(valorParaExibir).toLocaleString(
     "pt-BR",
@@ -151,7 +148,7 @@ export const OrderIssueContent: React.FC<Props> = ({
           <View style={styles.providerInfo}>
             <Text style={[styles.providerName, { color: colors.text }]}>{profissionalNome}</Text>
             <Text style={[styles.providerDetails, { color: colors.textSecondary }]}>
-              {categoriaFormatada} {dataFormatada ? `• ${dataFormatada}` : ""}
+              {categoriaFormatada}
             </Text>
             <Text style={[styles.providerPrice, { color: colors.success }]}>{valorFormatado}</Text>
           </View>
