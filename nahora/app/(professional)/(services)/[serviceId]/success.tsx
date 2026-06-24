@@ -18,24 +18,22 @@ export default function ProFinishSuccessScreen() {
   const router = useRouter();
   const { serviceId } = useLocalSearchParams<{ serviceId: string }>();
 
-  useFocusEffect(
-    React.useCallback(() => {
-      const onBackPress = () => {
-        handleGoHome();
-        return true;
-      };
-      const subscription = BackHandler.addEventListener(
-        "hardwareBackPress",
-        onBackPress,
-      );
-      return () => subscription.remove();
-    }, []),
-  );
-
   const handleGoHome = () => {
     router.dismissAll();
     router.replace("/(professional)/(home)");
   };
+
+  useFocusEffect(() => {
+    const onBackPress = () => {
+      handleGoHome();
+      return true;
+    };
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      onBackPress,
+    );
+    return () => subscription.remove();
+  });
 
   const handleTrackProcess = () => {
     router.dismissAll();

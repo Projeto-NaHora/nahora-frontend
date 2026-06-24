@@ -14,6 +14,11 @@ export default function IssueSuccessScreen() {
   const router = useRouter();
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
+  const handleGoHome = () => {
+    router.dismissAll();
+    router.replace("/(client)/(home)");
+  };
+
   // Bloqueia o botão físico de voltar do Android para não reabrir o formulário
   useEffect(() => {
     const onBackPress = () => {
@@ -27,12 +32,7 @@ export default function IssueSuccessScreen() {
     );
 
     return () => subscription.remove();
-  }, []);
-
-  const handleGoHome = () => {
-    router.dismissAll();
-    router.replace("/(client)/(home)"); // Ajuste para (professional) se necessário
-  };
+  }, [handleGoHome]);
 
   const handleTrackAnalysis = () => {
     // Leva para a tela C103 (Análise da Disputa)

@@ -100,9 +100,6 @@ export default function ProServiceDetailScreen() {
   const isConcluido = pedido.status === "CONCLUIDO";
   const categoria =
     CATEGORIA_LABEL[pedido.categoria] ?? pedido.categoria ?? "Serviço";
-  const dataFormatada = pedido.dataDesejada
-    ? formatDate(pedido.dataDesejada)
-    : "";
   const turnoKey = getTurnoKey(pedido.dataDesejada);
   const turnoFormatado = turnoKey ? TURNO_TIME_RANGES[turnoKey].label : "";
   const enderecoFormatado = formatEndereco(pedido.endereco);
@@ -144,10 +141,6 @@ export default function ProServiceDetailScreen() {
         {/* Info card */}
         <View style={[styles.card, { borderColor: colors.border }]}>
           <View style={styles.infoRow}>
-            <View style={styles.infoCol}>
-              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Data</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{dataFormatada}</Text>
-            </View>
             <View style={styles.infoCol}>
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Horário</Text>
               <Text style={[styles.infoValue, { color: colors.text }]}>{turnoFormatado}</Text>

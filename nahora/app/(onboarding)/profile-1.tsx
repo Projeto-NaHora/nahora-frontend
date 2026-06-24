@@ -132,7 +132,7 @@ export default function Profile1() {
     if (!cargo && profession?.label) {
       setCargo(profession.label);
     }
-  }, []);
+  }, [cargo, profession?.label, setCargo]);
 
   useEffect(() => {
     if (!nome && (firstName || lastName)) {
@@ -141,7 +141,7 @@ export default function Profile1() {
         setNome(fullName);
       }
     }
-  }, []);
+  }, [nome, firstName, lastName, setNome]);
 
   const handlePickPhoto = () => {
     showPickOptions((uri) => {

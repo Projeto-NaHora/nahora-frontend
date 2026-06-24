@@ -23,7 +23,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     restoreSession().finally(() => setRestoring(false));
-  }, []);
+  }, [restoreSession]);
 
   useEffect(() => {
     if (restoring) return;
