@@ -39,11 +39,11 @@ export default function Screen() {
     profileService.listarEnderecos(),
   );
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
     await mutate();
     setRefreshing(false);
-  }, [mutate]);
+  };
 
   const showActions = useCallback(
     (endereco: EnderecoResponse) => {

@@ -1,6 +1,6 @@
 import type { ProfissionalResumo, Proposta, HorarioSlot } from "@/features/proposals/types";
 
-export function createMockProfissionalResumo(
+function createMockProfissionalResumo(
   overrides?: Partial<ProfissionalResumo>,
 ): ProfissionalResumo {
   return {
@@ -50,7 +50,7 @@ export function createMockPropostaList(count = 3): Proposta[] {
   );
 }
 
-export function createMockHorarioSlot(
+function createMockHorarioSlot(
   overrides?: Partial<HorarioSlot>,
 ): HorarioSlot {
   return {

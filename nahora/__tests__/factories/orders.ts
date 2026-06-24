@@ -24,7 +24,7 @@ export function createMockPedido(overrides?: Partial<Pedido>): Pedido {
   };
 }
 
-export function createMockPedidoList(count = 3): Pedido[] {
+function createMockPedidoList(count = 3): Pedido[] {
   return Array.from({ length: count }, (_, i) =>
     createMockPedido({ id: i + 1 }),
   );

@@ -200,6 +200,3 @@ export const LetterSpacing = {
 export const Borders = {
   thin: 1,
 };
-
-/** @deprecated Use `useChatColors()` hook instead. */
-export const ChatColors = Colors.light.chat;

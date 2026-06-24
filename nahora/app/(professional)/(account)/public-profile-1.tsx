@@ -190,8 +190,6 @@ export default function PublicProfile1() {
           <Profile1Content
             nome={nome}
             onChangeNome={setNome}
-            cpf={cpf}
-            onChangeCpf={setCpf}
             onBack={handleBack}
             cargo={cargo}
             experienceYears={experienceYears}

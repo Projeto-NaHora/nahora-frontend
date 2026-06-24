@@ -43,17 +43,6 @@ export function formatCpf(value: string): string {
 }
 
 /**
- * Removes all non-digit characters from a CPF string
- */
-export function unformatCpf(value: string): string {
-  return value.replace(/\D/g, "");
-}
-
-/**
- * Validates a CPF using the official algorithm (verification digits).
- * Accepts both formatted and raw CPF strings.
- */
-/**
  * Returns initials from a name (first + last word initial).
  * Handles single name, undefined, and multiple middle names.
  */
@@ -114,35 +103,4 @@ export function groupMessagesByDate(
     result.push(msg);
   }
   return result;
-}
-
-export function isValidCpf(value: string): boolean {
-  const digits = value.replace(/\D/g, "");
-
-  if (digits.length !== 11) return false;
-
-  // Reject if all digits are the same (e.g. 111.111.111-11)
-  if (/^(\d)\1{10}$/.test(digits)) return false;
-
-  // Validate first verification digit (10th digit)
-  let sum = 0;
-  for (let i = 0; i < 9; i++) {
-    sum += parseInt(digits[i], 10) * (10 - i);
-  }
-  let remainder = (sum * 10) % 11;
-  const firstDigit = remainder === 10 ? 0 : remainder;
-
-  if (firstDigit !== parseInt(digits[9], 10)) return false;
-
-  // Validate second verification digit (11th digit)
-  sum = 0;
-  for (let i = 0; i < 10; i++) {
-    sum += parseInt(digits[i], 10) * (11 - i);
-  }
-  remainder = (sum * 10) % 11;
-  const secondDigit = remainder === 10 ? 0 : remainder;
-
-  if (secondDigit !== parseInt(digits[10], 10)) return false;
-
-  return true;
 }

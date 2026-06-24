@@ -16,7 +16,7 @@ import { ProfileStepIndicator } from "./ProfileStepIndicator";
 
 type Profile1ContentProps = {
   nome: string;
-  cpf: string;
+  cpf?: string;
   cargo: string;
   experienceYears: string;
   profilePhotoUri: string | null;
@@ -30,7 +30,7 @@ type Profile1ContentProps = {
   raioAtuacaoKm: string;
   cepLoading: boolean;
   onChangeNome: (value: string) => void;
-  onChangeCpf: (value: string) => void;
+  onChangeCpf?: (value: string) => void;
   onChangeCargo: (value: string) => void;
   onChangeExperienceYears: (value: string) => void;
   onChangeCep: (value: string) => void;
@@ -110,11 +110,11 @@ export function Profile1Content({
     raioAtuacaoKm: false,
   });
 
-  const touch = useCallback((field: keyof TouchedFields) => {
+  const touch = (field: keyof TouchedFields) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
-  }, []);
+  };
 
-  const isCpfValid = cpf.replace(/\D/g, "").length === 11;
+  const isCpfValid = onChangeCpf ? cpf.replace(/\D/g, "").length === 11 : true;
   const isCargoValid = cargo.trim().length >= 4;
   const isCepValid = cep.replace(/\D/g, "").length === 8;
   const isLogradouroValid = logradouro.trim().length >= 3;
@@ -147,7 +147,7 @@ export function Profile1Content({
   };
 
   const handleCpfChange = (text: string) => {
-    onChangeCpf(text.replace(/\D/g, "").slice(0, 11));
+    onChangeCpf?.(text.replace(/\D/g, "").slice(0, 11));
   };
 
   const handleCepChange = (text: string) => {
@@ -248,6 +248,7 @@ export function Profile1Content({
           )}
         </View>
 
+        {onChangeCpf && (
         <View style={styles.fieldGroup}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>
             CPF
@@ -267,7 +268,7 @@ export function Profile1Content({
               ]}
               placeholder="000.000.000-00"
               placeholderTextColor={colors.placeholder}
-              value={formatCpf(cpf)}
+              value={formatCpf(cpf ?? "")}
               onChangeText={handleCpfChange}
               onBlur={() => touch("cpf")}
               keyboardType="number-pad"
@@ -282,6 +283,7 @@ export function Profile1Content({
             </Text>
           )}
         </View>
+        )}
 
         <View style={styles.fieldGroup}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>
