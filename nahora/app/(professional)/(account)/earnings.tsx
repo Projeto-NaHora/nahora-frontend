@@ -1,9 +1,12 @@
 import React, { useState, useCallback } from "react";
 import {
   ActivityIndicator,
+  Alert,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -20,6 +23,7 @@ import {
   formatarMoeda,
 } from "@/features/professional/historico/utils";
 import { getApiErrorMessage } from "@/utils/apiError";
+import { paymentsService } from "@/features/payments/service";
 
 export default function EarningsScreen() {
   const { height: windowHeight } = useWindowDimensions();
@@ -39,11 +43,32 @@ export default function EarningsScreen() {
 
   const [refreshing, setRefreshing] = useState(false);
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
-  }, [refetch]);
+  };
+
+  const [downloadingRecibo, setDownloadingRecibo] = useState<number | null>(null);
+
+  const handleDownloadRecibo = async (pedidoId: number) => {
+    setDownloadingRecibo(pedidoId);
+    try {
+      const pdfBytes = await paymentsService.baixarRecibo(pedidoId);
+      const base64 = arrayBufferToBase64(pdfBytes);
+      const pdfUri = `data:application/pdf;base64,${base64}`;
+      await Share.share({
+        url: Platform.OS === "ios" ? pdfUri : undefined,
+        message: Platform.OS === "android" ? pdfUri : undefined,
+      });
+    } catch (err: any) {
+      if (err?.message !== "User did not share") {
+        Alert.alert("Erro", "Não foi possível baixar o recibo.");
+      }
+    } finally {
+      setDownloadingRecibo(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -224,8 +249,19 @@ export default function EarningsScreen() {
                   <View style={styles.hr} />
 
                   {/* Ver recibo button */}
-                  <Pressable style={styles.receiptButton}>
-                    <Text style={styles.receiptButtonText}>Ver recibo</Text>
+                  <Pressable
+                    style={[
+                      styles.receiptButton,
+                      downloadingRecibo === servico.pedidoId && { opacity: 0.6 },
+                    ]}
+                    onPress={() => handleDownloadRecibo(servico.pedidoId)}
+                    disabled={downloadingRecibo !== null}
+                  >
+                    <Text style={styles.receiptButtonText}>
+                      {downloadingRecibo === servico.pedidoId
+                        ? "Baixando..."
+                        : "Ver recibo"}
+                    </Text>
                   </Pressable>
                 </View>
               </View>
@@ -234,6 +270,31 @@ export default function EarningsScreen() {
       </View>
     </ScrollView>
   );
+}
+
+/** Converte ArrayBuffer para base64 (React Native não tem btoa) */
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  let base64 = "";
+  for (let i = 0; i < binary.length; i += 3) {
+    const a = binary.charCodeAt(i);
+    const b = binary.charCodeAt(i + 1);
+    const c = binary.charCodeAt(i + 2);
+    const enc1 = a >> 2;
+    const enc2 = ((a & 3) << 4) | (b >> 4);
+    const enc3 = ((b & 15) << 2) | (c >> 6);
+    const enc4 = c & 63;
+    base64 += chars[enc1] + chars[enc2];
+    base64 += b ? chars[enc3] : "=";
+    base64 += c ? chars[enc4] : "=";
+  }
+  return base64;
 }
 
 /** Formata data yyyy-MM-dd → "Hoje, dd/mm" ou "dd/mm". Retorna "—" se nula. */

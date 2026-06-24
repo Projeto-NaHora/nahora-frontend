@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
+  Platform,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   View,
@@ -19,6 +22,7 @@ import {
   STATUS_LABEL,
   STATUS_COLORS,
 } from "@/features/orders/types";
+import { paymentsService } from "@/features/payments/service";
 
 function formatCurrency(value: number | undefined | null): string {
   if (value == null) return "R$ 0,00";
@@ -91,6 +95,31 @@ function getPaymentMethodIcon(
   return map[metodo ?? ""] ?? { icon: "credit-card", label: metodo ?? "—" };
 }
 
+/** Converte ArrayBuffer para base64 (React Native não tem btoa) */
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  let base64 = "";
+  for (let i = 0; i < binary.length; i += 3) {
+    const a = binary.charCodeAt(i);
+    const b = binary.charCodeAt(i + 1);
+    const c = binary.charCodeAt(i + 2);
+    const enc1 = a >> 2;
+    const enc2 = ((a & 3) << 4) | (b >> 4);
+    const enc3 = ((b & 15) << 2) | (c >> 6);
+    const enc4 = c & 63;
+    base64 += chars[enc1] + chars[enc2];
+    base64 += b ? chars[enc3] : "=";
+    base64 += c ? chars[enc4] : "=";
+  }
+  return base64;
+}
+
 export default function HistoryDetailScreen() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -141,6 +170,7 @@ export default function HistoryDetailScreen() {
     );
   }
 
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const categoryLabel =
     CATEGORIA_LABEL[pedido.categoria] ?? pedido.categoria;
   const statusLabel = STATUS_LABEL[pedido.status] ?? pedido.status;
@@ -158,6 +188,25 @@ export default function HistoryDetailScreen() {
     : "—";
   const transactionCode = pedido.pagamento?.codigoTransacao ?? "—";
   const createdAt = formatDateLong(pedido.criadoEm);
+
+  const handleDownloadRecibo = async () => {
+    setDownloadingPdf(true);
+    try {
+      const pdfBytes = await paymentsService.baixarRecibo(pedidoId);
+      const base64 = arrayBufferToBase64(pdfBytes);
+      const pdfUri = `data:application/pdf;base64,${base64}`;
+      await Share.share({
+        url: Platform.OS === "ios" ? pdfUri : undefined,
+        message: Platform.OS === "android" ? pdfUri : undefined,
+      });
+    } catch (err: any) {
+      if (err?.message !== "User did not share") {
+        Alert.alert("Erro", "Não foi possível baixar o recibo.");
+      }
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -317,6 +366,8 @@ export default function HistoryDetailScreen() {
 
         {/* Baixar Recibo button */}
         <Pressable
+          onPress={handleDownloadRecibo}
+          disabled={downloadingPdf}
           style={({ pressed }) => [
             styles.downloadButton,
             {
@@ -324,10 +375,13 @@ export default function HistoryDetailScreen() {
               borderColor: "#eaeaea",
             },
             pressed && styles.downloadPressed,
+            downloadingPdf && { opacity: 0.6 },
           ]}
         >
           <IconSymbol name="doc.text.fill" size={16} color="#f27b24" />
-          <Text style={styles.downloadText}>Baixar Recibo</Text>
+          <Text style={styles.downloadText}>
+            {downloadingPdf ? "Baixando..." : "Baixar Recibo"}
+          </Text>
         </Pressable>
       </ScrollView>
     </View>
