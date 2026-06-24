@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useReducer, useState } from "react";
 import {
   Alert,
   Pressable,
@@ -29,33 +29,64 @@ const REQUIREMENTS = [
   },
 ];
 
+// ── Password form reducer ───────────────────────────────────────────────────
+
+interface PasswordFormState {
+  senhaAtual: string;
+  senhaNova: string;
+  confirmacao: string;
+}
+
+type PasswordFormAction =
+  | { type: "SET_SENHA_ATUAL"; value: string }
+  | { type: "SET_SENHA_NOVA"; value: string }
+  | { type: "SET_CONFIRMACAO"; value: string };
+
+function passwordFormReducer(
+  state: PasswordFormState,
+  action: PasswordFormAction,
+): PasswordFormState {
+  switch (action.type) {
+    case "SET_SENHA_ATUAL":
+      return { ...state, senhaAtual: action.value };
+    case "SET_SENHA_NOVA":
+      return { ...state, senhaNova: action.value };
+    case "SET_CONFIRMACAO":
+      return { ...state, confirmacao: action.value };
+  }
+}
+
+const initialPasswordForm: PasswordFormState = {
+  senhaAtual: "",
+  senhaNova: "",
+  confirmacao: "",
+};
+
 export default function PasswordScreen() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
-  const [senhaAtual, setSenhaAtual] = useState("");
-  const [senhaNova, setSenhaNova] = useState("");
-  const [confirmacao, setConfirmacao] = useState("");
+  const [form, dispatch] = useReducer(passwordFormReducer, initialPasswordForm);
   const [showAtual, setShowAtual] = useState(false);
   const [showNova, setShowNova] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const handleSave = useCallback(async () => {
-    if (!senhaAtual || !senhaNova || !confirmacao) {
+  const handleSave = async () => {
+    if (!form.senhaAtual || !form.senhaNova || !form.confirmacao) {
       Alert.alert("Erro", "Preencha todos os campos.");
       return;
     }
-    if (senhaNova !== confirmacao) {
+    if (form.senhaNova !== form.confirmacao) {
       Alert.alert("Erro", "As senhas não conferem.");
       return;
     }
     setSaving(true);
     try {
       await profileService.atualizarSenha({
-        senhaAtual,
-        senhaNova,
-        confirmacaoNovaSenha: confirmacao,
+        senhaAtual: form.senhaAtual,
+        senhaNova: form.senhaNova,
+        confirmacaoNovaSenha: form.confirmacao,
       });
       Alert.alert("Sucesso", "Senha alterada com sucesso.", [
         { text: "OK", onPress: () => router.back() },
@@ -68,7 +99,7 @@ export default function PasswordScreen() {
     } finally {
       setSaving(false);
     }
-  }, [senhaAtual, senhaNova, confirmacao]);
+  };
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -120,8 +151,8 @@ export default function PasswordScreen() {
               <IconSymbol name="lock" size={18} color="#8c8c8c" />
               <TextInput
                 style={styles.input}
-                value={senhaAtual}
-                onChangeText={setSenhaAtual}
+                value={form.senhaAtual}
+                onChangeText={(t) => dispatch({ type: "SET_SENHA_ATUAL", value: t })}
                 placeholder="••••••••"
                 placeholderTextColor="#6b7280"
                 secureTextEntry={!showAtual}
@@ -152,8 +183,8 @@ export default function PasswordScreen() {
               <IconSymbol name="lock" size={18} color="#8c8c8c" />
               <TextInput
                 style={styles.input}
-                value={senhaNova}
-                onChangeText={setSenhaNova}
+                value={form.senhaNova}
+                onChangeText={(t) => dispatch({ type: "SET_SENHA_NOVA", value: t })}
                 placeholder="••••••••"
                 placeholderTextColor="#6b7280"
                 secureTextEntry={!showNova}
@@ -184,8 +215,8 @@ export default function PasswordScreen() {
               <IconSymbol name="lock" size={18} color="#8c8c8c" />
               <TextInput
                 style={styles.input}
-                value={confirmacao}
-                onChangeText={setConfirmacao}
+                value={form.confirmacao}
+                onChangeText={(t) => dispatch({ type: "SET_CONFIRMACAO", value: t })}
                 placeholder="••••••••"
                 placeholderTextColor="#6b7280"
                 secureTextEntry={!showConfirm}
@@ -208,7 +239,7 @@ export default function PasswordScreen() {
             Sua senha deve conter:
           </Text>
           {REQUIREMENTS.map((req, i) => {
-            const met = req.met(senhaNova);
+            const met = req.met(form.senhaNova);
             return (
               <View key={i} style={styles.reqRow}>
                 <View
