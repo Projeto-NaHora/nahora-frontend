@@ -46,14 +46,14 @@ export default function SearchScreen() {
   const [urgenciaFilter, setUrgenciaFilter] =
     useState<UrgenciaFilter>("TODAS");
 
-  const filtro: PedidoFiltroParams = useMemo(() => {
+  const filtro: PedidoFiltroParams = (() => {
     const params: PedidoFiltroParams = {};
     if (debouncedSearchTerm.trim().length >= 2) params.termo = debouncedSearchTerm.trim();
     if (categoriaFilter !== "TODAS") params.categoria = categoriaFilter;
     if (urgenciaFilter !== "TODAS")
       params.urgente = urgenciaFilter === "URGENTE";
     return params;
-  }, [categoriaFilter, urgenciaFilter, debouncedSearchTerm]);
+  })();
 
   const {
     pedidos,
@@ -65,16 +65,13 @@ export default function SearchScreen() {
     loadMore,
   } = usePedidosDisponiveis(filtro);
 
-  const handleSearch = useCallback((termo: string) => {
+  const handleSearch = (termo: string) => {
     setSearchTerm(termo);
-  }, []);
+  };
 
-  const handlePressPedido = useCallback(
-    (pedido: PedidoDisponivel) => {
-      router.push(`/(professional)/(orders)/${pedido.id}`);
-    },
-    [router],
-  );
+  const handlePressPedido = (pedido: PedidoDisponivel) => {
+    router.push(`/(professional)/(orders)/${pedido.id}`);
+  };
 
   return (
     <SafeAreaView

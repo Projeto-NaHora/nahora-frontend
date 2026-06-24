@@ -143,16 +143,16 @@ export function ProposalDetailContent({
   });
 
   const horarios = proposal.horariosDisponiveis ?? [];
-  const dayGroups = useMemo(() => groupSlotsByDay(horarios), [horarios]);
-  const exceptionDays = useMemo(() => detectExceptions(dayGroups), [dayGroups]);
+  const dayGroups = groupSlotsByDay(horarios);
+  const exceptionDays = detectExceptions(dayGroups);
 
-  const slotDates = useMemo(() => {
+  const slotDates = (() => {
     const s = new Set<string>();
     for (const g of dayGroups) s.add(g.date.toISOString().slice(0, 10));
     return s;
-  }, [dayGroups]);
+  })();
 
-  const calendarDays = useMemo(() => {
+  const calendarDays = (() => {
     const { year, month } = calendarMonth;
     const firstDay = new Date(year, month, 1);
     const startDayOfWeek = firstDay.getDay();
@@ -163,7 +163,7 @@ export function ProposalDetailContent({
     for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
     return { cells, label: `${MONTHS[month]} ${year}` };
-  }, [calendarMonth]);
+  })();
 
   const goToPrevMonth = () => {
     setCalendarMonth((m) => {

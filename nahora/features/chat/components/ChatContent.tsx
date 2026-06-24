@@ -53,32 +53,23 @@ export function ChatContent({ propostaId }: Props) {
   const isReadOnly =
     conversa?.status === "SOMENTE_LEITURA" || conversa?.status === "FECHADA";
 
-  const renderItem = useCallback(
-    ({ item }: { item: Mensagem | DateSeparatorEntry }) => {
-      if ("__type" in item) {
-        return <DateSeparator date={item.date} />;
-      }
-      return (
-        <MessageBubble mensagem={item} isOwn={item.remetenteId === userId} />
-      );
-    },
-    [userId],
-  );
+  const renderItem = ({ item }: { item: Mensagem | DateSeparatorEntry }) => {
+    if ("__type" in item) {
+      return <DateSeparator date={item.date} />;
+    }
+    return (
+      <MessageBubble mensagem={item} isOwn={item.remetenteId === userId} />
+    );
+  };
 
-  const keyExtractor = useCallback(
-    (item: Mensagem | DateSeparatorEntry) =>
-      "__type" in item ? `sep-${item.date}` : String(item.id),
-    [],
-  );
+  const keyExtractor = (item: Mensagem | DateSeparatorEntry) =>
+    "__type" in item ? `sep-${item.date}` : String(item.id);
 
-  const handleScroll = useCallback(
-    (e: { nativeEvent: { contentOffset: { y: number } } }) => {
-      if (e.nativeEvent.contentOffset.y < 50 && hasMore && !isLoading) {
-        loadMore();
-      }
-    },
-    [hasMore, isLoading, loadMore],
-  );
+  const handleScroll = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
+    if (e.nativeEvent.contentOffset.y < 50 && hasMore && !isLoading) {
+      loadMore();
+    }
+  };
 
   // Loading state
   if (isLoading && messageCount === 0) {

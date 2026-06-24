@@ -67,8 +67,7 @@ export function useLogin() {
     // no onSuccess/onError — we handle the chain manually
   );
 
-  const onSubmit = useCallback(
-    form.handleSubmit(async (values) => {
+  const onSubmit = form.handleSubmit(async (values) => {
       setErrorMessage(null);
       setErrorStatus(null);
       setIsLoading(true);
@@ -119,9 +118,7 @@ export function useLogin() {
         } finally {
           setIsLoading(false);
         }
-      }),
-      [trigger, setTokens, setProfessionalOnboarding],
-    );
+      });
 
   return {
     form,

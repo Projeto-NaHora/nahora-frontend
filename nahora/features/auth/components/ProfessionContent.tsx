@@ -12,7 +12,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import type { ProfessionOption } from "@/store/registerStore";
 import { AuthScreenShell } from "./AuthScreenShell";
 
-export const PROFESSION_OPTIONS: ProfessionOption[] = [
+const PROFESSION_OPTIONS: ProfessionOption[] = [
   { id: "ELETRICA", label: "Eletricista", icon: "⚡" },
   { id: "ENCANAMENTO", label: "Encanador", icon: "🔧" },
   { id: "PINTURA", label: "Pintor", icon: "🎨" },

@@ -75,17 +75,17 @@ export function RatingForm({
       ? "/(professional)/(services)"
       : "/(client)/(orders)";
 
-  const goHome = useCallback(() => {
+  const goHome = () => {
     router.replace(homeRoute);
-  }, [router, homeRoute]);
+  };
 
-  const toggleTag = useCallback((tag: TagAvaliacao) => {
+  const toggleTag = (tag: TagAvaliacao) => {
     setTagsSelecionadas((prev) =>
       prev.includes(tag)
         ? prev.filter((t) => t !== tag)
         : [...prev, tag],
     );
-  }, []);
+  };
 
   const handleSubmit = async () => {
     if (nota === 0 || submitStatus === "submitting") return;

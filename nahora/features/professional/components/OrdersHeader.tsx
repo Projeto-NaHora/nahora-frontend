@@ -31,22 +31,22 @@ export function OrdersHeader({
   const colors = Colors[theme];
   const [searchText, setSearchText] = useState(initialSearch);
 
-  const handleSubmitSearch = useCallback(() => {
+  const handleSubmitSearch = () => {
     const termo = searchText.trim();
     if (termo.length >= 2 && onSearch) {
       onSearch(termo);
     }
-  }, [searchText, onSearch]);
+  };
 
-  const handleClearSearch = useCallback(() => {
+  const handleClearSearch = () => {
     setSearchText("");
-  }, []);
+  };
 
-  const handleSearchBarPress = useCallback(() => {
+  const handleSearchBarPress = () => {
     if (!searchMode) {
       router.push("/(professional)/(orders)/search");
     }
-  }, [searchMode, router]);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.brand }]}>

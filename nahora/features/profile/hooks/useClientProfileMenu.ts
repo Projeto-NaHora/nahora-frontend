@@ -38,7 +38,7 @@ export function useClientProfileMenu() {
   );
 
   const nome = user?.nome ?? "";
-  const initials = useMemo(() => {
+  const initials = (() => {
     return nome
       ? nome
           .split(" ")
@@ -47,80 +47,71 @@ export function useClientProfileMenu() {
           .join("")
           .toUpperCase()
       : "??";
-  }, [nome]);
+  })();
 
   const subtitle = "Cliente";
 
-  const stats: ProfileStats = useMemo(
-    () => ({
-      servicesCount: resumo?.totalServicos ?? 0,
-      rating: resumo?.mediaAvaliacoes ?? 0,
-      earnings: formatCurrency(resumo?.totalPago),
-    }),
-    [resumo],
-  );
+  const stats: ProfileStats = (() => ({
+    servicesCount: resumo?.totalServicos ?? 0,
+    rating: resumo?.mediaAvaliacoes ?? 0,
+    earnings: formatCurrency(resumo?.totalPago),
+  }))();
 
-  const menuItems: ProfileMenuItem[] = useMemo(
-    () => [
-      {
-        id: "edit-profile",
-        label: "Editar perfil",
-        route: "/(client)/(account)/edit",
-      },
-      {
-        id: "history",
-        label: "Histórico",
-        route: "/(client)/(account)/history",
-      },
-      {
-        id: "addresses",
-        label: "Endereços salvos",
-        route: "/(client)/(account)/addresses",
-      },
-      {
-        id: "payment-methods",
-        label: "Formas de pagamento",
-        route: "/(client)/(account)/payment-methods",
-      },
-      {
-        id: "settings",
-        label: "Configurações",
-        route: "/(client)/(account)/settings",
-      },
-      {
-        id: "privacy",
-        label: "Privacidade",
-        route: "/(client)/(account)/settings/privacy",
-      },
-    ],
-    [],
-  );
-
-  const handleMenuItemPress = useCallback(
-    (item: ProfileMenuItem) => {
-      if (item.route) {
-        router.push(item.route as any);
-      }
+  const menuItems: ProfileMenuItem[] = (() => [
+    {
+      id: "edit-profile",
+      label: "Editar perfil",
+      route: "/(client)/(account)/edit",
     },
-    [router],
-  );
+    {
+      id: "history",
+      label: "Histórico",
+      route: "/(client)/(account)/history",
+    },
+    {
+      id: "addresses",
+      label: "Endereços salvos",
+      route: "/(client)/(account)/addresses",
+    },
+    {
+      id: "payment-methods",
+      label: "Formas de pagamento",
+      route: "/(client)/(account)/payment-methods",
+    },
+    {
+      id: "settings",
+      label: "Configurações",
+      route: "/(client)/(account)/settings",
+    },
+    {
+      id: "privacy",
+      label: "Privacidade",
+      route: "/(client)/(account)/settings/privacy",
+    },
+  ])();
+
+  const handleMenuItemPress = (item: ProfileMenuItem) => {
+    if (item.route) {
+      router.push(item.route as any);
+    }
+  };
 
   // Popup de confirmação de logout
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
-  const openLogoutPopup = useCallback(() => {
+  const openLogoutPopup = () => {
     setShowLogoutPopup(true);
-  }, []);
+  };
 
-  const closeLogoutPopup = useCallback(() => {
+  const closeLogoutPopup = () => {
     setShowLogoutPopup(false);
-  }, []);
+  };
 
-  const confirmLogout = useCallback(() => {
+  const confirmLogout = () => {
     setShowLogoutPopup(false);
     logout();
     router.replace("/(auth)/(login)");
-  }, [logout, router]);
+  };
 
   return {
     user,

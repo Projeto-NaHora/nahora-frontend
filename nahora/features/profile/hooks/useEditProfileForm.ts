@@ -52,9 +52,9 @@ export function useEditProfileForm(opts?: { initialize?: boolean }) {
     return () => {
       cancelled = true;
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [opts?.initialize]);
 
-  const saveProfile = useCallback(async () => {
+  const saveProfile = async () => {
     const s = useEditProfileStore.getState();
 
     const fotoUrl =
@@ -103,7 +103,7 @@ export function useEditProfileForm(opts?: { initialize?: boolean }) {
 
     // Invalida o cache do SWR para forçar o refetch dos dados do perfil
     await mutate(profileKeys.professionalProfile);
-  }, []);
+  };
 
 
   return {

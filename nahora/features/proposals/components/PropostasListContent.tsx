@@ -10,14 +10,11 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 
 type OrdemFiltro = "todos" | "melhor_avaliacao" | "menor_preco";
 
-function formatDateAndTime(iso: string): string {
-  const d = new Date(iso);
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-  const hours = String(d.getHours()).padStart(2, "0");
-  const mins = String(d.getMinutes()).padStart(2, "0");
-  return `${day}/${month}/${year} · ${hours}:${mins}`;
+function getPeriodo(iso: string): string {
+  const hora = new Date(iso).getHours();
+  if (hora < 12) return "Manhã";
+  if (hora < 18) return "Tarde";
+  return "Noite";
 }
 
 const FILTRO_LABELS: { key: OrdemFiltro; label: string }[] = [
@@ -34,17 +31,17 @@ export default function PropostasListContent() {
   const { proposals, isLoading, isError } = useProposalsByPedido(Number(orderId));
   const { data: order } = useOrderDetail(Number(orderId));
 
-  const propostasOrdenadas = useMemo(() => {
+  const propostasOrdenadas = (() => {
     return [...proposals].sort((a, b) => {
       if (filtro === "menor_preco") return a.valor - b.valor;
       if (filtro === "melhor_avaliacao") return b.profissional.notaMedia - a.profissional.notaMedia;
       return 0;
     });
-  }, [proposals, filtro]);
+  })();
 
   const categoriaLabel = order ? CATEGORIA_LABEL[order.categoria] ?? order.categoria : null;
   const statusLabel = order ? STATUS_LABEL[order.status] ?? order.status : null;
-  const dataHora = order?.dataDesejada ? formatDateAndTime(order.dataDesejada) : null;
+  const turno = order?.dataDesejada ? getPeriodo(order.dataDesejada) : null;
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -64,8 +61,8 @@ export default function PropostasListContent() {
               {categoriaLabel && (
                 <Text style={[styles.orderCategory, { color: colors.brand }]}>{categoriaLabel}</Text>
               )}
-              {statusLabel && dataHora && (
-                <Text style={[styles.orderSubtitle, { color: colors.textSecondary }]}>{statusLabel} · {dataHora}</Text>
+              {statusLabel && turno && (
+                <Text style={[styles.orderSubtitle, { color: colors.textSecondary }]}>{statusLabel} · {turno}</Text>
               )}
             </View>
           </View>

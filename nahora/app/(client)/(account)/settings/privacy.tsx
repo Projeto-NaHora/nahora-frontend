@@ -54,12 +54,12 @@ export default function PrivacyScreen() {
   const [deleteSenha, setDeleteSenha] = useState("");
   const [deleting, setDeleting] = useState(false);
 
-  const openDeleteModal = useCallback(() => {
+  const openDeleteModal = () => {
     setDeleteSenha("");
     setShowDeleteModal(true);
-  }, []);
+  };
 
-  const handleDelete = useCallback(async () => {
+  const handleDelete = async () => {
     if (!deleteSenha) {
       Alert.alert("Erro", "Informe sua senha.");
       return;
@@ -78,7 +78,7 @@ export default function PrivacyScreen() {
     } finally {
       setDeleting(false);
     }
-  }, [deleteSenha]);
+  };
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>

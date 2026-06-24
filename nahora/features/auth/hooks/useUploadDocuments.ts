@@ -17,7 +17,7 @@ export function useUploadDocuments() {
   const setRgBackUrl = useRegisterStore((state) => state.setRgBackUrl);
   const setSelfieUrl = useRegisterStore((state) => state.setSelfieUrl);
 
-  const upload = useCallback(async (): Promise<boolean> => {
+  const upload = async (): Promise<boolean> => {
     if (!rgFrontUri || !rgBackUri || !selfieUri) {
       Alert.alert(
         "Atenção",
@@ -56,14 +56,7 @@ export function useUploadDocuments() {
     } finally {
       setIsUploading(false);
     }
-  }, [
-    rgFrontUri,
-    rgBackUri,
-    selfieUri,
-    setRgFrontUrl,
-    setRgBackUrl,
-    setSelfieUrl,
-  ]);
+  };
 
   return { upload, isUploading, errorMessage, errorStatus };
 }

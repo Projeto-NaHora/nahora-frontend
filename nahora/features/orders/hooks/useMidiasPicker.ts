@@ -10,7 +10,7 @@ export function useMidiasPicker() {
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   /** Abre a câmera para capturar uma foto */
-  const pickFromCamera = useCallback(async () => {
+  const pickFromCamera = async () => {
     try {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted) {
@@ -31,10 +31,10 @@ export function useMidiasPicker() {
     } catch (err) {
       setUploadError(getApiErrorMessage(err, "Erro ao abrir câmera."));
     }
-  }, []);
+  };
 
   /** Abre a galeria para selecionar uma ou mais imagens */
-  const pickFromGallery = useCallback(async () => {
+  const pickFromGallery = async () => {
     try {
       const permission =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -58,15 +58,15 @@ export function useMidiasPicker() {
     } catch (err) {
       setUploadError(getApiErrorMessage(err, "Erro ao abrir galeria."));
     }
-  }, []);
+  };
 
   /** Remove uma mídia da lista pelo índice */
-  const removeMedia = useCallback((index: number) => {
+  const removeMedia = (index: number) => {
     setMediaUris((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+  };
 
   /** Faz upload de todas as mídias selecionadas e retorna as URLs */
-  const uploadAll = useCallback(async (): Promise<string[]> => {
+  const uploadAll = async (): Promise<string[]> => {
     if (mediaUris.length === 0) return [];
     setIsUploading(true);
     setUploadError(null);
@@ -86,14 +86,14 @@ export function useMidiasPicker() {
     } finally {
       setIsUploading(false);
     }
-  }, [mediaUris]);
+  };
 
   /** Reseta o estado (após submit ou clear) */
-  const reset = useCallback(() => {
+  const reset = () => {
     setMediaUris([]);
     setIsUploading(false);
     setUploadError(null);
-  }, []);
+  };
 
   return {
     /** URIs locais das mídias selecionadas (para preview) */

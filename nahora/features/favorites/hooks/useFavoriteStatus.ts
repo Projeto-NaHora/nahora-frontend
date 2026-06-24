@@ -30,11 +30,11 @@ export function useFavoriteStatus(profissionalId: number): UseFavoriteStatusRetu
     isError: boolean;
   }>({ visible: false, message: "", isError: false });
 
-  const dismissSnackbar = useCallback(() => {
+  const dismissSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, visible: false }));
-  }, []);
+  };
 
-  const toggle = useCallback(async () => {
+  const toggle = async () => {
     if (!profissionalId) return;
 
     const currentStatus = isFavorite ?? false;
@@ -78,7 +78,7 @@ export function useFavoriteStatus(profissionalId: number): UseFavoriteStatusRetu
         isError: true,
       });
     }
-  }, [profissionalId, isFavorite, mutate]);
+  };
 
   return { isFavorite, isLoading, toggle, snackbar, dismissSnackbar };
 }

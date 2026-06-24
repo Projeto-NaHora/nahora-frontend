@@ -31,18 +31,15 @@ export default function Screen() {
     profileService.buscarPreferencias(),
   );
 
-  const togglePref = useCallback(
-    async (key: keyof PreferenciasNotificacao, value: boolean) => {
-      if (!prefs) return;
-      try {
-        await profileService.atualizarPreferencias({ [key]: value });
-        mutate();
-      } catch {
-        // silently ignore
-      }
-    },
-    [prefs, mutate],
-  );
+  const togglePref = async (key: keyof PreferenciasNotificacao, value: boolean) => {
+    if (!prefs) return;
+    try {
+      await profileService.atualizarPreferencias({ [key]: value });
+      mutate();
+    } catch {
+      // silently ignore
+    }
+  };
 
   if (isLoading) {
     return (

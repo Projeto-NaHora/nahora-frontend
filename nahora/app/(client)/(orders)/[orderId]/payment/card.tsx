@@ -27,41 +27,38 @@ export default function CardPaymentScreen() {
   const [loading, setLoading] = useState(false);
   const [cardError, setCardError] = useState<string | null>(null);
 
-  const handleSubmit = useCallback(
-    async (values: CardFormValues) => {
-      setCardError(null);
-      setLoading(true);
-      try {
-        const result = await paymentsService.simular(pedidoId, {
-          metodo: "CARTAO_CREDITO",
-          parcelas: values.parcelas,
-          salvarCartao: values.salvarCartao,
-        });
+  const handleSubmit = async (values: CardFormValues) => {
+    setCardError(null);
+    setLoading(true);
+    try {
+      const result = await paymentsService.simular(pedidoId, {
+        metodo: "CARTAO_CREDITO",
+        parcelas: values.parcelas,
+        salvarCartao: values.salvarCartao,
+      });
 
-        router.replace({
-          pathname: `/(client)/(orders)/${orderId}/payment/receipt`,
-          params: {
-            orderId: String(orderId),
-            pagamentoId: String(result.pagamentoId),
-            valor: String(result.valor),
-            metodo: result.metodo,
-            dataPagamento: result.dataPagamento ?? "",
-            codigoTransacao: result.codigoTransacao ?? "",
-            prestadorNome: result.prestadorNome ?? "",
-          },
-        });
-      } catch (err: any) {
-        const message =
-          err?.response?.data?.message ??
-          err?.message ??
-          "Erro ao processar pagamento";
-        setCardError(message);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [orderId, pedidoId, router],
-  );
+      router.replace({
+        pathname: `/(client)/(orders)/${orderId}/payment/receipt`,
+        params: {
+          orderId: String(orderId),
+          pagamentoId: String(result.pagamentoId),
+          valor: String(result.valor),
+          metodo: result.metodo,
+          dataPagamento: result.dataPagamento ?? "",
+          codigoTransacao: result.codigoTransacao ?? "",
+          prestadorNome: result.prestadorNome ?? "",
+        },
+      });
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message ??
+        err?.message ??
+        "Erro ao processar pagamento";
+      setCardError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>

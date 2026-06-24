@@ -30,7 +30,7 @@ export default function ReceiptScreen() {
   const metodo = params.metodo ?? "PIX";
   const orderId = params.orderId ? Number(params.orderId) : null;
 
-  const handleShare = useCallback(async () => {
+  const handleShare = async () => {
     const formattedValor = new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
@@ -45,9 +45,9 @@ export default function ReceiptScreen() {
     } catch {
       // Usuário cancelou
     }
-  }, [valor, metodo, params]);
+  };
 
-  const handleDownloadPdf = useCallback(async () => {
+  const handleDownloadPdf = async () => {
     if (!orderId) {
       Alert.alert("Erro", "Pedido não identificado para gerar recibo.");
       return;
@@ -70,7 +70,7 @@ export default function ReceiptScreen() {
     } finally {
       setDownloadingPdf(false);
     }
-  }, [orderId]);
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>

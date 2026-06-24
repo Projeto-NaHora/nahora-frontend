@@ -14,12 +14,9 @@ export default function Screen() {
   const colors = Colors[theme];
   const router = useRouter();
 
-  const handlePressPedido = useCallback(
-    (pedido: PedidoDisponivel) => {
-      router.push(`/(professional)/(orders)/${pedido.id}`);
-    },
-    [router],
-  );
+  const handlePressPedido = (pedido: PedidoDisponivel) => {
+    router.push(`/(professional)/(orders)/${pedido.id}`);
+  };
 
   return (
     <SafeAreaView

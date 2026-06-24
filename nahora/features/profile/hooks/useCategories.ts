@@ -13,19 +13,16 @@ export type Category = {
  * real API/service is implemented.
  */
 export function useCategories() {
-  const categories = useMemo<Category[]>(
-    () => [
-      { id: 'eletrica', name: 'Elétrica', emoji: '⚡', slug: 'eletrica' },
-      { id: 'encanamento', name: 'Encanamento', emoji: '🔧', slug: 'encanamento' },
-      { id: 'pintura', name: 'Pintura', emoji: '🎨', slug: 'pintura' },
-      { id: 'limpeza', name: 'Limpeza', emoji: '🧹', slug: 'limpeza' },
-      { id: 'ar-condicionado', name: 'Ar-cond.', emoji: '❄️', slug: 'ar-condicionado' },
-      { id: 'marcenaria', name: 'Marcenaria', emoji: '🪵', slug: 'marcenaria' },
-      { id: 'mudancas', name: 'Mudanças', emoji: '📦', slug: 'mudancas' },
-      { id: 'pedreiro', name: 'Pedreiro', emoji: '🏗️', slug: 'pedreiro' },
-    ],
-    []
-  );
+  const categories = (() => [
+    { id: 'eletrica', name: 'Elétrica', emoji: '⚡', slug: 'eletrica' },
+    { id: 'encanamento', name: 'Encanamento', emoji: '🔧', slug: 'encanamento' },
+    { id: 'pintura', name: 'Pintura', emoji: '🎨', slug: 'pintura' },
+    { id: 'limpeza', name: 'Limpeza', emoji: '🧹', slug: 'limpeza' },
+    { id: 'ar-condicionado', name: 'Ar-cond.', emoji: '❄️', slug: 'ar-condicionado' },
+    { id: 'marcenaria', name: 'Marcenaria', emoji: '🪵', slug: 'marcenaria' },
+    { id: 'mudancas', name: 'Mudanças', emoji: '📦', slug: 'mudancas' },
+    { id: 'pedreiro', name: 'Pedreiro', emoji: '🏗️', slug: 'pedreiro' },
+  ])() as Category[];
 
   return { categories };
 }

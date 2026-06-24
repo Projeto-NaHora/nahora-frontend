@@ -22,12 +22,9 @@ export function useChatScreen(propostaId: number) {
     updateMessageStatusByContent,
   } = useMessages(conversaId);
 
-  const onEcho = useCallback(
-    (conteudo: string) => {
-      updateMessageStatusByContent(conteudo, "ENTREGUE");
-    },
-    [updateMessageStatusByContent],
-  );
+  const onEcho = (conteudo: string) => {
+    updateMessageStatusByContent(conteudo, "ENTREGUE");
+  };
 
   const {
     connectionStatus,
@@ -41,28 +38,22 @@ export function useChatScreen(propostaId: number) {
 
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const groupedMessages = useMemo(
-    () => groupMessagesByDate(messages),
-    [messages],
-  );
+  const groupedMessages = (() => groupMessagesByDate(messages))();
 
-  const sendWithFeedback = useCallback(
-    (text: string) => {
-      clearIaBlocked();
-      setValidationError(null);
+  const sendWithFeedback = (text: string) => {
+    clearIaBlocked();
+    setValidationError(null);
 
-      const resultado = validarMensagem(text);
-      if (!resultado.valida) {
-        setValidationError(resultado.erro ?? null);
-        return;
-      }
+    const resultado = validarMensagem(text);
+    if (!resultado.valida) {
+      setValidationError(resultado.erro ?? null);
+      return;
+    }
 
-      sendMessage(text);
-    },
-    [sendMessage, clearIaBlocked],
-  );
+    sendMessage(text);
+  };
 
-  const clearValidationError = useCallback(() => setValidationError(null), []);
+  const clearValidationError = () => setValidationError(null);
 
   const isLoading = msgsLoading || conversaLoading;
 

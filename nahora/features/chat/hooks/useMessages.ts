@@ -29,36 +29,34 @@ export function useMessages(conversaId: number) {
     }
   }, [data, page]);
 
-  const loadMore = useCallback(() => {
+  const loadMore = () => {
     if (data && !data.last) {
       setPage((p) => p + 1);
     }
-  }, [data]);
+  };
 
   const hasMore = data ? !data.last : false;
 
-  const appendIncoming = useCallback((msg: Mensagem) => {
+  const appendIncoming = (msg: Mensagem) => {
     if (seenIds.current.has(msg.id)) return;
     seenIds.current.add(msg.id);
     setAllMessages((prev) => [...prev, msg]);
-  }, []);
+  };
 
-  /** Atualiza o status da primeira mensagem própria com o conteúdo informado.
-   *  Usado quando o echo STOMP confirma que a mensagem foi entregue ao servidor. */
-  const updateMessageStatusByContent = useCallback(
-    (conteudo: string, novoStatus: Mensagem["status"]) => {
-      setAllMessages((prev) => {
-        const idx = prev.findLastIndex(
-          (m) => m.conteudo === conteudo && m.status === "ENVIADA",
-        );
-        if (idx === -1) return prev;
-        const updated = [...prev];
-        updated[idx] = { ...updated[idx], status: novoStatus };
-        return updated;
-      });
-    },
-    [],
-  );
+  const updateMessageStatusByContent = (
+    conteudo: string,
+    novoStatus: Mensagem["status"],
+  ) => {
+    setAllMessages((prev) => {
+      const idx = prev.findLastIndex(
+        (m) => m.conteudo === conteudo && m.status === "ENVIADA",
+      );
+      if (idx === -1) return prev;
+      const updated = [...prev];
+      updated[idx] = { ...updated[idx], status: novoStatus };
+      return updated;
+    });
+  };
 
   return {
     messages: allMessages,

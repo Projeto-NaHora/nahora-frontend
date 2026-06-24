@@ -98,9 +98,9 @@ export default function ProvidersByCategoryScreen() {
     }
 
     fetchProfessionals();
-  }, [categoriaId, termo]);
+  }, [categoriaId, termo, id]);
   // Lógica de ordenação inteligente (agora baseada nos dados da API)
-  const sortedProfessionals = useMemo(() => {
+  const sortedProfessionals = (() => {
     let result = [...professionals];
 
     if (activeFilter === "best") {
@@ -110,7 +110,7 @@ export default function ProvidersByCategoryScreen() {
     }
 
     return result;
-  }, [professionals, activeFilter]);
+  })();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>

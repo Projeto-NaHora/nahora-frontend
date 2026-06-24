@@ -45,8 +45,7 @@ export function PasswordInput({
     ? realValue
     : MASK_CHAR.repeat(realValue.length);
 
-  const handleChangeText = useCallback(
-    (text: string) => {
+  const handleChangeText = (text: string) => {
       const oldLen = realValue.length;
 
       if (text.length < oldLen) {
@@ -62,13 +61,11 @@ export function PasswordInput({
         onChangeText?.(newValue);
       }
       // Same length  → in-place edit, safely ignored
-    },
-    [realValue, onChangeText],
-  );
+    };
 
-  const toggleVisibility = useCallback(() => {
+  const toggleVisibility = () => {
     setShowPassword((prev) => !prev);
-  }, []);
+  };
 
   return (
     <View style={{ position: "relative" }}>

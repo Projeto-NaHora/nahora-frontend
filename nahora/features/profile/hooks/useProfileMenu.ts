@@ -59,7 +59,7 @@ export function useProfileMenu() {
 
   // Deriva os dados de exibição
   const nome = profile?.nome ?? user?.nome ?? "";
-  const initials = useMemo(() => {
+  const initials = (() => {
     return nome
       ? nome
           .split(" ")
@@ -68,9 +68,9 @@ export function useProfileMenu() {
           .join("")
           .toUpperCase()
       : "??";
-  }, [nome]);
+  })();
 
-  const subtitle = useMemo(() => {
+  const subtitle = (() => {
     if (profile) {
       const profissao = mapProfissao(profile.profissao);
       if (profile.cidade && profile.estado) {
@@ -79,78 +79,69 @@ export function useProfileMenu() {
       return profissao;
     }
     return "";
-  }, [profile]);
+  })();
 
-  const stats: ProfileStats = useMemo(
-    () => ({
-      servicesCount: resumo?.totalServicos ?? profile?.totalServicosExecutados ?? 0,
-      rating: profile?.notaMedia ?? 0,
-      earnings: formatCurrency(resumo?.totalRecebido),
-    }),
-    [profile, resumo],
-  );
+  const stats: ProfileStats = (() => ({
+    servicesCount: resumo?.totalServicos ?? profile?.totalServicosExecutados ?? 0,
+    rating: profile?.notaMedia ?? 0,
+    earnings: formatCurrency(resumo?.totalRecebido),
+  }))();
 
-  const menuItems: ProfileMenuItem[] = useMemo(
-    () => [
-      {
-        id: "edit-profile",
-        label: "Editar perfil",
-        route: "/(professional)/(account)/public-profile-1",
-      },
-      {
-        id: "bank-accounts",
-        label: "Contas Bancárias e PIX",
-        route: "/(professional)/(account)/bank-accounts",
-      },
-      {
-        id: "addresses",
-        label: "Endereços salvos",
-        route: "/(professional)/(account)/addresses",
-      },
-      {
-        id: "settings",
-        label: "Configurações",
-        route: "/(professional)/(account)/settings",
-      },
-      {
-        id: "earnings",
-        label: "Meus Ganhos",
-        route: "/(professional)/(account)/earnings",
-      },
-      {
-        id: "privacy",
-        label: "Privacidade",
-        route: "/(professional)/(account)/settings/privacy",
-      },
-    ],
-    [],
-  );
-
-  const handleMenuItemPress = useCallback(
-    (item: ProfileMenuItem) => {
-      if (item.route) {
-        router.push(item.route as any);
-      }
+  const menuItems: ProfileMenuItem[] = (() => [
+    {
+      id: "edit-profile",
+      label: "Editar perfil",
+      route: "/(professional)/(account)/public-profile-1",
     },
-    [router],
-  );
+    {
+      id: "bank-accounts",
+      label: "Contas Bancárias e PIX",
+      route: "/(professional)/(account)/bank-accounts",
+    },
+    {
+      id: "addresses",
+      label: "Endereços salvos",
+      route: "/(professional)/(account)/addresses",
+    },
+    {
+      id: "settings",
+      label: "Configurações",
+      route: "/(professional)/(account)/settings",
+    },
+    {
+      id: "earnings",
+      label: "Meus Ganhos",
+      route: "/(professional)/(account)/earnings",
+    },
+    {
+      id: "privacy",
+      label: "Privacidade",
+      route: "/(professional)/(account)/settings/privacy",
+    },
+  ])();
+
+  const handleMenuItemPress = (item: ProfileMenuItem) => {
+    if (item.route) {
+      router.push(item.route as any);
+    }
+  };
 
   // Popup de confirmação de logout
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
-  const openLogoutPopup = useCallback(() => {
+  const openLogoutPopup = () => {
     setShowLogoutPopup(true);
-  }, []);
+  };
 
-  const closeLogoutPopup = useCallback(() => {
+  const closeLogoutPopup = () => {
     setShowLogoutPopup(false);
-  }, []);
+  };
 
-  const confirmLogout = useCallback(() => {
+  const confirmLogout = () => {
     setShowLogoutPopup(false);
     logout();
     router.replace("/(auth)/(login)");
-  }, [logout, router]);
+  };
 
   return {
     user,
