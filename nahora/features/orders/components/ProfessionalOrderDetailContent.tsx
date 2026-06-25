@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
-  Image,
 } from "react-native";
+import { Image } from "expo-image";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { getInitials } from "@/utils/formatters";
@@ -291,11 +291,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 20,
     marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 10,
-    elevation: 1,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
   },
 
   // Client info

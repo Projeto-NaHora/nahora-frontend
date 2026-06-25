@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
 import { FontAwesome } from "@expo/vector-icons";
 import { SuggestedProfessional } from "../../store/homeStore";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -81,11 +82,7 @@ const styles = StyleSheet.create({
     width: 144,
     marginHorizontal: 4,
     borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   },
   imageContainer: {
     marginBottom: 8,

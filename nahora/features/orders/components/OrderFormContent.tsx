@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
   Modal,
   FlatList,
 } from "react-native";
+import { Image } from "expo-image";
 import { Controller, type Control, type FieldErrors } from "react-hook-form";
 
 import { Borders, Colors, Fonts, Radii } from "@/constants/theme";

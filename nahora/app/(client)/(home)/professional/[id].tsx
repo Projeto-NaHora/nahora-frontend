@@ -5,10 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   Dimensions,
   ActivityIndicator,
 } from "react-native";
+import { Image } from "expo-image";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -73,9 +73,8 @@ export default function ProfessionalProfileScreen() {
         setProfileData(response.data);
       } catch (error) {
         console.error("Erro ao buscar perfil do profissional:", error);
-      } finally {
-        setIsLoading(false);
       }
+      setIsLoading(false);
     }
 
     fetchProfessionalProfile();

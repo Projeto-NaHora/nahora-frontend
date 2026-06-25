@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from "react";
 import {
-  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -8,6 +7,7 @@ import {
   View,
   ActivityIndicator,
 } from "react-native";
+import { Image } from "expo-image";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
@@ -666,11 +666,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 2,
     borderColor: "transparent",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
   photoImage: {
     width: 92,

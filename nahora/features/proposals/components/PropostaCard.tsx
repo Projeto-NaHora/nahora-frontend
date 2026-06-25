@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 import type { Proposta } from "@/features/proposals/types";
 import { CATEGORIA_LABEL } from "@/features/orders/types";
 import { getInitials } from "@/utils/formatters";

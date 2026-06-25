@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Image, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 import { useChatColors } from "@/hooks/use-chat-colors";
 import { getInitials } from "@/utils/formatters";
 

@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Pressable, Image, Share, StyleSheet } from "react-native";
+import { View, Text, Pressable, Share, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 

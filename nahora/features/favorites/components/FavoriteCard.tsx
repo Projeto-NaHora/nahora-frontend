@@ -3,10 +3,10 @@ import React from "react";
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { Image } from "expo-image";
 import { FontAwesome } from "@expo/vector-icons";
 
 import type { FavoritoResponseDTO } from "../types";
@@ -127,11 +127,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     gap: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
   avatar: {
     width: 52,
