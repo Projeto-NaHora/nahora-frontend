@@ -1,15 +1,11 @@
 import React, { useState } from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
+  StyleSheet,ScrollView, FlatList,
   TextInput,
   ActivityIndicator,
-  Image,
-  Alert,
-} from "react-native";
+  Alert, Pressable } from "react-native";
+import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
@@ -99,9 +95,6 @@ export const OrderIssueContent: React.FC<Props> = ({
   const profissionalNome = pedido?.profissionalAtribuidoNome || "Profissional";
   const categoriaFormatada =
     CATEGORIA_LABEL[pedido?.categoria] || pedido?.categoria || "Serviço";
-  const dataFormatada = pedido?.dataDesejada
-    ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
-    : "";
   const valorParaExibir = pedido?.valorAcordado ?? pedido?.orcamentoEstimado ?? 0;
   const valorFormatado = Number(valorParaExibir).toLocaleString(
     "pt-BR",
@@ -112,13 +105,13 @@ export const OrderIssueContent: React.FC<Props> = ({
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header Fixo */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <Pressable
           style={[styles.backBtn, { backgroundColor: colors.surface }]}
           onPress={onBack}
           disabled={isSubmitting}
         >
           <Feather name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Tive um problema</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -151,7 +144,7 @@ export const OrderIssueContent: React.FC<Props> = ({
           <View style={styles.providerInfo}>
             <Text style={[styles.providerName, { color: colors.text }]}>{profissionalNome}</Text>
             <Text style={[styles.providerDetails, { color: colors.textSecondary }]}>
-              {categoriaFormatada} {dataFormatada ? `• ${dataFormatada}` : ""}
+              {categoriaFormatada}
             </Text>
             <Text style={[styles.providerPrice, { color: colors.success }]}>{valorFormatado}</Text>
           </View>
@@ -163,7 +156,7 @@ export const OrderIssueContent: React.FC<Props> = ({
           {motivosDisponiveis.map((item) => {
             const isSelected = motivo === item;
             return (
-              <TouchableOpacity
+              <Pressable
                 key={item}
                 style={[
                   styles.optionCard,
@@ -190,7 +183,7 @@ export const OrderIssueContent: React.FC<Props> = ({
                 >
                   {item}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             );
           })}
         </View>
@@ -217,28 +210,29 @@ export const OrderIssueContent: React.FC<Props> = ({
 
         {/* Lista de miniaturas das fotos escolhidas */}
         {fotos.length > 0 && (
-          <ScrollView
+          <FlatList
             horizontal
+            data={fotos}
+            keyExtractor={(uri) => uri}
             showsHorizontalScrollIndicator={false}
             style={styles.photosList}
-          >
-            {fotos.map((uri, index) => (
-              <View key={index} style={styles.photoThumbnailContainer}>
+            renderItem={({ item: uri, index }) => (
+              <View style={styles.photoThumbnailContainer}>
                 <Image source={{ uri }} style={styles.photoThumbnail} />
-                <TouchableOpacity
+                <Pressable
                   style={styles.removePhotoBtn}
                   onPress={() => handleRemovePhoto(index)}
                 >
                   <Feather name="x" size={14} color="#FFFFFF" />
-                </TouchableOpacity>
+                </Pressable>
               </View>
-            ))}
-          </ScrollView>
+            )}
+          />
         )}
 
         {/* Botões para adicionar mais fotos */}
         <View style={styles.evidenceContainer}>
-          <TouchableOpacity
+          <Pressable
             style={[styles.evidenceButton, { borderColor: colors.border }]}
             onPress={handleTakePhoto}
           >
@@ -249,8 +243,8 @@ export const OrderIssueContent: React.FC<Props> = ({
               style={{ marginBottom: 8 }}
             />
             <Text style={[styles.evidenceText, { color: colors.textSecondary }]}>Câmera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             style={[styles.evidenceButton, { borderColor: colors.border }]}
             onPress={handlePickImage}
           >
@@ -261,20 +255,20 @@ export const OrderIssueContent: React.FC<Props> = ({
               style={{ marginBottom: 8 }}
             />
             <Text style={[styles.evidenceText, { color: colors.textSecondary }]}>Galeria</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Footer Actions */}
         <View style={styles.footer}>
-          <TouchableOpacity
+          <Pressable
             style={[styles.cancelButton, { backgroundColor: colors.surface }]}
             onPress={onBack}
             disabled={isSubmitting}
           >
             <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancelar</Text>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
+          <Pressable
             style={[
               styles.continueButton,
               { backgroundColor: colors.surface },
@@ -298,7 +292,7 @@ export const OrderIssueContent: React.FC<Props> = ({
                 />
               </>
             )}
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>

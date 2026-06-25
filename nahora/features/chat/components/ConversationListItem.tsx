@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text,StyleSheet, Pressable } from "react-native";
+import { Image } from "expo-image";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import type { ConversaResponseDTO } from "../types";
@@ -55,9 +56,8 @@ export default function ConversationListItem({
   };
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={styles.row}
-      activeOpacity={0.6}
       onPress={() => onPress(propostaId)}
     >
       <View style={styles.avatar}>
@@ -94,7 +94,7 @@ export default function ConversationListItem({
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

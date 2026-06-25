@@ -122,13 +122,18 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   restoreSession: async () => {
     try {
-      const refreshToken = await storage.get("refreshToken");
+      const [
+        refreshToken,
+        savedOnboarding,
+        { default: axios },
+        { API_URL },
+      ] = await Promise.all([
+        storage.get("refreshToken"),
+        storage.get("professionalOnboarding"),
+        import("axios"),
+        import("@/services/api/endpoints"),
+      ]);
       if (!refreshToken) return false;
-
-      const savedOnboarding = await storage.get("professionalOnboarding");
-
-      const { default: axios } = await import("axios");
-      const { API_URL } = await import("@/services/api/endpoints");
       const { data } = await axios.post(`${API_URL}/auth/refresh`, {
         refreshToken,
       });
@@ -150,8 +155,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await storage.delete("refreshToken");
-    await storage.delete("professionalOnboarding");
+    await Promise.all([
+      storage.delete("refreshToken"),
+      storage.delete("professionalOnboarding"),
+    ]);
     chatWsManager.setToken(null);
     disconnectStomp();
     useNotifStore.getState().clear();

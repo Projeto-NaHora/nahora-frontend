@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { profileService } from "../service";
 import type { ClientePerfilResponse, ClientePerfilRequest } from "../types";
 
-export const clientProfileKeys = {
+const clientProfileKeys = {
   clientProfile: "client-profile",
 } as const;
 
@@ -19,14 +19,11 @@ export function useEditClientProfile() {
     () => profileService.buscarPerfilCliente(),
   );
 
-  const salvar = useCallback(
-    async (payload: ClientePerfilRequest): Promise<ClientePerfilResponse> => {
-      const updated = await profileService.salvarPerfilCliente(payload);
-      await mutate(updated, false);
-      return updated;
-    },
-    [mutate],
-  );
+  const salvar = async (payload: ClientePerfilRequest): Promise<ClientePerfilResponse> => {
+    const updated = await profileService.salvarPerfilCliente(payload);
+    await mutate(updated, false);
+    return updated;
+  };
 
   return {
     profile,

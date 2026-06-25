@@ -58,20 +58,22 @@ export default function NewOrderScreen() {
       {/* Form content */}
       <OrderFormContent
         control={control}
-        isSubmitting={isSubmitting}
-        isBuscandoCep={isBuscandoCep}
-        enderecoDiferente={enderecoDiferente}
+        flags={{
+          isSubmitting,
+          isBuscandoCep,
+          enderecoDiferente,
+          isUploadingMedia: midiasPicker.isUploading,
+          isEditing,
+        }}
         errorMessage={errorMessage}
         errors={errors}
         mediaUris={midiasPicker.mediaUris}
-        isUploadingMedia={midiasPicker.isUploading}
         uploadError={midiasPicker.uploadError}
         onPickFromCamera={midiasPicker.pickFromCamera}
         onPickFromGallery={midiasPicker.pickFromGallery}
         onRemoveMedia={midiasPicker.removeMedia}
         onSubmit={onSubmit}
         onClear={handleClear}
-        isEditing={isEditing}
       />
     </SafeAreaView>
   );

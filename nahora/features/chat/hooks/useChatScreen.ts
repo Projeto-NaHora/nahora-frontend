@@ -1,8 +1,9 @@
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { useMessages } from "./useMessages";
 import { useChat } from "./useChat";
 import { useConversaPorProposta } from "./useConversa";
 import { groupMessagesByDate } from "@/utils/formatters";
+import { validarMensagem } from "../validation";
 import type { ConnectionStatus } from "../stompClient";
 
 export function useChatScreen(propostaId: number) {
@@ -18,7 +19,12 @@ export function useChatScreen(propostaId: number) {
     hasMore,
     refresh,
     appendIncoming,
+    updateMessageStatusByContent,
   } = useMessages(conversaId);
+
+  const onEcho = (conteudo: string) => {
+    updateMessageStatusByContent(conteudo, "ENTREGUE");
+  };
 
   const {
     connectionStatus,
@@ -28,20 +34,26 @@ export function useChatScreen(propostaId: number) {
     sendMessage,
     clearIaBlocked,
     connectionError,
-  } = useChat(conversaId, appendIncoming);
+  } = useChat(conversaId, appendIncoming, onEcho);
 
-  const groupedMessages = useMemo(
-    () => groupMessagesByDate(messages),
-    [messages],
-  );
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  const sendWithFeedback = useCallback(
-    (text: string) => {
-      clearIaBlocked();
-      sendMessage(text);
-    },
-    [sendMessage, clearIaBlocked],
-  );
+  const groupedMessages = (() => groupMessagesByDate(messages))();
+
+  const sendWithFeedback = (text: string) => {
+    clearIaBlocked();
+    setValidationError(null);
+
+    const resultado = validarMensagem(text);
+    if (!resultado.valida) {
+      setValidationError(resultado.erro ?? null);
+      return;
+    }
+
+    sendMessage(text);
+  };
+
+  const clearValidationError = () => setValidationError(null);
 
   const isLoading = msgsLoading || conversaLoading;
 
@@ -62,5 +74,7 @@ export function useChatScreen(propostaId: number) {
     clearIaBlocked,
     conversa,
     connectionError,
+    validationError,
+    clearValidationError,
   };
 }

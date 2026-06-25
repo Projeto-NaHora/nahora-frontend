@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Stack, useRouter, useSegments, useRootNavigationState } from "expo-router";
 import { SWRConfig } from "swr";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -19,14 +19,14 @@ export default function RootLayout() {
   const segments = useSegments();
   const router = useRouter();
   const navigationState = useRootNavigationState();
-  const [restoring, setRestoring] = useState(true);
+  const restoringRef = useRef(true);
 
   useEffect(() => {
-    restoreSession().finally(() => setRestoring(false));
-  }, []);
+    restoreSession().finally(() => { restoringRef.current = false; });
+  }, [restoreSession]);
 
   useEffect(() => {
-    if (restoring) return;
+    if (restoringRef.current) return;
     if (!navigationState?.key) return;
     if (!segments[0]) return;
 
@@ -82,7 +82,6 @@ export default function RootLayout() {
     segments,
     router,
     navigationState?.key,
-    restoring,
     professionalOnboarding,
   ]);
 

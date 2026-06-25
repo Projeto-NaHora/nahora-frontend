@@ -1,14 +1,10 @@
 import React, { useState, useCallback } from "react";
-import {
-  View,
+import { View,
   Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
+  TextInput,ScrollView,
   ActivityIndicator,
   StyleSheet,
-  Modal,
-} from "react-native";
+  Modal, Pressable } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -75,17 +71,17 @@ export function RatingForm({
       ? "/(professional)/(services)"
       : "/(client)/(orders)";
 
-  const goHome = useCallback(() => {
+  const goHome = () => {
     router.replace(homeRoute);
-  }, [router, homeRoute]);
+  };
 
-  const toggleTag = useCallback((tag: TagAvaliacao) => {
+  const toggleTag = (tag: TagAvaliacao) => {
     setTagsSelecionadas((prev) =>
       prev.includes(tag)
         ? prev.filter((t) => t !== tag)
         : [...prev, tag],
     );
-  }, []);
+  };
 
   const handleSubmit = async () => {
     if (nota === 0 || submitStatus === "submitting") return;
@@ -110,21 +106,21 @@ export function RatingForm({
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <Pressable
           style={[styles.backBtn, { backgroundColor: colors.surface }]}
           onPress={() => router.back()}
           disabled={desabilitado}
         >
           <Feather name="arrow-left" size={22} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Avaliação</Text>
-        <TouchableOpacity
+        <Pressable
           style={[styles.menuBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
           onPress={() => router.replace(listRoute)}
           disabled={desabilitado}
         >
           <Feather name="x" size={18} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <ScrollView
@@ -148,10 +144,9 @@ export function RatingForm({
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Como foi o serviço?</Text>
           <View style={styles.starsRow}>
             {STARS.map((star) => (
-              <TouchableOpacity
+              <Pressable
                 key={star}
                 onPress={() => setNota(star)}
-                activeOpacity={0.6}
                 disabled={desabilitado}
               >
                 <MaterialCommunityIcons
@@ -159,7 +154,7 @@ export function RatingForm({
                   size={32}
                   color={star <= nota ? "#F59E0B" : "#D1D5DB"}
                 />
-              </TouchableOpacity>
+              </Pressable>
             ))}
           </View>
           {labelNota ? (
@@ -173,10 +168,9 @@ export function RatingForm({
             {tagsDisponiveis.map((tag) => {
               const ativa = tagsSelecionadas.includes(tag);
               return (
-                <TouchableOpacity
+                <Pressable
                   key={tag}
                   onPress={() => toggleTag(tag)}
-                  activeOpacity={0.7}
                   disabled={desabilitado}
                   style={[
                     styles.tagChip,
@@ -193,7 +187,7 @@ export function RatingForm({
                   >
                     {TAG_LABEL[tag]}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               );
             })}
           </View>
@@ -218,7 +212,7 @@ export function RatingForm({
 
       {/* Footer */}
       <View style={[styles.footer, { backgroundColor: colors.background }]}>
-        <TouchableOpacity
+        <Pressable
           style={[styles.submitBtn, { backgroundColor: colors.brand }, !podeEnviar && styles.submitBtnDisabled]}
           onPress={handleSubmit}
           disabled={!podeEnviar}
@@ -228,15 +222,15 @@ export function RatingForm({
           ) : (
             <Text style={[styles.submitBtnText, { color: colors.onBrand }]}>Enviar Avaliação</Text>
           )}
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           style={styles.backLink}
           onPress={goHome}
           disabled={desabilitado}
         >
           <Text style={[styles.backLinkText, { color: colors.brand }]}>Voltar para o Início</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* Modal de Sucesso */}
@@ -255,13 +249,12 @@ export function RatingForm({
             <Text style={[styles.modalMessage, { color: colors.textSecondary }]}>
               Sua avaliação foi registrada com sucesso.
             </Text>
-            <TouchableOpacity
+            <Pressable
               style={[styles.modalButton, { backgroundColor: colors.brand }]}
               onPress={goHome}
-              activeOpacity={0.7}
             >
               <Text style={[styles.modalButtonText, { color: colors.onBrand }]}>Voltar para o Início</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
       </Modal>
@@ -283,20 +276,18 @@ export function RatingForm({
               Não foi possível enviar sua avaliação. Verifique sua conexão e
               tente novamente.
             </Text>
-            <TouchableOpacity
+            <Pressable
               style={[styles.modalButton, { backgroundColor: colors.brand }]}
               onPress={handleRetry}
-              activeOpacity={0.7}
             >
               <Text style={[styles.modalButtonText, { color: colors.onBrand }]}>Tentar novamente</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </Pressable>
+            <Pressable
               style={styles.modalLink}
               onPress={goHome}
-              activeOpacity={0.7}
             >
               <Text style={[styles.modalLinkText, { color: colors.brand }]}>Voltar para o Início</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
       </Modal>
@@ -336,11 +327,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
   },
 
   // Scroll

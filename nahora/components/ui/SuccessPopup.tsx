@@ -1,5 +1,11 @@
-import React, { useEffect, useRef } from "react";
-import { Animated, Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useEffect } from "react";
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Fonts} from "@/constants/theme";
 
@@ -10,45 +16,34 @@ interface SuccessPopupProps {
 }
 
 export function SuccessPopup({ visible, message, onDismiss }: SuccessPopupProps) {
-  const scale = useRef(new Animated.Value(0)).current;
-  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const scale = useSharedValue(0);
+  const backdropOpacity = useSharedValue(0);
 
   useEffect(() => {
     if (visible) {
-      Animated.parallel([
-        Animated.timing(backdropOpacity, {
-          toValue: 0.4,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scale, {
-          toValue: 1,
-          damping: 12,
-          stiffness: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      backdropOpacity.set(withTiming(0.4, { duration: 250 }));
+      scale.set(withSpring(1, { damping: 12, stiffness: 200 }));
     } else {
-      scale.setValue(0);
-      backdropOpacity.setValue(0);
+      scale.set(0);
+      backdropOpacity.set(0);
     }
-  }, [visible, scale, backdropOpacity]);
+  }, [visible]); // eslint-disable-line react-doctor/exhaustive-deps — shared values are stable
+
+  const animatedBackdropStyle = useAnimatedStyle(() => ({
+    opacity: backdropOpacity.value,
+  }));
+
+  const animatedCardStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   const handleDismiss = () => {
-    Animated.parallel([
-      Animated.timing(backdropOpacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scale, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onDismiss();
-    });
+    backdropOpacity.set(withTiming(0, { duration: 200 }));
+    scale.set(withTiming(0, { duration: 200 }, (finished) => {
+      if (finished) {
+        onDismiss();
+      }
+    }));
   };
 
   return (
@@ -61,13 +56,13 @@ export function SuccessPopup({ visible, message, onDismiss }: SuccessPopupProps)
     >
       <View style={styles.overlay}>
         <Animated.View
-          style={[styles.backdrop, { opacity: backdropOpacity }]}
+          style={[styles.backdrop, animatedBackdropStyle]}
         >
           <Pressable style={StyleSheet.absoluteFill} onPress={handleDismiss} />
         </Animated.View>
 
         <Animated.View
-          style={[styles.card, { transform: [{ scale }] }]}
+          style={[styles.card, animatedCardStyle]}
         >
           {/* Checkmark icon */}
           <View style={styles.iconCircle}>
@@ -112,11 +107,7 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     paddingHorizontal: 28,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 12,
+    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
   },
   iconCircle: {
     width: 64,

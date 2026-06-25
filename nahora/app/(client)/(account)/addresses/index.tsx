@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -39,14 +39,13 @@ export default function Screen() {
     profileService.listarEnderecos(),
   );
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
     await mutate();
     setRefreshing(false);
-  }, [mutate]);
+  };
 
-  const showActions = useCallback(
-    (endereco: EnderecoResponse) => {
+  const showActions = (endereco: EnderecoResponse) => {
       Alert.alert(
         TIPO_ENDERECO_LABEL[endereco.tipo] ?? endereco.apelido ?? "Endereço",
         undefined,
@@ -110,9 +109,7 @@ export default function Screen() {
           { text: "Cancelar", style: "cancel" },
         ],
       );
-    },
-    [mutate],
-  );
+  };
 
   if (isLoading) {
     return (
@@ -130,7 +127,7 @@ export default function Screen() {
     );
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorIcon]}>⚠️</Text>
+        <Text style={styles.errorIcon}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
           Não foi possível carregar seus endereços
         </Text>
@@ -428,11 +425,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 20,
     gap: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
   cardIcon: {
     width: 46,

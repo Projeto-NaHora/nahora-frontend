@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, Modal } from "react-native";
+import { Modal, Pressable } from "react-native";
 import { useForm } from "react-hook-form";
 import { render, screen, fireEvent } from "@tests/test-utils";
 import { ProposalFormContent } from "@/features/proposals/components/ProposalFormContent";

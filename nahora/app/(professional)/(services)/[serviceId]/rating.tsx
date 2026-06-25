@@ -41,16 +41,13 @@ export default function ProRatingScreen() {
 
   const nomeCliente = pedido.clienteNome ?? "Cliente";
   const categoria = pedido.categoria ?? "";
-  const data = pedido.dataDesejada
-    ? formatDate(pedido.dataDesejada)
-    : "";
 
   return (
     <RatingForm
       nomeAvaliado={nomeCliente}
       iniciais={getInitials(nomeCliente)}
       categoria={categoria}
-      data={data}
+      data={""}
       papel="PROFISSIONAL"
       onSubmit={async ({ nota, comentario, tags }) => {
         await avaliacaoService.criar(pedidoId, { nota, comentario, tags });

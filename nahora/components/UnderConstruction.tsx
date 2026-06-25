@@ -1,5 +1,13 @@
-import React, { useEffect, useRef } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import React, { useEffect } from "react";
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  interpolate,
+} from "react-native-reanimated";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Colors, Fonts, Radii, FontSizes } from "@/constants/theme";
@@ -23,25 +31,35 @@ export function UnderConstruction({ path }: UnderConstructionProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useSharedValue(1);
+
+  const animatedDotStyle = useAnimatedStyle(() => ({
+    opacity: pulseAnim.value,
+    transform: [
+      {
+        scale: interpolate(
+          pulseAnim.value,
+          [0.3, 1],
+          [0.6, 1],
+        ),
+      },
+    ],
+  }));
 
   useEffect(() => {
-    const breathe = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 0.3,
-          duration: 900,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 900,
-          useNativeDriver: true,
-        }),
-      ]),
+    pulseAnim.set(
+      withRepeat(
+        withSequence(
+          withTiming(0.3, { duration: 900 }),
+          withTiming(1, { duration: 900 }),
+        ),
+        -1,
+        false,
+      ),
     );
-    breathe.start();
-    return () => breathe.stop();
+    return () => {
+      pulseAnim.set(1);
+    };
   }, [pulseAnim]);
 
   return (
@@ -56,16 +74,8 @@ export function UnderConstruction({ path }: UnderConstructionProps) {
             styles.dot,
             {
               backgroundColor: colors.brand,
-              opacity: pulseAnim,
-              transform: [
-                {
-                  scale: pulseAnim.interpolate({
-                    inputRange: [0.3, 1],
-                    outputRange: [0.6, 1],
-                  }),
-                },
-              ],
             },
+            animatedDotStyle,
           ]}
         />
 
@@ -131,11 +141,7 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     paddingHorizontal: 28,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 3,
+    boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
   },
   title: {
     fontSize: FontSizes.title,

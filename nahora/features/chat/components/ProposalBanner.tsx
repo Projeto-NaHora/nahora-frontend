@@ -1,6 +1,8 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text,StyleSheet, Pressable } from "react-native";
 import { useChatColors } from "@/hooks/use-chat-colors";
+
+const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 interface Props {
   valorProposta: number;
@@ -27,10 +29,7 @@ export function ProposalBanner({
   if (statusProposta !== "PENDENTE" && statusProposta !== "ACEITA") return null;
 
   const label = STATUS_LABELS[statusProposta ?? ""] ?? "PROPOSTA EM ANDAMENTO";
-  const formattedValue = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(valorProposta);
+  const formattedValue = currencyFormatter.format(valorProposta);
 
   return (
     <View
@@ -55,14 +54,14 @@ export function ProposalBanner({
           </Text>
         </Text>
       </View>
-      <TouchableOpacity
+      <Pressable
         style={[styles.cta, { backgroundColor: colors.brandOrange }]}
         onPress={onVerDetalhes}
       >
         <Text style={styles.ctaText}>
           {papel === "PROFISSIONAL" ? "Editar proposta" : "Ver detalhes"}
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }

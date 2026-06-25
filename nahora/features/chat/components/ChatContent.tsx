@@ -1,13 +1,9 @@
 import React, { useCallback } from "react";
-import {
-  View,
+import { View,
   FlatList,
   Text,
-  ActivityIndicator,
-  TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-} from "react-native";
+  ActivityIndicator,StyleSheet,
+  KeyboardAvoidingView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
@@ -22,6 +18,10 @@ import type { Mensagem, DateSeparatorEntry } from "../types";
 
 interface Props {
   propostaId: number;
+}
+
+function keyExtractor(item: Mensagem | DateSeparatorEntry): string {
+  return "__type" in item ? `sep-${item.date}` : String(item.id);
 }
 
 export function ChatContent({ propostaId }: Props) {
@@ -46,37 +46,27 @@ export function ChatContent({ propostaId }: Props) {
     clearIaBlocked,
     conversa,
     connectionError,
+    validationError,
+    clearValidationError,
   } = useChatScreen(propostaId);
 
   const isReadOnly =
     conversa?.status === "SOMENTE_LEITURA" || conversa?.status === "FECHADA";
 
-  const renderItem = useCallback(
-    ({ item }: { item: Mensagem | DateSeparatorEntry }) => {
-      if ("__type" in item) {
-        return <DateSeparator date={item.date} />;
-      }
-      return (
-        <MessageBubble mensagem={item} isOwn={item.remetenteId === userId} />
-      );
-    },
-    [userId],
-  );
+  const renderItem = ({ item }: { item: Mensagem | DateSeparatorEntry }) => {
+    if ("__type" in item) {
+      return <DateSeparator date={item.date} />;
+    }
+    return (
+      <MessageBubble mensagem={item} isOwn={item.remetenteId === userId} />
+    );
+  };
 
-  const keyExtractor = useCallback(
-    (item: Mensagem | DateSeparatorEntry) =>
-      "__type" in item ? `sep-${item.date}` : String(item.id),
-    [],
-  );
-
-  const handleScroll = useCallback(
-    (e: { nativeEvent: { contentOffset: { y: number } } }) => {
-      if (e.nativeEvent.contentOffset.y < 50 && hasMore && !isLoading) {
-        loadMore();
-      }
-    },
-    [hasMore, isLoading, loadMore],
-  );
+  const handleScroll = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
+    if (e.nativeEvent.contentOffset.y < 50 && hasMore && !isLoading) {
+      loadMore();
+    }
+  };
 
   // Loading state
   if (isLoading && messageCount === 0) {
@@ -113,12 +103,12 @@ export function ChatContent({ propostaId }: Props) {
           <Text style={[styles.errorText, { color: colors.darkText }]}>
             Nao foi possivel carregar as mensagens
           </Text>
-          <TouchableOpacity
+          <Pressable
             style={[styles.retryBtn, { backgroundColor: colors.brandOrange }]}
             onPress={() => refresh()}
           >
             <Text style={styles.retryText}>Tentar novamente</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </SafeAreaView>
     );
@@ -163,9 +153,18 @@ export function ChatContent({ propostaId }: Props) {
           <Text style={styles.iaBlockedText}>
             Mensagem nao transmitida devido as diretrizes do sistema.
           </Text>
-          <TouchableOpacity onPress={clearIaBlocked}>
+          <Pressable onPress={clearIaBlocked}>
             <Text style={styles.iaDismiss}>X</Text>
-          </TouchableOpacity>
+          </Pressable>
+        </View>
+      )}
+
+      {validationError && (
+        <View style={styles.validationErrorBanner}>
+          <Text style={styles.validationErrorText}>{validationError}</Text>
+          <Pressable onPress={clearValidationError}>
+            <Text style={styles.iaDismiss}>X</Text>
+          </Pressable>
         </View>
       )}
 
@@ -289,6 +288,20 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
     fontSize: 12,
     color: "#856404",
+    flex: 1,
+  },
+  validationErrorBanner: {
+    backgroundColor: "#fde8e8",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  validationErrorText: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    color: "#dc2626",
     flex: 1,
   },
   iaDismiss: {

@@ -7,6 +7,7 @@ import type { EnderecoResponse, EnderecoRequest } from "./types";
 import type {
   PreferenciasNotificacao,
   AtualizarSenhaRequest,
+  HistoricoProfissionalResumoResponse,
 } from "./types";
 
 const isRemoteUrl = (uri: string) => uri.startsWith("http");
@@ -52,6 +53,13 @@ export const profileService = {
   buscarPerfilProfissional: async (): Promise<PerfilProfissionalDTO> => {
     const { data } = await api.get<PerfilProfissionalDTO>(
       ENDPOINTS.COMPLETAR_PERFIL,
+    );
+    return data;
+  },
+
+  buscarResumoProfissional: async (): Promise<HistoricoProfissionalResumoResponse> => {
+    const { data } = await api.get<HistoricoProfissionalResumoResponse>(
+      ENDPOINTS.HISTORICO_PROFISSIONAL_RESUMO,
     );
     return data;
   },

@@ -1,7 +1,10 @@
 import React from "react";
-import { View, Text, Pressable, Image, Share, StyleSheet } from "react-native";
+import { View, Text, Pressable, Share, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
+
+const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 interface PixQrCodeCardProps {
   qrCodeBase64: string;
@@ -24,10 +27,7 @@ export function PixQrCodeCard({
     }
   };
 
-  const formatted = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(valor);
+  const formatted = currencyFormatter.format(valor);
 
   return (
     <View>

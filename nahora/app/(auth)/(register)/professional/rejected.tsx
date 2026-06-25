@@ -52,7 +52,7 @@ export default function Rejected() {
     };
 
     askUser();
-  }, []);
+  }, [logout, setRgFrontUri, setRgBackUri, setSelfieUri, setRgFrontUrl, setRgBackUrl, setSelfieUrl, router]);
 
   // Renders nothing — the Alert is the entire interaction.
   return null;

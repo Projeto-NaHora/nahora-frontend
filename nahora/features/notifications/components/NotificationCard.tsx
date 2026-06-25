@@ -1,5 +1,5 @@
 // features/notifications/components/NotificationCard.tsx
-import React, { useMemo } from "react";
+import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Fonts } from "@/constants/theme";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -33,10 +33,7 @@ function formatTime(iso: string): string {
 export function NotificationCard({ notificacao, onPress }: NotificationCardProps) {
   const icon = iconMap[notificacao.tipo] ?? { name: "edit", label: "Notificação" };
 
-  const unreadDot = useMemo(
-    () => !notificacao.lida,
-    [notificacao.lida],
-  );
+  const unreadDot = !notificacao.lida;
 
   return (
     <Pressable

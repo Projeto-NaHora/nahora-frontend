@@ -1,5 +1,5 @@
 // features/favorites/hooks/useFavoriteStatus.ts
-import useSWR from "swr";
+import useSWR, { mutate as globalMutate } from "swr";
 import { useCallback, useState } from "react";
 import { favoritesService } from "../service";
 import { getApiErrorMessage } from "@/utils/apiError";
@@ -30,11 +30,11 @@ export function useFavoriteStatus(profissionalId: number): UseFavoriteStatusRetu
     isError: boolean;
   }>({ visible: false, message: "", isError: false });
 
-  const dismissSnackbar = useCallback(() => {
+  const dismissSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, visible: false }));
-  }, []);
+  };
 
-  const toggle = useCallback(async () => {
+  const toggle = async () => {
     if (!profissionalId) return;
 
     const currentStatus = isFavorite ?? false;
@@ -61,6 +61,14 @@ export function useFavoriteStatus(profissionalId: number): UseFavoriteStatusRetu
       }
       // Revalida do servidor
       await mutate();
+
+      // Invalida o cache da lista de favoritos para que a aba reflita
+      // a mudança imediatamente (cobre `"favorites-list"` e variantes com categoriaId)
+      await globalMutate(
+        (key) => typeof key === "string" && key.startsWith("favorites-list"),
+        undefined,
+        { revalidate: true },
+      );
     } catch (error) {
       // Reverte estado otimista
       mutate(currentStatus, false);
@@ -70,7 +78,7 @@ export function useFavoriteStatus(profissionalId: number): UseFavoriteStatusRetu
         isError: true,
       });
     }
-  }, [profissionalId, isFavorite, mutate]);
+  };
 
   return { isFavorite, isLoading, toggle, snackbar, dismissSnackbar };
 }

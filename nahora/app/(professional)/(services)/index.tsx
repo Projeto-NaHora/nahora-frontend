@@ -12,18 +12,16 @@ export default function ProServicesTabScreen() {
   const pedidos = data?.content || data || [];
   const [refreshing, setRefreshing] = useState(false);
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
     await mutate();
     setRefreshing(false);
-  }, [mutate]);
+  };
 
   // 2. Toda vez que o usuário abrir essa aba, forçamos a busca na API
-  useFocusEffect(
-    useCallback(() => {
-      mutate();
-    }, [mutate]),
-  );
+  useFocusEffect(() => {
+    mutate();
+  });
 
   const handleOpenDetails = (serviceId: number) => {
     router.push(`/(professional)/(services)/${serviceId}`);

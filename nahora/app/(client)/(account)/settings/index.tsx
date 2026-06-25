@@ -31,18 +31,15 @@ export default function Screen() {
     profileService.buscarPreferencias(),
   );
 
-  const togglePref = useCallback(
-    async (key: keyof PreferenciasNotificacao, value: boolean) => {
-      if (!prefs) return;
-      try {
-        await profileService.atualizarPreferencias({ [key]: value });
-        mutate();
-      } catch {
-        // silently ignore
-      }
-    },
-    [prefs, mutate],
-  );
+  const togglePref = async (key: keyof PreferenciasNotificacao, value: boolean) => {
+    if (!prefs) return;
+    try {
+      await profileService.atualizarPreferencias({ [key]: value });
+      mutate();
+    } catch {
+      // silently ignore
+    }
+  };
 
   if (isLoading) {
     return (
@@ -56,7 +53,7 @@ export default function Screen() {
     const mensagem = getApiErrorMessage(error, "Erro ao carregar.");
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorIcon]}>⚠️</Text>
+        <Text style={styles.errorIcon}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
           Erro ao carregar configurações
         </Text>
@@ -332,11 +329,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 20,
     borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.01,
-    shadowRadius: 12,
-    elevation: 2,
+    boxShadow: "0 2px 12px rgba(0,0,0,0.01)",
     paddingVertical: 4,
     paddingHorizontal: 20,
   },

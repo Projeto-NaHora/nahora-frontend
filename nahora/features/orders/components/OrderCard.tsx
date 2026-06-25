@@ -1,6 +1,6 @@
 // features/orders/components/OrderCard.tsx
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import type { Pedido } from "../types";
@@ -9,14 +9,6 @@ import { CATEGORIA_LABEL, STATUS_LABEL, STATUS_COLORS } from "../types";
 interface OrderCardProps {
   pedido: Pedido;
   onPress: (pedido: Pedido) => void;
-}
-
-/** Formata data ISO para "dd/mm/aaaa" */
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  const dia = String(d.getDate()).padStart(2, "0");
-  const mes = String(d.getMonth() + 1).padStart(2, "0");
-  return `${dia}/${mes}/${d.getFullYear()}`;
 }
 
 /** Extrai o período do dia a partir da hora */
@@ -39,7 +31,7 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
   const statusLabel = STATUS_LABEL[pedido.status] ?? pedido.status;
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={[
         styles.card,
         {
@@ -47,7 +39,6 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
           borderColor: colors.border + "CC",
         },
       ]}
-      activeOpacity={0.7}
       onPress={() => onPress(pedido)}
     >
       {/* Linha do topo: título + badge */}
@@ -65,10 +56,10 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
         </View>
       </View>
 
-      {/* Data desejada + período */}
+      {/* Turno */}
       <View style={styles.dateRow}>
         <Text style={[styles.dateText, { color: colors.textSecondary }]}>
-          {formatDate(pedido.dataDesejada)} - {getPeriodo(pedido.dataDesejada)}
+          {getPeriodo(pedido.dataDesejada)}
         </Text>
       </View>
 
@@ -94,7 +85,7 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
           </Text>
         </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
@@ -104,11 +95,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingVertical: 16,
     paddingHorizontal: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
   headerRow: {
     flexDirection: "row",

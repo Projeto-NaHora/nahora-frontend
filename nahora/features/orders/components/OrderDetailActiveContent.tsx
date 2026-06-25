@@ -1,13 +1,9 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Image,
-} from "react-native";
+  StyleSheet,ScrollView, FlatList,
+  ActivityIndicator, Pressable } from "react-native";
+import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -56,9 +52,9 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
         <Text style={[styles.errorText, { color: colors.error }]}>
           Erro ao carregar detalhes do pedido.
         </Text>
-        <TouchableOpacity style={styles.backButtonCenter} onPress={onBack}>
+        <Pressable style={styles.backButtonCenter} onPress={onBack}>
           <Text style={styles.backButtonText}>Voltar</Text>
-        </TouchableOpacity>
+        </Pressable>
       </SafeAreaView>
     );
   }
@@ -66,10 +62,6 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
   // === EXTRAÇÃO SEGURA DOS DADOS ===
   const categoriaFormatada =
     CATEGORIA_LABEL[pedido.categoria] || pedido.categoria || "Serviço";
-
-  const dataFormatada = pedido.dataDesejada
-    ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
-    : "A combinar";
 
   const turnoKey = getTurnoKey(pedido.dataDesejada);
   const turnoFormatado = turnoKey
@@ -87,9 +79,9 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header Fixo */}
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surface }]} onPress={onBack}>
+        <Pressable style={[styles.backBtn, { backgroundColor: colors.surface }]} onPress={onBack}>
           <Feather name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do Pedido</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -121,10 +113,6 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
         <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
           <View style={styles.rowInfo}>
             <View style={styles.colInfo}>
-              <Text style={[styles.label, { color: colors.textSecondary }]}>Data</Text>
-              <Text style={[styles.value, { color: colors.text }]}>{dataFormatada}</Text>
-            </View>
-            <View style={styles.colInfo}>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Horário</Text>
               <Text style={[styles.value, { color: colors.text }]}>{turnoFormatado}</Text>
             </View>
@@ -146,20 +134,20 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
         {pedido.fotos && pedido.fotos.length > 0 && (
           <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
             <Text style={[styles.labelDesc, { color: colors.textSecondary }]}>FOTOS</Text>
-            <ScrollView
+            <FlatList
               horizontal
+              data={pedido.fotos}
+              keyExtractor={(uri) => uri}
               showsHorizontalScrollIndicator={false}
               style={{ marginTop: 8 }}
-            >
-              {pedido.fotos.map((uri, index) => (
+              renderItem={({ item: uri }) => (
                 <Image
-                  key={index}
                   source={{ uri }}
                   style={[styles.photoThumb, { backgroundColor: colors.surface }]}
                   resizeMode="cover"
                 />
-              ))}
-            </ScrollView>
+              )}
+            />
           </View>
         )}
 
@@ -229,7 +217,7 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
         <View style={styles.footerInline}>
           {isEmDisputa ? (
             // Ações quando o status for EM_DISPUTA
-            <TouchableOpacity
+            <Pressable
               style={[styles.primaryButton, { backgroundColor: "#3B82F6" }]}
               onPress={onViewDispute}
             >
@@ -240,18 +228,18 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
                 style={{ marginRight: 8 }}
               />
               <Text style={styles.primaryButtonText}>Acompanhar Disputa</Text>
-            </TouchableOpacity>
+            </Pressable>
           ) : (
             // Ações normais quando o status for EM_ANDAMENTO
             <>
-              <TouchableOpacity
+              <Pressable
                 style={styles.secondaryButton}
                 onPress={onIssue}
               >
                 <Text style={styles.secondaryButtonText}>Tive um problema</Text>
-              </TouchableOpacity>
+              </Pressable>
 
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.primaryButton,
                   isOpeningChat && { opacity: 0.7 },
@@ -274,7 +262,7 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
                     </Text>
                   </>
                 )}
-              </TouchableOpacity>
+              </Pressable>
             </>
           )}
         </View>

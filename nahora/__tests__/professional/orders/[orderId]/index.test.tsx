@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@tests/test-utils";
-import { ActivityIndicator, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Pressable } from "react-native";
 import ProfessionalOrderDetailScreen from "@/app/(professional)/(orders)/[orderId]/index";
 import { createMockPedido } from "@tests/factories/orders";
 

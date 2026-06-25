@@ -1,6 +1,5 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
-  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -8,6 +7,7 @@ import {
   View,
   ActivityIndicator,
 } from "react-native";
+import { Image } from "expo-image";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
@@ -16,7 +16,7 @@ import { ProfileStepIndicator } from "./ProfileStepIndicator";
 
 type Profile1ContentProps = {
   nome: string;
-  cpf: string;
+  cpf?: string;
   cargo: string;
   experienceYears: string;
   profilePhotoUri: string | null;
@@ -30,7 +30,7 @@ type Profile1ContentProps = {
   raioAtuacaoKm: string;
   cepLoading: boolean;
   onChangeNome: (value: string) => void;
-  onChangeCpf: (value: string) => void;
+  onChangeCpf?: (value: string) => void;
   onChangeCargo: (value: string) => void;
   onChangeExperienceYears: (value: string) => void;
   onChangeCep: (value: string) => void;
@@ -60,6 +60,330 @@ type TouchedFields = {
   experienceYears: boolean;
   raioAtuacaoKm: boolean;
 };
+
+// ── Extracted sub-components ──
+
+function ProfilePhotoSection({
+  profilePhotoUri,
+  colors,
+  onPickPhoto,
+}: {
+  profilePhotoUri: string | null;
+  colors: typeof Colors.light;
+  onPickPhoto: () => void;
+}) {
+  return (
+    <View style={styles.photoSection}>
+      <View style={styles.photoWrapper}>
+        <View style={[styles.photoCircle, { backgroundColor: colors.surface }]}>
+          {profilePhotoUri ? (
+            <Image source={{ uri: profilePhotoUri }} style={styles.photoImage} />
+          ) : (
+            <View style={styles.userIconContainer}>
+              <View style={[styles.userIconHead, { borderColor: colors.brand }]} />
+              <View style={[styles.userIconBody, { borderColor: colors.brand }]} />
+            </View>
+          )}
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          onPress={onPickPhoto}
+          style={({ pressed }) => [
+            styles.cameraButton,
+            { backgroundColor: colors.brand, borderColor: colors.background },
+            pressed && styles.buttonPressed,
+          ]}
+        >
+          <Text style={styles.cameraIcon}>📷</Text>
+        </Pressable>
+      </View>
+      <Pressable accessibilityRole="button" onPress={onPickPhoto}>
+        <Text style={[styles.addPhotoText, { color: colors.brand }]}>Adicionar Foto</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+type AddressValidity = {
+  cep: boolean;
+  logradouro: boolean;
+  numero: boolean;
+  bairro: boolean;
+  cidade: boolean;
+  estado: boolean;
+};
+
+function ProfileAddressFields({
+  colors,
+  cep,
+  logradouro,
+  numero,
+  complemento,
+  bairro,
+  cidade,
+  estado,
+  cepLoading,
+  touched,
+  fieldBorder,
+  validity,
+  onChangeCep,
+  onChangeLogradouro,
+  onChangeNumero,
+  onChangeComplemento,
+  onChangeBairro,
+  onChangeCidade,
+  onChangeEstado,
+  onCepBlur,
+  touch,
+  formatCep,
+}: {
+  colors: typeof Colors.light;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  cepLoading: boolean;
+  touched: TouchedFields;
+  fieldBorder: (field: keyof TouchedFields, valid: boolean) => string;
+  validity: AddressValidity;
+  onChangeCep: (value: string) => void;
+  onChangeLogradouro: (value: string) => void;
+  onChangeNumero: (value: string) => void;
+  onChangeComplemento: (value: string) => void;
+  onChangeBairro: (value: string) => void;
+  onChangeCidade: (value: string) => void;
+  onChangeEstado: (value: string) => void;
+  onCepBlur: () => void;
+  touch: (field: keyof TouchedFields) => void;
+  formatCep: (cep: string) => string;
+}) {
+  const handleCepChange = (text: string) => {
+    onChangeCep(text.replace(/\D/g, "").slice(0, 8));
+  };
+
+  return (
+    <>
+      <View style={styles.fieldGroup}>
+        <Text style={[styles.label, { color: colors.textPrimary }]}>CEP</Text>
+        <View style={styles.inputWrapper}>
+          <View style={styles.inputIconContainer}>
+            {cepLoading ? (
+              <ActivityIndicator size="small" color={colors.brand} style={{ width: 18, height: 18 }} />
+            ) : (
+              <Text style={styles.inputIcon}>📮</Text>
+            )}
+          </View>
+          <TextInput
+            style={[styles.input, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("cep", validity.cep) }]}
+            placeholder="00000-000"
+            placeholderTextColor={colors.placeholder}
+            value={formatCep(cep)}
+            onChangeText={handleCepChange}
+            onBlur={() => { touch("cep"); onCepBlur(); }}
+            keyboardType="number-pad"
+            maxLength={9}
+          />
+        </View>
+        {touched.cep && !validity.cep && (
+          <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>CEP deve ter 8 dígitos</Text>
+        )}
+      </View>
+
+      <View style={styles.fieldRow}>
+        <View style={styles.fieldGroupExpanded}>
+          <Text style={[styles.label, { color: colors.textPrimary }]}>Logradouro</Text>
+          <TextInput
+            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("logradouro", validity.logradouro) }]}
+            placeholder="Rua / Avenida"
+            placeholderTextColor={colors.placeholder}
+            value={logradouro}
+            onChangeText={onChangeLogradouro}
+            onBlur={() => touch("logradouro")}
+          />
+        </View>
+        <View style={styles.fieldGroupNarrow}>
+          <Text style={[styles.label, { color: colors.textPrimary }]}>Número</Text>
+          <TextInput
+            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("numero", validity.numero) }]}
+            placeholder="123"
+            placeholderTextColor={colors.placeholder}
+            value={numero}
+            onChangeText={onChangeNumero}
+            onBlur={() => touch("numero")}
+            keyboardType="number-pad"
+          />
+        </View>
+      </View>
+
+      <View style={styles.fieldGroup}>
+        <Text style={[styles.label, { color: colors.textPrimary }]}>Complemento</Text>
+        <TextInput
+          style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: colors.border }]}
+          placeholder="Apto, Bloco, etc. (opcional)"
+          placeholderTextColor={colors.placeholder}
+          value={complemento}
+          onChangeText={onChangeComplemento}
+        />
+      </View>
+
+      <View style={styles.fieldRow}>
+        <View style={styles.fieldGroupHalf}>
+          <Text style={[styles.label, { color: colors.textPrimary }]}>Bairro</Text>
+          <TextInput
+            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("bairro", validity.bairro) }]}
+            placeholder="Bairro"
+            placeholderTextColor={colors.placeholder}
+            value={bairro}
+            onChangeText={onChangeBairro}
+            onBlur={() => touch("bairro")}
+          />
+        </View>
+        <View style={styles.fieldGroupHalf}>
+          <Text style={[styles.label, { color: colors.textPrimary }]}>Cidade</Text>
+          <TextInput
+            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("cidade", validity.cidade) }]}
+            placeholder="Cidade"
+            placeholderTextColor={colors.placeholder}
+            value={cidade}
+            onChangeText={onChangeCidade}
+            onBlur={() => touch("cidade")}
+          />
+        </View>
+      </View>
+
+      <View style={styles.fieldGroup}>
+        <Text style={[styles.label, { color: colors.textPrimary }]}>Estado</Text>
+        <TextInput
+          style={[styles.inputSimple, { width: 80 }, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("estado", validity.estado) }]}
+          placeholder="UF"
+          placeholderTextColor={colors.placeholder}
+          value={estado}
+          onChangeText={(t) => onChangeEstado(t.toUpperCase().slice(0, 2))}
+          onBlur={() => touch("estado")}
+          maxLength={2}
+          autoCapitalize="characters"
+        />
+        {touched.estado && !validity.estado && (
+          <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>Use a sigla do estado (ex: SP)</Text>
+        )}
+      </View>
+    </>
+  );
+}
+
+function ProfileFormBottomBar({
+  colors,
+  isValid,
+  onBack,
+  onContinue,
+}: {
+  colors: typeof Colors.light;
+  isValid: boolean;
+  onBack?: () => void;
+  onContinue: () => void;
+}) {
+  return (
+    <View style={styles.bottomBar}>
+      {onBack && (
+        <Pressable
+          accessibilityRole="button"
+          onPress={onBack}
+          style={({ pressed }) => [styles.outlineButton, { borderColor: colors.border }, pressed && styles.buttonPressed]}
+        >
+          <Text style={[styles.outlineButtonText, { color: colors.textPrimary }]}>Voltar</Text>
+        </Pressable>
+      )}
+      <Pressable
+        accessibilityRole="button"
+        disabled={!isValid}
+        onPress={onContinue}
+        style={({ pressed }) => [styles.primaryButton, { backgroundColor: isValid ? colors.brand : colors.surface }, pressed && styles.buttonPressed]}
+      >
+        <Text style={[styles.primaryButtonText, { color: isValid ? colors.onBrand : colors.textSecondary }]}>Próximo Passo</Text>
+        <Text style={[styles.arrowIcon, { color: isValid ? colors.onBrand : colors.textSecondary }]}>→</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+function ProfileExperienceFields({
+  colors,
+  experienceYears,
+  raioAtuacaoKm,
+  touched,
+  fieldBorder,
+  isExperienceValid,
+  isRaioValid,
+  onChangeExperienceYears,
+  onChangeRaioAtuacaoKm,
+  touch,
+}: {
+  colors: typeof Colors.light;
+  experienceYears: string;
+  raioAtuacaoKm: string;
+  touched: TouchedFields;
+  fieldBorder: (field: keyof TouchedFields, valid: boolean) => string;
+  isExperienceValid: boolean;
+  isRaioValid: boolean;
+  onChangeExperienceYears: (value: string) => void;
+  onChangeRaioAtuacaoKm: (value: string) => void;
+  touch: (field: keyof TouchedFields) => void;
+}) {
+  const handleExperienceYearsChange = (text: string) => {
+    onChangeExperienceYears(text.replace(/\D/g, ""));
+  };
+  const handleRaioChange = (text: string) => {
+    onChangeRaioAtuacaoKm(text.replace(/\D/g, ""));
+  };
+
+  return (
+    <View style={styles.fieldRow}>
+      <View style={styles.fieldGroupHalf}>
+        <Text style={[styles.label, { color: colors.textPrimary }]}>Experiência (Anos)</Text>
+        <View style={styles.inputWrapper}>
+          <View style={styles.inputIconContainer}>
+            <Text style={styles.inputIcon}>⏱️</Text>
+          </View>
+          <TextInput
+            style={[styles.input, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("experienceYears", isExperienceValid) }]}
+            placeholder="ex. 8"
+            placeholderTextColor={colors.placeholder}
+            value={experienceYears}
+            onChangeText={handleExperienceYearsChange}
+            onBlur={() => touch("experienceYears")}
+            keyboardType="number-pad"
+          />
+        </View>
+        {touched.experienceYears && !isExperienceValid && (
+          <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>Informe os anos de experiência</Text>
+        )}
+      </View>
+      <View style={styles.fieldGroupHalf}>
+        <Text style={[styles.label, { color: colors.textPrimary }]}>Raio de Atuação (km)</Text>
+        <View style={styles.inputWrapper}>
+          <View style={styles.inputIconContainer}>
+            <Text style={styles.inputIcon}>📏</Text>
+          </View>
+          <TextInput
+            style={[styles.input, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("raioAtuacaoKm", isRaioValid) }]}
+            placeholder="ex. 20"
+            placeholderTextColor={colors.placeholder}
+            value={raioAtuacaoKm}
+            onChangeText={handleRaioChange}
+            onBlur={() => touch("raioAtuacaoKm")}
+            keyboardType="number-pad"
+          />
+        </View>
+        {touched.raioAtuacaoKm && !isRaioValid && (
+          <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>Informe um raio maior que 0 km</Text>
+        )}
+      </View>
+    </View>
+  );
+}
 
 export function Profile1Content({
   nome,
@@ -110,11 +434,11 @@ export function Profile1Content({
     raioAtuacaoKm: false,
   });
 
-  const touch = useCallback((field: keyof TouchedFields) => {
+  const touch = (field: keyof TouchedFields) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
-  }, []);
+  };
 
-  const isCpfValid = cpf.replace(/\D/g, "").length === 11;
+  const isCpfValid = onChangeCpf ? cpf.replace(/\D/g, "").length === 11 : true;
   const isCargoValid = cargo.trim().length >= 4;
   const isCepValid = cep.replace(/\D/g, "").length === 8;
   const isLogradouroValid = logradouro.trim().length >= 3;
@@ -147,19 +471,7 @@ export function Profile1Content({
   };
 
   const handleCpfChange = (text: string) => {
-    onChangeCpf(text.replace(/\D/g, "").slice(0, 11));
-  };
-
-  const handleCepChange = (text: string) => {
-    onChangeCep(text.replace(/\D/g, "").slice(0, 8));
-  };
-
-  const handleExperienceYearsChange = (text: string) => {
-    onChangeExperienceYears(text.replace(/\D/g, ""));
-  };
-
-  const handleRaioChange = (text: string) => {
-    onChangeRaioAtuacaoKm(text.replace(/\D/g, ""));
+    onChangeCpf?.(text.replace(/\D/g, "").slice(0, 11));
   };
 
   return (
@@ -173,45 +485,7 @@ export function Profile1Content({
         Deixe os clientes saberem quem você é e o que você faz.
       </Text>
 
-      <View style={styles.photoSection}>
-        <View style={styles.photoWrapper}>
-          <View
-            style={[styles.photoCircle, { backgroundColor: colors.surface }]}
-          >
-            {profilePhotoUri ? (
-              <Image
-                source={{ uri: profilePhotoUri }}
-                style={styles.photoImage}
-              />
-            ) : (
-              <View style={styles.userIconContainer}>
-                <View
-                  style={[styles.userIconHead, { borderColor: colors.brand }]}
-                />
-                <View
-                  style={[styles.userIconBody, { borderColor: colors.brand }]}
-                />
-              </View>
-            )}
-          </View>
-          <Pressable
-            accessibilityRole="button"
-            onPress={onPickPhoto}
-            style={({ pressed }) => [
-              styles.cameraButton,
-              { backgroundColor: colors.brand, borderColor: colors.background },
-              pressed && styles.buttonPressed,
-            ]}
-          >
-            <Text style={styles.cameraIcon}>📷</Text>
-          </Pressable>
-        </View>
-        <Pressable accessibilityRole="button" onPress={onPickPhoto}>
-          <Text style={[styles.addPhotoText, { color: colors.brand }]}>
-            Adicionar Foto
-          </Text>
-        </Pressable>
-      </View>
+      <ProfilePhotoSection profilePhotoUri={profilePhotoUri} colors={colors} onPickPhoto={onPickPhoto} />
 
       <View style={styles.form}>
         <View style={styles.fieldGroup}>
@@ -248,6 +522,7 @@ export function Profile1Content({
           )}
         </View>
 
+        {onChangeCpf && (
         <View style={styles.fieldGroup}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>
             CPF
@@ -267,7 +542,7 @@ export function Profile1Content({
               ]}
               placeholder="000.000.000-00"
               placeholderTextColor={colors.placeholder}
-              value={formatCpf(cpf)}
+              value={formatCpf(cpf ?? "")}
               onChangeText={handleCpfChange}
               onBlur={() => touch("cpf")}
               keyboardType="number-pad"
@@ -282,6 +557,7 @@ export function Profile1Content({
             </Text>
           )}
         </View>
+        )}
 
         <View style={styles.fieldGroup}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>
@@ -316,316 +592,53 @@ export function Profile1Content({
           )}
         </View>
 
-        {/* CEP + address fields */}
-        <View style={styles.fieldGroup}>
-          <Text style={[styles.label, { color: colors.textPrimary }]}>CEP</Text>
-          <View style={styles.inputWrapper}>
-            <View style={styles.inputIconContainer}>
-              {cepLoading ? (
-                <ActivityIndicator
-                  size="small"
-                  color={colors.brand}
-                  style={{ width: 18, height: 18 }}
-                />
-              ) : (
-                <Text style={styles.inputIcon}>📮</Text>
-              )}
-            </View>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  color: colors.textPrimary,
-                  backgroundColor: colors.surface,
-                  borderColor: fieldBorder("cep", isCepValid),
-                },
-              ]}
-              placeholder="00000-000"
-              placeholderTextColor={colors.placeholder}
-              value={formatCep(cep)}
-              onChangeText={handleCepChange}
-              onBlur={() => {
-                touch("cep");
-                onCepBlur();
-              }}
-              keyboardType="number-pad"
-              maxLength={9}
-            />
-          </View>
-          {touched.cep && !isCepValid && (
-            <Text
-              style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}
-            >
-              CEP deve ter 8 dígitos
-            </Text>
-          )}
-        </View>
+        <ProfileAddressFields
+          colors={colors}
+          cep={cep}
+          logradouro={logradouro}
+          numero={numero}
+          complemento={complemento}
+          bairro={bairro}
+          cidade={cidade}
+          estado={estado}
+          cepLoading={cepLoading}
+          touched={touched}
+          fieldBorder={fieldBorder}
+          validity={{
+            cep: isCepValid,
+            logradouro: isLogradouroValid,
+            numero: isNumeroValid,
+            bairro: isBairroValid,
+            cidade: isCidadeValid,
+            estado: isEstadoValid,
+          }}
+          onChangeCep={onChangeCep}
+          onChangeLogradouro={onChangeLogradouro}
+          onChangeNumero={onChangeNumero}
+          onChangeComplemento={onChangeComplemento}
+          onChangeBairro={onChangeBairro}
+          onChangeCidade={onChangeCidade}
+          onChangeEstado={onChangeEstado}
+          onCepBlur={onCepBlur}
+          touch={touch}
+          formatCep={formatCep}
+        />
 
-        <View style={styles.fieldRow}>
-          <View style={styles.fieldGroupExpanded}>
-            <Text style={[styles.label, { color: colors.textPrimary }]}>
-              Logradouro
-            </Text>
-            <TextInput
-              style={[
-                styles.inputSimple,
-                {
-                  color: colors.textPrimary,
-                  backgroundColor: colors.surface,
-                  borderColor: fieldBorder("logradouro", isLogradouroValid),
-                },
-              ]}
-              placeholder="Rua / Avenida"
-              placeholderTextColor={colors.placeholder}
-              value={logradouro}
-              onChangeText={onChangeLogradouro}
-              onBlur={() => touch("logradouro")}
-            />
-          </View>
-          <View style={styles.fieldGroupNarrow}>
-            <Text style={[styles.label, { color: colors.textPrimary }]}>
-              Número
-            </Text>
-            <TextInput
-              style={[
-                styles.inputSimple,
-                {
-                  color: colors.textPrimary,
-                  backgroundColor: colors.surface,
-                  borderColor: fieldBorder("numero", isNumeroValid),
-                },
-              ]}
-              placeholder="123"
-              placeholderTextColor={colors.placeholder}
-              value={numero}
-              onChangeText={onChangeNumero}
-              onBlur={() => touch("numero")}
-              keyboardType="number-pad"
-            />
-          </View>
-        </View>
-
-        <View style={styles.fieldGroup}>
-          <Text style={[styles.label, { color: colors.textPrimary }]}>
-            Complemento
-          </Text>
-          <TextInput
-            style={[
-              styles.inputSimple,
-              {
-                color: colors.textPrimary,
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-              },
-            ]}
-            placeholder="Apto, Bloco, etc. (opcional)"
-            placeholderTextColor={colors.placeholder}
-            value={complemento}
-            onChangeText={onChangeComplemento}
-          />
-        </View>
-
-        <View style={styles.fieldRow}>
-          <View style={styles.fieldGroupHalf}>
-            <Text style={[styles.label, { color: colors.textPrimary }]}>
-              Bairro
-            </Text>
-            <TextInput
-              style={[
-                styles.inputSimple,
-                {
-                  color: colors.textPrimary,
-                  backgroundColor: colors.surface,
-                  borderColor: fieldBorder("bairro", isBairroValid),
-                },
-              ]}
-              placeholder="Bairro"
-              placeholderTextColor={colors.placeholder}
-              value={bairro}
-              onChangeText={onChangeBairro}
-              onBlur={() => touch("bairro")}
-            />
-          </View>
-          <View style={styles.fieldGroupHalf}>
-            <Text style={[styles.label, { color: colors.textPrimary }]}>
-              Cidade
-            </Text>
-            <TextInput
-              style={[
-                styles.inputSimple,
-                {
-                  color: colors.textPrimary,
-                  backgroundColor: colors.surface,
-                  borderColor: fieldBorder("cidade", isCidadeValid),
-                },
-              ]}
-              placeholder="Cidade"
-              placeholderTextColor={colors.placeholder}
-              value={cidade}
-              onChangeText={onChangeCidade}
-              onBlur={() => touch("cidade")}
-            />
-          </View>
-        </View>
-
-        <View style={styles.fieldGroup}>
-          <Text style={[styles.label, { color: colors.textPrimary }]}>
-            Estado
-          </Text>
-          <TextInput
-            style={[
-              styles.inputSimple,
-              { width: 80 },
-              {
-                color: colors.textPrimary,
-                backgroundColor: colors.surface,
-                borderColor: fieldBorder("estado", isEstadoValid),
-              },
-            ]}
-            placeholder="UF"
-            placeholderTextColor={colors.placeholder}
-            value={estado}
-            onChangeText={(t) => onChangeEstado(t.toUpperCase().slice(0, 2))}
-            onBlur={() => touch("estado")}
-            maxLength={2}
-            autoCapitalize="characters"
-          />
-          {touched.estado && !isEstadoValid && (
-            <Text
-              style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}
-            >
-              Use a sigla do estado (ex: SP)
-            </Text>
-          )}
-        </View>
-
-        <View style={styles.fieldRow}>
-          <View style={styles.fieldGroupHalf}>
-            <Text style={[styles.label, { color: colors.textPrimary }]}>
-              Experiência (Anos)
-            </Text>
-            <View style={styles.inputWrapper}>
-              <View style={styles.inputIconContainer}>
-                <Text style={styles.inputIcon}>⏱️</Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    color: colors.textPrimary,
-                    backgroundColor: colors.surface,
-                    borderColor: fieldBorder(
-                      "experienceYears",
-                      isExperienceValid,
-                    ),
-                  },
-                ]}
-                placeholder="ex. 8"
-                placeholderTextColor={colors.placeholder}
-                value={experienceYears}
-                onChangeText={handleExperienceYearsChange}
-                onBlur={() => touch("experienceYears")}
-                keyboardType="number-pad"
-              />
-            </View>
-            {touched.experienceYears && !isExperienceValid && (
-              <Text
-                style={[
-                  styles.fieldError,
-                  { color: colors.error ?? "#dc2626" },
-                ]}
-              >
-                Informe os anos de experiência
-              </Text>
-            )}
-          </View>
-          <View style={styles.fieldGroupHalf}>
-            <Text style={[styles.label, { color: colors.textPrimary }]}>
-              Raio de Atuação (km)
-            </Text>
-            <View style={styles.inputWrapper}>
-              <View style={styles.inputIconContainer}>
-                <Text style={styles.inputIcon}>📏</Text>
-              </View>
-              <TextInput
-                style={[
-                  styles.input,
-                  {
-                    color: colors.textPrimary,
-                    backgroundColor: colors.surface,
-                    borderColor: fieldBorder("raioAtuacaoKm", isRaioValid),
-                  },
-                ]}
-                placeholder="ex. 20"
-                placeholderTextColor={colors.placeholder}
-                value={raioAtuacaoKm}
-                onChangeText={handleRaioChange}
-                onBlur={() => touch("raioAtuacaoKm")}
-                keyboardType="number-pad"
-              />
-            </View>
-            {touched.raioAtuacaoKm && !isRaioValid && (
-              <Text
-                style={[
-                  styles.fieldError,
-                  { color: colors.error ?? "#dc2626" },
-                ]}
-              >
-                Informe um raio maior que 0 km
-              </Text>
-            )}
-          </View>
-        </View>
+        <ProfileExperienceFields
+          colors={colors}
+          experienceYears={experienceYears}
+          raioAtuacaoKm={raioAtuacaoKm}
+          touched={touched}
+          fieldBorder={fieldBorder}
+          isExperienceValid={isExperienceValid}
+          isRaioValid={isRaioValid}
+          onChangeExperienceYears={onChangeExperienceYears}
+          onChangeRaioAtuacaoKm={onChangeRaioAtuacaoKm}
+          touch={touch}
+        />
       </View>
 
-      <View style={styles.bottomBar}>
-        {onBack && (
-          <Pressable
-            accessibilityRole="button"
-            onPress={onBack}
-            style={({ pressed }) => [
-              styles.outlineButton,
-              { borderColor: colors.border },
-              pressed && styles.buttonPressed,
-            ]}
-          >
-            <Text
-              style={[styles.outlineButtonText, { color: colors.textPrimary }]}
-            >
-              Voltar
-            </Text>
-          </Pressable>
-        )}
-        <Pressable
-          accessibilityRole="button"
-          disabled={!isValid}
-          onPress={onContinue}
-          style={({ pressed }) => [
-            styles.primaryButton,
-            {
-              backgroundColor: isValid ? colors.brand : colors.surface,
-            },
-            pressed && styles.buttonPressed,
-          ]}
-        >
-          <Text
-            style={[
-              styles.primaryButtonText,
-              { color: isValid ? colors.onBrand : colors.textSecondary },
-            ]}
-          >
-            Próximo Passo
-          </Text>
-          <Text
-            style={[
-              styles.arrowIcon,
-              { color: isValid ? colors.onBrand : colors.textSecondary },
-            ]}
-          >
-            →
-          </Text>
-        </Pressable>
-      </View>
+      <ProfileFormBottomBar colors={colors} isValid={isValid} onBack={onBack} onContinue={onContinue} />
     </View>
   );
 }
@@ -664,11 +677,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 2,
     borderColor: "transparent",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
   photoImage: {
     width: 92,

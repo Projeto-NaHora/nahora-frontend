@@ -1,6 +1,6 @@
 // features/professional/components/AvailableOrderCard.tsx
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useEffect, useReducer } from "react";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { CATEGORIA_LABEL } from "@/features/orders/types";
@@ -32,18 +32,17 @@ function computeTimeAgo(iso: string): string {
 }
 
 function useRelativeTime(iso: string | undefined, intervalMs = 30000) {
-  const [label, setLabel] = useState(() => computeTimeAgo(iso ?? ""));
+  // Simple counter to force periodic re-renders — Compiler-safe
+  const [, tick] = useReducer((x: number) => x + 1, 0);
 
   useEffect(() => {
     if (!iso) return;
-    setLabel(computeTimeAgo(iso));
-    const timer = setInterval(() => {
-      setLabel(computeTimeAgo(iso));
-    }, intervalMs);
+    const timer = setInterval(() => tick(), intervalMs);
     return () => clearInterval(timer);
   }, [iso, intervalMs]);
 
-  return label;
+  // Derive the label during render — no state + effect mirroring needed
+  return computeTimeAgo(iso ?? "");
 }
 
 export function AvailableOrderCard({
@@ -57,9 +56,8 @@ export function AvailableOrderCard({
   const timeAgo = useRelativeTime(pedido.criadoEm);
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}
-      activeOpacity={0.7}
       onPress={() => onPress(pedido)}
     >
       {/* Accent bar */}
@@ -100,7 +98,7 @@ export function AvailableOrderCard({
           )}
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
@@ -110,11 +108,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 10,
-    elevation: 3,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
   },
   accentBar: {
     width: 4,

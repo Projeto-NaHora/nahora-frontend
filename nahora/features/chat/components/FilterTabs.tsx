@@ -1,11 +1,7 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View,
+  Text,StyleSheet,
+  FlatList, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import {
@@ -24,16 +20,14 @@ export default function FilterTabs({ selected, onSelect }: FilterTabsProps) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView
+      <FlatList
         horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
-      >
-        {FILTRO_OPTIONS.map((opt) => {
+        data={FILTRO_OPTIONS}
+        keyExtractor={(opt) => opt.value}
+        renderItem={({ item: opt }) => {
           const isActive = opt.value === selected;
           return (
-            <TouchableOpacity
-              key={opt.value}
+            <Pressable
               style={[
                 styles.chip,
                 isActive
@@ -43,7 +37,6 @@ export default function FilterTabs({ selected, onSelect }: FilterTabsProps) {
                       { backgroundColor: colors.background, borderColor: colors.border },
                     ],
               ]}
-              activeOpacity={0.7}
               onPress={() => onSelect(opt.value)}
             >
               <Text
@@ -56,10 +49,12 @@ export default function FilterTabs({ selected, onSelect }: FilterTabsProps) {
               >
                 {opt.label}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           );
-        })}
-      </ScrollView>
+        }}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+      />
     </View>
   );
 }

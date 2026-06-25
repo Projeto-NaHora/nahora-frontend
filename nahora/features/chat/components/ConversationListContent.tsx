@@ -58,7 +58,7 @@ export default function ConversationListContent() {
     loadMore,
   } = useConversations(filtro);
 
-  const searchFiltered = useMemo(() => {
+  const searchFiltered = (() => {
     if (!searchText.trim()) return conversations;
     const lower = searchText.toLowerCase();
     return conversations.filter(
@@ -66,9 +66,9 @@ export default function ConversationListContent() {
         c.nomeOutroParticipante.toLowerCase().includes(lower) ||
         c.tituloPedido.toLowerCase().includes(lower),
     );
-  }, [conversations, searchText]);
+  })();
 
-  const sections: Section[] = useMemo(() => {
+  const sections: Section[] = (() => {
     const groups: Record<string, ConversaResponseDTO[]> = {};
     for (const conv of searchFiltered) {
       const label = getDateLabel(
@@ -78,27 +78,24 @@ export default function ConversationListContent() {
       groups[label].push(conv);
     }
     return Object.entries(groups).map(([title, data]) => ({ title, data }));
-  }, [searchFiltered]);
+  })();
 
   const userTipo = useAuthStore((s) => s.user?.tipo);
 
-  const handlePress = useCallback(
-    (propostaId: number) => {
-      const base = userTipo === "PROFISSIONAL" ? "professional" : "client";
-      router.push(`/(${base})/(chats)/${propostaId}`);
-    },
-    [router, userTipo],
-  );
+  const handlePress = (propostaId: number) => {
+    const base = userTipo === "PROFISSIONAL" ? "professional" : "client";
+    router.push(`/(${base})/(chats)/${propostaId}`);
+  };
 
-  const onRefresh = useCallback(async () => {
+  const onRefresh = async () => {
     setRefreshing(true);
     await refresh();
     setRefreshing(false);
-  }, [refresh]);
+  };
 
-  const onEndReached = useCallback(() => {
+  const onEndReached = () => {
     loadMore();
-  }, [loadMore]);
+  };
 
   const textPrimary = colors.textPrimary;
   const textSecondary = colors.textSecondary;

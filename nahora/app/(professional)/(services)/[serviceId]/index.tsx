@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from "react-native";
+  ScrollView,ActivityIndicator,
+  StyleSheet, Pressable } from "react-native";
 import { useLocalSearchParams, useRouter, Redirect } from "expo-router";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import {
@@ -86,12 +82,12 @@ export default function ProServiceDetailScreen() {
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
         <Text style={styles.errorText}>Erro ao carregar serviço.</Text>
-        <TouchableOpacity
+        <Pressable
           style={[styles.backBtnFallback, { backgroundColor: colors.surfaceGray }]}
           onPress={() => router.back()}
         >
           <Text style={[styles.backBtnFallbackText, { color: colors.text }]}>Voltar</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     );
   }
@@ -100,9 +96,6 @@ export default function ProServiceDetailScreen() {
   const isConcluido = pedido.status === "CONCLUIDO";
   const categoria =
     CATEGORIA_LABEL[pedido.categoria] ?? pedido.categoria ?? "Serviço";
-  const dataFormatada = pedido.dataDesejada
-    ? formatDate(pedido.dataDesejada)
-    : "";
   const turnoKey = getTurnoKey(pedido.dataDesejada);
   const turnoFormatado = turnoKey ? TURNO_TIME_RANGES[turnoKey].label : "";
   const enderecoFormatado = formatEndereco(pedido.endereco);
@@ -120,9 +113,9 @@ export default function ProServiceDetailScreen() {
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={() => router.back()}>
+        <Pressable style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={() => router.back()}>
           <Text style={[styles.backArrow, { color: colors.text }]}>{"←"}</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do serviço</Text>
         <View style={styles.headerSpacer} />
       </View>
@@ -144,10 +137,6 @@ export default function ProServiceDetailScreen() {
         {/* Info card */}
         <View style={[styles.card, { borderColor: colors.border }]}>
           <View style={styles.infoRow}>
-            <View style={styles.infoCol}>
-              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Data</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{dataFormatada}</Text>
-            </View>
             <View style={styles.infoCol}>
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Horário</Text>
               <Text style={[styles.infoValue, { color: colors.text }]}>{turnoFormatado}</Text>
@@ -213,20 +202,47 @@ export default function ProServiceDetailScreen() {
             );
           })}
         </View>
+
+        {/* Avaliação do cliente */}
+        {isConcluido && pedido.avaliacaoNota != null && (
+          <View style={[styles.card, { borderColor: colors.border }]}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Avaliação do cliente</Text>
+            <View style={styles.ratingRow}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Text
+                  key={star}
+                  style={[
+                    styles.starIcon,
+                    {
+                      color:
+                        star <= pedido.avaliacaoNota
+                          ? "#F59E0B"
+                          : colors.surfaceGray,
+                    },
+                  ]}
+                >
+                  ★
+                </Text>
+              ))}
+              <Text style={[styles.ratingValue, { color: colors.text }]}>
+                {pedido.avaliacaoNota}/5
+              </Text>
+            </View>
+          </View>
+        )}
       </ScrollView>
 
       {/* Rate button footer */}
       {mostrarAvaliar && (
         <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
-          <TouchableOpacity
+          <Pressable
             style={styles.rateButton}
             onPress={() =>
               router.push(`/(professional)/(services)/${serviceId}/rating`)
             }
-            activeOpacity={0.7}
           >
             <Text style={styles.rateButtonText}>Avaliar cliente</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
     </View>
@@ -396,6 +412,22 @@ const styles = StyleSheet.create({
   timelineSub: {
     fontSize: 12,
     marginTop: 2,
+  },
+
+  // Rating
+  ratingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  starIcon: {
+    fontSize: 22,
+    lineHeight: 28,
+  },
+  ratingValue: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
   },
 
   // Footer

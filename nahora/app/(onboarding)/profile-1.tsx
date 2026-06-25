@@ -132,7 +132,7 @@ export default function Profile1() {
     if (!cargo && profession?.label) {
       setCargo(profession.label);
     }
-  }, []);
+  }, [cargo, profession?.label, setCargo]);
 
   useEffect(() => {
     if (!nome && (firstName || lastName)) {
@@ -141,7 +141,7 @@ export default function Profile1() {
         setNome(fullName);
       }
     }
-  }, []);
+  }, [nome, firstName, lastName, setNome]);
 
   const handlePickPhoto = () => {
     showPickOptions((uri) => {
@@ -164,9 +164,8 @@ export default function Profile1() {
       }
     } catch {
       // silently ignore CEP lookup errors
-    } finally {
-      setCepLoading(false);
     }
+    setCepLoading(false);
   };
 
   const handleContinue = async () => {
@@ -222,7 +221,6 @@ export default function Profile1() {
             estado={estado}
             raioAtuacaoKm={raioAtuacaoKm}
             cepLoading={cepLoading}
-            onChangeCpf={setCpf}
             onChangeCargo={setCargo}
             onChangeExperienceYears={setExperienceYears}
             onChangeCep={setCep}

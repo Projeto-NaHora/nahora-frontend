@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+  StyleSheet,ScrollView,
+  ActivityIndicator, Pressable } from "react-native";
+import { Image } from "expo-image";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -82,18 +78,15 @@ export const OrderDetailValidationContent: React.FC<Props> = ({
         <Text style={styles.errorText}>
           Erro ao carregar detalhes do pedido.
         </Text>
-        <TouchableOpacity style={styles.backButtonCenter} onPress={onBack}>
+        <Pressable style={styles.backButtonCenter} onPress={onBack}>
           <Text style={styles.backButtonText}>Voltar</Text>
-        </TouchableOpacity>
+        </Pressable>
       </SafeAreaView>
     );
   }
 
   const categoriaFormatada =
     CATEGORIA_LABEL[pedido.categoria] || pedido.categoria || "Serviço";
-  const dataFormatada = pedido.dataDesejada
-    ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
-    : "A combinar";
   const turnoKey = getTurnoKey(pedido.dataDesejada);
   const turnoFormatado = turnoKey
     ? TURNO_TIME_RANGES[turnoKey].label
@@ -105,9 +98,9 @@ export const OrderDetailValidationContent: React.FC<Props> = ({
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surface }]} onPress={onBack}>
+        <Pressable style={[styles.backBtn, { backgroundColor: colors.surface }]} onPress={onBack}>
           <Feather name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do Pedido</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -126,10 +119,6 @@ export const OrderDetailValidationContent: React.FC<Props> = ({
 
         <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
           <View style={styles.rowInfo}>
-            <View style={styles.colInfo}>
-              <Text style={[styles.label, { color: colors.textSecondary }]}>Data</Text>
-              <Text style={[styles.value, { color: colors.text }]}>{dataFormatada}</Text>
-            </View>
             <View style={styles.colInfo}>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Horário</Text>
               <Text style={[styles.value, { color: colors.text }]}>{turnoFormatado}</Text>
@@ -211,15 +200,15 @@ export const OrderDetailValidationContent: React.FC<Props> = ({
         </View>
 
         <View style={[styles.footerInline, { backgroundColor: colors.background }]}>
-          <TouchableOpacity
+          <Pressable
             style={[styles.secondaryButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
             onPress={onIssue}
             disabled={isConfirming}
           >
             <Text style={[styles.secondaryButtonText, { color: colors.text }]}>Tive um problema</Text>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
+          <Pressable
             style={[
               styles.primaryButton,
               { backgroundColor: colors.brand },
@@ -235,7 +224,7 @@ export const OrderDetailValidationContent: React.FC<Props> = ({
                 Validar conclusão e Avaliar
               </Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>
