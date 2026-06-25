@@ -75,7 +75,6 @@ export function RatingForm({
 
   const goHome = () => {
     setSubmitStatus("idle");
-    router.dismissAll();
     router.replace(homeRoute);
   };
 

@@ -37,6 +37,7 @@ export interface Pedido {
   profissionalAtribuidoId?: number | null;
   profissionalAtribuidoNome?: string | null;
   avaliacaoNota?: number | null;
+  avaliacaoComentario?: string | null;
   pagamento?: PagamentoResumo | null;
 }
 
