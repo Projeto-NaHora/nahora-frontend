@@ -1,11 +1,7 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+  StyleSheet,ScrollView, Pressable } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -43,9 +39,9 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={onBack}>
+        <Pressable style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={onBack}>
           <Feather name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Disputa em Análise</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -194,14 +190,14 @@ export const DisputeAnalysisContent: React.FC<Props> = ({
       {/* Botões do Rodapé */}
       <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
         {isDecididaOuEncerrada ? (
-          <TouchableOpacity style={styles.primaryBtn} onPress={onViewDecision}>
+          <Pressable style={styles.primaryBtn} onPress={onViewDecision}>
             <Text style={styles.primaryBtnText}>Decisão da moderação</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : null}
 
-        <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={onGoHome}>
+        <Pressable style={[styles.secondaryBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={onGoHome}>
           <Text style={[styles.secondaryBtnText, { color: colors.text }]}>Voltar ao início</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

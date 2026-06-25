@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text,StyleSheet, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -35,12 +35,12 @@ export default function ProposalSentScreen() {
       </View>
 
       <View style={[styles.bottomBar, { borderTopColor: colors.border }]}>
-        <TouchableOpacity
+        <Pressable
           style={[styles.button, { borderColor: colors.border }]}
           onPress={handleGoHome}
         >
           <Text style={[styles.buttonText, { color: colors.textPrimary }]}>Voltar ao início</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text,StyleSheet, Pressable } from "react-native";
 import { useChatColors } from "@/hooks/use-chat-colors";
 
 interface Props {
@@ -55,14 +55,14 @@ export function ProposalBanner({
           </Text>
         </Text>
       </View>
-      <TouchableOpacity
+      <Pressable
         style={[styles.cta, { backgroundColor: colors.brandOrange }]}
         onPress={onVerDetalhes}
       >
         <Text style={styles.ctaText}>
           {papel === "PROFISSIONAL" ? "Editar proposta" : "Ver detalhes"}
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }

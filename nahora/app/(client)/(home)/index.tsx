@@ -1,11 +1,7 @@
 import React, { useEffect } from "react";
-import {
-  View,
+import { View,
   Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+  ScrollView,StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
@@ -60,8 +56,7 @@ export default function HomeScreen() {
           </Text>
           <Text style={[styles.mainTitle, { color: colors.onBrand }]}>O que você precisa hoje?</Text>
 
-          <TouchableOpacity
-            activeOpacity={0.8}
+          <Pressable
             style={[styles.searchBar, { backgroundColor: colors.background }]}
             onPress={() => router.push("/(client)/(home)/categories")}
           >
@@ -69,7 +64,7 @@ export default function HomeScreen() {
             <Text style={[styles.searchPlaceholder, { color: colors.placeholder }]}>
               Buscar serviço, profissional...
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* White-background sections below the header */}
@@ -77,16 +72,16 @@ export default function HomeScreen() {
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }, {paddingTop: 20}]}>Categorias</Text>
-              <TouchableOpacity
+              <Pressable
                 onPress={() => router.push("/(client)/(home)/categories")}
               >
                 <Text style={[styles.seeAllText, { color: colors.link }]}>Ver todas</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <View style={styles.categoriesGrid}>
               {homeCategories.map((cat) => (
-                <TouchableOpacity
+                <Pressable
                   key={cat.id}
                   style={styles.categoryItem}
                   onPress={() =>
@@ -108,7 +103,7 @@ export default function HomeScreen() {
                     />
                   </View>
                   <Text style={[styles.categoryText, { color: colors.textSecondary }]}>{cat.name}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
           </View>
@@ -117,9 +112,9 @@ export default function HomeScreen() {
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Sugeridos para você</Text>
-              <TouchableOpacity>
+              <Pressable>
                 <Text style={[styles.seeAllText, { color: colors.link }]}>Ver mais</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <ScrollView
@@ -152,9 +147,9 @@ export default function HomeScreen() {
           <View style={[styles.sectionContainerRecent, { paddingBottom: 40 }]}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Meus pedidos recentes</Text>
-              <TouchableOpacity>
+              <Pressable>
                 <Text style={[styles.seeAllText, { color: colors.link }]}>Ver todos</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             {recentOrders.length === 0 ? (

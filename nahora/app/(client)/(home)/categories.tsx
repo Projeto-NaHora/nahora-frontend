@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  FlatList,
-} from "react-native";
+  StyleSheet,TextInput,
+  FlatList, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -49,12 +45,12 @@ export default function CategoriesScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           style={styles.backButton}
         >
           <Feather name="arrow-left" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.title, { color: colors.textPrimary }]}>Encontrar Profissional</Text>
       </View>
 
@@ -62,9 +58,9 @@ export default function CategoriesScreen() {
       <View style={styles.searchContainer}>
         <View style={[styles.searchInputWrapper, { backgroundColor: colors.surface }]}>
           {/* Adicionado Touchable para clicar na lupa */}
-          <TouchableOpacity onPress={handleSearch}>
+          <Pressable onPress={handleSearch}>
             <Feather name="search" size={20} color={colors.textSecondary} />
-          </TouchableOpacity>
+          </Pressable>
           <TextInput
             style={[styles.searchInput, { color: colors.textPrimary }]}
             placeholder="Buscar por nome ou categoria..."
@@ -88,7 +84,7 @@ export default function CategoriesScreen() {
           columnWrapperStyle={styles.row}
           contentContainerStyle={styles.flatListContent}
           renderItem={({ item }) => (
-            <TouchableOpacity
+            <Pressable
               style={[styles.categoryCard, { backgroundColor: colors.background, borderColor: colors.border }]}
               onPress={() =>
                 router.push({
@@ -109,7 +105,7 @@ export default function CategoriesScreen() {
               <Text style={[styles.categoryCardText, { color: colors.textSecondary }]} numberOfLines={1}>
                 {item.name}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           )}
         />
       </View>

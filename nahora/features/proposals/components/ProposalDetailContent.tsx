@@ -1,12 +1,8 @@
 import React, { useMemo, useState } from "react";
-import {
-  View,
+import { View,
   Text,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from "react-native";
+  ScrollView,ActivityIndicator,
+  StyleSheet, Pressable } from "react-native";
 import type { Proposta, HorarioSlot } from "../types";
 import { getInitials } from "@/utils/formatters";
 import { Colors } from "@/constants/theme";
@@ -186,14 +182,14 @@ export function ProposalDetailContent({
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: theme.white }]}>
-        <TouchableOpacity
+        <Pressable
           onPress={onBack}
           style={styles.backButton}
         >
           <Text style={[styles.backArrow, { color: theme.chat.darkText }]}>
             ←
           </Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: theme.chat.darkText }]}>
           Detalhes da proposta
         </Text>
@@ -259,15 +255,15 @@ export function ProposalDetailContent({
           >
             {/* Month selector */}
             <View style={styles.monthSelector}>
-              <TouchableOpacity onPress={goToPrevMonth} style={styles.chevron}>
+              <Pressable onPress={goToPrevMonth} style={styles.chevron}>
                 <Text style={[styles.chevronText, { color: theme.chat.mutedText }]}>‹</Text>
-              </TouchableOpacity>
+              </Pressable>
               <Text style={[styles.monthLabel, { color: theme.chat.darkText }]}>
                 {calendarDays.label}
               </Text>
-              <TouchableOpacity onPress={goToNextMonth} style={styles.chevron}>
+              <Pressable onPress={goToNextMonth} style={styles.chevron}>
                 <Text style={[styles.chevronText, { color: theme.chat.darkText }]}>›</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             {/* Weekday labels */}
@@ -489,14 +485,14 @@ export function ProposalDetailContent({
           },
         ]}
       >
-        <TouchableOpacity
+        <Pressable
           style={styles.rejectButton}
           onPress={onReject}
           disabled={isAccepting}
         >
           <Text style={styles.rejectButtonText}>Recusar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+        </Pressable>
+        <Pressable
           style={[
             styles.acceptButton,
             { backgroundColor: theme.chat.brandOrange },
@@ -510,7 +506,7 @@ export function ProposalDetailContent({
           ) : (
             <Text style={styles.acceptButtonText}>Aceitar proposta</Text>
           )}
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );

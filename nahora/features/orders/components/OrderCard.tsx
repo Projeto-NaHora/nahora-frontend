@@ -1,6 +1,6 @@
 // features/orders/components/OrderCard.tsx
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import type { Pedido } from "../types";
@@ -31,7 +31,7 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
   const statusLabel = STATUS_LABEL[pedido.status] ?? pedido.status;
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={[
         styles.card,
         {
@@ -39,7 +39,6 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
           borderColor: colors.border + "CC",
         },
       ]}
-      activeOpacity={0.7}
       onPress={() => onPress(pedido)}
     >
       {/* Linha do topo: título + badge */}
@@ -86,7 +85,7 @@ export default function OrderCard({ pedido, onPress }: OrderCardProps) {
           </Text>
         </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

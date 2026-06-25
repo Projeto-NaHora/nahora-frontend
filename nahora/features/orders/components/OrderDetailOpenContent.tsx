@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from "react-native";
+  ScrollView,ActivityIndicator,
+  StyleSheet, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
@@ -127,15 +123,14 @@ export function OrderDetailOpenContent({
           },
         ]}
       >
-        <TouchableOpacity
+        <Pressable
           onPress={onBack}
           style={[styles.backButton, { backgroundColor: colors.surface }]}
-          activeOpacity={0.7}
         >
           <Text style={[styles.backArrow, { color: colors.text }]}>
             {"←"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text
           style={[styles.headerTitle, { color: colors.textPrimary }]}
           numberOfLines={1}
@@ -336,28 +331,26 @@ export function OrderDetailOpenContent({
         {/* Action buttons row — hidden for CONCLUIDO */}
         {pedido.status !== "CONCLUIDO" && (
           <View style={styles.actionRow}>
-            <TouchableOpacity
+            <Pressable
               onPress={onEdit}
               style={[styles.editButton, { backgroundColor: colors.surface }]}
-              activeOpacity={0.7}
             >
               <Text style={[styles.editButtonText, { color: colors.textPrimary }]}>
                 Editar
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </Pressable>
+            <Pressable
               onPress={onDelete}
               style={[styles.deleteButton, { backgroundColor: colors.surface }]}
-              activeOpacity={0.7}
             >
               <Text style={[styles.deleteButtonText, { color: colors.error }]}>Excluir</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         )}
 
         {/* Main CTA — depends on order status */}
         {pedido.status === "EM_ANDAMENTO" || pedido.status === "AGUARDANDO_VALIDACAO" ? (
-          <TouchableOpacity
+          <Pressable
             onPress={() => {
               const chatId = acceptedProposalId ?? pedido.propostaId;
               if (chatId) {
@@ -365,38 +358,34 @@ export function OrderDetailOpenContent({
               }
             }}
             style={[styles.ctaButton, { backgroundColor: colors.brand }]}
-            activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Falar com prestador</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : pedido.status === "AGUARDANDO_PAGAMENTO" ? (
-          <TouchableOpacity
+          <Pressable
             onPress={() => {
               router.push(`/(client)/(orders)/${pedido.id}/payment`);
             }}
             style={[styles.ctaButton, { backgroundColor: colors.brand }]}
-            activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Pagar serviço</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : pedido.status === "ABERTO" ? (
-          <TouchableOpacity
+          <Pressable
             onPress={onViewProposals}
             style={[styles.ctaButton, { backgroundColor: colors.brand }]}
-            activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Verificar Propostas</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : pedido.status === "CONCLUIDO" && onRate ? (
-          <TouchableOpacity
+          <Pressable
             onPress={onRate}
             style={[styles.ctaButton, { backgroundColor: colors.brand }]}
-            activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>
               {rateButtonLabel ?? "Avaliar serviço"}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : null}
       </ScrollView>
     </View>

@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from "react-native";
+  ScrollView,ActivityIndicator,
+  StyleSheet, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -95,13 +91,12 @@ export function ProfessionalOrderDetailContent({
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity
+          <Pressable
             onPress={onBack}
             style={[styles.backButton, { backgroundColor: colors.surface }]}
-            activeOpacity={0.7}
           >
             <Text style={[styles.backArrow, { color: colors.textPrimary }]}>{"←"}</Text>
-          </TouchableOpacity>
+          </Pressable>
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]} numberOfLines={1}>
             Detalhes do pedido
           </Text>
@@ -178,24 +173,22 @@ export function ProfessionalOrderDetailContent({
         {/* Action buttons */}
         <View style={styles.actionRow}>
           {onVerPerfil && (
-            <TouchableOpacity
+            <Pressable
               onPress={onVerPerfil}
               style={[styles.secondaryButton, { backgroundColor: colors.surface }]}
-              activeOpacity={0.7}
             >
               <Text style={[styles.secondaryButtonText, { color: colors.textPrimary }]}>Ver perfil</Text>
-            </TouchableOpacity>
+            </Pressable>
           )}
-          <TouchableOpacity
+          <Pressable
             onPress={onMostrarInteresse}
             style={[
               onVerPerfil ? styles.primaryButton : styles.primaryButtonFull,
               { backgroundColor: colors.brand },
             ]}
-            activeOpacity={0.7}
           >
             <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>Mostrar interesse</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Warning notice */}

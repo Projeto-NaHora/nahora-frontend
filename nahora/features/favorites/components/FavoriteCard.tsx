@@ -1,11 +1,7 @@
 // features/favorites/components/FavoriteCard.tsx
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { View,
+  Text,StyleSheet, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { FontAwesome } from "@expo/vector-icons";
 
@@ -53,9 +49,8 @@ export function FavoriteCard({
   const categoriaLabel = professional.categorias?.[0] ?? "";
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}
-      activeOpacity={0.7}
       onPress={onPress}
     >
       {/* Avatar */}
@@ -107,14 +102,14 @@ export function FavoriteCard({
       </View>
 
       {/* Favorite toggle */}
-      <TouchableOpacity
+      <Pressable
         style={styles.heartButton}
         onPress={onToggleFavorite}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
         <FontAwesome name="heart" size={24} color={colors.brand} />
-      </TouchableOpacity>
-    </TouchableOpacity>
+      </Pressable>
+    </Pressable>
   );
 }
 

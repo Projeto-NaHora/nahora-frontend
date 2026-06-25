@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+  StyleSheet,ScrollView,
+  ActivityIndicator, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -56,9 +52,9 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
         <Text style={[styles.errorText, { color: colors.error }]}>
           Erro ao carregar detalhes do pedido.
         </Text>
-        <TouchableOpacity style={styles.backButtonCenter} onPress={onBack}>
+        <Pressable style={styles.backButtonCenter} onPress={onBack}>
           <Text style={styles.backButtonText}>Voltar</Text>
-        </TouchableOpacity>
+        </Pressable>
       </SafeAreaView>
     );
   }
@@ -83,9 +79,9 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header Fixo */}
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surface }]} onPress={onBack}>
+        <Pressable style={[styles.backBtn, { backgroundColor: colors.surface }]} onPress={onBack}>
           <Feather name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do Pedido</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -221,7 +217,7 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
         <View style={styles.footerInline}>
           {isEmDisputa ? (
             // Ações quando o status for EM_DISPUTA
-            <TouchableOpacity
+            <Pressable
               style={[styles.primaryButton, { backgroundColor: "#3B82F6" }]}
               onPress={onViewDispute}
             >
@@ -232,18 +228,18 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
                 style={{ marginRight: 8 }}
               />
               <Text style={styles.primaryButtonText}>Acompanhar Disputa</Text>
-            </TouchableOpacity>
+            </Pressable>
           ) : (
             // Ações normais quando o status for EM_ANDAMENTO
             <>
-              <TouchableOpacity
+              <Pressable
                 style={styles.secondaryButton}
                 onPress={onIssue}
               >
                 <Text style={styles.secondaryButtonText}>Tive um problema</Text>
-              </TouchableOpacity>
+              </Pressable>
 
-              <TouchableOpacity
+              <Pressable
                 style={[
                   styles.primaryButton,
                   isOpeningChat && { opacity: 0.7 },
@@ -266,7 +262,7 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
                     </Text>
                   </>
                 )}
-              </TouchableOpacity>
+              </Pressable>
             </>
           )}
         </View>

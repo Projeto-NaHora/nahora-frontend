@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+  StyleSheet,ScrollView,
+  ActivityIndicator, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -82,9 +78,9 @@ export const OrderDetailValidationContent: React.FC<Props> = ({
         <Text style={styles.errorText}>
           Erro ao carregar detalhes do pedido.
         </Text>
-        <TouchableOpacity style={styles.backButtonCenter} onPress={onBack}>
+        <Pressable style={styles.backButtonCenter} onPress={onBack}>
           <Text style={styles.backButtonText}>Voltar</Text>
-        </TouchableOpacity>
+        </Pressable>
       </SafeAreaView>
     );
   }
@@ -102,9 +98,9 @@ export const OrderDetailValidationContent: React.FC<Props> = ({
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surface }]} onPress={onBack}>
+        <Pressable style={[styles.backBtn, { backgroundColor: colors.surface }]} onPress={onBack}>
           <Feather name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do Pedido</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -204,15 +200,15 @@ export const OrderDetailValidationContent: React.FC<Props> = ({
         </View>
 
         <View style={[styles.footerInline, { backgroundColor: colors.background }]}>
-          <TouchableOpacity
+          <Pressable
             style={[styles.secondaryButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
             onPress={onIssue}
             disabled={isConfirming}
           >
             <Text style={[styles.secondaryButtonText, { color: colors.text }]}>Tive um problema</Text>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
+          <Pressable
             style={[
               styles.primaryButton,
               { backgroundColor: colors.brand },
@@ -228,7 +224,7 @@ export const OrderDetailValidationContent: React.FC<Props> = ({
                 Validar conclusão e Avaliar
               </Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>

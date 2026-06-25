@@ -1,12 +1,8 @@
 import React, { useState } from "react";
-import {
-  View,
-  TextInput,
-  TouchableOpacity,
-  Text,
+import { View,
+  TextInput,Text,
   StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+  ActivityIndicator, Pressable } from "react-native";
 import { useChatColors } from "@/hooks/use-chat-colors";
 
 interface Props {
@@ -44,7 +40,7 @@ export function ChatInput({
         },
       ]}
     >
-      <TouchableOpacity
+      <Pressable
         style={[styles.iconBtn, { backgroundColor: colors.surfaceLight }]}
         onPress={onAttachment}
         disabled={disabled}
@@ -52,7 +48,7 @@ export function ChatInput({
         <Text style={[styles.attachmentIcon, { color: colors.darkText }]}>
           +
         </Text>
-      </TouchableOpacity>
+      </Pressable>
 
       <TextInput
         style={[
@@ -70,7 +66,7 @@ export function ChatInput({
         onSubmitEditing={handleSend}
       />
 
-      <TouchableOpacity
+      <Pressable
         style={[
           styles.sendBtn,
           { backgroundColor: colors.brandOrange },
@@ -84,7 +80,7 @@ export function ChatInput({
         ) : (
           <Text style={styles.sendIcon}>{">"}</Text>
         )}
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }

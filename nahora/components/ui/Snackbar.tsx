@@ -1,6 +1,6 @@
 // components/ui/Snackbar.tsx
 import React, { useEffect, useRef, useCallback } from "react";
-import { Animated, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Animated, Text, StyleSheet, Pressable } from "react-native";
 
 interface SnackbarProps {
   visible: boolean;
@@ -81,11 +81,11 @@ export function Snackbar({
       ]}
       pointerEvents={visible ? "auto" : "none"}
     >
-      <TouchableOpacity onPress={hide} style={styles.touchable}>
+      <Pressable onPress={hide} style={styles.touchable}>
         <Text style={styles.text} numberOfLines={2}>
           {message}
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     </Animated.View>
   );
 }

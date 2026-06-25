@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View, Text, StyleSheet, GestureResponderEvent } from 'react-native';
+import { View, Text, StyleSheet, GestureResponderEvent, Pressable } from 'react-native';
 
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { ThemedText } from '@/components/themed-text';
@@ -33,8 +33,7 @@ export function CategoryCard({ category, onPress, size = 116, style }: CategoryC
   const bg = useThemeColor({}, 'background');
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.85}
+    <Pressable
       onPress={onPress}
       style={[
         styles.card,
@@ -51,7 +50,7 @@ export function CategoryCard({ category, onPress, size = 116, style }: CategoryC
       <ThemedText style={styles.label} numberOfLines={2} ellipsizeMode="tail">
         {category.name}
       </ThemedText>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

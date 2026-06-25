@@ -1,15 +1,11 @@
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
+  StyleSheet,FlatList,
   ScrollView,
-  ActivityIndicator,
-} from "react-native";
+  ActivityIndicator, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -115,9 +111,9 @@ export default function ProvidersByCategoryScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <Pressable style={styles.backBtn} onPress={() => router.back()}>
           <Feather name="arrow-left" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerIcon}>
           <MaterialCommunityIcons
             name={(icon as any) || "account"}
@@ -135,7 +131,7 @@ export default function ProvidersByCategoryScreen() {
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {FILTERS.map((f) => (
-            <TouchableOpacity
+            <Pressable
               key={f.value}
               style={[
                 styles.pill,
@@ -143,7 +139,6 @@ export default function ProvidersByCategoryScreen() {
                 activeFilter === f.value && { backgroundColor: colors.brand },
               ]}
               onPress={() => setActiveFilter(f.value)}
-              activeOpacity={0.8}
             >
               <Text
                 style={[
@@ -154,7 +149,7 @@ export default function ProvidersByCategoryScreen() {
               >
                 {f.label}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           ))}
         </ScrollView>
       </View>

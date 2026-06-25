@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, FlatList,ActivityIndicator, StyleSheet, Pressable } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useProposalsByPedido } from "@/features/proposals/hooks/useProposals";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
@@ -46,9 +46,9 @@ export default function PropostasListContent() {
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { backgroundColor: colors.background }]}>
-        <TouchableOpacity style={[styles.backButton, { backgroundColor: colors.surface }]} onPress={() => router.back()}>
+        <Pressable style={[styles.backButton, { backgroundColor: colors.surface }]} onPress={() => router.back()}>
           <Text style={[styles.backArrow, { color: colors.textPrimary }]}>←</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.title, { color: colors.textPrimary }]}>Interessados</Text>
         <View style={styles.headerSpacer} />
       </View>
@@ -72,17 +72,17 @@ export default function PropostasListContent() {
 
       {!isLoading && !isError && proposals.length > 0 && (
         <View style={styles.filterRow}>
-          <TouchableOpacity
+          <Pressable
             style={filtro === "todos" ? [styles.filterChipActive, { backgroundColor: colors.brand }] : [styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}
             onPress={() => setFiltro("todos")}
           >
             <Text style={filtro === "todos" ? [styles.filterTextActive, { color: colors.onBrand }] : [styles.filterTextInactive, { color: colors.textSecondary }]}>
               Todos ({proposals.length})
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
           {FILTRO_LABELS.map(({ key, label }) => (
-            <TouchableOpacity
+            <Pressable
               key={key}
               style={filtro === key ? [styles.filterChipActive, { backgroundColor: colors.brand }] : [styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={() => setFiltro(key)}
@@ -90,12 +90,12 @@ export default function PropostasListContent() {
               <Text style={filtro === key ? [styles.filterTextActive, { color: colors.onBrand }] : [styles.filterTextInactive, { color: colors.textSecondary }]}>
                 {label}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           ))}
 
-          <TouchableOpacity style={[styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Pressable style={[styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.filterTextInactive, { color: colors.textSecondary }]}>Mais...</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
 

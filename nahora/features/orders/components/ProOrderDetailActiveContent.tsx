@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+  StyleSheet,ScrollView,
+  ActivityIndicator, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -81,13 +77,13 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <Pressable
           style={[styles.backBtn, { backgroundColor: colors.surface }]}
           onPress={onBack}
           disabled={isFinishing}
         >
           <Feather name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do serviço</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -210,18 +206,18 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
         <View style={styles.footer}>
           {/* Se o pedido já estiver concluído, não mostramos os botões de ação */}
           {!isConcluido && (
-            <TouchableOpacity
+            <Pressable
               style={[styles.secondaryButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={onIssue}
               disabled={isFinishing}
             >
               <Text style={[styles.secondaryButtonText, { color: colors.text }]}>Tive um problema</Text>
-            </TouchableOpacity>
+            </Pressable>
           )}
 
           {/* O botão "Finalizar serviço" só aparece se estiver de fato em andamento */}
           {isEmAndamento && (
-            <TouchableOpacity
+            <Pressable
               style={[styles.primaryButton, { backgroundColor: colors.brand }, isFinishing && { opacity: 0.7 }]}
               onPress={onFinish}
               disabled={isFinishing}
@@ -231,7 +227,7 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
               ) : (
                 <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>Finalizar serviço</Text>
               )}
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
       </ScrollView>

@@ -1,12 +1,8 @@
 // features/orders/components/FilterChips.tsx
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View,
+  Text,StyleSheet,
+  ScrollView, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { FILTRO_OPTIONS, type FiltroStatus } from "../types";
@@ -30,7 +26,7 @@ export default function FilterChips({ selected, onSelect }: FilterChipsProps) {
         {FILTRO_OPTIONS.map((opt) => {
           const isActive = opt.value === selected;
           return (
-            <TouchableOpacity
+            <Pressable
               key={opt.value}
               style={[
                 styles.chip,
@@ -44,7 +40,6 @@ export default function FilterChips({ selected, onSelect }: FilterChipsProps) {
                       },
                     ],
               ]}
-              activeOpacity={0.7}
               onPress={() => onSelect(opt.value)}
             >
               <Text
@@ -60,7 +55,7 @@ export default function FilterChips({ selected, onSelect }: FilterChipsProps) {
               >
                 {opt.label}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
       </ScrollView>

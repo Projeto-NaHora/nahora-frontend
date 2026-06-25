@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text,StyleSheet, Pressable } from "react-native";
 import { Image } from "expo-image";
 import type { Proposta } from "@/features/proposals/types";
 import { CATEGORIA_LABEL } from "@/features/orders/types";
@@ -93,11 +93,11 @@ export function PropostaCard({
               {subtitulo}
             </Text>
           ) : null}
-          <TouchableOpacity onPress={onVerPerfil}>
+          <Pressable onPress={onVerPerfil}>
             <Text style={[styles.verPerfilText, { color: colors.brand }]}>
               Ver perfil
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         <Text style={[styles.price, { color: colors.success }]}>
@@ -133,15 +133,15 @@ export function PropostaCard({
       </View>
 
       <View style={styles.buttonsRow}>
-        <TouchableOpacity
+        <Pressable
           style={[styles.primaryButton, { backgroundColor: colors.brand }]}
           onPress={onNegociar}
         >
           <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>
             Negociar
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+        </Pressable>
+        <Pressable
           style={[styles.secondaryButton, { backgroundColor: colors.surface }]}
           onPress={onVerProposta}
         >
@@ -150,7 +150,7 @@ export function PropostaCard({
           >
             Ver proposta
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );

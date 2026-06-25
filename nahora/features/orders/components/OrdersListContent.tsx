@@ -1,13 +1,9 @@
 // features/orders/components/OrdersListContent.tsx
 import React, { useState } from "react";
-import {
-  View,
+import { View,
   Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+  FlatList,StyleSheet,
+  ActivityIndicator, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Colors } from "@/constants/theme";
@@ -97,16 +93,15 @@ export default function OrdersListContent() {
 
       {/* Botão flutuante "Novo pedido" */}
       <View style={[styles.fabContainer, { bottom: 16 + insets.bottom }]}>
-        <TouchableOpacity
+        <Pressable
           style={styles.fab}
-          activeOpacity={0.8}
           onPress={handleNewOrder}
         >
           <View style={styles.fabIcon}>
             <Text style={styles.fabIconText}>+</Text>
           </View>
           <Text style={styles.fabText}>Novo pedido</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );

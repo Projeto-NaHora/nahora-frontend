@@ -23,7 +23,8 @@ export function UnderConstruction({ path }: UnderConstructionProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnimRef = useRef<Animated.Value>(null);
+  const pulseAnim = pulseAnimRef.current ?? (pulseAnimRef.current = new Animated.Value(1));
 
   useEffect(() => {
     const breathe = Animated.loop(

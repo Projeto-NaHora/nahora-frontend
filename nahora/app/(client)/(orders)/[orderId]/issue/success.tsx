@@ -1,11 +1,7 @@
 import React, { useEffect, useCallback } from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  BackHandler,
-} from "react-native";
+  StyleSheet,BackHandler, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -43,9 +39,9 @@ export default function IssueSuccessScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={{ width: 40 }} />
-        <TouchableOpacity style={styles.closeBtn} onPress={handleGoHome}>
+        <Pressable style={styles.closeBtn} onPress={handleGoHome}>
           <Feather name="x" size={24} color="#111827" />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <View style={styles.content}>
@@ -81,7 +77,7 @@ export default function IssueSuccessScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity
+        <Pressable
           style={styles.primaryBtn}
           onPress={handleTrackAnalysis}
         >
@@ -92,11 +88,11 @@ export default function IssueSuccessScreen() {
             color="#FFFFFF"
             style={{ marginLeft: 8 }}
           />
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity style={styles.secondaryBtn} onPress={handleGoHome}>
+        <Pressable style={styles.secondaryBtn} onPress={handleGoHome}>
           <Text style={styles.secondaryBtnText}>Voltar ao início</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

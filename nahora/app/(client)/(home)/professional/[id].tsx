@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
+import { View,
   Text,
   StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
-  ActivityIndicator,
-} from "react-native";
+  ScrollView,Dimensions,
+  ActivityIndicator, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -122,14 +118,14 @@ export default function ProfessionalProfileScreen() {
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
           Profissional não encontrado.
         </Text>
-        <TouchableOpacity
+        <Pressable
           style={[styles.errorBtn, { backgroundColor: colors.brand }]}
           onPress={handleGoBack}
         >
           <Text style={[styles.errorBtnText, { color: colors.onBrand }]}>
             Voltar
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </SafeAreaView>
     );
   }
@@ -180,19 +176,19 @@ export default function ProfessionalProfileScreen() {
           },
         ]}
       >
-        <TouchableOpacity
+        <Pressable
           onPress={handleGoBack}
           style={styles.backBtn}
           hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
         >
           <Feather name="arrow-left" size={24} color={colors.textPrimary} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
           Perfil do Profissional
         </Text>
 
         {/* Favoritar no header (Figma: top-right circular) */}
-        <TouchableOpacity
+        <Pressable
           onPress={async () => {
             if (!profissionalId) return;
             setFavToggling(true);
@@ -208,7 +204,7 @@ export default function ProfessionalProfileScreen() {
             size={22}
             color={isFavorite ? "#f26f21" : colors.textPrimary}
           />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -267,15 +263,15 @@ export default function ProfessionalProfileScreen() {
 
         {/* Ações */}
         <View style={styles.actionsRow}>
-          <TouchableOpacity
+          <Pressable
             style={[styles.actionPrimary, { backgroundColor: colors.brand }]}
           >
             <Text style={[styles.actionPrimaryText, { color: colors.onBrand }]}>
               Criar pedido
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
+          <Pressable
             style={[
               styles.actionSecondary,
               {
@@ -287,10 +283,10 @@ export default function ProfessionalProfileScreen() {
             <Text style={[styles.actionSecondaryText, { color: colors.brand }]}>
               Ver agenda
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
           {/* Botão Favoritar (original) */}
-          <TouchableOpacity
+          <Pressable
             style={[
               styles.actionMore,
               {
@@ -311,9 +307,9 @@ export default function ProfessionalProfileScreen() {
               size={20}
               color={isFavorite ? "#f26f21" : colors.textPrimary}
             />
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
+          <Pressable
             style={[
               styles.actionMore,
               {
@@ -327,7 +323,7 @@ export default function ProfessionalProfileScreen() {
               size={20}
               color={colors.textPrimary}
             />
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Stats */}

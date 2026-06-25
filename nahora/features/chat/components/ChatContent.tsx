@@ -1,13 +1,9 @@
 import React, { useCallback } from "react";
-import {
-  View,
+import { View,
   FlatList,
   Text,
-  ActivityIndicator,
-  TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-} from "react-native";
+  ActivityIndicator,StyleSheet,
+  KeyboardAvoidingView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/store/authStore";
@@ -106,12 +102,12 @@ export function ChatContent({ propostaId }: Props) {
           <Text style={[styles.errorText, { color: colors.darkText }]}>
             Nao foi possivel carregar as mensagens
           </Text>
-          <TouchableOpacity
+          <Pressable
             style={[styles.retryBtn, { backgroundColor: colors.brandOrange }]}
             onPress={() => refresh()}
           >
             <Text style={styles.retryText}>Tentar novamente</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </SafeAreaView>
     );
@@ -156,18 +152,18 @@ export function ChatContent({ propostaId }: Props) {
           <Text style={styles.iaBlockedText}>
             Mensagem nao transmitida devido as diretrizes do sistema.
           </Text>
-          <TouchableOpacity onPress={clearIaBlocked}>
+          <Pressable onPress={clearIaBlocked}>
             <Text style={styles.iaDismiss}>X</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
 
       {validationError && (
         <View style={styles.validationErrorBanner}>
           <Text style={styles.validationErrorText}>{validationError}</Text>
-          <TouchableOpacity onPress={clearValidationError}>
+          <Pressable onPress={clearValidationError}>
             <Text style={styles.iaDismiss}>X</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -35,15 +35,15 @@ export default function ReportedScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity
+        <Pressable
           style={styles.primaryBtn}
           onPress={handleTrackDispute}
         >
           <Text style={styles.primaryBtnText}>Acompanhar análise</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: colors.surfaceGray }]} onPress={handleGoHome}>
+        </Pressable>
+        <Pressable style={[styles.secondaryBtn, { backgroundColor: colors.surfaceGray }]} onPress={handleGoHome}>
           <Text style={[styles.secondaryBtnText, { color: colors.text }]}>Voltar aos meus serviços</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

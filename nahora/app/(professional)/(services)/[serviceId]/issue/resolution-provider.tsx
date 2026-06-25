@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
+  StyleSheet,ActivityIndicator,
+  Alert, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -73,12 +69,12 @@ export default function ResolutionProviderScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.primaryBtn} onPress={handleWithdraw}>
+        <Pressable style={styles.primaryBtn} onPress={handleWithdraw}>
           <Text style={styles.primaryBtnText}>Visualizar na Carteira</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: colors.surfaceGray }]} onPress={handleGoHome}>
+        </Pressable>
+        <Pressable style={[styles.secondaryBtn, { backgroundColor: colors.surfaceGray }]} onPress={handleGoHome}>
           <Text style={[styles.secondaryBtnText, { color: colors.text }]}>Voltar ao início</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

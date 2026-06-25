@@ -25,8 +25,10 @@ export function LogoutPopup({
 }: LogoutPopupProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
-  const backdropOpacity = useRef(new Animated.Value(0)).current;
-  const sheetTranslateY = useRef(new Animated.Value(600)).current;
+  const backdropRef = useRef<Animated.Value>(null);
+  const sheetRef = useRef<Animated.Value>(null);
+  const backdropOpacity = backdropRef.current ?? (backdropRef.current = new Animated.Value(0));
+  const sheetTranslateY = sheetRef.current ?? (sheetRef.current = new Animated.Value(600));
 
   useEffect(() => {
     if (visible) {

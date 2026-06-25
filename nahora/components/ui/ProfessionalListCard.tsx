@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -40,9 +40,8 @@ export const ProfessionalListCard: React.FC<ProfessionalListCardProps> = ({
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.card, { backgroundColor: colors.background }]}
-      activeOpacity={0.85}
       onPress={onPress}
     >
       {/* Avatar */}
@@ -93,7 +92,7 @@ export const ProfessionalListCard: React.FC<ProfessionalListCardProps> = ({
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 

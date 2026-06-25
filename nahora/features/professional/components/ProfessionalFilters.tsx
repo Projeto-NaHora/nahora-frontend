@@ -1,12 +1,8 @@
 // features/professional/components/ProfessionalFilters.tsx
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View,
+  Text,StyleSheet,
+  ScrollView, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { CATEGORIA_LABEL } from "@/features/orders/types";
@@ -59,14 +55,13 @@ export function ProfessionalFilters({
           const label =
             cat === "TODAS" ? "Todas as áreas" : CATEGORIA_LABEL[cat];
           return (
-            <TouchableOpacity
+            <Pressable
               key={cat}
               style={[
                 styles.chip,
                 { backgroundColor: colors.surface, borderColor: colors.border },
                 isActive && styles.chipActive,
               ]}
-              activeOpacity={0.7}
               onPress={() => onSelectCategoria(cat)}
             >
               <Text
@@ -78,7 +73,7 @@ export function ProfessionalFilters({
               >
                 {label}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
       </ScrollView>
@@ -95,14 +90,13 @@ export function ProfessionalFilters({
         {URGENCIAS.map((u) => {
           const isActive = u.value === selectedUrgencia;
           return (
-            <TouchableOpacity
+            <Pressable
               key={u.value}
               style={[
                 styles.chip,
                 { backgroundColor: colors.surface, borderColor: colors.border },
                 isActive && styles.urgencyChipActive,
               ]}
-              activeOpacity={0.7}
               onPress={() => onSelectUrgencia(u.value)}
             >
               <Text
@@ -114,7 +108,7 @@ export function ProfessionalFilters({
               >
                 {u.label}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
       </ScrollView>

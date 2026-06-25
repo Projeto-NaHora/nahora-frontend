@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-} from "react-native";
+  ScrollView,ActivityIndicator,
+  StyleSheet, Pressable } from "react-native";
 import { useLocalSearchParams, useRouter, Redirect } from "expo-router";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import {
@@ -86,12 +82,12 @@ export default function ProServiceDetailScreen() {
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
         <Text style={styles.errorText}>Erro ao carregar serviço.</Text>
-        <TouchableOpacity
+        <Pressable
           style={[styles.backBtnFallback, { backgroundColor: colors.surfaceGray }]}
           onPress={() => router.back()}
         >
           <Text style={[styles.backBtnFallbackText, { color: colors.text }]}>Voltar</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     );
   }
@@ -117,9 +113,9 @@ export default function ProServiceDetailScreen() {
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={() => router.back()}>
+        <Pressable style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={() => router.back()}>
           <Text style={[styles.backArrow, { color: colors.text }]}>{"←"}</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do serviço</Text>
         <View style={styles.headerSpacer} />
       </View>
@@ -239,15 +235,14 @@ export default function ProServiceDetailScreen() {
       {/* Rate button footer */}
       {mostrarAvaliar && (
         <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
-          <TouchableOpacity
+          <Pressable
             style={styles.rateButton}
             onPress={() =>
               router.push(`/(professional)/(services)/${serviceId}/rating`)
             }
-            activeOpacity={0.7}
           >
             <Text style={styles.rateButtonText}>Avaliar cliente</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
     </View>

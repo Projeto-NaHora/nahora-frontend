@@ -1,12 +1,8 @@
 // features/professional/components/OrdersHeader.tsx
 import React, { useState, useCallback } from "react";
-import {
-  View,
+import { View,
   Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+  TextInput,StyleSheet, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
@@ -77,27 +73,26 @@ export function OrdersHeader({
               autoFocus
             />
             {searchText.length > 0 && (
-              <TouchableOpacity
+              <Pressable
                 onPress={handleClearSearch}
                 style={styles.clearButton}
                 hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
               >
                 <Feather name="x" size={18} color="rgba(255,255,255,1)" />
-              </TouchableOpacity>
+              </Pressable>
             )}
           </View>
         </View>
       ) : (
-        <TouchableOpacity
+        <Pressable
           style={styles.searchBar}
-          activeOpacity={0.8}
           onPress={handleSearchBarPress}
         >
           <Feather name="search" size={20} color="rgba(255,255,255,0.7)" />
           <Text style={styles.searchPlaceholder}>Buscar serviços...</Text>
           <View style={styles.divider} />
           <Feather name="sliders" size={20} color="rgba(255,255,255,1)" />
-        </TouchableOpacity>
+        </Pressable>
       )}
     </View>
   );

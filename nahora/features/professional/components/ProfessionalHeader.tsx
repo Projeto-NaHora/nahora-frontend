@@ -1,6 +1,6 @@
 // features/professional/components/ProfessionalHeader.tsx
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAuthStore } from "@/store/authStore";
@@ -29,10 +29,10 @@ export function ProfessionalHeader() {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.notifButton} activeOpacity={0.7}>
+        <Pressable style={styles.notifButton}>
           <Text style={styles.bellIcon}>🔔</Text>
           <View style={styles.notifBadge} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* Tab switcher */}

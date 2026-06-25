@@ -1,11 +1,7 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  BackHandler,
-} from "react-native";
+  StyleSheet,BackHandler, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -68,16 +64,16 @@ export default function ProFinishSuccessScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity
+        <Pressable
           style={styles.primaryBtn}
           onPress={handleTrackProcess}
         >
           <Text style={styles.primaryBtnText}>Acompanhe o processo</Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={handleGoHome}>
+        <Pressable style={[styles.secondaryBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={handleGoHome}>
           <Text style={[styles.secondaryBtnText, { color: colors.text }]}>Voltar ao início</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

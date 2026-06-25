@@ -1,6 +1,6 @@
 // features/professional/components/AvailableOrderCard.tsx
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { CATEGORIA_LABEL } from "@/features/orders/types";
@@ -57,9 +57,8 @@ export function AvailableOrderCard({
   const timeAgo = useRelativeTime(pedido.criadoEm);
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}
-      activeOpacity={0.7}
       onPress={() => onPress(pedido)}
     >
       {/* Accent bar */}
@@ -100,7 +99,7 @@ export function AvailableOrderCard({
           )}
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

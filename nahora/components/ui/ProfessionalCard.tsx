@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { FontAwesome } from "@expo/vector-icons";
 import { SuggestedProfessional } from "../../store/homeStore";
@@ -30,7 +30,7 @@ export const ProfessionalCard: React.FC<Props> = ({ professional, onPress }) => 
   const avatarUrl = professional?.avatarUrl || professional?.foto || null;
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}
       activeOpacity={onPress ? 0.7 : 1}
       onPress={onPress}
@@ -70,7 +70,7 @@ export const ProfessionalCard: React.FC<Props> = ({ professional, onPress }) => 
           <Text style={[styles.badgePlusText, { color: colors.onBrand }]}>Plus</Text>
         </View>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 

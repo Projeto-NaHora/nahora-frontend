@@ -1,15 +1,11 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
   ScrollView,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
+  TextInput,ActivityIndicator,
   Modal,
   Platform,
-  StyleSheet,
-} from "react-native";
+  StyleSheet, Pressable } from "react-native";
 import { Controller } from "react-hook-form";
 import type { Control, FieldErrors } from "react-hook-form";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -125,9 +121,9 @@ export function ProposalFormContent({
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* HEADER */}
       <View style={[styles.header, { backgroundColor: colors.background }]}>
-        <TouchableOpacity style={[styles.backButton, { backgroundColor: colors.surface }]} onPress={onBack}>
+        <Pressable style={[styles.backButton, { backgroundColor: colors.surface }]} onPress={onBack}>
           <IconSymbol name="chevron.left" size={20} color={colors.textPrimary} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerTitles}>
           <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Mostrar Interesse</Text>
           <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
@@ -286,21 +282,21 @@ export function ProposalFormContent({
                           : "Defina o horario"}
                       </Text>
                     </View>
-                    <TouchableOpacity
+                    <Pressable
                       onPress={() => onRemoveHorario(index)}
                     >
                       <Text style={[styles.removeText, { color: colors.error }]}>remover</Text>
-                    </TouchableOpacity>
+                    </Pressable>
                   </View>
                 ))}
-                <TouchableOpacity
+                <Pressable
                   style={styles.addHorarioButton}
                   onPress={onAddHorario}
                 >
                   <Text style={[styles.addHorarioText, { color: colors.brand }]}>
                     + Adicionar horario
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </View>
 
@@ -314,11 +310,11 @@ export function ProposalFormContent({
 
       {/* FIXED BOTTOM BAR */}
       <View style={[styles.bottomBar, { borderTopColor: colors.border, backgroundColor: colors.background }]}>
-        <TouchableOpacity style={[styles.cancelButton, { backgroundColor: colors.surface }]} onPress={onCancel}>
+        <Pressable style={[styles.cancelButton, { backgroundColor: colors.surface }]} onPress={onCancel}>
           <Text style={[styles.cancelButtonText, { color: colors.textPrimary }]}>Cancelar</Text>
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.buttonGap} />
-        <TouchableOpacity
+        <Pressable
           style={[
             styles.sendButton,
             { backgroundColor: colors.brand },
@@ -330,7 +326,7 @@ export function ProposalFormContent({
           <Text style={[styles.sendButtonText, { color: colors.onBrand }]}>
             {isSubmitting ? "Enviando..." : "Enviar proposta"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* DATE/TIME PICKER MODAL */}
@@ -356,12 +352,12 @@ export function ProposalFormContent({
                   }}
                 />
                 <View style={styles.modalActions}>
-                  <TouchableOpacity
+                  <Pressable
                     style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
                     <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </>
             )}
@@ -388,19 +384,19 @@ export function ProposalFormContent({
                   }}
                 />
                 <View style={styles.modalActions}>
-                  <TouchableOpacity
+                  <Pressable
                     style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
                     <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                   <View style={styles.modalButtonGap} />
-                  <TouchableOpacity
+                  <Pressable
                     style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
                     <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </>
             )}
@@ -422,21 +418,21 @@ export function ProposalFormContent({
                   }}
                 />
                 <View style={styles.modalActions}>
-                  <TouchableOpacity
+                  <Pressable
                     style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
                     <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                   <View style={styles.modalButtonGap} />
-                  <TouchableOpacity
+                  <Pressable
                     style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]}
                     onPress={() =>
                       onCloseModal()
                     }
                   >
                     <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </>
             )}
@@ -462,26 +458,26 @@ export function ProposalFormContent({
                   </Text>
                 </View>
                 <View style={styles.modalActions}>
-                  <TouchableOpacity
+                  <Pressable
                     style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
                     <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                   <View style={styles.modalButtonGap} />
-                  <TouchableOpacity
+                  <Pressable
                     style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]}
                     onPress={onCloseModal}
                   >
                     <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                   <View style={styles.modalButtonGap} />
-                  <TouchableOpacity
+                  <Pressable
                     style={[styles.modalConfirmButton, { backgroundColor: colors.brand }]}
                     onPress={onConfirmSlot}
                   >
                     <Text style={[styles.modalConfirmText, { color: colors.onBrand }]}>Confirmar</Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </>
             )}

@@ -1,6 +1,6 @@
 // features/favorites/components/FavoriteButton.tsx
 import React from "react";
-import { TouchableOpacity, ActivityIndicator, StyleSheet } from "react-native";
+import { ActivityIndicator, StyleSheet, Pressable } from "react-native";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAuthStore } from "@/store/authStore";
 
@@ -27,24 +27,23 @@ export function FavoriteButton({
   // Loading state — mostra um ActivityIndicator no lugar do ícone
   if (isLoading) {
     return (
-      <TouchableOpacity style={styles.button} disabled>
+      <Pressable style={styles.button} disabled>
         <ActivityIndicator size={22} color="#f26f21" />
-      </TouchableOpacity>
+      </Pressable>
     );
   }
 
   return (
-    <TouchableOpacity
+    <Pressable
       style={styles.button}
       onPress={onToggle}
-      activeOpacity={0.7}
     >
       <IconSymbol
         name="heart.fill"
         size={22}
         color={isFavorite ? "#f26f21" : "#CCCCCC"}
       />
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
