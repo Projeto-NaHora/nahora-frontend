@@ -63,6 +63,10 @@ function getPaymentStatusColors(
   return { bg: "#F5F5F5", text: "#8E8E93" };
 }
 
+const handleOrderPress = (pedido: Pedido) => {
+  router.push(`/(client)/(account)/history-detail?id=${pedido.id}`);
+};
+
 export default function HistoryScreen() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -84,10 +88,6 @@ export default function HistoryScreen() {
         return data;
       },
     );
-
-  const handleOrderPress = (pedido: Pedido) => {
-    router.push(`/(client)/(account)/history-detail?id=${pedido.id}`);
-  };
 
   const handleRefresh = async () => {
     setRefreshing(true);

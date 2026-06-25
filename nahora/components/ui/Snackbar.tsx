@@ -1,5 +1,5 @@
 // components/ui/Snackbar.tsx
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef } from "react";
 import { Animated, Text, StyleSheet, Pressable } from "react-native";
 
 interface SnackbarProps {
@@ -21,7 +21,7 @@ export function Snackbar({
   const opacity = useRef(new Animated.Value(0)).current;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const hide = useCallback(() => {
+  const hide = () => {
     Animated.parallel([
       Animated.timing(translateY, {
         toValue: 100,
@@ -36,7 +36,7 @@ export function Snackbar({
     ]).start(() => {
       onDismiss();
     });
-  }, [translateY, opacity, onDismiss]);
+  };
 
   useEffect(() => {
     if (visible) {

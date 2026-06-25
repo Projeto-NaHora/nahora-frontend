@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 import { View,
   Text,
   StyleSheet,BackHandler, Pressable } from "react-native";
@@ -10,15 +10,16 @@ export default function IssueSuccessScreen() {
   const router = useRouter();
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
-  const handleGoHome = useCallback(() => {
+  const goHome = () => {
     router.dismissAll();
     router.replace("/(client)/(home)");
-  }, [router]);
+  };
 
   // Bloqueia o botão físico de voltar do Android para não reabrir o formulário
   useEffect(() => {
     const onBackPress = () => {
-      handleGoHome();
+      router.dismissAll();
+      router.replace("/(client)/(home)");
       return true;
     };
 
@@ -28,7 +29,7 @@ export default function IssueSuccessScreen() {
     );
 
     return () => subscription.remove();
-  }, [handleGoHome]);
+  }, [router]);
 
   const handleTrackAnalysis = () => {
     // Leva para a tela C103 (Análise da Disputa)
@@ -39,7 +40,7 @@ export default function IssueSuccessScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={{ width: 40 }} />
-        <Pressable style={styles.closeBtn} onPress={handleGoHome}>
+        <Pressable style={styles.closeBtn} onPress={goHome}>
           <Feather name="x" size={24} color="#111827" />
         </Pressable>
       </View>
@@ -90,7 +91,7 @@ export default function IssueSuccessScreen() {
           />
         </Pressable>
 
-        <Pressable style={styles.secondaryBtn} onPress={handleGoHome}>
+        <Pressable style={styles.secondaryBtn} onPress={goHome}>
           <Text style={styles.secondaryBtnText}>Voltar ao início</Text>
         </Pressable>
       </View>
