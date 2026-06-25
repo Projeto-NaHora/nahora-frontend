@@ -10,6 +10,7 @@ export function ProfessionalHeader() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
   const user = useAuthStore((s) => s.user);
+  const router = useRouter();
 
   return (
     <View style={[styles.container, { paddingTop: 48, backgroundColor: colors.brand }]}>
