@@ -4,6 +4,7 @@ import { mutate } from "swr";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import { orderService } from "@/features/orders/service";
+import { ordersKeys } from "@/features/orders/types";
 import { OrderIssueContent } from "@/features/orders/components/OrderIssueContent";
 
 // 1. Definimos os motivos exclusivos do profissional
@@ -69,8 +70,8 @@ export default function ProReportarProblemaScreen() {
       });
 
       // 5. Invalida o cache para atualizar a lista de serviços do profissional
-      mutate("/pedidos/meus-servicos");
-      mutate(`/pedidos/${idPedido}`);
+      mutate(ordersKeys.meusServicos);
+      mutate(ordersKeys.detail(idPedido));
 
       // 6. Redireciona para a tela de sucesso (reported.tsx)
       router.replace(`/(professional)/(services)/${idPedido}/issue/reported`);

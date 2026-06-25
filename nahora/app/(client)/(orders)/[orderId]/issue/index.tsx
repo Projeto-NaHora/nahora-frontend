@@ -3,6 +3,7 @@ import { Alert } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import { orderService } from "@/features/orders/service";
+import { ordersKeys } from "@/features/orders/types";
 import { mutate } from "swr";
 import { OrderIssueContent } from "@/features/orders/components/OrderIssueContent";
 
@@ -65,8 +66,8 @@ export default function ReportarProblemaScreen() {
       });
 
       // Invalida o cache para atualizar a lista
-      mutate("/pedidos/meus");
-      mutate(`/pedidos/${idPedido}`);
+      mutate(ordersKeys.list());
+      mutate(ordersKeys.detail(idPedido));
 
       // Redireciona direto para a tela de Sucesso (C102)
       router.replace(`/(client)/(orders)/${idPedido}/issue/success`);

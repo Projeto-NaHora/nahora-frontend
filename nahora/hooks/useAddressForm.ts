@@ -16,13 +16,15 @@ interface AddressFormState {
   padrao: boolean;
   cepBuscando: boolean;
   loaded: boolean;
+  cepError: string | null;
 }
 
 type AddressFormAction =
   | { type: "INITIALIZE"; address: EnderecoResponse }
   | { type: "SET_FIELD"; field: keyof AddressFormState; value: string | boolean }
   | { type: "SET_CEP_RESULT"; logradouro: string; bairro: string; cidade: string; uf: string }
-  | { type: "SET_CEP_BUSCANDO"; value: boolean };
+  | { type: "SET_CEP_BUSCANDO"; value: boolean }
+  | { type: "SET_CEP_ERROR"; value: string | null };
 
 // ── Module-scope pure helpers (not rebuilt on every render) ─────────────────
 
@@ -52,6 +54,7 @@ const initialState: AddressFormState = {
   padrao: false,
   cepBuscando: false,
   loaded: false,
+  cepError: null,
 };
 
 function initFromAddress(addr?: EnderecoResponse): AddressFormState {
@@ -68,6 +71,7 @@ function initFromAddress(addr?: EnderecoResponse): AddressFormState {
     padrao: addr.padrao ?? false,
     cepBuscando: false,
     loaded: true,
+    cepError: null,
   };
 }
 
@@ -92,7 +96,11 @@ function addressFormReducer(
       };
 
     case "SET_FIELD":
-      return { ...state, [action.field]: action.value };
+      return {
+        ...state,
+        [action.field]: action.value,
+        ...(action.field === "cep" ? { cepError: null } : {}),
+      };
 
     case "SET_CEP_RESULT":
       return {
@@ -105,6 +113,9 @@ function addressFormReducer(
 
     case "SET_CEP_BUSCANDO":
       return { ...state, cepBuscando: action.value };
+
+    case "SET_CEP_ERROR":
+      return { ...state, cepError: action.value };
 
     default:
       return state;
@@ -122,7 +133,10 @@ export function useAddressForm(existingAddress?: EnderecoResponse) {
 
   const handleCepBlur = async () => {
     const digits = state.cep.replace(/\D/g, "");
-    if (digits.length !== 8) return;
+    if (digits.length < 8) {
+      dispatch({ type: "SET_CEP_ERROR", value: "CEP inválido" });
+      return;
+    }
 
     dispatch({ type: "SET_CEP_BUSCANDO", value: true });
     try {
@@ -135,9 +149,12 @@ export function useAddressForm(existingAddress?: EnderecoResponse) {
           cidade: result.cidade ?? "",
           uf: result.estado ?? "",
         });
+        dispatch({ type: "SET_CEP_ERROR", value: null });
+      } else {
+        dispatch({ type: "SET_CEP_ERROR", value: "CEP não encontrado" });
       }
     } catch {
-      // Silently ignore CEP lookup errors
+      dispatch({ type: "SET_CEP_ERROR", value: "CEP não encontrado" });
     }
     dispatch({ type: "SET_CEP_BUSCANDO", value: false });
   };

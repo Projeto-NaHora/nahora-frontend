@@ -13,7 +13,7 @@ export default function ProfessionalOrderDetailScreen() {
       pedido={pedido}
       isLoading={isLoading}
       error={error}
-      onBack={() => router.back()}
+      onBack={() => router.replace("/(professional)/(orders)")}
       onMostrarInteresse={() =>
         router.push(`/(professional)/(orders)/${orderId}/proposal`)
       }

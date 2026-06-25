@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -24,6 +25,7 @@ import type {
 } from "@/features/profile/types";
 import { useAddressForm, formatCep } from "@/hooks/useAddressForm";
 import useSWR from "swr";
+import axios from "axios";
 
 const TIPO_OPTIONS: { value: TipoEndereco; label: string }[] = [
   { value: "CASA", label: "Casa" },
@@ -44,6 +46,7 @@ type AddressFormFieldsProps = {
   uf: string;
   padrao: boolean;
   cepBuscando: boolean;
+  cepError: string | null;
   colors: typeof Colors.light;
   dispatch: React.Dispatch<any>;
   handleCepBlur: () => void;
@@ -60,6 +63,7 @@ function AddressFormFields({
   uf,
   padrao,
   cepBuscando,
+  cepError,
   colors,
   dispatch,
   handleCepBlur,
@@ -70,7 +74,7 @@ function AddressFormFields({
       <View style={styles.fieldGroup}>
         <View style={styles.fieldLabelRow}>
           <Text style={styles.fieldLabel}>CEP</Text>
-          <Pressable>
+          <Pressable onPress={() => Linking.openURL('https://buscacepinter.correios.com.br/')}>
             <Text style={styles.cepLink}>Não sei meu CEP</Text>
           </Pressable>
         </View>
@@ -96,6 +100,9 @@ function AddressFormFields({
             <ActivityIndicator size="small" color={colors.brand} style={styles.cepSpinner} />
           )}
         </View>
+        {cepError && (
+          <Text style={styles.cepErrorText}>{cepError}</Text>
+        )}
       </View>
 
       {/* Logradouro */}
@@ -279,6 +286,7 @@ export default function AddScreen() {
     dispatch,
     handleCepBlur,
     isValid,
+    cepError,
   } = useAddressForm(existingAddress);
 
   const [saving, setSaving] = useState(false);
@@ -297,6 +305,19 @@ export default function AddScreen() {
 
     setSaving(true);
     try {
+      if (!isEditing) {
+        // Check for duplicates before creating
+        const existingAddresses = await profileService.listarEnderecos();
+        const duplicate = existingAddresses.find(
+          (a) => a.cep === payload.cep && a.numero === payload.numero && a.tipo === payload.tipo,
+        );
+        if (duplicate) {
+          Alert.alert("Endereço já cadastrado", "Já existe um endereço com esses dados.");
+          setSaving(false);
+          return;
+        }
+      }
+
       if (isEditing && editId) {
         await profileService.editarEndereco(editId, payload);
         if (padrao) await profileService.definirEnderecoPadrao(editId);
@@ -308,10 +329,14 @@ export default function AddScreen() {
         { text: "OK", onPress: () => router.back() },
       ]);
     } catch (err: any) {
-      Alert.alert(
-        "Erro",
-        getApiErrorMessage(err, "Não foi possível salvar o endereço."),
-      );
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        Alert.alert("Endereço já cadastrado", "Já existe um endereço com esses dados.");
+      } else {
+        Alert.alert(
+          "Erro",
+          getApiErrorMessage(err, "Não foi possível salvar o endereço."),
+        );
+      }
     }
     setSaving(false);
   };
@@ -359,6 +384,7 @@ export default function AddScreen() {
             uf={uf}
             padrao={padrao}
             cepBuscando={cepBuscando}
+            cepError={cepError}
             colors={colors}
             dispatch={dispatch}
             handleCepBlur={handleCepBlur}
@@ -496,6 +522,13 @@ const styles = StyleSheet.create({
   },
   cepSpinner: {
     marginLeft: 8,
+  },
+  cepErrorText: {
+    color: "#DC2626",
+    fontSize: 12,
+    fontFamily: Fonts?.sans,
+    paddingLeft: 2,
+    marginTop: 2,
   },
 
   // Side by side
