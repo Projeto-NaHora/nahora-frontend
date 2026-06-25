@@ -128,6 +128,8 @@ export default function HistoryDetailScreen() {
 
   const { data: pedido, isLoading, error } = useOrderDetail(pedidoId);
 
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+
   if (isLoading) {
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
@@ -147,7 +149,7 @@ export default function HistoryDetailScreen() {
     );
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorIcon]}>⚠️</Text>
+        <Text style={styles.errorIcon}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
           Não foi possível carregar os detalhes
         </Text>
@@ -170,7 +172,6 @@ export default function HistoryDetailScreen() {
     );
   }
 
-  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const categoryLabel =
     CATEGORIA_LABEL[pedido.categoria] ?? pedido.categoria;
   const statusLabel = STATUS_LABEL[pedido.status] ?? pedido.status;

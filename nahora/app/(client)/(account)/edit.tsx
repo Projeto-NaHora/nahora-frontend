@@ -103,7 +103,7 @@ export default function EditScreen() {
     );
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorIcon]}>⚠️</Text>
+        <Text style={styles.errorIcon}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
           Não foi possível carregar seus dados
         </Text>

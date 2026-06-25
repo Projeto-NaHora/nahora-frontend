@@ -53,7 +53,7 @@ export default function Screen() {
     const mensagem = getApiErrorMessage(error, "Erro ao carregar.");
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorIcon]}>⚠️</Text>
+        <Text style={styles.errorIcon}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
           Erro ao carregar configurações
         </Text>

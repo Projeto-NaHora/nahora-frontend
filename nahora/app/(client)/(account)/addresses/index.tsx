@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -45,8 +45,7 @@ export default function Screen() {
     setRefreshing(false);
   };
 
-  const showActions = useCallback(
-    (endereco: EnderecoResponse) => {
+  const showActions = (endereco: EnderecoResponse) => {
       Alert.alert(
         TIPO_ENDERECO_LABEL[endereco.tipo] ?? endereco.apelido ?? "Endereço",
         undefined,
@@ -110,9 +109,7 @@ export default function Screen() {
           { text: "Cancelar", style: "cancel" },
         ],
       );
-    },
-    [mutate],
-  );
+  };
 
   if (isLoading) {
     return (
@@ -130,7 +127,7 @@ export default function Screen() {
     );
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorIcon]}>⚠️</Text>
+        <Text style={styles.errorIcon}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
           Não foi possível carregar seus endereços
         </Text>
