@@ -547,65 +547,156 @@ export function OrderFormContent({
 
       <OrderFormAddressSection control={control} errors={errors} colors={colors} enderecoDiferente={enderecoDiferente} isBuscandoCep={isBuscandoCep} />
 
-      {/* Descrição */}
-      <View style={styles.fieldGroup}>
-        <View style={styles.fieldLabelRow}>
-          <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
-            Descrição
-          </Text>
-          <IconSymbol
-            name="square.and.pencil"
-            size={16}
-            color={colors.textSecondary}
-          />
+        {/* Descrição */}
+        <View style={styles.fieldGroup}>
+            <View style={styles.fieldLabelRow}>
+                <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+                    Descrição
+                </Text>
+                <IconSymbol
+                    name="square.and.pencil"
+                    size={16}
+                    color={colors.textSecondary}
+                />
+            </View>
+            <Controller
+                control={control}
+                name="descricao"
+                render={({ field: { onChange, onBlur, value } }) => {
+                    const textValue = value ?? "";
+                    const currentLength = textValue.length;
+
+                    // Lógica de limites
+                    const isOverMax = currentLength >= 500;
+                    // Só acusa o erro de mínimo se o usuário já digitou algo (maior que 0) e ainda é menor que 20
+                    const isUnderMin = currentLength > 0 && currentLength < 20;
+                    const isInvalidLength = isOverMax || isUnderMin;
+
+                    // Mensagem dinâmica do contador
+                    let warningMessage = "";
+                    if (isOverMax) {
+                        warningMessage = "Limite máximo atingido.";
+                    } else if (isUnderMin) {
+                        warningMessage = `Mínimo de 20 caracteres (faltam ${20 - currentLength}).`;
+                    }
+
+                    return (
+                        <>
+                            <TextInput
+                                style={[
+                                    styles.textArea,
+                                    {
+                                        backgroundColor: colors.surface,
+                                        // Destaca a borda em vermelho caso fuja das regras de tamanho
+                                        borderColor: isInvalidLength ? colors.error : colors.border,
+                                        color: colors.textPrimary,
+                                    },
+                                ]}
+                                placeholder="Ex: Necessito um pintor para pintar meu muro."
+                                placeholderTextColor={colors.placeholder}
+                                multiline
+                                numberOfLines={4}
+                                maxLength={500}
+                                textAlignVertical="top"
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                value={textValue}
+                            />
+
+                            {/* Linha do contador com o aviso dinâmico */}
+                            <View style={styles.counterRow}>
+                                {isInvalidLength && (
+                                    <Text style={[styles.limitWarningText, { color: colors.error }]}>
+                                        {warningMessage}
+                                    </Text>
+                                )}
+                                <Text
+                                    style={[
+                                        styles.charCounter,
+                                        { color: isInvalidLength ? colors.error : colors.textSecondary },
+                                    ]}
+                                >
+                                    {currentLength}/500
+                                </Text>
+                            </View>
+                        </>
+                    );
+                }}
+            />
+            {/* Se o react-hook-form bloquear o envio, o erro aparece aqui em baixo */}
+            {errors.descricao?.message && (
+                <Text style={[styles.fieldError, { color: colors.error }]}>
+                    {errors.descricao.message}
+                </Text>
+            )}
         </View>
-        <Controller
-          control={control}
-          name="descricao"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <>
-              <TextInput
-                style={[
-                  styles.textArea,
-                  {
-                    backgroundColor: colors.surface,
-                    borderColor: colors.border,
-                    color: colors.textPrimary,
-                  },
-                ]}
-                placeholder="Ex: Necessito um pintor para pintar meu muro."
-                placeholderTextColor={colors.placeholder}
-                multiline
-                numberOfLines={4}
-                maxLength={500}
-                textAlignVertical="top"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-              <Text style={[styles.charCounter, { color: colors.textSecondary }]}>
-                {(value ?? "").length}/500
-              </Text>
-            </>
-          )}
-        />
-        {errors.descricao?.message && (
-          <Text style={[styles.fieldError, { color: colors.error }]}>
-            {errors.descricao.message}
+      {/* Imagem/Vídeo (Opcional) */}
+      <View style={styles.fieldGroup}>
+        <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+          Imagem/Vídeo (Opcional)
+        </Text>
+        <View style={styles.mediaRow}>
+          <Pressable
+            style={[styles.mediaButton, { backgroundColor: colors.surfaceAccent }]}
+            onPress={onPickFromCamera}
+            disabled={isSubmitting || isUploadingMedia}
+          >
+            <IconSymbol name="camera.fill" size={22} color={colors.brand} />
+            <Text style={[styles.mediaButtonText, { color: colors.brand }]}>
+              Câmera
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[styles.mediaButton, { backgroundColor: colors.surfaceAccent }]}
+            onPress={onPickFromGallery}
+            disabled={isSubmitting || isUploadingMedia}
+          >
+            <IconSymbol
+              name="photo.on.rectangle"
+              size={22}
+              color={colors.brand}
+            />
+            <Text style={[styles.mediaButtonText, { color: colors.brand }]}>
+              Galeria
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Preview das mídias selecionadas */}
+        {mediaUris.length > 0 && (
+          <View style={styles.mediaPreviewRow}>
+            {mediaUris.map((uri, index) => (
+              <View key={uri} style={styles.mediaPreviewItem}>
+                <Image source={{ uri }} style={styles.mediaPreviewImage} />
+                <Pressable
+                  style={[
+                    styles.mediaRemoveBadge,
+                    { backgroundColor: colors.error },
+                  ]}
+                  onPress={() => onRemoveMedia(index)}
+                  disabled={isSubmitting || isUploadingMedia}
+                >
+                  <IconSymbol name="xmark" size={12} color="#fff" />
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Estado de upload */}
+        {isUploadingMedia && (
+          <Text style={[styles.mediaStatusText, { color: colors.brand }]}>
+            Enviando imagens...
+          </Text>
+        )}
+
+        {/* Erro de permissão/upload */}
+        {uploadError && (
+          <Text style={[styles.mediaStatusText, { color: colors.error }]}>
+            {uploadError}
           </Text>
         )}
       </View>
-
-      <OrderFormMediaSection
-        colors={colors}
-        mediaUris={mediaUris}
-        isUploadingMedia={isUploadingMedia}
-        uploadError={uploadError}
-        isSubmitting={isSubmitting}
-        onPickFromCamera={onPickFromCamera}
-        onPickFromGallery={onPickFromGallery}
-        onRemoveMedia={onRemoveMedia}
-      />
 
       {/* Turno disponível */}
       <View style={styles.fieldGroup}>
@@ -800,7 +891,6 @@ const styles = StyleSheet.create({
   enderecoSection: {
     marginTop: 18,
   },
-  // TextArea
   textArea: {
     borderRadius: Radii.lg,
     borderWidth: Borders.thin,
@@ -813,11 +903,23 @@ const styles = StyleSheet.create({
     lineHeight: 27,
     minHeight: 140,
   },
+  // Contador Caracter
+  counterRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginTop: 4,
+    marginRight: 4,
+    gap: 8,
+  },
+  limitWarningText: {
+    fontSize: 12,
+    fontFamily: Fonts?.sans,
+    fontWeight: "500",
+  },
   charCounter: {
     textAlign: "right",
     fontSize: 13,
-    marginTop: 4,
-    marginRight: 4,
   },
   // TextInput single-line (endereço fields)
   textInput: {
