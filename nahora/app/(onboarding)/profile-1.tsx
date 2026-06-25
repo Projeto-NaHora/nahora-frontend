@@ -221,7 +221,6 @@ export default function Profile1() {
             estado={estado}
             raioAtuacaoKm={raioAtuacaoKm}
             cepLoading={cepLoading}
-            onChangeCpf={setCpf}
             onChangeCargo={setCargo}
             onChangeExperienceYears={setExperienceYears}
             onChangeCep={setCep}

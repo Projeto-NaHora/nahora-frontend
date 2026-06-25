@@ -15,8 +15,8 @@ export const ganhosKeys = {
 };
 
 export function useEarningsHistory() {
-  const [mesAtual, setMesAtual] = useState(NOW.getMonth() + 1);
-  const [anoAtual, setAnoAtual] = useState(NOW.getFullYear());
+  const [mesAtual, setMesAtual] = useState(() => NOW.getMonth() + 1);
+  const [anoAtual, setAnoAtual] = useState(() => NOW.getFullYear());
 
   const {
     data: ganhos,

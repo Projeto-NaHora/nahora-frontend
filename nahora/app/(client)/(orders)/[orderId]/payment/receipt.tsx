@@ -13,6 +13,35 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ReceiptCard } from "@/features/payments/components/ReceiptCard";
 import { paymentsService } from "@/features/payments/service";
 
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  let base64 = "";
+  for (let i = 0; i < binary.length; i += 3) {
+    const a = binary.charCodeAt(i);
+    const b = binary.charCodeAt(i + 1);
+    const c = binary.charCodeAt(i + 2);
+    const enc1 = a >> 2;
+    const enc2 = ((a & 3) << 4) | (b >> 4);
+    const enc3 = ((b & 15) << 2) | (c >> 6);
+    const enc4 = c & 63;
+    base64 += chars[enc1] + chars[enc2];
+    base64 += b ? chars[enc3] : "=";
+    base64 += c ? chars[enc4] : "=";
+  }
+  return base64;
+}
+
+const currencyFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
+
 export default function ReceiptScreen() {
   const params = useLocalSearchParams<{
     orderId?: string;
@@ -31,10 +60,7 @@ export default function ReceiptScreen() {
   const orderId = params.orderId ? Number(params.orderId) : null;
 
   const handleShare = async () => {
-    const formattedValor = new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(valor);
+    const formattedValor = currencyFormatter.format(valor);
 
     const methodLabel = metodo === "PIX" ? "Pix" : "Cartão de Crédito";
 
@@ -134,38 +160,6 @@ export default function ReceiptScreen() {
       </View>
     </ScrollView>
   );
-}
-
-/** Converte ArrayBuffer para base64 (React Native não tem btoa) */
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  const chunkSize = 0x8000;
-  let result = "";
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    const chunk = bytes.subarray(i, i + chunkSize);
-    let binary = "";
-    for (let j = 0; j < chunk.length; j++) {
-      binary += String.fromCharCode(chunk[j]);
-    }
-    result += binary;
-  }
-  // polyfill btoa for React Native (Hermes)
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  let base64 = "";
-  for (let i = 0; i < result.length; i += 3) {
-    const a = result.charCodeAt(i);
-    const b = result.charCodeAt(i + 1);
-    const c = result.charCodeAt(i + 2);
-    const enc1 = a >> 2;
-    const enc2 = ((a & 3) << 4) | (b >> 4);
-    const enc3 = ((b & 15) << 2) | (c >> 6);
-    const enc4 = c & 63;
-    base64 += chars[enc1] + chars[enc2];
-    base64 += b ? chars[enc3] : "=";
-    base64 += c ? chars[enc4] : "=";
-  }
-  return base64;
 }
 
 const styles = StyleSheet.create({
