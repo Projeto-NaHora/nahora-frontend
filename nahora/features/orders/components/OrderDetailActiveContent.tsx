@@ -1,7 +1,7 @@
 import React from "react";
 import { View,
   Text,
-  StyleSheet,ScrollView,
+  StyleSheet,ScrollView, FlatList,
   ActivityIndicator, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
@@ -134,20 +134,20 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
         {pedido.fotos && pedido.fotos.length > 0 && (
           <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
             <Text style={[styles.labelDesc, { color: colors.textSecondary }]}>FOTOS</Text>
-            <ScrollView
+            <FlatList
               horizontal
+              data={pedido.fotos}
+              keyExtractor={(uri) => uri}
               showsHorizontalScrollIndicator={false}
               style={{ marginTop: 8 }}
-            >
-              {pedido.fotos.map((uri) => (
+              renderItem={({ item: uri }) => (
                 <Image
-                  key={uri}
                   source={{ uri }}
                   style={[styles.photoThumb, { backgroundColor: colors.surface }]}
                   resizeMode="cover"
                 />
-              ))}
-            </ScrollView>
+              )}
+            />
           </View>
         )}
 

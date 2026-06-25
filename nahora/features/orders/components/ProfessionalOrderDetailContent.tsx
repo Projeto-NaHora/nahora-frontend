@@ -1,7 +1,7 @@
 import React from "react";
 import { View,
   Text,
-  ScrollView,ActivityIndicator,
+  ScrollView, FlatList,ActivityIndicator,
   StyleSheet, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { Colors } from "@/constants/theme";
@@ -136,20 +136,20 @@ export function ProfessionalOrderDetailContent({
 
         {/* Fotos do pedido */}
         {pedido.fotos && pedido.fotos.length > 0 && (
-          <ScrollView
+          <FlatList
             horizontal
+            data={pedido.fotos}
+            keyExtractor={(uri) => uri}
             showsHorizontalScrollIndicator={false}
             style={{ marginTop: 12 }}
-          >
-            {pedido.fotos.map((uri) => (
+            renderItem={({ item: uri }) => (
               <Image
-                key={uri}
                 source={{ uri }}
                 style={[styles.photoThumb, { backgroundColor: colors.surface }]}
                 resizeMode="cover"
               />
-            ))}
-          </ScrollView>
+            )}
+          />
         )}
 
         {/* Details Card */}

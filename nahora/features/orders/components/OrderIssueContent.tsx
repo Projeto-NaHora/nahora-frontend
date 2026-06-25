@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View,
   Text,
-  StyleSheet,ScrollView,
+  StyleSheet,ScrollView, FlatList,
   TextInput,
   ActivityIndicator,
   Image,
@@ -210,12 +210,13 @@ export const OrderIssueContent: React.FC<Props> = ({
 
         {/* Lista de miniaturas das fotos escolhidas */}
         {fotos.length > 0 && (
-          <ScrollView
+          <FlatList
             horizontal
+            data={fotos}
+            keyExtractor={(uri) => uri}
             showsHorizontalScrollIndicator={false}
             style={styles.photosList}
-          >
-            {fotos.map((uri) => (
+            renderItem={({ item: uri, index }) => (
               <View key={uri} style={styles.photoThumbnailContainer}>
                 <Image source={{ uri }} style={styles.photoThumbnail} />
                 <Pressable
@@ -225,8 +226,8 @@ export const OrderIssueContent: React.FC<Props> = ({
                   <Feather name="x" size={14} color="#FFFFFF" />
                 </Pressable>
               </View>
-            ))}
-          </ScrollView>
+            )}
+          />
         )}
 
         {/* Botões para adicionar mais fotos */}
