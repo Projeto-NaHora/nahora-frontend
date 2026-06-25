@@ -15,8 +15,8 @@ export const ganhosKeys = {
 };
 
 export function useEarningsHistory() {
-  const [mesAtual, setMesAtual] = useState(NOW.getMonth() + 1);
-  const [anoAtual, setAnoAtual] = useState(NOW.getFullYear());
+  const [mesAtual, setMesAtual] = useState(() => NOW.getMonth() + 1);
+  const [anoAtual, setAnoAtual] = useState(() => NOW.getFullYear());
 
   const {
     data: ganhos,
@@ -40,7 +40,7 @@ export function useEarningsHistory() {
     { revalidateOnFocus: false },
   );
 
-  const irParaMesAnterior = useCallback(() => {
+  const irParaMesAnterior = () => {
     setMesAtual((prev) => {
       if (prev === 1) {
         setAnoAtual((ano) => ano - 1);
@@ -48,9 +48,9 @@ export function useEarningsHistory() {
       }
       return prev - 1;
     });
-  }, []);
+  };
 
-  const irParaMesProximo = useCallback(() => {
+  const irParaMesProximo = () => {
     setMesAtual((prev) => {
       if (prev === 12) {
         setAnoAtual((ano) => ano + 1);
@@ -58,15 +58,15 @@ export function useEarningsHistory() {
       }
       return prev + 1;
     });
-  }, []);
+  };
 
   const isCurrentMonth =
     mesAtual === NOW.getMonth() + 1 && anoAtual === NOW.getFullYear();
 
-  const refetch = useCallback(() => {
+  const refetch = () => {
     mutateGanhos();
     mutateServicos();
-  }, [mutateGanhos, mutateServicos]);
+  };
 
   return {
     ganhos,

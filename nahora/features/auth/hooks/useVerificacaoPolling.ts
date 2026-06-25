@@ -6,7 +6,11 @@ const POLLING_INTERVAL_MS = 10_000;
 
 export function useVerificacaoPolling(onApproved: () => void) {
   const onApprovedRef = useRef(onApproved);
-  onApprovedRef.current = onApproved;
+  // Sync the latest callback in an effect, not during render,
+  // to satisfy React Compiler's refs-during-render rule
+  useEffect(() => {
+    onApprovedRef.current = onApproved;
+  });
 
   useEffect(() => {
     let cancelled = false;

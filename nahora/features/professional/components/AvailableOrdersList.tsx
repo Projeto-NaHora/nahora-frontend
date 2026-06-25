@@ -36,12 +36,12 @@ export function AvailableOrdersList({ onPressPedido }: AvailableOrdersListProps)
   const [urgenciaFilter, setUrgenciaFilter] = useState<UrgenciaFilter>("TODAS");
   const [refreshing, setRefreshing] = useState(false);
 
-  const filtro: PedidoFiltroParams = useMemo(() => {
+  const filtro: PedidoFiltroParams = (() => {
     const params: PedidoFiltroParams = {};
     if (categoriaFilter !== "TODAS") params.categoria = categoriaFilter;
     if (urgenciaFilter !== "TODAS") params.urgente = urgenciaFilter === "URGENTE";
     return params;
-  }, [categoriaFilter, urgenciaFilter]);
+  })();
 
   const {
     pedidos,
@@ -53,11 +53,11 @@ export function AvailableOrdersList({ onPressPedido }: AvailableOrdersListProps)
     loadMore,
   } = usePedidosDisponiveis(filtro);
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
     await refresh();
     setRefreshing(false);
-  }, [refresh]);
+  };
 
   if (isLoading) {
     return (
@@ -83,9 +83,9 @@ export function AvailableOrdersList({ onPressPedido }: AvailableOrdersListProps)
       <FlatList
         data={pedidos}
         keyExtractor={(item) => String(item.id)}
+        contentInset={{ bottom: 40 + insets.bottom }}
         contentContainerStyle={{
           paddingHorizontal: 20,
-          paddingBottom: 40 + insets.bottom,
           gap: 12,
         }}
         showsVerticalScrollIndicator={false}

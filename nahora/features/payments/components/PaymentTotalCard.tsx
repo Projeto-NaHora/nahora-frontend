@@ -1,15 +1,14 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
+const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
 interface PaymentTotalCardProps {
   valor: number;
 }
 
 export function PaymentTotalCard({ valor }: PaymentTotalCardProps) {
-  const formatted = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(valor);
+  const formatted = currencyFormatter.format(valor);
 
   return (
     <View style={styles.card}>

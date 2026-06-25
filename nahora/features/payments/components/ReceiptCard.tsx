@@ -3,6 +3,8 @@ import { View, Text, StyleSheet } from "react-native";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
+const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
 interface ReceiptCardProps {
   valor: number;
   dataPagamento: string | null;
@@ -15,6 +17,18 @@ const METODO_LABEL: Record<string, string> = {
   CARTAO_CREDITO: "CartÃ£o de CrÃ©dito",
 };
 
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "—";
+  const date = d.toLocaleDateString("pt-BR");
+  const time = d.toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${date} • ${time}`;
+}
+
 export function ReceiptCard({
   valor,
   dataPagamento,
@@ -23,10 +37,7 @@ export function ReceiptCard({
 }: ReceiptCardProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
-  const formattedValor = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(valor);
+  const formattedValor = currencyFormatter.format(valor);
 
   const formatDate = (iso: string | null): string => {
     if (!iso) return "â€”";
@@ -74,11 +85,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
+    boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
   },
   valorSection: {
     alignItems: "center",

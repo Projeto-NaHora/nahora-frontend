@@ -1,19 +1,20 @@
 // features/orders/components/OrdersHeader.tsx
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text,StyleSheet, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+
+function handleNewOrder() {
+  router.push("/(client)/(orders)/new");
+}
 
 export default function OrdersHeader() {
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
-  const handleNewOrder = () => {
-    router.push("/(client)/(orders)/new");
-  };
 
   return (
     <View
@@ -29,13 +30,12 @@ export default function OrdersHeader() {
       <Text style={[styles.title, { color: colors.textPrimary }]}>
         Meus Pedidos
       </Text>
-      <TouchableOpacity
+      <Pressable
         style={styles.addButton}
-        activeOpacity={0.7}
         onPress={handleNewOrder}
       >
         <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }

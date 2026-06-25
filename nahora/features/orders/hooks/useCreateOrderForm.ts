@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useSWRConfig } from "swr";
@@ -121,22 +121,29 @@ export function useCreateOrderForm(editId?: number) {
   const {
     control,
     handleSubmit,
-    watch,
     setValue,
     setError,
     reset,
     formState: { errors },
   } = form;
 
-  const enderecoDiferente = watch("enderecoDiferente");
-  const cepValue = watch("cep");
+  const enderecoDiferente = useWatch({ control, name: "enderecoDiferente" });
+  const cepValue = useWatch({ control, name: "cep" });
 
   // Carrega pedido existente para edicao
   const editIdNum = editId ?? 0;
   const { data: existingOrder } = useOrderDetail(editIdNum);
 
+  // Ref para evitar que o reset() seja chamado multiplas vezes
+  // quando o SWR revalida o existingOrder (ex.: ao focar a tela)
+  const initializedEditId = useRef<number | undefined>(undefined);
+
   useEffect(() => {
     if (!editId || !existingOrder) return;
+
+    // Só inicializa o formulário uma vez por editId
+    if (initializedEditId.current === editId) return;
+    initializedEditId.current = editId;
 
     const turno = getTurnoKey(existingOrder.dataDesejada) ?? "MANHA";
 
@@ -164,7 +171,6 @@ export function useCreateOrderForm(editId?: number) {
     if (digits.length !== 8) return;
 
     let cancelled = false;
-    setIsBuscandoCep(true);
 
     buscarCep(digits)
       .then((endereco) => {
@@ -193,116 +199,138 @@ export function useCreateOrderForm(editId?: number) {
         if (!cancelled) setIsBuscandoCep(false);
       });
 
+    // Defer loading state to microtask — avoids synchronous setState in effect body
+    queueMicrotask(() => {
+      if (!cancelled) setIsBuscandoCep(true);
+    });
+
     return () => {
       cancelled = true;
     };
-  }, [cepValue, enderecoDiferente]);
+  }, [cepValue, enderecoDiferente, setValue]);
 
-  /** Data desejada = 1 semana a partir de hoje + hora do turno */
-  const buildDataDesejada = useCallback((turno: string): string => {
+  const buildDataDesejada = (turno: string, dataOriginal?: string): string => {
     const horaMap: Record<string, string> = {
       MANHA: "08:00:00",
       TARDE: "14:00:00",
       NOITE: "19:00:00",
     };
-    const nextWeek = new Date();
-    nextWeek.setDate(nextWeek.getDate() + 7);
-    const data = nextWeek.toISOString().slice(0, 10);
     const hora = horaMap[turno] ?? "08:00:00";
-    return `${data}T${hora}`;
-  }, []);
 
-  const onSubmit = useCallback(
-    async (data: CriarPedidoFormValues) => {
-      setIsSubmitting(true);
-      setErrorMessage(null);
+    // Na edicao, preserva a data original, trocando apenas o horario
+    if (editId && dataOriginal) {
+      const data = dataOriginal.slice(0, 10); // "YYYY-MM-DD"
+      return `${data}T${hora}`;
+    }
 
-      try {
-        // 1. Faz upload das midias e obtem as URLs
-        let fotosUrls: string[] | undefined;
-        if (midiasPicker.mediaUris.length > 0) {
-          fotosUrls = await midiasPicker.uploadAll();
-        }
+    // Data dummy fixa — apenas o horário (turno) importa
+    return `2099-01-01T${hora}`;
+  };
 
-        // 2. Monta objeto EnderecoRequest se o toggle estiver ativo;
-        // caso contrário, usa o endereço padrão salvo
-        let endereco: EnderecoRequest | undefined;
-        let enderecoId: number | undefined;
-        if (data.enderecoDiferente) {
-          endereco = {
-            cep: data.cep,
-            logradouro: data.logradouro,
-            numero: data.numero,
-            complemento: data.complemento || undefined,
-            bairro: data.bairro,
-            cidade: data.cidade,
-            estado: data.estado,
-          };
+  const onSubmit = async (data: CriarPedidoFormValues) => {
+    setIsSubmitting(true);
+    setErrorMessage(null);
 
-          // Geocode do endereco para obter latitude/longitude
-          try {
-            const address = `${data.logradouro}, ${data.numero}, ${data.bairro}, ${data.cidade}, ${data.estado}`;
-            const coords = await geocodeAddress(address);
-            if (coords) {
-              endereco.latitude = coords.lat;
-              endereco.longitude = coords.lng;
-            }
-          } catch {
-            // prossegue sem coordenadas se o geocoding falhar
-          }
-        } else if (defaultAddress) {
-          enderecoId = defaultAddress.id;
-        }
+    try {
+      // 1. Faz upload das midias e obtem as URLs
+      let fotosUrls: string[] | undefined;
+      if (midiasPicker.mediaUris.length > 0) {
+        fotosUrls = await midiasPicker.uploadAll();
+      }
 
-        // 3. Monta dataDesejada = 1 semana a partir de hoje + turno
-        const dataDesejada = buildDataDesejada(data.turno);
-
-        const payload = {
-          categoria: data.categoria as CategoriaServico,
-          descricao: data.descricao,
-          endereco,
-          enderecoId,
-          fotos: fotosUrls,
-          urgencia: data.urgencia as Urgencia,
-          orcamentoEstimado: 0,
-          dataDesejada,
+      // 2. Monta objeto EnderecoRequest se o toggle estiver ativo;
+      // caso contrário, usa o endereço padrão salvo
+      let endereco: EnderecoRequest | undefined;
+      let enderecoId: number | undefined;
+      if (data.enderecoDiferente) {
+        endereco = {
+          cep: data.cep,
+          logradouro: data.logradouro,
+          numero: data.numero,
+          complemento: data.complemento || undefined,
+          bairro: data.bairro,
+          cidade: data.cidade,
+          estado: data.estado,
         };
 
-        if (editId) {
-          await orderService.atualizar(editId, payload);
-          mutate(`order-${editId}`);
-          router.back();
-        } else {
-          const created = await orderService.criar(payload);
-          midiasPicker.reset();
-          router.push({
-            pathname: "/(client)/(orders)/success",
-            params: { orderId: String(created.id) },
+        // Geocode do endereco para obter latitude/longitude
+        try {
+          const address = `${data.logradouro}, ${data.numero}, ${data.bairro}, ${data.cidade}, ${data.estado}`;
+          const coords = await geocodeAddress(address);
+          if (coords) {
+            endereco.latitude = coords.lat;
+            endereco.longitude = coords.lng;
+          }
+        } catch {
+          // prossegue sem coordenadas se o geocoding falhar
+        }
+      } else if (defaultAddress) {
+        enderecoId = defaultAddress.id;
+      }
+
+      // 3. Monta dataDesejada
+      // Na edicao, preserva a data original; na criacao, usa 1 semana a partir de hoje
+      const dataDesejada = buildDataDesejada(data.turno, existingOrder?.dataDesejada);
+
+      const payload = {
+        categoria: data.categoria as CategoriaServico,
+        descricao: data.descricao,
+        endereco,
+        enderecoId,
+        fotos: fotosUrls,
+        urgencia: data.urgencia as Urgencia,
+        orcamentoEstimado: 0,
+        dataDesejada,
+      };
+
+      if (editId) {
+        await orderService.atualizar(editId, payload);
+        mutate(`order-${editId}`);
+        router.back();
+      } else {
+        const created = await orderService.criar(payload);
+        midiasPicker.reset();
+        router.push({
+          pathname: "/(client)/(orders)/success",
+          params: { orderId: String(created.id) },
+        });
+      }
+    } catch (error) {
+      const parsed = parseApiError(
+        error,
+        editId
+          ? "Erro ao salvar pedido. Tente novamente."
+          : "Erro ao criar pedido. Tente novamente.",
+      );
+
+      // Mensagem mais especifica baseada no status code
+      let mensagem = parsed.message;
+      if (!parsed.fieldErrors || Object.keys(parsed.fieldErrors).length === 0) {
+        if (parsed.statusCode === 400) {
+          mensagem = parsed.message || "Dados inválidos. Verifique os campos e tente novamente.";
+        } else if (parsed.statusCode === 422) {
+          mensagem = parsed.message || "Não foi possível processar o pedido. Verifique os dados.";
+        } else if (parsed.statusCode === 500) {
+          mensagem = "Erro interno do servidor. Tente novamente mais tarde.";
+        } else if (parsed.statusCode === undefined) {
+          mensagem = "Erro de conexão. Verifique sua internet e tente novamente.";
+        }
+      }
+      setErrorMessage(mensagem);
+
+      for (const [field, message] of Object.entries(parsed.fieldErrors)) {
+        if (field in form.getValues()) {
+          setError(field as keyof CriarPedidoFormValues, {
+            type: "server",
+            message,
           });
         }
-      } catch (error) {
-        const parsed = parseApiError(
-          error,
-          "Erro ao salvar pedido. Tente novamente.",
-        );
-        setErrorMessage(parsed.message);
-
-        for (const [field, message] of Object.entries(parsed.fieldErrors)) {
-          if (field in form.getValues()) {
-            setError(field as keyof CriarPedidoFormValues, {
-              type: "server",
-              message,
-            });
-          }
-        }
-      } finally {
-        setIsSubmitting(false);
       }
-    },
-    [editId, router, midiasPicker, setError, buildDataDesejada, mutate],
-  );
+    }
+    setIsSubmitting(false);
+  };
 
-  const handleClear = useCallback(() => {
+  const handleClear = () => {
     reset({
       categoria: "",
       descricao: "",
@@ -318,7 +346,7 @@ export function useCreateOrderForm(editId?: number) {
       turno: "MANHA",
     });
     midiasPicker.reset();
-  }, [reset, midiasPicker]);
+  };
 
   return {
     form,

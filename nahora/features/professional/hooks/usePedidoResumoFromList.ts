@@ -25,12 +25,12 @@ function mapDisponivelToPedido(
 export function usePedidoResumoFromList(orderId: number) {
   const { pedidos, isLoading, error } = usePedidosDisponiveis();
 
-  const pedido = useMemo(() => {
+  const pedido = (() => {
     if (!pedidos || pedidos.length === 0) return undefined;
     const disponivel = pedidos.find((p) => p.id === orderId);
     if (!disponivel) return undefined;
     return mapDisponivelToPedido(disponivel);
-  }, [pedidos, orderId]);
+  })();
 
   return {
     pedido,

@@ -1,13 +1,9 @@
 // features/orders/components/OrdersListContent.tsx
 import React, { useState } from "react";
-import {
-  View,
+import { View,
   Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+  FlatList,StyleSheet,
+  ActivityIndicator, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Colors } from "@/constants/theme";
@@ -19,6 +15,20 @@ import FilterChips from "./FilterChips";
 import EmptyOrders from "./EmptyOrders";
 import type { Pedido, FiltroStatus } from "../types";
 
+function handleOrderPress(pedido: Pedido) {
+  if (pedido.status === "AGUARDANDO_VALIDACAO") {
+    router.push(`/(client)/(orders)/${pedido.id}/validation`);
+  } else if (pedido.status === "EM_ANDAMENTO") {
+    router.push(`/(client)/(orders)/${pedido.id}/active`);
+  } else {
+    router.push(`/(client)/(orders)/${pedido.id}`);
+  }
+}
+
+function handleNewOrder() {
+  router.push("/(client)/(orders)/new");
+}
+
 export default function OrdersListContent() {
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
@@ -28,20 +38,6 @@ export default function OrdersListContent() {
   const { data, isLoading, isValidating, error, mutate } = useOrders({
     status: filtro,
   });
-
-  const handleOrderPress = (pedido: Pedido) => {
-    if (pedido.status === "AGUARDANDO_VALIDACAO") {
-      router.push(`/(client)/(orders)/${pedido.id}/validation`);
-    } else if (pedido.status === "EM_ANDAMENTO") {
-      router.push(`/(client)/(orders)/${pedido.id}/active`);
-    } else {
-      router.push(`/(client)/(orders)/${pedido.id}`);
-    }
-  };
-
-  const handleNewOrder = () => {
-    router.push("/(client)/(orders)/new");
-  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -76,9 +72,9 @@ export default function OrdersListContent() {
       <FlatList
         data={data?.content ?? []}
         keyExtractor={(item) => String(item.id)}
+        contentInset={{ bottom: 120 + insets.bottom }}
         contentContainerStyle={{
           paddingHorizontal: 24,
-          paddingBottom: 120 + insets.bottom,
           gap: 16,
         }}
         showsVerticalScrollIndicator={false}
@@ -97,16 +93,15 @@ export default function OrdersListContent() {
 
       {/* Botão flutuante "Novo pedido" */}
       <View style={[styles.fabContainer, { bottom: 16 + insets.bottom }]}>
-        <TouchableOpacity
+        <Pressable
           style={styles.fab}
-          activeOpacity={0.8}
           onPress={handleNewOrder}
         >
           <View style={styles.fabIcon}>
             <Text style={styles.fabIconText}>+</Text>
           </View>
           <Text style={styles.fabText}>Novo pedido</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
@@ -149,11 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     height: 56,
     gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
   fabIcon: {
     width: 20,

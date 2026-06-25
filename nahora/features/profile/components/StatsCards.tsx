@@ -24,7 +24,7 @@ export function StatsCards({ stats, labels }: StatsCardsProps) {
     <View style={styles.container}>
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={styles.cardValueWrapper}>
-          <Text style={[styles.cardValue, { color: colors.text }]}>
+          <Text style={[styles.cardValue, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.55}>
             {stats.servicesCount}
           </Text>
         </View>
@@ -33,7 +33,7 @@ export function StatsCards({ stats, labels }: StatsCardsProps) {
 
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={styles.cardValueWrapper}>
-          <Text style={[styles.cardValue, { color: colors.text }]}>
+          <Text style={[styles.cardValue, { color: colors.text }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.55}>
             {stats.rating}
           </Text>
         </View>
@@ -42,7 +42,7 @@ export function StatsCards({ stats, labels }: StatsCardsProps) {
 
       <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={styles.cardValueWrapper}>
-          <Text style={[styles.cardValue, { color: colors.success }]}>
+          <Text style={[styles.cardValue, { color: colors.success }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.55}>
             {stats.earnings}
           </Text>
         </View>

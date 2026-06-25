@@ -29,13 +29,6 @@ function formatCurrency(value: number | undefined | null): string {
   });
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  const dia = String(d.getDate()).padStart(2, "0");
-  const mes = String(d.getMonth() + 1).padStart(2, "0");
-  return `${dia}/${mes}/${d.getFullYear()}`;
-}
-
 function getInitials(name: string): string {
   return name
     ? name
@@ -70,6 +63,10 @@ function getPaymentStatusColors(
   return { bg: "#F5F5F5", text: "#8E8E93" };
 }
 
+const handleOrderPress = (pedido: Pedido) => {
+  router.push(`/(client)/(account)/history-detail?id=${pedido.id}`);
+};
+
 export default function HistoryScreen() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
@@ -91,10 +88,6 @@ export default function HistoryScreen() {
         return data;
       },
     );
-
-  const handleOrderPress = (pedido: Pedido) => {
-    router.push(`/(client)/(account)/history-detail?id=${pedido.id}`);
-  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -118,7 +111,7 @@ export default function HistoryScreen() {
     );
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorIcon]}>⚠️</Text>
+        <Text style={styles.errorIcon}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
           Não foi possível carregar o histórico
         </Text>
@@ -271,8 +264,6 @@ export default function HistoryScreen() {
                   numberOfLines={1}
                 >
                   {item.profissionalAtribuidoNome ?? "—"}
-                  {" · "}
-                  {formatDate(item.dataDesejada)}
                 </Text>
               </View>
 
@@ -452,11 +443,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 20,
     marginBottom: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 8,
-    elevation: 2,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
   },
   cardRow1: {
     flexDirection: "row",

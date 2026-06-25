@@ -39,80 +39,77 @@ export default function Screen() {
     profileService.listarEnderecosProfissional(),
   );
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
     await mutate();
     setRefreshing(false);
-  }, [mutate]);
+  };
 
-  const showActions = useCallback(
-    (endereco: EnderecoResponse) => {
-      Alert.alert(
-        TIPO_ENDERECO_LABEL[endereco.tipo] ?? endereco.apelido ?? "Endereço",
-        undefined,
-        [
-          {
-            text: "Editar",
-            onPress: () =>
-              router.push(
-                `/(professional)/(account)/addresses/add?id=${endereco.id}`,
-              ),
-          },
-          ...(endereco.padrao
-            ? []
-            : [
+  const showActions = (endereco: EnderecoResponse) => {
+    Alert.alert(
+      TIPO_ENDERECO_LABEL[endereco.tipo] ?? endereco.apelido ?? "Endereço",
+      undefined,
+      [
+        {
+          text: "Editar",
+          onPress: () =>
+            router.push(
+              `/(professional)/(account)/addresses/add?id=${endereco.id}`,
+            ),
+        },
+        ...(endereco.padrao
+          ? []
+          : [
+              {
+                text: "Tornar padrão",
+                onPress: async () => {
+                  try {
+                    await profileService.definirEnderecoPadraoProfissional(endereco.id);
+                    mutate();
+                  } catch (err: any) {
+                    Alert.alert(
+                      "Erro",
+                      getApiErrorMessage(err, "Não foi possível alterar."),
+                    );
+                  }
+                },
+              },
+            ] as any),
+        {
+          text: "Excluir",
+          style: "destructive" as const,
+          onPress: () => {
+            Alert.alert(
+              "Excluir endereço",
+              "Tem certeza que deseja excluir este endereço?",
+              [
+                { text: "Cancelar", style: "cancel" },
                 {
-                  text: "Tornar padrão",
+                  text: "Excluir",
+                  style: "destructive",
                   onPress: async () => {
                     try {
-                      await profileService.definirEnderecoPadraoProfissional(endereco.id);
+                      await profileService.deletarEnderecoProfissional(endereco.id);
                       mutate();
                     } catch (err: any) {
                       Alert.alert(
                         "Erro",
-                        getApiErrorMessage(err, "Não foi possível alterar."),
+                        getApiErrorMessage(
+                          err,
+                          "Não foi possível excluir.",
+                        ),
                       );
                     }
                   },
                 },
-              ] as any),
-          {
-            text: "Excluir",
-            style: "destructive" as const,
-            onPress: () => {
-              Alert.alert(
-                "Excluir endereço",
-                "Tem certeza que deseja excluir este endereço?",
-                [
-                  { text: "Cancelar", style: "cancel" },
-                  {
-                    text: "Excluir",
-                    style: "destructive",
-                    onPress: async () => {
-                      try {
-                        await profileService.deletarEnderecoProfissional(endereco.id);
-                        mutate();
-                      } catch (err: any) {
-                        Alert.alert(
-                          "Erro",
-                          getApiErrorMessage(
-                            err,
-                            "Não foi possível excluir.",
-                          ),
-                        );
-                      }
-                    },
-                  },
-                ],
-              );
-            },
+              ],
+            );
           },
-          { text: "Cancelar", style: "cancel" },
-        ],
-      );
-    },
-    [mutate],
-  );
+        },
+        { text: "Cancelar", style: "cancel" },
+      ],
+    );
+  };
 
   if (isLoading) {
     return (
@@ -130,7 +127,7 @@ export default function Screen() {
     );
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorIcon]}>⚠️</Text>
+        <Text style={styles.errorIcon}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
           Não foi possível carregar seus endereços
         </Text>
@@ -428,11 +425,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 20,
     gap: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
   cardIcon: {
     width: 46,

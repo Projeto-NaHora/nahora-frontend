@@ -1,13 +1,9 @@
 import React, { useState } from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
+  StyleSheet,FlatList,
   ActivityIndicator,
-  RefreshControl,
-} from "react-native";
+  RefreshControl, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -29,6 +25,21 @@ type Props = {
   refreshing?: boolean;
   onRefresh?: () => void;
 };
+
+function getStatusLabel(status: string): string {
+  switch (status) {
+    case "EM_ANDAMENTO":
+      return "EM ANDAMENTO";
+    case "AGUARDANDO_VALIDACAO":
+      return "AGUARDANDO APROVAÇÃO";
+    case "EM_DISPUTA":
+      return "EM DISPUTA";
+    case "CONCLUIDO":
+      return "CONCLUÍDO";
+    default:
+      return status;
+  }
+}
 
 export const ProServicesListContent: React.FC<Props> = ({
   pedidos,
@@ -55,20 +66,6 @@ export const ProServicesListContent: React.FC<Props> = ({
     return pedido.status === "CONCLUIDO" || pedido.status === "CANCELADO";
   });
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "EM_ANDAMENTO":
-        return "EM ANDAMENTO";
-      case "AGUARDANDO_VALIDACAO":
-        return "AGUARDANDO APROVAÇÃO";
-      case "EM_DISPUTA":
-        return "EM DISPUTA";
-      case "CONCLUIDO":
-        return "CONCLUÍDO";
-      default:
-        return status;
-    }
-  };
 
   const renderItem = ({ item }: { item: any }) => {
     // Usando os dados exatos do PedidoCardDTO do seu Java
@@ -138,24 +135,24 @@ export const ProServicesListContent: React.FC<Props> = ({
 
           {/* Só mostra botão de chat se não tiver concluído */}
           {activeTab === "ANDAMENTO" && (
-            <TouchableOpacity
+            <Pressable
               style={[styles.chatButton, { borderColor: colors.border }]}
               // Aqui idealmente o backend enviaria a propostaId. Como é PedidoCardDTO,
               // você pode precisar ajustar a navegação do chat depois
               onPress={() => onPressChat(item.id)}
             >
               <Feather name="message-circle" size={20} color={colors.brand} />
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
 
         {/* Botão Detalhes */}
-        <TouchableOpacity
+        <Pressable
           style={styles.detailsButton}
           onPress={() => onPressDetails(item.id)}
         >
           <Text style={[styles.detailsButtonText, { color: colors.text }]}>Ver detalhes do serviço</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     );
   };
@@ -168,7 +165,7 @@ export const ProServicesListContent: React.FC<Props> = ({
 
         {/* Tabs */}
         <View style={styles.tabsContainer}>
-          <TouchableOpacity
+          <Pressable
             style={[styles.tab, activeTab === "ANDAMENTO" && { backgroundColor: colors.background }]}
             onPress={() => setActiveTab("ANDAMENTO")}
           >
@@ -181,8 +178,8 @@ export const ProServicesListContent: React.FC<Props> = ({
             >
               Em andamento
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             style={[styles.tab, activeTab === "HISTORICO" && { backgroundColor: colors.background }]}
             onPress={() => setActiveTab("HISTORICO")}
           >
@@ -195,7 +192,7 @@ export const ProServicesListContent: React.FC<Props> = ({
             >
               Histórico
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </SafeAreaView>
 
@@ -270,11 +267,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   },
   cardHeader: {
     flexDirection: "row",

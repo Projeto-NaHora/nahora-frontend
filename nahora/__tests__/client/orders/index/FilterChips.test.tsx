@@ -21,7 +21,7 @@ describe('FilterChips', () => {
     render(<FilterChips selected="TODOS" onSelect={onSelect} />);
 
     const abertoChip = screen.getByText('Em aberto');
-    // TouchableOpacity is pressable
+    // Pressable is pressable
     const { fireEvent } = require('@testing-library/react-native');
     fireEvent.press(abertoChip);
 

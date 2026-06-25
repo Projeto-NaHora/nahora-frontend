@@ -1,11 +1,7 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
+  StyleSheet,ActivityIndicator, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CATEGORIA_LABEL, Pedido } from "../types";
@@ -55,9 +51,9 @@ export const OrderCompleteContent: React.FC<Props> = ({
     return (
       <SafeAreaView style={styles.centerContainer}>
         <Text style={styles.errorText}>Erro ao carregar os dados.</Text>
-        <TouchableOpacity style={styles.backBtnFallback} onPress={onBack}>
+        <Pressable style={styles.backBtnFallback} onPress={onBack}>
           <Text style={styles.backBtnFallbackText}>Voltar</Text>
-        </TouchableOpacity>
+        </Pressable>
       </SafeAreaView>
     );
   }
@@ -67,21 +63,18 @@ export const OrderCompleteContent: React.FC<Props> = ({
   const nomeProfissional = pedido.profissionalNome || "Profissional";
   const categoriaFormatada =
     CATEGORIA_LABEL[pedido.categoria] || pedido.categoria || "Serviço";
-  const dataFormatada = pedido.dataDesejada
-    ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
-    : "";
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <Pressable
           style={[styles.backBtn, { backgroundColor: colors.surface }]}
           onPress={onBack}
           disabled={isConfirming}
         >
           <Feather name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Confirmar conclusão</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -114,7 +107,7 @@ export const OrderCompleteContent: React.FC<Props> = ({
           <View style={styles.providerInfo}>
             <Text style={[styles.providerName, { color: colors.text }]}>{nomeProfissional}</Text>
             <Text style={[styles.providerDetails, { color: colors.textSecondary }]}>
-              {categoriaFormatada} {dataFormatada ? `• ${dataFormatada}` : ""}
+              {categoriaFormatada}
             </Text>
           </View>
         </View>
@@ -122,7 +115,7 @@ export const OrderCompleteContent: React.FC<Props> = ({
 
       {/* Botões de Ação na base */}
       <View style={[styles.footer, { backgroundColor: colors.background }]}>
-        <TouchableOpacity
+        <Pressable
           style={[
             styles.primaryButton,
             { backgroundColor: colors.brand },
@@ -136,15 +129,15 @@ export const OrderCompleteContent: React.FC<Props> = ({
           ) : (
             <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>Confirmar conclusão</Text>
           )}
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           style={styles.secondaryButton}
           onPress={onDispute}
           disabled={isConfirming}
         >
           <Text style={styles.secondaryButtonText}>Contestar conclusão</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity } from "react-native";
+import { Pressable } from "react-native";
 import { render, screen } from "@tests/test-utils";
 import { AvailableOrderCard } from "@/features/professional/components/AvailableOrderCard";
 import { createMockPedidoDisponivel } from "@tests/factories/professional";

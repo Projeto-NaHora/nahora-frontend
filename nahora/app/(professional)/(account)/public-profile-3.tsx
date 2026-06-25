@@ -88,7 +88,7 @@ export default function PublicProfile3() {
     addPortfolioPhoto,
     removePortfolioPhoto,
     saveProfile,
-  } = useEditProfileForm();
+  } = useEditProfileForm({ initialize: true });
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
@@ -121,9 +121,8 @@ export default function PublicProfile3() {
         setShowSuccess(true);
       } catch {
         Alert.alert("Erro", "Não foi possível salvar as alterações.");
-      } finally {
-        setIsSubmitting(false);
       }
+      setIsSubmitting(false);
     };
   
     const handleSuccessDismiss = () => {

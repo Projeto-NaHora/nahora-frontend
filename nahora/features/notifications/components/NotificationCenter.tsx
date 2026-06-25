@@ -2,8 +2,8 @@
 import React from "react";
 import {
   ActivityIndicator,
+  FlatList,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -58,20 +58,20 @@ export function NotificationCenter() {
           <Text style={styles.emptyText}>Nenhuma notificação</Text>
         </View>
       ) : (
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {agrupadas.map((grupo) => (
+        <FlatList
+          data={agrupadas}
+          keyExtractor={(grupo) => grupo.secao}
+          renderItem={({ item: grupo }) => (
             <NotificationSection
-              key={grupo.secao}
               secao={grupo.secao}
               notificacoes={grupo.notificacoes}
               onPress={handlePress}
             />
-          ))}
-        </ScrollView>
+          )}
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        />
       )}
     </SafeAreaView>
   );

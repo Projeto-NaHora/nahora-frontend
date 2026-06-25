@@ -1,18 +1,21 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
+  StyleSheet,ActivityIndicator,
+  Alert, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useDisputaStatus } from "@/features/orders/hooks/useOrders";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
+
+const handleWithdraw = () => {
+  Alert.alert(
+    "Sucesso",
+    "O saldo foi liberado na sua carteira virtual para transferência.",
+  );
+};
 
 export default function ResolutionProviderScreen() {
   const router = useRouter();
@@ -24,13 +27,6 @@ export default function ResolutionProviderScreen() {
   const handleGoHome = () => {
     router.dismissAll();
     router.replace("/(professional)/(services)");
-  };
-
-  const handleWithdraw = () => {
-    Alert.alert(
-      "Sucesso",
-      "O saldo foi liberado na sua carteira virtual para transferência.",
-    );
   };
 
   if (isLoading || !disputa?.decisao) {
@@ -73,12 +69,12 @@ export default function ResolutionProviderScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.primaryBtn} onPress={handleWithdraw}>
+        <Pressable style={styles.primaryBtn} onPress={handleWithdraw}>
           <Text style={styles.primaryBtnText}>Visualizar na Carteira</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: colors.surfaceGray }]} onPress={handleGoHome}>
+        </Pressable>
+        <Pressable style={[styles.secondaryBtn, { backgroundColor: colors.surfaceGray }]} onPress={handleGoHome}>
           <Text style={[styles.secondaryBtnText, { color: colors.text }]}>Voltar ao início</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

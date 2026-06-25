@@ -79,9 +79,8 @@ export default function ProReportarProblemaScreen() {
         "Erro",
         "Não foi possível enviar a denúncia. Tente novamente.",
       );
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   return (

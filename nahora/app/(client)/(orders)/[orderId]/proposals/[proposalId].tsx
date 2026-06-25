@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, ActivityIndicator, Alert, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useSWRConfig } from "swr";
 import { useProposalDetail, useProposalActions } from "@/features/proposals/hooks/useProposals";
 import { ProposalDetailContent } from "@/features/proposals/components/ProposalDetailContent";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import { ENDPOINTS } from "@/services/api/endpoints";
 
 export default function DetalhePropostaScreen() {
   const { orderId, proposalId } = useLocalSearchParams<{
@@ -15,6 +17,7 @@ export default function DetalhePropostaScreen() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
   const [loading, setLoading] = useState(false);
+  const { mutate } = useSWRConfig();
 
   const pedidoId = Number(orderId);
   const propId = Number(proposalId);
@@ -58,9 +61,8 @@ export default function DetalhePropostaScreen() {
               });
             } catch {
               Alert.alert("Erro", "Não foi possível aceitar a proposta.");
-            } finally {
-              setLoading(false);
             }
+            setLoading(false);
           },
         },
       ],
@@ -80,12 +82,12 @@ export default function DetalhePropostaScreen() {
             setLoading(true);
             try {
               await rejectProposal(proposal.id);
+              mutate(ENDPOINTS.PROPOSTAS(pedidoId));
               router.back();
             } catch {
               Alert.alert("Erro", "Não foi possível recusar a proposta.");
-            } finally {
-              setLoading(false);
             }
+            setLoading(false);
           },
         },
       ],

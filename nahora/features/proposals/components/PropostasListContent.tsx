@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, FlatList,ActivityIndicator, StyleSheet, Pressable } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useProposalsByPedido } from "@/features/proposals/hooks/useProposals";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
@@ -10,14 +10,11 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 
 type OrdemFiltro = "todos" | "melhor_avaliacao" | "menor_preco";
 
-function formatDateAndTime(iso: string): string {
-  const d = new Date(iso);
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-  const hours = String(d.getHours()).padStart(2, "0");
-  const mins = String(d.getMinutes()).padStart(2, "0");
-  return `${day}/${month}/${year} · ${hours}:${mins}`;
+function getPeriodo(iso: string): string {
+  const hora = new Date(iso).getHours();
+  if (hora < 12) return "Manhã";
+  if (hora < 18) return "Tarde";
+  return "Noite";
 }
 
 const FILTRO_LABELS: { key: OrdemFiltro; label: string }[] = [
@@ -34,24 +31,24 @@ export default function PropostasListContent() {
   const { proposals, isLoading, isError } = useProposalsByPedido(Number(orderId));
   const { data: order } = useOrderDetail(Number(orderId));
 
-  const propostasOrdenadas = useMemo(() => {
+  const propostasOrdenadas = (() => {
     return [...proposals].sort((a, b) => {
       if (filtro === "menor_preco") return a.valor - b.valor;
       if (filtro === "melhor_avaliacao") return b.profissional.notaMedia - a.profissional.notaMedia;
       return 0;
     });
-  }, [proposals, filtro]);
+  })();
 
   const categoriaLabel = order ? CATEGORIA_LABEL[order.categoria] ?? order.categoria : null;
   const statusLabel = order ? STATUS_LABEL[order.status] ?? order.status : null;
-  const dataHora = order?.dataDesejada ? formatDateAndTime(order.dataDesejada) : null;
+  const turno = order?.dataDesejada ? getPeriodo(order.dataDesejada) : null;
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { backgroundColor: colors.background }]}>
-        <TouchableOpacity style={[styles.backButton, { backgroundColor: colors.surface }]} onPress={() => router.back()}>
+        <Pressable style={[styles.backButton, { backgroundColor: colors.surface }]} onPress={() => router.back()}>
           <Text style={[styles.backArrow, { color: colors.textPrimary }]}>←</Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.title, { color: colors.textPrimary }]}>Interessados</Text>
         <View style={styles.headerSpacer} />
       </View>
@@ -64,8 +61,8 @@ export default function PropostasListContent() {
               {categoriaLabel && (
                 <Text style={[styles.orderCategory, { color: colors.brand }]}>{categoriaLabel}</Text>
               )}
-              {statusLabel && dataHora && (
-                <Text style={[styles.orderSubtitle, { color: colors.textSecondary }]}>{statusLabel} · {dataHora}</Text>
+              {statusLabel && turno && (
+                <Text style={[styles.orderSubtitle, { color: colors.textSecondary }]}>{statusLabel} · {turno}</Text>
               )}
             </View>
           </View>
@@ -75,17 +72,17 @@ export default function PropostasListContent() {
 
       {!isLoading && !isError && proposals.length > 0 && (
         <View style={styles.filterRow}>
-          <TouchableOpacity
+          <Pressable
             style={filtro === "todos" ? [styles.filterChipActive, { backgroundColor: colors.brand }] : [styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}
             onPress={() => setFiltro("todos")}
           >
             <Text style={filtro === "todos" ? [styles.filterTextActive, { color: colors.onBrand }] : [styles.filterTextInactive, { color: colors.textSecondary }]}>
               Todos ({proposals.length})
             </Text>
-          </TouchableOpacity>
+          </Pressable>
 
           {FILTRO_LABELS.map(({ key, label }) => (
-            <TouchableOpacity
+            <Pressable
               key={key}
               style={filtro === key ? [styles.filterChipActive, { backgroundColor: colors.brand }] : [styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={() => setFiltro(key)}
@@ -93,12 +90,12 @@ export default function PropostasListContent() {
               <Text style={filtro === key ? [styles.filterTextActive, { color: colors.onBrand }] : [styles.filterTextInactive, { color: colors.textSecondary }]}>
                 {label}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           ))}
 
-          <TouchableOpacity style={[styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Pressable style={[styles.filterChipInactive, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.filterTextInactive, { color: colors.textSecondary }]}>Mais...</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       )}
 

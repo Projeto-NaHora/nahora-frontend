@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import {
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -8,6 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { Image } from "expo-image";
 import {
   SafeAreaView,
   useSafeAreaInsets,

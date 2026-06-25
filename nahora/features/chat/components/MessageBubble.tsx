@@ -9,6 +9,18 @@ interface Props {
   isOwn: boolean;
 }
 
+function getCheckmark(status: string | undefined): { icon: string; color: "readReceipt" | "readReceiptSent" } {
+  switch (status) {
+    case "LIDA":
+      return { icon: "✓✓", color: "readReceipt" };
+    case "ENTREGUE":
+      return { icon: "✓✓", color: "readReceiptSent" };
+    case "ENVIADA":
+    default:
+      return { icon: "✓", color: "readReceiptSent" };
+  }
+}
+
 export function MessageBubble({ mensagem, isOwn }: Props) {
   const colors = useChatColors();
   const time = formatMessageTime(mensagem.criadoEm);
@@ -25,6 +37,8 @@ export function MessageBubble({ mensagem, isOwn }: Props) {
     : isOwn
       ? colors.white
       : colors.darkText;
+
+  const { icon: checkIcon, color: checkColor } = getCheckmark(mensagem.status);
 
   return (
     <View style={[styles.row, isOwn ? styles.rowOwn : styles.rowOther]}>
@@ -63,15 +77,10 @@ export function MessageBubble({ mensagem, isOwn }: Props) {
           <Text
             style={[
               styles.checkmark,
-              {
-                color:
-                  mensagem.status === "LIDA"
-                    ? colors.readReceipt
-                    : colors.readReceiptSent,
-              },
+              { color: colors[checkColor] },
             ]}
           >
-            {"✓✓"}
+            {checkIcon}
           </Text>
         )}
       </View>

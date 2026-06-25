@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+  StyleSheet,ScrollView,
+  ActivityIndicator, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -70,10 +66,6 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
   const categoriaFormatada =
     CATEGORIA_LABEL[pedido?.categoria] || pedido?.categoria || "Serviço";
 
-  // Data e Endereço
-  const dataFormatada = pedido?.dataDesejada
-    ? new Date(pedido.dataDesejada).toLocaleDateString("pt-BR")
-    : "A combinar";
   const turnoKey = getTurnoKey(pedido?.dataDesejada);
   const turnoFormatado = turnoKey
     ? TURNO_TIME_RANGES[turnoKey].label
@@ -85,13 +77,13 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity
+        <Pressable
           style={[styles.backBtn, { backgroundColor: colors.surface }]}
           onPress={onBack}
           disabled={isFinishing}
         >
           <Feather name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Detalhe do serviço</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -112,10 +104,6 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
         {/* Info Card */}
         <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border }]}>
           <View style={styles.rowInfo}>
-            <View style={styles.colInfo}>
-              <Text style={[styles.label, { color: colors.textSecondary }]}>Data</Text>
-              <Text style={[styles.value, { color: colors.text }]}>{dataFormatada}</Text>
-            </View>
             <View style={styles.colInfo}>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Horário</Text>
               <Text style={[styles.value, { color: colors.text }]}>{turnoFormatado}</Text>
@@ -164,11 +152,11 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
               ]}
             />
             <View
-              style={[
+              style={
                 isAguardando || isConcluido
                   ? { backgroundColor: colors.success, position: "absolute", left: 7, top: 18, bottom: -24, width: 2, zIndex: 1 }
-                  : { backgroundColor: colors.border, position: "absolute", left: 7, top: 18, bottom: -24, width: 2, zIndex: 1 },
-              ]}
+                  : { backgroundColor: colors.border, position: "absolute", left: 7, top: 18, bottom: -24, width: 2, zIndex: 1 }
+              }
             />
             <View style={styles.timelineTextContainer}>
               <Text
@@ -218,18 +206,18 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
         <View style={styles.footer}>
           {/* Se o pedido já estiver concluído, não mostramos os botões de ação */}
           {!isConcluido && (
-            <TouchableOpacity
+            <Pressable
               style={[styles.secondaryButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={onIssue}
               disabled={isFinishing}
             >
               <Text style={[styles.secondaryButtonText, { color: colors.text }]}>Tive um problema</Text>
-            </TouchableOpacity>
+            </Pressable>
           )}
 
           {/* O botão "Finalizar serviço" só aparece se estiver de fato em andamento */}
           {isEmAndamento && (
-            <TouchableOpacity
+            <Pressable
               style={[styles.primaryButton, { backgroundColor: colors.brand }, isFinishing && { opacity: 0.7 }]}
               onPress={onFinish}
               disabled={isFinishing}
@@ -239,7 +227,7 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
               ) : (
                 <Text style={[styles.primaryButtonText, { color: colors.onBrand }]}>Finalizar serviço</Text>
               )}
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
       </ScrollView>

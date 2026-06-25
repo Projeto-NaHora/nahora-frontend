@@ -1,11 +1,7 @@
 import React, { useEffect } from "react";
-import {
-  View,
+import { View,
   Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+  ScrollView, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
@@ -42,7 +38,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     loadHomeData();
-  }, []);
+  }, [loadHomeData]);
 
   return (
     <SafeAreaView
@@ -63,19 +59,17 @@ export default function HomeScreen() {
               </Text>
               <Text style={[styles.mainTitle, { color: colors.onBrand }]}>O que você precisa hoje?</Text>
             </View>
-            <TouchableOpacity
-              style={styles.notifButton}
-              activeOpacity={0.7}
+            <Pressable
+              style={({ pressed }) => [styles.notifButton, pressed && { opacity: 0.7 }]}
               onPress={() => router.push("/(client)/(home)/notifications")}
             >
               <Ionicons name="notifications-outline" size={22} color="#FFFFFF" />
               <View style={styles.notifBadge} />
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
 
-          <TouchableOpacity
-            activeOpacity={0.8}
+          <Pressable
             style={[styles.searchBar, { backgroundColor: colors.background }]}
             onPress={() => router.push("/(client)/(home)/categories")}
           >
@@ -83,7 +77,7 @@ export default function HomeScreen() {
             <Text style={[styles.searchPlaceholder, { color: colors.placeholder }]}>
               Buscar serviço, profissional...
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* White-background sections below the header */}
@@ -91,16 +85,16 @@ export default function HomeScreen() {
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }, {paddingTop: 20}]}>Categorias</Text>
-              <TouchableOpacity
+              <Pressable
                 onPress={() => router.push("/(client)/(home)/categories")}
               >
                 <Text style={[styles.seeAllText, { color: colors.link }]}>Ver todas</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <View style={styles.categoriesGrid}>
               {homeCategories.map((cat) => (
-                <TouchableOpacity
+                <Pressable
                   key={cat.id}
                   style={styles.categoryItem}
                   onPress={() =>
@@ -122,7 +116,7 @@ export default function HomeScreen() {
                     />
                   </View>
                   <Text style={[styles.categoryText, { color: colors.textSecondary }]}>{cat.name}</Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
           </View>
@@ -131,9 +125,9 @@ export default function HomeScreen() {
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Sugeridos para você</Text>
-              <TouchableOpacity>
+              <Pressable>
                 <Text style={[styles.seeAllText, { color: colors.link }]}>Ver mais</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <ScrollView
@@ -166,9 +160,9 @@ export default function HomeScreen() {
           <View style={[styles.sectionContainerRecent, { paddingBottom: 40 }]}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Meus pedidos recentes</Text>
-              <TouchableOpacity>
+              <Pressable>
                 <Text style={[styles.seeAllText, { color: colors.link }]}>Ver todos</Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             {recentOrders.length === 0 ? (
@@ -212,11 +206,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
   searchPlaceholder: { marginLeft: 8, color: "#9CA3AF", fontSize: 16 },
   sectionContainer: { marginBottom: 40 },

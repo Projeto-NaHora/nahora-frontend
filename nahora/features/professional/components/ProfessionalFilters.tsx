@@ -1,12 +1,8 @@
 // features/professional/components/ProfessionalFilters.tsx
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View,
+  Text,StyleSheet,
+  FlatList, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { CATEGORIA_LABEL } from "@/features/orders/types";
@@ -49,24 +45,21 @@ export function ProfessionalFilters({
       <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>
         Categoria
       </Text>
-      <ScrollView
+      <FlatList
         horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoryScroll}
-      >
-        {CATEGORIAS.map((cat) => {
+        data={CATEGORIAS}
+        keyExtractor={(cat) => cat}
+        renderItem={({ item: cat }) => {
           const isActive = cat === selectedCategoria;
           const label =
             cat === "TODAS" ? "Todas as áreas" : CATEGORIA_LABEL[cat];
           return (
-            <TouchableOpacity
-              key={cat}
+            <Pressable
               style={[
                 styles.chip,
                 { backgroundColor: colors.surface, borderColor: colors.border },
                 isActive && styles.chipActive,
               ]}
-              activeOpacity={0.7}
               onPress={() => onSelectCategoria(cat)}
             >
               <Text
@@ -78,31 +71,30 @@ export function ProfessionalFilters({
               >
                 {label}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           );
-        })}
-      </ScrollView>
+        }}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoryScroll}
+      />
 
       {/* Urgency filters */}
       <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>
         Urgência
       </Text>
-      <ScrollView
+      <FlatList
         horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.urgencyScroll}
-      >
-        {URGENCIAS.map((u) => {
+        data={URGENCIAS}
+        keyExtractor={(u) => u.value}
+        renderItem={({ item: u }) => {
           const isActive = u.value === selectedUrgencia;
           return (
-            <TouchableOpacity
-              key={u.value}
+            <Pressable
               style={[
                 styles.chip,
                 { backgroundColor: colors.surface, borderColor: colors.border },
                 isActive && styles.urgencyChipActive,
               ]}
-              activeOpacity={0.7}
               onPress={() => onSelectUrgencia(u.value)}
             >
               <Text
@@ -114,10 +106,12 @@ export function ProfessionalFilters({
               >
                 {u.label}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           );
-        })}
-      </ScrollView>
+        }}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.urgencyScroll}
+      />
     </View>
   );
 }

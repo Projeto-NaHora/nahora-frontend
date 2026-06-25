@@ -31,10 +31,10 @@ export function usePedidoPublico(orderId: number) {
     () => orderService.buscarPedidoPublico(orderId),
   );
 
-  const pedido = useMemo(() => {
+  const pedido = (() => {
     if (!response) return undefined;
     return mapPublicoToPedido(response);
-  }, [response]);
+  })();
 
   return { pedido, isLoading, error } as const;
 }

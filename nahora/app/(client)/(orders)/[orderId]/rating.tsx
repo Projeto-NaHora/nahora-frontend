@@ -41,16 +41,13 @@ export default function ClientRatingScreen() {
 
   const nomeProfissional = (pedido as any).profissionalNome ?? "Profissional";
   const categoria = (pedido as any).categoria ?? "";
-  const data = (pedido as any).dataDesejada
-    ? formatDate((pedido as any).dataDesejada)
-    : "";
 
   return (
     <RatingForm
       nomeAvaliado={nomeProfissional}
       iniciais={getInitials(nomeProfissional)}
       categoria={categoria}
-      data={data}
+      data={""}
       papel="CLIENTE"
       onSubmit={async ({ nota, comentario, tags }) => {
         await avaliacaoService.criar(pedidoId, { nota, comentario, tags });

@@ -221,13 +221,6 @@ class ChatWebSocketManager {
 
 export const chatWsManager = new ChatWebSocketManager();
 
-export function getStompClient(): Client {
-  if (!chatWsManager.getClient()?.active) {
-    chatWsManager.connect();
-  }
-  return chatWsManager.getClient()!;
-}
-
 export function disconnectStomp() {
   chatWsManager.disconnect();
 }

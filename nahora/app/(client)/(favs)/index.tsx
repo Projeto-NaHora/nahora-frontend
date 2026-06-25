@@ -1,12 +1,8 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+  FlatList,StyleSheet,
+  ActivityIndicator, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -40,13 +36,12 @@ export default function FavoritesScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity
+        <Pressable
           style={styles.backButton}
           onPress={() => router.back()}
-          activeOpacity={0.7}
         >
           <Ionicons name="chevron-back" size={20} color="#1c1c1e" />
-        </TouchableOpacity>
+        </Pressable>
 
         <Text style={styles.headerTitle}>Meus favoritos</Text>
 

@@ -7,6 +7,8 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 import { storage } from "@/utils/storage";
 
+const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
 const SAVED_CARD_KEY = "nahora_saved_card";
 
 interface SavedCardData {
@@ -105,10 +107,7 @@ export function CardForm({ valor, loading, onSubmit }: CardFormProps) {
     onSubmit(values);
   };
 
-  const formatted = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(valor);
+  const formatted = currencyFormatter.format(valor);
 
   return (
     <View>

@@ -1,15 +1,10 @@
 import { api } from "@/services/api/client";
 import { ENDPOINTS } from "@/services/api/endpoints";
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+  StyleSheet,FlatList,
+  ActivityIndicator, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -92,15 +87,14 @@ export default function ProvidersByCategoryScreen() {
       } catch (error) {
         console.error(">>> ERRO FATAL AO LER DADOS DA API:", error);
         setProfessionals([]);
-      } finally {
-        setIsLoading(false);
       }
+      setIsLoading(false);
     }
 
     fetchProfessionals();
-  }, [categoriaId, termo]);
+  }, [categoriaId, termo, id]);
   // Lógica de ordenação inteligente (agora baseada nos dados da API)
-  const sortedProfessionals = useMemo(() => {
+  const sortedProfessionals = (() => {
     let result = [...professionals];
 
     if (activeFilter === "best") {
@@ -110,15 +104,15 @@ export default function ProvidersByCategoryScreen() {
     }
 
     return result;
-  }, [professionals, activeFilter]);
+  })();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <Pressable style={styles.backBtn} onPress={() => router.back()}>
           <Feather name="arrow-left" size={22} color={colors.textPrimary} />
-        </TouchableOpacity>
+        </Pressable>
         <View style={styles.headerIcon}>
           <MaterialCommunityIcons
             name={(icon as any) || "account"}
@@ -134,17 +128,18 @@ export default function ProvidersByCategoryScreen() {
 
       {/* Filtros */}
       <View style={styles.filtersContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {FILTERS.map((f) => (
-            <TouchableOpacity
-              key={f.value}
+        <FlatList
+          horizontal
+          data={FILTERS}
+          keyExtractor={(f) => f.value}
+          renderItem={({ item: f }) => (
+            <Pressable
               style={[
                 styles.pill,
                 { backgroundColor: colors.surface },
                 activeFilter === f.value && { backgroundColor: colors.brand },
               ]}
               onPress={() => setActiveFilter(f.value)}
-              activeOpacity={0.8}
             >
               <Text
                 style={[
@@ -155,9 +150,10 @@ export default function ProvidersByCategoryScreen() {
               >
                 {f.label}
               </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+            </Pressable>
+          )}
+          showsHorizontalScrollIndicator={false}
+        />
       </View>
 
       {/* Condicional de Loading e Lista */}

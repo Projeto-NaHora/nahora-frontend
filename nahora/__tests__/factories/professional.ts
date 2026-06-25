@@ -17,7 +17,7 @@ export function createMockPedidoDisponivel(
   };
 }
 
-export function createMockPedidoDisponivelList(
+function createMockPedidoDisponivelList(
   count = 3,
 ): PedidoDisponivelResponse[] {
   return Array.from({ length: count }, (_, i) =>

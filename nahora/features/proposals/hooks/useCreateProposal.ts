@@ -78,7 +78,7 @@ export function useCreateProposal(
     formState: { errors },
   } = form;
 
-  const onAddHorario = useCallback(() => {
+  const onAddHorario = () => {
     if (horarios.length >= 3) return;
     setModalState({
       step: "date",
@@ -87,53 +87,44 @@ export function useCreateProposal(
       selectedEnd: null,
       editingIndex: null,
     });
-  }, [horarios.length]);
+  };
 
-  const onCloseModal = useCallback(() => {
+  const onCloseModal = () => {
     setModalState(INITIAL_MODAL_STATE);
-  }, []);
+  };
 
-  const onSelectDate = useCallback(
-    (date: Date) => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (date < today) return;
-      setModalState((prev) => ({
-        ...prev,
-        step: "start_time",
-        selectedDate: date,
-      }));
-    },
-    [],
-  );
+  const onSelectDate = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date < today) return;
+    setModalState((prev) => ({
+      ...prev,
+      step: "start_time",
+      selectedDate: date,
+    }));
+  };
 
-  const onSelectStartTime = useCallback(
-    (time: Date) => {
-      if (!isWithinTurno(time, turnoKey)) return;
-      setModalState((prev) => ({
-        ...prev,
-        step: "end_time",
-        selectedStart: time,
-      }));
-    },
-    [turnoKey],
-  );
+  const onSelectStartTime = (time: Date) => {
+    if (!isWithinTurno(time, turnoKey)) return;
+    setModalState((prev) => ({
+      ...prev,
+      step: "end_time",
+      selectedStart: time,
+    }));
+  };
 
-  const onSelectEndTime = useCallback(
-    (time: Date) => {
-      const { selectedStart } = modalState;
-      if (!selectedStart) return;
-      if (time.getTime() <= selectedStart.getTime()) return;
-      setModalState((prev) => ({
-        ...prev,
-        step: "confirm",
-        selectedEnd: time,
-      }));
-    },
-    [modalState.selectedStart],
-  );
+  const onSelectEndTime = (time: Date) => {
+    const { selectedStart } = modalState;
+    if (!selectedStart) return;
+    if (time.getTime() <= selectedStart.getTime()) return;
+    setModalState((prev) => ({
+      ...prev,
+      step: "confirm",
+      selectedEnd: time,
+    }));
+  };
 
-  const onConfirmSlot = useCallback(() => {
+  const onConfirmSlot = () => {
     const { selectedDate, selectedStart, selectedEnd, editingIndex } = modalState;
     if (!selectedDate || !selectedStart || !selectedEnd) return;
 
@@ -150,90 +141,83 @@ export function useCreateProposal(
     });
 
     setModalState(INITIAL_MODAL_STATE);
-  }, [modalState]);
+  };
 
-  const onRemoveHorario = useCallback((index: number) => {
+  const onRemoveHorario = (index: number) => {
     setHorarios((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+  };
 
-  const onHorarioChange = useCallback(
-    (index: number, field: "inicio" | "fim", value: string) => {
-      setHorarios((prev) =>
-        prev.map((slot, i) =>
-          i === index ? { ...slot, [field]: value } : slot,
-        ),
+  const onHorarioChange = (index: number, field: "inicio" | "fim", value: string) => {
+    setHorarios((prev) =>
+      prev.map((slot, i) =>
+        i === index ? { ...slot, [field]: value } : slot,
+      ),
+    );
+  };
+
+  const onSubmit = async (data: CriarPropostaFormValues) => {
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    if (horarios.length === 0) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    const valorOferecido = parseFloat(
+      data.valorOferecido.replace(",", "."),
+    );
+
+    if (isNaN(valorOferecido) || valorOferecido <= 0) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    const payload: CriarPropostaPayload = {
+      valorOferecido,
+      horariosDisponiveis: horarios,
+    };
+
+    if (data.descricao && data.descricao.trim().length > 0) {
+      payload.descricao = data.descricao.trim();
+    }
+
+    try {
+      await proposalsService.criar(orderId, payload);
+      router.push(`/(professional)/(orders)/${orderId}/proposal-sent`);
+    } catch (error) {
+      const parsed = parseApiError(
+        error,
+        "Erro ao enviar proposta. Tente novamente.",
       );
-    },
-    [],
-  );
+      setErrorMessage(parsed.message);
 
-  const onSubmit = useCallback(
-    async (data: CriarPropostaFormValues) => {
-      setIsSubmitting(true);
-      setErrorMessage(null);
-
-      if (horarios.length === 0) {
-        setIsSubmitting(false);
-        return;
-      }
-
-      const valorOferecido = parseFloat(
-        data.valorOferecido.replace(",", "."),
-      );
-
-      if (isNaN(valorOferecido) || valorOferecido <= 0) {
-        setIsSubmitting(false);
-        return;
-      }
-
-      const payload: CriarPropostaPayload = {
-        valorOferecido,
-        horariosDisponiveis: horarios,
-      };
-
-      if (data.descricao && data.descricao.trim().length > 0) {
-        payload.descricao = data.descricao.trim();
-      }
-
-      try {
-        await proposalsService.criar(orderId, payload);
-        router.push(`/(professional)/(orders)/${orderId}/proposal-sent`);
-      } catch (error) {
-        const parsed = parseApiError(
-          error,
-          "Erro ao enviar proposta. Tente novamente.",
-        );
-        setErrorMessage(parsed.message);
-
-        for (const [field, message] of Object.entries(parsed.fieldErrors)) {
-          if (field in form.getValues()) {
-            setError(field as keyof CriarPropostaFormValues, {
-              type: "server",
-              message,
-            });
-          }
+      for (const [field, message] of Object.entries(parsed.fieldErrors)) {
+        if (field in form.getValues()) {
+          setError(field as keyof CriarPropostaFormValues, {
+            type: "server",
+            message,
+          });
         }
-      } finally {
-        setIsSubmitting(false);
       }
-    },
-    [orderId, horarios, router, setError],
-  );
+    }
+    setIsSubmitting(false);
+  };
 
-  const handleClear = useCallback(() => {
+  const handleClear = () => {
     form.reset({ valorOferecido: "", descricao: "" });
     setHorarios([]);
     setModalState(INITIAL_MODAL_STATE);
     setErrorMessage(null);
-  }, [form]);
+  };
 
-  const onCancel = useCallback(() => {
+  const onCancel = () => {
     router.back();
-  }, [router]);
+  };
 
-  const onBack = useCallback(() => {
+  const onBack = () => {
     router.back();
-  }, [router]);
+  };
 
   return {
     form,

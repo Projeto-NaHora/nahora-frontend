@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -16,14 +16,13 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors, Fonts } from "@/constants/theme";
 import { getApiErrorMessage } from "@/utils/apiError";
-import { buscarCep } from "@/services/cep";
 import { profileService } from "@/features/profile/service";
 import type {
   EnderecoResponse,
   EnderecoRequest,
   TipoEndereco,
 } from "@/features/profile/types";
-import { TIPO_ENDERECO_LABEL } from "@/features/profile/types";
+import { useAddressForm, formatCep } from "@/hooks/useAddressForm";
 import useSWR from "swr";
 
 const TIPO_OPTIONS: { value: TipoEndereco; label: string }[] = [
@@ -31,6 +30,222 @@ const TIPO_OPTIONS: { value: TipoEndereco; label: string }[] = [
   { value: "TRABALHO", label: "Trabalho" },
   { value: "OUTRO", label: "Outro" },
 ];
+
+// ── Form fields sub-component (extracted for readability) ───────────────────
+
+type AddressFormFieldsProps = {
+  tipo: TipoEndereco;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  uf: string;
+  padrao: boolean;
+  cepBuscando: boolean;
+  colors: typeof Colors.light;
+  dispatch: React.Dispatch<any>;
+  handleCepBlur: () => void;
+};
+
+function AddressFormFields({
+  tipo,
+  cep,
+  logradouro,
+  numero,
+  complemento,
+  bairro,
+  cidade,
+  uf,
+  padrao,
+  cepBuscando,
+  colors,
+  dispatch,
+  handleCepBlur,
+}: AddressFormFieldsProps) {
+  return (
+    <>
+      {/* CEP */}
+      <View style={styles.fieldGroup}>
+        <View style={styles.fieldLabelRow}>
+          <Text style={styles.fieldLabel}>CEP</Text>
+          <Pressable>
+            <Text style={styles.cepLink}>Não sei meu CEP</Text>
+          </Pressable>
+        </View>
+        <View
+          style={[
+            styles.inputWrapper,
+            { backgroundColor: "#f8f9fa", borderColor: "#eaeaea" },
+          ]}
+        >
+          <TextInput
+            style={[styles.input, styles.monoInput]}
+            value={formatCep(cep)}
+            onChangeText={(t) =>
+              dispatch({ type: "SET_FIELD", field: "cep", value: t.replace(/\D/g, "") })
+            }
+            onBlur={handleCepBlur}
+            placeholder="00000-000"
+            placeholderTextColor="#8c8c8c"
+            keyboardType="numeric"
+            maxLength={9}
+          />
+          {cepBuscando && (
+            <ActivityIndicator size="small" color={colors.brand} style={styles.cepSpinner} />
+          )}
+        </View>
+      </View>
+
+      {/* Logradouro */}
+      <View style={styles.fieldGroup}>
+        <Text style={styles.fieldLabel}>Rua / Avenida</Text>
+        <View style={[styles.inputWrapper, { backgroundColor: "#f8f9fa", borderColor: "#eaeaea" }]}>
+          <TextInput
+            style={styles.input}
+            value={logradouro}
+            onChangeText={(t) => dispatch({ type: "SET_FIELD", field: "logradouro", value: t })}
+            placeholder="Rua"
+            placeholderTextColor="#8c8c8c"
+          />
+        </View>
+      </View>
+
+      {/* Número + Complemento */}
+      <View style={styles.row}>
+        <View style={[styles.fieldGroup, { flex: 1 }]}>
+          <Text style={styles.fieldLabel}>Número</Text>
+          <View style={[styles.inputWrapper, { backgroundColor: "#f8f9fa", borderColor: "#eaeaea" }]}>
+            <TextInput
+              style={styles.input}
+              value={numero}
+              onChangeText={(t) => dispatch({ type: "SET_FIELD", field: "numero", value: t })}
+              placeholder="Nº"
+              placeholderTextColor="#8c8c8c"
+              keyboardType="numeric"
+            />
+          </View>
+        </View>
+        <View style={[styles.fieldGroup, { flex: 2 }]}>
+          <Text style={styles.fieldLabel}>Complemento</Text>
+          <View style={[styles.inputWrapper, { backgroundColor: "#f8f9fa", borderColor: "#eaeaea" }]}>
+            <TextInput
+              style={styles.input}
+              value={complemento}
+              onChangeText={(t) => dispatch({ type: "SET_FIELD", field: "complemento", value: t })}
+              placeholder="Apto, bloco..."
+              placeholderTextColor="#8c8c8c"
+            />
+          </View>
+        </View>
+      </View>
+
+      {/* Bairro */}
+      <View style={styles.fieldGroup}>
+        <Text style={styles.fieldLabel}>Bairro</Text>
+        <View style={[styles.inputWrapper, { backgroundColor: "#f8f9fa", borderColor: "#eaeaea" }]}>
+          <TextInput
+            style={styles.input}
+            value={bairro}
+            onChangeText={(t) => dispatch({ type: "SET_FIELD", field: "bairro", value: t })}
+            placeholder="Bairro"
+            placeholderTextColor="#8c8c8c"
+          />
+        </View>
+      </View>
+
+      {/* Cidade + UF */}
+      <View style={styles.row}>
+        <View style={[styles.fieldGroup, { flex: 3 }]}>
+          <Text style={styles.fieldLabel}>Cidade</Text>
+          <View style={[styles.inputWrapper, { backgroundColor: "#f8f9fa", borderColor: "#eaeaea" }]}>
+            <TextInput
+              style={styles.input}
+              value={cidade}
+              onChangeText={(t) => dispatch({ type: "SET_FIELD", field: "cidade", value: t })}
+              placeholder="Cidade"
+              placeholderTextColor="#8c8c8c"
+            />
+          </View>
+        </View>
+        <View style={[styles.fieldGroup, { flex: 1 }]}>
+          <Text style={styles.fieldLabel}>UF</Text>
+          <View style={[styles.inputWrapper, { backgroundColor: "#f8f9fa", borderColor: "#eaeaea" }]}>
+            <TextInput
+              style={styles.input}
+              value={uf}
+              onChangeText={(t) =>
+                dispatch({ type: "SET_FIELD", field: "uf", value: t.toUpperCase().slice(0, 2) })
+              }
+              placeholder="UF"
+              placeholderTextColor="#8c8c8c"
+              maxLength={2}
+              autoCapitalize="characters"
+            />
+          </View>
+        </View>
+      </View>
+
+      {/* Tipo de endereço */}
+      <View style={styles.fieldGroup}>
+        <Text style={styles.fieldLabel}>Tipo de endereço</Text>
+        <View style={styles.tipoRow}>
+          {TIPO_OPTIONS.map((opt) => {
+            const selected = tipo === opt.value;
+            return (
+              <Pressable
+                key={opt.value}
+                onPress={() => dispatch({ type: "SET_FIELD", field: "tipo", value: opt.value })}
+                style={({ pressed }) => [
+                  styles.tipoPill,
+                  {
+                    backgroundColor: selected ? "#fff2e5" : colors.background,
+                    borderColor: selected ? "#fad3bc" : "#eaeaea",
+                  },
+                  pressed && styles.tipoPillPressed,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.tipoPillText,
+                    { color: selected ? "#e67215" : "#8c8c8c" },
+                  ]}
+                >
+                  {opt.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
+      {/* Tornar padrão */}
+      <View
+        style={[
+          styles.padraoCard,
+          { backgroundColor: colors.background, borderColor: "#eaeaea" },
+        ]}
+      >
+        <View style={styles.padraoContent}>
+          <Text style={[styles.padraoTitle, { color: colors.textPrimary }]}>
+            Tornar endereço padrão
+          </Text>
+          <Text style={[styles.padraoDescription, { color: colors.textSecondary }]}>
+            Usar este endereço automaticamente nas{"\n"}
+            próximas buscas
+          </Text>
+        </View>
+        <Switch
+          value={padrao}
+          onValueChange={(v) => dispatch({ type: "SET_FIELD", field: "padrao", value: v })}
+          trackColor={{ false: "#d1d5db", true: "#f27b24" }}
+          thumbColor="#ffffff"
+        />
+      </View>
+    </>
+  );
+}
 
 export default function AddScreen() {
   const theme = useColorScheme() ?? "light";
@@ -49,64 +264,26 @@ export default function AddScreen() {
     ? addresses?.find((a) => a.id === editId)
     : undefined;
 
-  const [tipo, setTipo] = useState<TipoEndereco>("CASA");
-  const [cep, setCep] = useState("");
-  const [logradouro, setLogradouro] = useState("");
-  const [numero, setNumero] = useState("");
-  const [complemento, setComplemento] = useState("");
-  const [bairro, setBairro] = useState("");
-  const [cidade, setCidade] = useState("");
-  const [uf, setUf] = useState("");
-  const [padrao, setPadrao] = useState(false);
-  const [cepBuscando, setCepBuscando] = useState(false);
+  const {
+    tipo,
+    cep,
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    cidade,
+    uf,
+    padrao,
+    cepBuscando,
+    loaded,
+    dispatch,
+    handleCepBlur,
+    isValid,
+  } = useAddressForm(existingAddress);
+
   const [saving, setSaving] = useState(false);
 
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    if (existingAddress && !loaded) {
-      setTipo(existingAddress.tipo);
-      setCep(existingAddress.cep);
-      setLogradouro(existingAddress.logradouro ?? "");
-      setNumero(existingAddress.numero ?? "");
-      setComplemento(existingAddress.complemento ?? "");
-      setBairro(existingAddress.bairro ?? "");
-      setCidade(existingAddress.cidade ?? "");
-      setUf(existingAddress.uf ?? "");
-      setPadrao(existingAddress.padrao ?? false);
-      setLoaded(true);
-    }
-  }, [existingAddress, loaded]);
-
-  const handleCepBlur = useCallback(async () => {
-    const digits = cep.replace(/\D/g, "");
-    if (digits.length !== 8) return;
-
-    setCepBuscando(true);
-    try {
-      const result = await buscarCep(digits);
-      if (result) {
-        setLogradouro(result.logradouro ?? "");
-        setBairro(result.bairro ?? "");
-        setCidade(result.cidade ?? "");
-        setUf(result.estado ?? "");
-      }
-    } catch {
-      // Silently ignore CEP lookup errors
-    } finally {
-      setCepBuscando(false);
-    }
-  }, [cep]);
-
-  const formatCep = useCallback((value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 8);
-    if (digits.length > 5) {
-      return `${digits.slice(0, 5)}-${digits.slice(5)}`;
-    }
-    return digits;
-  }, []);
-
-  const handleSave = useCallback(async () => {
+  const handleSave = async () => {
     const payload: EnderecoRequest = {
       tipo,
       cep: cep.replace(/\D/g, ""),
@@ -135,12 +312,9 @@ export default function AddScreen() {
         "Erro",
         getApiErrorMessage(err, "Não foi possível salvar o endereço."),
       );
-    } finally {
-      setSaving(false);
     }
-  }, [tipo, cep, logradouro, numero, complemento, bairro, cidade, uf, padrao, isEditing, editId]);
-
-  const isValid = cep.replace(/\D/g, "").length === 8 && logradouro && numero && bairro && cidade && uf;
+    setSaving(false);
+  };
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -174,248 +348,21 @@ export default function AddScreen() {
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* CEP */}
-          <View style={styles.fieldGroup}>
-            <View style={styles.fieldLabelRow}>
-              <Text style={styles.fieldLabel}>CEP</Text>
-              <Pressable>
-                <Text style={styles.cepLink}>Não sei meu CEP</Text>
-              </Pressable>
-            </View>
-            <View
-              style={[
-                styles.inputWrapper,
-                {
-                  backgroundColor: "#f8f9fa",
-                  borderColor: "#eaeaea",
-                },
-              ]}
-            >
-              <TextInput
-                style={[styles.input, styles.monoInput]}
-                value={formatCep(cep)}
-                onChangeText={(t) => setCep(t.replace(/\D/g, ""))}
-                onBlur={handleCepBlur}
-                placeholder="00000-000"
-                placeholderTextColor="#8c8c8c"
-                keyboardType="numeric"
-                maxLength={9}
-              />
-              {cepBuscando && (
-                <ActivityIndicator
-                  size="small"
-                  color={colors.brand}
-                  style={styles.cepSpinner}
-                />
-              )}
-            </View>
-          </View>
-
-          {/* Logradouro */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Rua / Avenida</Text>
-            <View
-              style={[
-                styles.inputWrapper,
-                {
-                  backgroundColor: "#f8f9fa",
-                  borderColor: "#eaeaea",
-                },
-              ]}
-            >
-              <TextInput
-                style={styles.input}
-                value={logradouro}
-                onChangeText={setLogradouro}
-                placeholder="Rua"
-                placeholderTextColor="#8c8c8c"
-              />
-            </View>
-          </View>
-
-          {/* Número + Complemento side by side */}
-          <View style={styles.row}>
-            <View style={[styles.fieldGroup, { flex: 1 }]}>
-              <Text style={styles.fieldLabel}>Número</Text>
-              <View
-                style={[
-                  styles.inputWrapper,
-                  {
-                    backgroundColor: "#f8f9fa",
-                    borderColor: "#eaeaea",
-                  },
-                ]}
-              >
-                <TextInput
-                  style={styles.input}
-                  value={numero}
-                  onChangeText={setNumero}
-                  placeholder="Nº"
-                  placeholderTextColor="#8c8c8c"
-                  keyboardType="numeric"
-                />
-              </View>
-            </View>
-            <View style={[styles.fieldGroup, { flex: 2 }]}>
-              <Text style={styles.fieldLabel}>Complemento</Text>
-              <View
-                style={[
-                  styles.inputWrapper,
-                  {
-                    backgroundColor: "#f8f9fa",
-                    borderColor: "#eaeaea",
-                  },
-                ]}
-              >
-                <TextInput
-                  style={styles.input}
-                  value={complemento}
-                  onChangeText={setComplemento}
-                  placeholder="Apto, bloco..."
-                  placeholderTextColor="#8c8c8c"
-                />
-              </View>
-            </View>
-          </View>
-
-          {/* Bairro */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Bairro</Text>
-            <View
-              style={[
-                styles.inputWrapper,
-                {
-                  backgroundColor: "#f8f9fa",
-                  borderColor: "#eaeaea",
-                },
-              ]}
-            >
-              <TextInput
-                style={styles.input}
-                value={bairro}
-                onChangeText={setBairro}
-                placeholder="Bairro"
-                placeholderTextColor="#8c8c8c"
-              />
-            </View>
-          </View>
-
-          {/* Cidade + UF side by side */}
-          <View style={styles.row}>
-            <View style={[styles.fieldGroup, { flex: 3 }]}>
-              <Text style={styles.fieldLabel}>Cidade</Text>
-              <View
-                style={[
-                  styles.inputWrapper,
-                  {
-                    backgroundColor: "#f8f9fa",
-                    borderColor: "#eaeaea",
-                  },
-                ]}
-              >
-                <TextInput
-                  style={styles.input}
-                  value={cidade}
-                  onChangeText={setCidade}
-                  placeholder="Cidade"
-                  placeholderTextColor="#8c8c8c"
-                />
-              </View>
-            </View>
-            <View style={[styles.fieldGroup, { flex: 1 }]}>
-              <Text style={styles.fieldLabel}>UF</Text>
-              <View
-                style={[
-                  styles.inputWrapper,
-                  {
-                    backgroundColor: "#f8f9fa",
-                    borderColor: "#eaeaea",
-                  },
-                ]}
-              >
-                <TextInput
-                  style={styles.input}
-                  value={uf}
-                  onChangeText={(t) => setUf(t.toUpperCase().slice(0, 2))}
-                  placeholder="UF"
-                  placeholderTextColor="#8c8c8c"
-                  maxLength={2}
-                  autoCapitalize="characters"
-                />
-              </View>
-            </View>
-          </View>
-
-          {/* Tipo de endereço */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Tipo de endereço</Text>
-            <View style={styles.tipoRow}>
-              {TIPO_OPTIONS.map((opt) => {
-                const selected = tipo === opt.value;
-                return (
-                  <Pressable
-                    key={opt.value}
-                    onPress={() => setTipo(opt.value)}
-                    style={({ pressed }) => [
-                      styles.tipoPill,
-                      {
-                        backgroundColor: selected
-                          ? "#fff2e5"
-                          : colors.background,
-                        borderColor: selected ? "#fad3bc" : "#eaeaea",
-                      },
-                      pressed && styles.tipoPillPressed,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.tipoPillText,
-                        {
-                          color: selected ? "#e67215" : "#8c8c8c",
-                        },
-                      ]}
-                    >
-                      {opt.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </View>
-
-          {/* Tornar padrão */}
-          <View
-            style={[
-              styles.padraoCard,
-              {
-                backgroundColor: colors.background,
-                borderColor: "#eaeaea",
-              },
-            ]}
-          >
-            <View style={styles.padraoContent}>
-              <Text
-                style={[styles.padraoTitle, { color: colors.textPrimary }]}
-              >
-                Tornar endereço padrão
-              </Text>
-              <Text
-                style={[
-                  styles.padraoDescription,
-                  { color: colors.textSecondary },
-                ]}
-              >
-                Usar este endereço automaticamente nas{"\n"}
-                próximas buscas
-              </Text>
-            </View>
-            <Switch
-              value={padrao}
-              onValueChange={setPadrao}
-              trackColor={{ false: "#d1d5db", true: "#f27b24" }}
-              thumbColor="#ffffff"
-            />
-          </View>
+          <AddressFormFields
+            tipo={tipo}
+            cep={cep}
+            logradouro={logradouro}
+            numero={numero}
+            complemento={complemento}
+            bairro={bairro}
+            cidade={cidade}
+            uf={uf}
+            padrao={padrao}
+            cepBuscando={cepBuscando}
+            colors={colors}
+            dispatch={dispatch}
+            handleCepBlur={handleCepBlur}
+          />
         </ScrollView>
       )}
 
@@ -428,7 +375,7 @@ export default function AddScreen() {
             styles.saveButton,
             {
               backgroundColor: isValid ? "#e67215" : "#d1d5db",
-              shadowOpacity: isValid ? 0.2 : 0,
+              boxShadow: isValid ? "0 4px 12px rgba(230,114,21,0.2)" : undefined,
             },
             pressed && isValid && styles.saveButtonPressed,
           ]}
@@ -587,11 +534,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 8,
-    elevation: 2,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
   },
   padraoContent: {
     flex: 1,
@@ -621,10 +564,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#e67215",
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 4,
   },
   saveButtonPressed: {
     opacity: 0.85,

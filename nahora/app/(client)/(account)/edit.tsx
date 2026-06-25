@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useReducer, useEffect } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -18,30 +18,59 @@ import { getApiErrorMessage } from "@/utils/apiError";
 import { useEditClientProfile } from "@/features/profile/hooks/useEditClientProfile";
 import { profileService } from "@/features/profile/service";
 
+// ── Form reducer (one dispatch instead of 3 cascading setStates) ────────────
+
+interface FormState {
+  nome: string;
+  email: string;
+  telefone: string;
+  dirty: boolean;
+}
+
+type FormAction =
+  | { type: "INIT"; nome: string; email: string; telefone: string }
+  | { type: "SET_FIELD"; field: "nome" | "email" | "telefone"; value: string };
+
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case "INIT":
+      return {
+        nome: action.nome,
+        email: action.email,
+        telefone: action.telefone,
+        dirty: false,
+      };
+    case "SET_FIELD":
+      return { ...state, [action.field]: action.value, dirty: true };
+  }
+}
+
+const initialForm: FormState = { nome: "", email: "", telefone: "", dirty: false };
+
 export default function EditScreen() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
   const { profile, isLoading, error, salvar, retry } = useEditClientProfile();
 
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [dirty, setDirty] = useState(false);
+  const [form, dispatch] = useReducer(formReducer, initialForm);
 
-  // Pre-fill form when data loads
-  React.useEffect(() => {
+  // Single dispatch to pre-fill — no cascade
+  useEffect(() => {
     if (profile) {
-      setNome(profile.nome ?? "");
-      setEmail(profile.email ?? "");
-      setTelefone(profile.telefone ?? "");
+      dispatch({
+        type: "INIT",
+        nome: profile.nome ?? "",
+        email: profile.email ?? "",
+        telefone: profile.telefone ?? "",
+      });
     }
   }, [profile]);
 
-  const handleSave = useCallback(async () => {
+  const handleSave = async () => {
     try {
-      await salvar({ nome, email, telefone });
-      setDirty(false);
+      await salvar({ nome: form.nome, email: form.email, telefone: form.telefone });
+      dispatch({ type: "INIT", nome: form.nome, email: form.email, telefone: form.telefone });
       Alert.alert("Sucesso", "Perfil atualizado com sucesso.", [
         { text: "OK", onPress: () => router.back() },
       ]);
@@ -49,9 +78,7 @@ export default function EditScreen() {
       const msg = getApiErrorMessage(err, "Erro ao salvar.");
       Alert.alert("Erro", msg);
     }
-  }, [nome, email, telefone, salvar]);
-
-  const markDirty = useCallback(() => setDirty(true), []);
+  };
 
   const initials = (profile?.nome ?? "?")
     .split(" ")
@@ -76,7 +103,7 @@ export default function EditScreen() {
     );
     return (
       <View style={[styles.centered, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorIcon]}>⚠️</Text>
+        <Text style={styles.errorIcon}>⚠️</Text>
         <Text style={[styles.errorText, { color: colors.textPrimary }]}>
           Não foi possível carregar seus dados
         </Text>
@@ -146,11 +173,10 @@ export default function EditScreen() {
             <View style={[styles.inputWrapper, { borderColor: "#eaeaea" }]}>
               <TextInput
                 style={[styles.input, { color: "#2c2c2c" }]}
-                value={nome}
-                onChangeText={(t) => {
-                  setNome(t);
-                  markDirty();
-                }}
+                value={form.nome}
+                onChangeText={(t) =>
+                  dispatch({ type: "SET_FIELD", field: "nome", value: t })
+                }
                 placeholder="Nome completo"
                 placeholderTextColor="#9ca3af"
                 autoComplete="name"
@@ -164,11 +190,10 @@ export default function EditScreen() {
             <View style={[styles.inputWrapper, { borderColor: "#eaeaea" }]}>
               <TextInput
                 style={[styles.input, { color: "#2c2c2c" }]}
-                value={email}
-                onChangeText={(t) => {
-                  setEmail(t);
-                  markDirty();
-                }}
+                value={form.email}
+                onChangeText={(t) =>
+                  dispatch({ type: "SET_FIELD", field: "email", value: t })
+                }
                 placeholder="E-mail"
                 placeholderTextColor="#9ca3af"
                 keyboardType="email-address"
@@ -184,11 +209,10 @@ export default function EditScreen() {
             <View style={[styles.inputWrapper, { borderColor: "#eaeaea" }]}>
               <TextInput
                 style={[styles.input, { color: "#2c2c2c" }]}
-                value={telefone}
-                onChangeText={(t) => {
-                  setTelefone(t);
-                  markDirty();
-                }}
+                value={form.telefone}
+                onChangeText={(t) =>
+                  dispatch({ type: "SET_FIELD", field: "telefone", value: t })
+                }
                 placeholder="Celular"
                 placeholderTextColor="#9ca3af"
                 keyboardType="phone-pad"
@@ -206,20 +230,20 @@ export default function EditScreen() {
       >
         <Pressable
           onPress={handleSave}
-          disabled={!dirty}
+          disabled={!form.dirty}
           style={({ pressed }) => [
             styles.saveButton,
             {
-              backgroundColor: dirty ? "#e67215" : "#d1d5db",
-              shadowOpacity: dirty ? 0.2 : 0,
+              backgroundColor: form.dirty ? "#e67215" : "#d1d5db",
+              boxShadow: form.dirty ? "0 4px 12px rgba(230,114,21,0.2)" : undefined,
             },
-            pressed && dirty && styles.saveButtonPressed,
+            pressed && form.dirty && styles.saveButtonPressed,
           ]}
         >
           <Text
             style={[
               styles.saveButtonText,
-              { color: dirty ? "#ffffff" : "#9ca3af" },
+              { color: form.dirty ? "#ffffff" : "#9ca3af" },
             ]}
           >
             Salvar alterações
@@ -403,10 +427,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#e67215",
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 4,
   },
   saveButtonPressed: {
     opacity: 0.85,

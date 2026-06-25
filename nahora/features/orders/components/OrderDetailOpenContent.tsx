@@ -1,13 +1,9 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  StyleSheet,
-  Image,
-} from "react-native";
+  ScrollView, FlatList,ActivityIndicator,
+  StyleSheet, Pressable } from "react-native";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -35,6 +31,64 @@ function getPeriodo(iso: string): string {
   return "Noite";
 }
 
+
+// ── Extracted sub-component ──
+
+function OrderTimeline({
+  activeStage,
+  criadoEm,
+  colors,
+}: {
+  activeStage: number;
+  criadoEm?: string;
+  colors: typeof Colors.light;
+}) {
+  return (
+    <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border + "CC" }]}>
+      <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Linha do tempo</Text>
+      {TIMELINE_OPEN.map((item, index) => {
+        const concluido = index < activeStage;
+        const atual = index === activeStage;
+
+        let dotColor = colors.border;
+        let dotBorder = colors.border;
+        if (concluido) {
+          dotColor = colors.success;
+          dotBorder = colors.success;
+        }
+        if (atual) {
+          dotColor = colors.brand;
+          dotBorder = colors.brand;
+        }
+
+        return (
+          <View key={item.label} style={styles.timelineRow}>
+            <View style={styles.timelineDotCol}>
+              <View style={[styles.timelineDot, { backgroundColor: dotColor, borderColor: dotBorder }]} />
+              {index < TIMELINE_OPEN.length - 1 && (
+                <View style={[styles.timelineLine, { backgroundColor: concluido ? colors.success : colors.border }]} />
+              )}
+            </View>
+            <View style={styles.timelineContent}>
+              <Text style={[styles.timelineLabel, { color: concluido || atual ? colors.textPrimary : colors.textSecondary }]}>
+                {item.label}
+              </Text>
+              {index === 0 && criadoEm ? (
+                <Text style={[styles.timelineSub, { color: colors.textSecondary }]}>
+                  {formatDate(criadoEm)} · {formatTime(criadoEm)}
+                </Text>
+              ) : null}
+              {"subtitle" in item && item.subtitle && atual ? (
+                <Text style={[styles.timelineSubActive, { color: colors.brand }]}>{item.subtitle}</Text>
+              ) : null}
+            </View>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
 function formatEndereco(endereco: Pedido["endereco"]): string {
   if (!endereco) return "—";
   return `${endereco.logradouro}, ${endereco.numero} – ${endereco.bairro}, ${endereco.cidade}`;
@@ -58,6 +112,17 @@ export interface OrderDetailOpenContentProps {
   onRate?: () => void;
   rateButtonLabel?: string;
   acceptedProposalId?: number;
+}
+
+function getActiveStage(status: string): number {
+  switch (status) {
+    case "ABERTO": return 1;
+    case "AGUARDANDO_PAGAMENTO": return 1;
+    case "EM_ANDAMENTO": return 2;
+    case "AGUARDANDO_VALIDACAO": return 2;
+    case "CONCLUIDO": return 4;
+    default: return -1;
+  }
 }
 
 export function OrderDetailOpenContent({
@@ -102,17 +167,6 @@ export function OrderDetailOpenContent({
   // Map order status to active timeline stage.
   // Stages: 0=Pedido criado, 1=Avaliacao de propostas, 2=Servico em andamento, 3=Concluido
   // activeStage = -1 means nothing active (cancelled / disputed)
-  // activeStage = 4 means all stages complete
-  function getActiveStage(status: string): number {
-    switch (status) {
-      case "ABERTO": return 1;
-      case "AGUARDANDO_PAGAMENTO": return 1;
-      case "EM_ANDAMENTO": return 2;
-      case "AGUARDANDO_VALIDACAO": return 2;
-      case "CONCLUIDO": return 4;
-      default: return -1;
-    }
-  }
   const activeStage = getActiveStage(pedido.status);
 
   return (
@@ -127,15 +181,14 @@ export function OrderDetailOpenContent({
           },
         ]}
       >
-        <TouchableOpacity
+        <Pressable
           onPress={onBack}
           style={[styles.backButton, { backgroundColor: colors.surface }]}
-          activeOpacity={0.7}
         >
           <Text style={[styles.backArrow, { color: colors.text }]}>
             {"←"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
         <Text
           style={[styles.headerTitle, { color: colors.textPrimary }]}
           numberOfLines={1}
@@ -175,14 +228,6 @@ export function OrderDetailOpenContent({
           ]}
         >
           <View style={styles.infoRow}>
-            <View style={styles.infoCol}>
-              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
-                Data
-              </Text>
-              <Text style={[styles.infoValue, { color: colors.textPrimary }]}>
-                {formatDate(pedido.dataDesejada)}
-              </Text>
-            </View>
             <View style={styles.infoCol}>
               <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
                 Turno
@@ -237,135 +282,48 @@ export function OrderDetailOpenContent({
             >
               FOTOS
             </Text>
-            <ScrollView
+            <FlatList
               horizontal
+              data={pedido.fotos}
+              keyExtractor={(uri) => uri}
               showsHorizontalScrollIndicator={false}
               style={styles.photosScroll}
-            >
-              {pedido.fotos.map((uri, index) => (
+              renderItem={({ item: uri }) => (
                 <Image
-                  key={index}
                   source={{ uri }}
                   style={[styles.photoThumb, { backgroundColor: colors.surface }]}
                   resizeMode="cover"
                 />
-              ))}
-            </ScrollView>
+              )}
+            />
           </View>
         )}
 
-        {/* Timeline */}
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: colors.background,
-              borderColor: colors.border + "CC",
-            },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-            Linha do tempo
-          </Text>
-          {TIMELINE_OPEN.map((item, index) => {
-            const concluido = index < activeStage;
-            const atual = index === activeStage;
-
-            let dotColor = colors.border;
-            let dotBorder = colors.border;
-            if (concluido) {
-              dotColor = colors.success;
-              dotBorder = colors.success;
-            }
-            if (atual) {
-              dotColor = colors.brand;
-              dotBorder = colors.brand;
-            }
-
-            return (
-              <View key={item.label} style={styles.timelineRow}>
-                <View style={styles.timelineDotCol}>
-                  <View
-                    style={[
-                      styles.timelineDot,
-                      {
-                        backgroundColor: dotColor,
-                        borderColor: dotBorder,
-                      },
-                    ]}
-                  />
-                  {index < TIMELINE_OPEN.length - 1 && (
-                    <View
-                      style={[
-                        styles.timelineLine,
-                        {
-                          backgroundColor: concluido ? colors.success : colors.border,
-                        },
-                      ]}
-                    />
-                  )}
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text
-                    style={[
-                      styles.timelineLabel,
-                      {
-                        color:
-                          concluido || atual
-                            ? colors.textPrimary
-                            : colors.textSecondary,
-                      },
-                    ]}
-                  >
-                    {item.label}
-                  </Text>
-                  {index === 0 && pedido.criadoEm ? (
-                    <Text
-                      style={[
-                        styles.timelineSub,
-                        { color: colors.textSecondary },
-                      ]}
-                    >
-                      {formatDate(pedido.criadoEm)} ·{" "}
-                      {formatTime(pedido.criadoEm)}
-                    </Text>
-                  ) : null}
-                  {"subtitle" in item && item.subtitle && atual ? (
-                    <Text style={[styles.timelineSubActive, { color: colors.brand }]}>
-                      {item.subtitle}
-                    </Text>
-                  ) : null}
-                </View>
-              </View>
-            );
-          })}
-        </View>
+        <OrderTimeline activeStage={activeStage} criadoEm={pedido.criadoEm} colors={colors} />
 
         {/* Action buttons row — hidden for CONCLUIDO */}
         {pedido.status !== "CONCLUIDO" && (
           <View style={styles.actionRow}>
-            <TouchableOpacity
+            <Pressable
               onPress={onEdit}
               style={[styles.editButton, { backgroundColor: colors.surface }]}
-              activeOpacity={0.7}
             >
               <Text style={[styles.editButtonText, { color: colors.textPrimary }]}>
                 Editar
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+            </Pressable>
+            <Pressable
               onPress={onDelete}
               style={[styles.deleteButton, { backgroundColor: colors.surface }]}
-              activeOpacity={0.7}
             >
               <Text style={[styles.deleteButtonText, { color: colors.error }]}>Excluir</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         )}
 
         {/* Main CTA — depends on order status */}
         {pedido.status === "EM_ANDAMENTO" || pedido.status === "AGUARDANDO_VALIDACAO" ? (
-          <TouchableOpacity
+          <Pressable
             onPress={() => {
               const chatId = acceptedProposalId ?? pedido.propostaId;
               if (chatId) {
@@ -373,38 +331,34 @@ export function OrderDetailOpenContent({
               }
             }}
             style={[styles.ctaButton, { backgroundColor: colors.brand }]}
-            activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Falar com prestador</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : pedido.status === "AGUARDANDO_PAGAMENTO" ? (
-          <TouchableOpacity
+          <Pressable
             onPress={() => {
               router.push(`/(client)/(orders)/${pedido.id}/payment`);
             }}
             style={[styles.ctaButton, { backgroundColor: colors.brand }]}
-            activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Pagar serviço</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : pedido.status === "ABERTO" ? (
-          <TouchableOpacity
+          <Pressable
             onPress={onViewProposals}
             style={[styles.ctaButton, { backgroundColor: colors.brand }]}
-            activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>Verificar Propostas</Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : pedido.status === "CONCLUIDO" && onRate ? (
-          <TouchableOpacity
+          <Pressable
             onPress={onRate}
             style={[styles.ctaButton, { backgroundColor: colors.brand }]}
-            activeOpacity={0.7}
           >
             <Text style={[styles.ctaButtonText, { color: colors.onBrand }]}>
               {rateButtonLabel ?? "Avaliar serviço"}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         ) : null}
       </ScrollView>
     </View>
@@ -493,11 +447,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
 
   // Info card

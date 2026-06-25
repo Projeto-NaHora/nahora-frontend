@@ -1,11 +1,7 @@
 import React, { useEffect } from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  BackHandler,
-} from "react-native";
+  StyleSheet,BackHandler, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,10 +10,16 @@ export default function IssueSuccessScreen() {
   const router = useRouter();
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
+  const goHome = () => {
+    router.dismissAll();
+    router.replace("/(client)/(home)");
+  };
+
   // Bloqueia o botão físico de voltar do Android para não reabrir o formulário
   useEffect(() => {
     const onBackPress = () => {
-      handleGoHome();
+      router.dismissAll();
+      router.replace("/(client)/(home)");
       return true;
     };
 
@@ -27,12 +29,7 @@ export default function IssueSuccessScreen() {
     );
 
     return () => subscription.remove();
-  }, []);
-
-  const handleGoHome = () => {
-    router.dismissAll();
-    router.replace("/(client)/(home)"); // Ajuste para (professional) se necessário
-  };
+  }, [router]);
 
   const handleTrackAnalysis = () => {
     // Leva para a tela C103 (Análise da Disputa)
@@ -43,9 +40,9 @@ export default function IssueSuccessScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={{ width: 40 }} />
-        <TouchableOpacity style={styles.closeBtn} onPress={handleGoHome}>
+        <Pressable style={styles.closeBtn} onPress={goHome}>
           <Feather name="x" size={24} color="#111827" />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       <View style={styles.content}>
@@ -81,7 +78,7 @@ export default function IssueSuccessScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity
+        <Pressable
           style={styles.primaryBtn}
           onPress={handleTrackAnalysis}
         >
@@ -92,11 +89,11 @@ export default function IssueSuccessScreen() {
             color="#FFFFFF"
             style={{ marginLeft: 8 }}
           />
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity style={styles.secondaryBtn} onPress={handleGoHome}>
+        <Pressable style={styles.secondaryBtn} onPress={goHome}>
           <Text style={styles.secondaryBtnText}>Voltar ao início</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

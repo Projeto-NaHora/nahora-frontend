@@ -9,7 +9,7 @@ export function createMockUser(overrides?: Partial<AuthUser>): AuthUser {
   };
 }
 
-export function createMockLoginResponse() {
+function createMockLoginResponse() {
   return {
     accessToken: 'mock-access-token',
     refreshToken: 'mock-refresh-token',
@@ -22,7 +22,7 @@ export function createMockLoginResponse() {
   };
 }
 
-export function createMockLoginFormValues() {
+function createMockLoginFormValues() {
   return {
     identificador: '11999999999',
     senha: '12345678',

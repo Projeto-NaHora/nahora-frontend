@@ -17,10 +17,10 @@ export default function Validation() {
     ? `${profession.label} · Em validação`
     : "Em validação";
 
-  const handleApproval = useCallback(async () => {
+  const handleApproval = async () => {
     await setProfessionalOnboarding("perfil");
     router.replace("/(onboarding)/profile-1");
-  }, [setProfessionalOnboarding, router]);
+  };
 
   useVerificacaoPolling(handleApproval);
 

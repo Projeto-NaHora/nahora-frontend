@@ -54,12 +54,12 @@ export default function PrivacyScreen() {
   const [deleteSenha, setDeleteSenha] = useState("");
   const [deleting, setDeleting] = useState(false);
 
-  const openDeleteModal = useCallback(() => {
+  const openDeleteModal = () => {
     setDeleteSenha("");
     setShowDeleteModal(true);
-  }, []);
+  };
 
-  const handleDelete = useCallback(async () => {
+  const handleDelete = async () => {
     if (!deleteSenha) {
       Alert.alert("Erro", "Informe sua senha.");
       return;
@@ -75,10 +75,9 @@ export default function PrivacyScreen() {
         "Erro",
         getApiErrorMessage(err, "Não foi possível excluir a conta."),
       );
-    } finally {
-      setDeleting(false);
     }
-  }, [deleteSenha]);
+    setDeleting(false);
+  };
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -332,11 +331,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 20,
     borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.01,
-    shadowRadius: 12,
-    elevation: 2,
+    boxShadow: "0 2px 12px rgba(0,0,0,0.01)",
     paddingVertical: 4,
     paddingHorizontal: 20,
   },

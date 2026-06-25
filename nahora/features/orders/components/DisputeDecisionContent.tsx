@@ -1,11 +1,7 @@
 import React from "react";
-import {
-  View,
+import { View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+  StyleSheet,ScrollView, Pressable } from "react-native";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -38,9 +34,9 @@ export const DisputeDecisionContent: React.FC<Props> = ({
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={onGoHome}>
+        <Pressable style={[styles.backBtn, { backgroundColor: colors.surfaceGray }]} onPress={onGoHome}>
           <Feather name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
+        </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Resultado da Disputa</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -154,17 +150,17 @@ export const DisputeDecisionContent: React.FC<Props> = ({
       <View style={styles.footer}>
         {!isFavorableToClient ? (
           <>
-            <TouchableOpacity style={styles.primaryBtn} onPress={onPay}>
+            <Pressable style={styles.primaryBtn} onPress={onPay}>
               <Text style={styles.primaryBtnText}>Pagar o serviço</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.secondaryBtn, { backgroundColor: colors.surfaceGray }]} onPress={onContest}>
+            </Pressable>
+            <Pressable style={[styles.secondaryBtn, { backgroundColor: colors.surfaceGray }]} onPress={onContest}>
               <Text style={[styles.secondaryBtnText, { color: colors.text }]}>Contestar decisão</Text>
-            </TouchableOpacity>
+            </Pressable>
           </>
         ) : (
-          <TouchableOpacity style={styles.primaryBtn} onPress={onGoHome}>
+          <Pressable style={styles.primaryBtn} onPress={onGoHome}>
             <Text style={styles.primaryBtnText}>Voltar ao Início</Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
     </SafeAreaView>

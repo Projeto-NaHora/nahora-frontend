@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text,StyleSheet, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ChatAvatar } from "./ChatAvatar";
 import { useChatColors } from "@/hooks/use-chat-colors";
@@ -28,12 +28,12 @@ export function ChatHeader({ nome, fotoUrl, online, onBack, onMenu }: Props) {
       ]}
     >
       <View style={styles.topRow}>
-        <TouchableOpacity
+        <Pressable
           style={[styles.backBtn, { backgroundColor: colors.surfaceLight }]}
           onPress={onBack}
         >
           <Text style={[styles.chevron, { color: colors.darkText }]}>{"<"}</Text>
-        </TouchableOpacity>
+        </Pressable>
 
         <View style={styles.profile}>
           <ChatAvatar nome={nome} fotoUrl={fotoUrl} size={42} online={online} />
@@ -67,9 +67,9 @@ export function ChatHeader({ nome, fotoUrl, online, onBack, onMenu }: Props) {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.menuBtn} onPress={onMenu}>
+        <Pressable style={styles.menuBtn} onPress={onMenu}>
           <Text style={[styles.dots, { color: colors.darkText }]}>{"..."}</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </View>
   );
