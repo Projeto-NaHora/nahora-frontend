@@ -5,6 +5,7 @@ import type {
   Pedido,
   PedidoPublicoResponse,
   CriarPedidoPayload,
+  EditarPedidoPayload,
   Page,
 } from "./types";
 import type {
@@ -84,7 +85,7 @@ export const orderService = {
    */
   atualizar: async (
     id: number,
-    payload: CriarPedidoPayload,
+    payload: EditarPedidoPayload,
   ): Promise<Pedido> => {
     const { data } = await api.put<Pedido>(ENDPOINTS.PEDIDO(id), payload);
     return data;

@@ -60,7 +60,7 @@ export default function PedidoAbertoScreen() {
       isLoading={isLoading}
       error={error}
       onBack={() => router.back()}
-      onEdit={() => router.push(`/(client)/(orders)/new?editId=${orderId}`)}
+      onEdit={() => router.push(`/(client)/(orders)/edit?orderId=${orderId}`)}
       onDelete={handleDelete}
       onViewProposals={() =>
         router.push(`/(client)/(orders)/${orderId}/proposals`)

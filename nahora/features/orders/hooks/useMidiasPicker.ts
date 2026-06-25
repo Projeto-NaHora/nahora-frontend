@@ -6,8 +6,19 @@ import { getApiErrorMessage } from "@/utils/apiError";
 
 export function useMidiasPicker() {
   const [mediaUris, setMediaUris] = useState<string[]>([]);
+  const [existingUrls, setExistingUrls] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  /** Inicializa as URLs remotas já salvas no pedido (modo edição) */
+  const initExistingUrls = useCallback((urls: string[]) => {
+    setExistingUrls(urls.filter((u) => u && u.length > 0));
+  }, []);
+
+  /** Remove uma URL remota existente pelo índice */
+  const removeExistingUrl = useCallback((index: number) => {
+    setExistingUrls((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
   /** Abre a câmera para capturar uma foto */
   const pickFromCamera = async () => {
@@ -60,12 +71,12 @@ export function useMidiasPicker() {
     }
   };
 
-  /** Remove uma mídia da lista pelo índice */
+  /** Remove uma mídia NOVA da lista pelo índice (URIs locais) */
   const removeMedia = (index: number) => {
     setMediaUris((prev) => prev.filter((_, i) => i !== index));
   };
 
-  /** Faz upload de todas as mídias selecionadas e retorna as URLs */
+  /** Faz upload de todas as mídias NOVAS e retorna as URLs */
   const uploadAll = async (): Promise<string[]> => {
     if (mediaUris.length === 0) return [];
     setIsUploading(true);
@@ -90,26 +101,38 @@ export function useMidiasPicker() {
   /** Reseta o estado (após submit ou clear) */
   const reset = () => {
     setMediaUris([]);
+    setExistingUrls([]);
     setIsUploading(false);
     setUploadError(null);
   };
 
+  /** Se há qualquer mídia (existente ou nova) */
+  const hasAnyMedia = existingUrls.length > 0 || mediaUris.length > 0;
+
   return {
     /** URIs locais das mídias selecionadas (para preview) */
     mediaUris,
+    /** URLs remotas já salvas no pedido (modo edição) */
+    existingUrls,
     /** Se true, está fazendo upload para o servidor */
     isUploading,
     /** Mensagem de erro de permissão ou upload */
     uploadError,
+    /** Inicializa as URLs remotas existentes */
+    initExistingUrls,
     /** Abre a câmera */
     pickFromCamera,
     /** Abre a galeria */
     pickFromGallery,
-    /** Remove mídia pelo índice */
+    /** Remove mídia NOVA pelo índice */
     removeMedia,
-    /** Envia todas as mídias para o servidor e retorna URLs */
+    /** Remove URL existente pelo índice */
+    removeExistingUrl,
+    /** Envia todas as mídias NOVAS para o servidor e retorna URLs */
     uploadAll,
     /** Limpa o estado */
     reset,
+    /** Se há qualquer mídia (existente ou nova) */
+    hasAnyMedia,
   };
 }

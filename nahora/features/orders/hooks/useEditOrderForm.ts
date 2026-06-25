@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 
 import { orderService } from "../service";
 import { useMidiasPicker } from "./useMidiasPicker";
+import { useOrderDetail } from "./useOrders";
 import { buscarCep } from "@/services/cep";
 import { geocodeAddress } from "@/services/geocode";
 import { parseApiError } from "@/utils/apiError";
@@ -14,6 +15,7 @@ import { profileService } from "@/features/profile/service";
 import type { EnderecoResponse } from "@/features/profile/types";
 import type { CriarPedidoFormValues, EnderecoRequest } from "../types";
 import type { CategoriaServico, Urgencia } from "@/types/enums";
+import { getTurnoKey } from "../types";
 
 const schema = z
   .object({
@@ -86,15 +88,27 @@ function stripPresignedParams(url: string): string {
   return qIndex >= 0 ? url.substring(0, qIndex) : url;
 }
 
-export function useCreateOrderForm() {
+export function useEditOrderForm(orderId: number) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBuscandoCep, setIsBuscandoCep] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoadingOrder, setIsLoadingOrder] = useState(true);
 
   const midiasPicker = useMidiasPicker();
 
-  // Fetch saved addresses to find default
+  // Fetch the existing order
+  const {
+    data: pedido,
+    isLoading: swrLoading,
+    error: orderError,
+    mutate: mutateOrder,
+  } = useOrderDetail(orderId);
+
+  // Global SWR mutate for cache invalidation
+  const { mutate: globalMutate } = useSWRConfig();
+
+  // Fetch saved addresses
   const { data: savedAddresses } = useSWR<EnderecoResponse[]>(
     "saved-addresses",
     () => profileService.listarEnderecos(),
@@ -131,6 +145,42 @@ export function useCreateOrderForm() {
 
   const enderecoDiferente = useWatch({ control, name: "enderecoDiferente" });
   const cepValue = useWatch({ control, name: "cep" });
+
+  // Pre-fill form when order data loads
+  useEffect(() => {
+    if (!pedido) return;
+
+    const turno = getTurnoKey(pedido.dataDesejada) ?? "MANHA";
+
+    reset({
+      categoria: pedido.categoria ?? "",
+      descricao: pedido.descricao ?? "",
+      enderecoDiferente: pedido.endereco != null,
+      cep: pedido.endereco?.cep ?? "",
+      logradouro: pedido.endereco?.logradouro ?? "",
+      numero: pedido.endereco?.numero ?? "",
+      complemento: "",
+      bairro: pedido.endereco?.bairro ?? "",
+      cidade: pedido.endereco?.cidade ?? "",
+      estado: pedido.endereco?.estado ?? "",
+      urgencia: pedido.urgencia ?? "NORMAL",
+      turno,
+    });
+
+    // Initialize existing media
+    if (pedido.fotos && pedido.fotos.length > 0) {
+      midiasPicker.initExistingUrls(pedido.fotos);
+    }
+
+    setIsLoadingOrder(false);
+  }, [pedido, reset, midiasPicker.initExistingUrls]);
+
+  // Set loading complete when SWR finishes (even if pedido is null)
+  useEffect(() => {
+    if (!swrLoading) {
+      setIsLoadingOrder(false);
+    }
+  }, [swrLoading]);
 
   // Autofill endereço via ViaCEP quando o CEP atinge 8 dígitos
   useEffect(() => {
@@ -192,15 +242,20 @@ export function useCreateOrderForm() {
     setErrorMessage(null);
 
     try {
-      // 1. Monta lista de fotos (apenas novas, sem existingUrls no create)
+      // 1. Monta lista final de fotos: existingUrls mantidas + novas enviadas
       let fotosUrls: string[] | undefined;
+
+      const keptUrls = midiasPicker.existingUrls;
+
       if (midiasPicker.mediaUris.length > 0) {
         const uploadedUrls = await midiasPicker.uploadAll();
-        fotosUrls = uploadedUrls.map(stripPresignedParams);
+        const newUrls = uploadedUrls.map(stripPresignedParams);
+        fotosUrls = [...keptUrls, ...newUrls];
+      } else {
+        fotosUrls = keptUrls.length > 0 ? keptUrls : undefined;
       }
 
-      // 2. Monta objeto EnderecoRequest se o toggle estiver ativo;
-      // caso contrário, usa o endereço padrão salvo
+      // 2. Monta objeto EnderecoRequest se o toggle estiver ativo
       let endereco: EnderecoRequest | undefined;
       let enderecoId: number | undefined;
       if (data.enderecoDiferente) {
@@ -231,26 +286,26 @@ export function useCreateOrderForm() {
       // 3. Monta dataDesejada
       const dataDesejada = buildDataDesejada(data.turno);
 
-      const created = await orderService.criar({
-        categoria: data.categoria as CategoriaServico,
+      await orderService.atualizar(orderId, {
         descricao: data.descricao,
+        categoria: data.categoria as CategoriaServico,
+        urgencia: data.urgencia as Urgencia,
+        fotos: fotosUrls,
+        dataDesejada,
         endereco,
         enderecoId,
-        fotos: fotosUrls,
-        urgencia: data.urgencia as Urgencia,
-        orcamentoEstimado: 0,
-        dataDesejada,
       });
 
+      // Mutate the SWR cache for this order and the orders list
+      await mutateOrder();
+      await globalMutate((key) => typeof key === "string" && key.startsWith("meus-pedidos"));
+
       midiasPicker.reset();
-      router.push({
-        pathname: "/(client)/(orders)/success",
-        params: { orderId: String(created.id) },
-      });
+      router.back();
     } catch (error) {
       const parsed = parseApiError(
         error,
-        "Erro ao criar pedido. Tente novamente.",
+        "Erro ao editar pedido. Tente novamente.",
       );
 
       let mensagem = parsed.message;
@@ -285,24 +340,42 @@ export function useCreateOrderForm() {
   };
 
   const handleClear = () => {
+    // Volta ao estado original (dados do pedido)
+    if (!pedido) {
+      reset();
+      midiasPicker.reset();
+      return;
+    }
+
+    const turno = getTurnoKey(pedido.dataDesejada) ?? "MANHA";
+
     reset({
-      categoria: "",
-      descricao: "",
-      enderecoDiferente: false,
-      cep: "",
-      logradouro: "",
-      numero: "",
+      categoria: pedido.categoria ?? "",
+      descricao: pedido.descricao ?? "",
+      enderecoDiferente: pedido.endereco != null,
+      cep: pedido.endereco?.cep ?? "",
+      logradouro: pedido.endereco?.logradouro ?? "",
+      numero: pedido.endereco?.numero ?? "",
       complemento: "",
-      bairro: "",
-      cidade: "",
-      estado: "",
-      urgencia: "NORMAL",
-      turno: "MANHA",
+      bairro: pedido.endereco?.bairro ?? "",
+      cidade: pedido.endereco?.cidade ?? "",
+      estado: pedido.endereco?.estado ?? "",
+      urgencia: pedido.urgencia ?? "NORMAL",
+      turno,
     });
+
     midiasPicker.reset();
+    if (pedido.fotos && pedido.fotos.length > 0) {
+      midiasPicker.initExistingUrls(pedido.fotos);
+    }
   };
 
+  const handleCancel = useCallback(() => {
+    router.back();
+  }, [router]);
+
   return {
+    pedido,
     form,
     control,
     isSubmitting,
@@ -310,9 +383,11 @@ export function useCreateOrderForm() {
     errorMessage,
     errors,
     enderecoDiferente,
-    defaultAddress,
+    isLoadingOrder,
+    orderError,
     midiasPicker,
     onSubmit: handleSubmit(onSubmit),
     handleClear,
+    handleCancel,
   };
 }
