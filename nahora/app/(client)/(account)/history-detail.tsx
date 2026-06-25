@@ -203,9 +203,8 @@ export default function HistoryDetailScreen() {
       if (err?.message !== "User did not share") {
         Alert.alert("Erro", "Não foi possível baixar o recibo.");
       }
-    } finally {
-      setDownloadingPdf(false);
     }
+    setDownloadingPdf(false);
   };
 
   return (
@@ -580,11 +579,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 12,
-    elevation: 2,
+    boxShadow: "0 2px 12px rgba(0,0,0,0.02)",
     gap: 16,
   },
   detailContent: {

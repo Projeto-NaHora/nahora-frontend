@@ -134,11 +134,7 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 32,
     gap: 0,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 30,
-    elevation: 10,
+    boxShadow: "0 -8px 30px rgba(0,0,0,0.12)",
   },
   iconWrapper: {
     alignItems: "center",

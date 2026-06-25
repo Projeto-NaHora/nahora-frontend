@@ -131,11 +131,7 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     paddingHorizontal: 28,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 12,
-    elevation: 3,
+    boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
   },
   title: {
     fontSize: FontSizes.title,

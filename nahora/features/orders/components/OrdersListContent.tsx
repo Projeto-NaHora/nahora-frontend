@@ -149,11 +149,7 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     height: 56,
     gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
   },
   fabIcon: {
     width: 20,

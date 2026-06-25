@@ -100,11 +100,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 20,
     zIndex: 9999,
-    elevation: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    boxShadow: "0 4px 8px rgba(0,0,0,0.15)",
   },
   success: {
     backgroundColor: "#1C1C1E",

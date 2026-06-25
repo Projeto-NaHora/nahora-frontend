@@ -63,12 +63,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 12,
     paddingVertical: 12,
-    // subtle shadow similar to Figma
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 3,
-    elevation: 1,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
   },
   emojiWrap: {
     alignItems: 'center',

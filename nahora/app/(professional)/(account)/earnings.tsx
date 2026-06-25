@@ -65,9 +65,8 @@ export default function EarningsScreen() {
       if (err?.message !== "User did not share") {
         Alert.alert("Erro", "Não foi possível baixar o recibo.");
       }
-    } finally {
-      setDownloadingRecibo(null);
     }
+    setDownloadingRecibo(null);
   };
 
   if (isLoading) {
@@ -497,11 +496,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: 27,
     padding: 23,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 11,
-    elevation: 3,
+    boxShadow: "0 2px 11px rgba(0,0,0,0.04)",
     gap: 18,
   },
   cardTopRow: {

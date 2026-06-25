@@ -110,11 +110,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 10,
-    elevation: 3,
+    boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
   },
   accentBar: {
     width: 4,

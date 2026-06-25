@@ -75,9 +75,8 @@ export default function PrivacyScreen() {
         "Erro",
         getApiErrorMessage(err, "Não foi possível excluir a conta."),
       );
-    } finally {
-      setDeleting(false);
     }
+    setDeleting(false);
   };
 
   return (
@@ -332,11 +331,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 20,
     borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.01,
-    shadowRadius: 12,
-    elevation: 2,
+    boxShadow: "0 2px 12px rgba(0,0,0,0.01)",
     paddingVertical: 4,
     paddingHorizontal: 20,
   },
