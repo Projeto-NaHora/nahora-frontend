@@ -2,7 +2,7 @@
 import React from "react";
 import { View,
   Text,StyleSheet,
-  ScrollView, Pressable } from "react-native";
+  FlatList, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { CATEGORIA_LABEL } from "@/features/orders/types";
@@ -45,18 +45,16 @@ export function ProfessionalFilters({
       <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>
         Categoria
       </Text>
-      <ScrollView
+      <FlatList
         horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoryScroll}
-      >
-        {CATEGORIAS.map((cat) => {
+        data={CATEGORIAS}
+        keyExtractor={(cat) => cat}
+        renderItem={({ item: cat }) => {
           const isActive = cat === selectedCategoria;
           const label =
             cat === "TODAS" ? "Todas as áreas" : CATEGORIA_LABEL[cat];
           return (
             <Pressable
-              key={cat}
               style={[
                 styles.chip,
                 { backgroundColor: colors.surface, borderColor: colors.border },
@@ -75,23 +73,23 @@ export function ProfessionalFilters({
               </Text>
             </Pressable>
           );
-        })}
-      </ScrollView>
+        }}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoryScroll}
+      />
 
       {/* Urgency filters */}
       <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>
         Urgência
       </Text>
-      <ScrollView
+      <FlatList
         horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.urgencyScroll}
-      >
-        {URGENCIAS.map((u) => {
+        data={URGENCIAS}
+        keyExtractor={(u) => u.value}
+        renderItem={({ item: u }) => {
           const isActive = u.value === selectedUrgencia;
           return (
             <Pressable
-              key={u.value}
               style={[
                 styles.chip,
                 { backgroundColor: colors.surface, borderColor: colors.border },
@@ -110,8 +108,10 @@ export function ProfessionalFilters({
               </Text>
             </Pressable>
           );
-        })}
-      </ScrollView>
+        }}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.urgencyScroll}
+      />
     </View>
   );
 }

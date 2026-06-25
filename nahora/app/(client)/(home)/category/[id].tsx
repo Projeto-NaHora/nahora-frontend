@@ -4,7 +4,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { View,
   Text,
   StyleSheet,FlatList,
-  ScrollView,
   ActivityIndicator, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -129,10 +128,12 @@ export default function ProvidersByCategoryScreen() {
 
       {/* Filtros */}
       <View style={styles.filtersContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {FILTERS.map((f) => (
+        <FlatList
+          horizontal
+          data={FILTERS}
+          keyExtractor={(f) => f.value}
+          renderItem={({ item: f }) => (
             <Pressable
-              key={f.value}
               style={[
                 styles.pill,
                 { backgroundColor: colors.surface },
@@ -150,8 +151,9 @@ export default function ProvidersByCategoryScreen() {
                 {f.label}
               </Text>
             </Pressable>
-          ))}
-        </ScrollView>
+          )}
+          showsHorizontalScrollIndicator={false}
+        />
       </View>
 
       {/* Condicional de Loading e Lista */}

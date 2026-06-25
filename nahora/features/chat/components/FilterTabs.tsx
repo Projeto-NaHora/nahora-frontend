@@ -1,7 +1,7 @@
 import React from "react";
 import { View,
   Text,StyleSheet,
-  ScrollView, Pressable } from "react-native";
+  FlatList, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import {
@@ -20,16 +20,14 @@ export default function FilterTabs({ selected, onSelect }: FilterTabsProps) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView
+      <FlatList
         horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
-      >
-        {FILTRO_OPTIONS.map((opt) => {
+        data={FILTRO_OPTIONS}
+        keyExtractor={(opt) => opt.value}
+        renderItem={({ item: opt }) => {
           const isActive = opt.value === selected;
           return (
             <Pressable
-              key={opt.value}
               style={[
                 styles.chip,
                 isActive
@@ -53,8 +51,10 @@ export default function FilterTabs({ selected, onSelect }: FilterTabsProps) {
               </Text>
             </Pressable>
           );
-        })}
-      </ScrollView>
+        }}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+      />
     </View>
   );
 }
