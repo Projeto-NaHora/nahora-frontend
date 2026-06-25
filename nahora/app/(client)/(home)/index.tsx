@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { View,
   Text,
-  ScrollView,StyleSheet, Pressable } from "react-native";
+  ScrollView, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
@@ -59,14 +59,13 @@ export default function HomeScreen() {
               </Text>
               <Text style={[styles.mainTitle, { color: colors.onBrand }]}>O que você precisa hoje?</Text>
             </View>
-            <TouchableOpacity
-              style={styles.notifButton}
-              activeOpacity={0.7}
+            <Pressable
+              style={({ pressed }) => [styles.notifButton, pressed && { opacity: 0.7 }]}
               onPress={() => router.push("/(client)/(home)/notifications")}
             >
               <Ionicons name="notifications-outline" size={22} color="#FFFFFF" />
               <View style={styles.notifBadge} />
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
 

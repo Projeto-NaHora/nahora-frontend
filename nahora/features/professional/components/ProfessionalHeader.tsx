@@ -1,16 +1,17 @@
 // features/professional/components/ProfessionalHeader.tsx
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
+import { useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAuthStore } from "@/store/authStore";
 import { getInitials } from "@/utils/formatters";
 
 export function ProfessionalHeader() {
+  const router = useRouter();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
   const user = useAuthStore((s) => s.user);
-  const router = useRouter();
 
   return (
     <View style={[styles.container, { paddingTop: 48, backgroundColor: colors.brand }]}>
@@ -30,7 +31,10 @@ export function ProfessionalHeader() {
           </View>
         </View>
 
-        <Pressable style={styles.notifButton}>
+        <Pressable
+          style={styles.notifButton}
+          onPress={() => router.push("/(professional)/(home)/notifications")}
+        >
           <Text style={styles.bellIcon}>🔔</Text>
           <View style={styles.notifBadge} />
         </Pressable>
