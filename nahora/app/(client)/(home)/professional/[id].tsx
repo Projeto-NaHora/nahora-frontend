@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View,
   Text,
   StyleSheet,
-  ScrollView,Dimensions,
+  ScrollView,
   ActivityIndicator, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { Colors } from "@/constants/theme";
@@ -24,7 +24,172 @@ const PILL_COLOR = "#F6F6F6";
 const ORANGE = "#FF7A00";
 const GRAY = "#E0E0E0";
 const DARK = "#222";
-const SCREEN_WIDTH = Dimensions.get("window").width;
+
+const getInitials = (name: string) => {
+  if (!name) return "P";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .substring(0, 2);
+};
+
+// ── Extracted sub-components ──
+
+function ProfileHeader({
+  colors,
+  onBack,
+  profissionalId,
+  isFavorite,
+  favToggling,
+  onToggleFav,
+  setFavToggling,
+}: {
+  colors: typeof Colors.light;
+  onBack: () => void;
+  profissionalId: number;
+  isFavorite: boolean;
+  favToggling: boolean;
+  onToggleFav: () => Promise<void>;
+  setFavToggling: (v: boolean) => void;
+}) {
+  return (
+    <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <Pressable onPress={onBack} style={styles.backBtn} hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}>
+        <Feather name="arrow-left" size={24} color={colors.textPrimary} />
+      </Pressable>
+      <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>Perfil do Profissional</Text>
+      <Pressable
+        onPress={async () => {
+          if (!profissionalId) return;
+          setFavToggling(true);
+          await onToggleFav();
+          setFavToggling(false);
+        }}
+        disabled={favToggling}
+        style={styles.headerFavBtn}
+        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+      >
+        <FontAwesome name={isFavorite ? "heart" : "heart-o"} size={22} color={isFavorite ? "#f26f21" : colors.textPrimary} />
+      </Pressable>
+    </View>
+  );
+}
+
+function ProfileIdentity({
+  prof,
+  colors,
+}: {
+  prof: { avatarUrl: string | null; nome: string; categoria: string; cidade: string; nota: number };
+  colors: typeof Colors.light;
+}) {
+  return (
+    <View style={styles.identityBlock}>
+      {prof.avatarUrl ? (
+        <Image source={{ uri: prof.avatarUrl }} style={[styles.avatar, { backgroundColor: colors.surface }]} resizeMode="cover" />
+      ) : (
+        <View style={[styles.avatarPlaceholder, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.avatarInitials, { color: colors.brand }]}>{getInitials(prof.nome)}</Text>
+        </View>
+      )}
+      <Text style={[styles.name, { color: colors.textPrimary }]}>{prof.nome}</Text>
+      <View style={styles.locationRow}>
+        <Text style={[styles.locationText, { color: colors.textSecondary }]}>{prof.categoria} - {prof.cidade}</Text>
+      </View>
+      <View style={styles.ratingRow}>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <MaterialCommunityIcons
+            key={i}
+            name={prof.nota >= i + 1 ? "star" : prof.nota > i ? "star-half-full" : "star-outline"}
+            size={STAR_SIZE}
+            color="#FFD600"
+          />
+        ))}
+        <Text style={[styles.ratingText, { color: colors.textPrimary }]}>{prof.nota.toFixed(1)}</Text>
+      </View>
+    </View>
+  );
+}
+
+function ProfileActions({
+  colors,
+  isFavorite,
+  favToggling,
+  onToggleFav,
+  setFavToggling,
+  profissionalId,
+}: {
+  colors: typeof Colors.light;
+  isFavorite: boolean;
+  favToggling: boolean;
+  onToggleFav: () => Promise<void>;
+  setFavToggling: (v: boolean) => void;
+  profissionalId: number;
+}) {
+  return (
+    <View style={styles.actionsRow}>
+      <Pressable style={[styles.actionPrimary, { backgroundColor: colors.brand }]}>
+        <Text style={[styles.actionPrimaryText, { color: colors.onBrand }]}>Criar pedido</Text>
+      </Pressable>
+      <Pressable style={[styles.actionSecondary, { borderColor: colors.border, backgroundColor: colors.background }]}>
+        <Text style={[styles.actionSecondaryText, { color: colors.brand }]}>Ver agenda</Text>
+      </Pressable>
+      <Pressable
+        style={[styles.actionMore, { borderColor: colors.border, backgroundColor: colors.background }]}
+        disabled={favToggling}
+        onPress={async () => {
+          if (!profissionalId) return;
+          setFavToggling(true);
+          await onToggleFav();
+          setFavToggling(false);
+        }}
+      >
+        <FontAwesome name={isFavorite ? "heart" : "heart-o"} size={20} color={isFavorite ? "#f26f21" : colors.textPrimary} />
+      </Pressable>
+      <Pressable style={[styles.actionMore, { borderColor: colors.border, backgroundColor: colors.background }]}>
+        <Feather name="more-horizontal" size={20} color={colors.textPrimary} />
+      </Pressable>
+    </View>
+  );
+}
+
+function ProfilePortfolio({
+  portfolio,
+  totalPortfolio,
+  colors,
+}: {
+  portfolio: string[];
+  totalPortfolio: number;
+  colors: typeof Colors.light;
+}) {
+  const maxPortfolio = 5;
+  const portfolioToShow = portfolio.slice(0, maxPortfolio);
+  const extraCount = totalPortfolio > portfolioToShow.length ? totalPortfolio - portfolioToShow.length : 0;
+
+  if (portfolio.length === 0) return null;
+
+  return (
+    <>
+      <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Portfólio</Text>
+      <View style={styles.portfolioGrid}>
+        {portfolioToShow.map((url: string, idx: number) => {
+          const isLast = idx === maxPortfolio - 1 && extraCount > 0;
+          return (
+            <View key={url + idx} style={[styles.portfolioItem, { backgroundColor: colors.surface }]}>
+              <Image source={{ uri: url }} style={styles.portfolioImg} />
+              {isLast && (
+                <View style={styles.overlay}>
+                  <Text style={styles.overlayText}>+{extraCount}</Text>
+                </View>
+              )}
+            </View>
+          );
+        })}
+      </View>
+    </>
+  );
+}
 
 export default function ProfessionalProfileScreen() {
   const { id } = useLocalSearchParams();
@@ -75,16 +240,6 @@ export default function ProfessionalProfileScreen() {
 
     fetchProfessionalProfile();
   }, [id]);
-
-  const getInitials = (name: string) => {
-    if (!name) return "P";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .substring(0, 2);
-  };
 
   // Tela de Carregamento
   if (isLoading) {
@@ -156,175 +311,29 @@ export default function ProfessionalProfileScreen() {
     totalPortfolio: profileData.totalPortfolioFotos || 0,
   };
 
-  const maxPortfolio = 5;
-  const portfolioToShow = prof.portfolio.slice(0, maxPortfolio);
-  // Calcula quantos itens extras existem além dos mostrados
-  const extraCount =
-    prof.totalPortfolio > portfolioToShow.length
-      ? prof.totalPortfolio - portfolioToShow.length
-      : 0;
-
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <View
-        style={[
-          styles.header,
-          {
-            backgroundColor: colors.background,
-            borderBottomColor: colors.border,
-          },
-        ]}
-      >
-        <Pressable
-          onPress={handleGoBack}
-          style={styles.backBtn}
-          hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-        >
-          <Feather name="arrow-left" size={24} color={colors.textPrimary} />
-        </Pressable>
-        <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-          Perfil do Profissional
-        </Text>
-
-        {/* Favoritar no header (Figma: top-right circular) */}
-        <Pressable
-          onPress={async () => {
-            if (!profissionalId) return;
-            setFavToggling(true);
-            await toggle();
-            setFavToggling(false);
-          }}
-          disabled={favToggling}
-          style={styles.headerFavBtn}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-        >
-          <FontAwesome
-            name={isFavorite ? "heart" : "heart-o"}
-            size={22}
-            color={isFavorite ? "#f26f21" : colors.textPrimary}
-          />
-        </Pressable>
-      </View>
+      <ProfileHeader
+        colors={colors}
+        onBack={handleGoBack}
+        profissionalId={profissionalId}
+        isFavorite={isFavorite}
+        favToggling={favToggling}
+        onToggleFav={toggle}
+        setFavToggling={setFavToggling}
+      />
 
       <ScrollView contentContainerStyle={styles.scroll}>
-        {/* Identidade */}
-        <View style={styles.identityBlock}>
-          {prof.avatarUrl ? (
-            <Image
-              source={{ uri: prof.avatarUrl }}
-              style={[styles.avatar, { backgroundColor: colors.surface }]}
-              resizeMode="cover"
-            />
-          ) : (
-            <View
-              style={[
-                styles.avatarPlaceholder,
-                { backgroundColor: colors.surface },
-              ]}
-            >
-              <Text style={[styles.avatarInitials, { color: colors.brand }]}>
-                {getInitials(prof.nome)}
-              </Text>
-            </View>
-          )}
-          <Text style={[styles.name, { color: colors.textPrimary }]}>
-            {prof.nome}
-          </Text>
+        <ProfileIdentity prof={prof} colors={colors} />
 
-          <View style={styles.locationRow}>
-            <Text
-              style={[styles.locationText, { color: colors.textSecondary }]}
-            >
-              {prof.categoria} - {prof.cidade}
-            </Text>
-          </View>
-
-          <View style={styles.ratingRow}>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <MaterialCommunityIcons
-                key={i}
-                name={
-                  prof.nota >= i + 1
-                    ? "star"
-                    : prof.nota > i
-                      ? "star-half-full"
-                      : "star-outline"
-                }
-                size={STAR_SIZE}
-                color="#FFD600"
-              />
-            ))}
-            <Text style={[styles.ratingText, { color: colors.textPrimary }]}>
-              {prof.nota.toFixed(1)}
-            </Text>
-          </View>
-        </View>
-
-        {/* Ações */}
-        <View style={styles.actionsRow}>
-          <Pressable
-            style={[styles.actionPrimary, { backgroundColor: colors.brand }]}
-          >
-            <Text style={[styles.actionPrimaryText, { color: colors.onBrand }]}>
-              Criar pedido
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={[
-              styles.actionSecondary,
-              {
-                borderColor: colors.border,
-                backgroundColor: colors.background,
-              },
-            ]}
-          >
-            <Text style={[styles.actionSecondaryText, { color: colors.brand }]}>
-              Ver agenda
-            </Text>
-          </Pressable>
-
-          {/* Botão Favoritar (original) */}
-          <Pressable
-            style={[
-              styles.actionMore,
-              {
-                borderColor: colors.border,
-                backgroundColor: colors.background,
-              },
-            ]}
-            disabled={favToggling}
-            onPress={async () => {
-              if (!profissionalId) return;
-              setFavToggling(true);
-              await toggle();
-              setFavToggling(false);
-            }}
-          >
-            <FontAwesome
-              name={isFavorite ? "heart" : "heart-o"}
-              size={20}
-              color={isFavorite ? "#f26f21" : colors.textPrimary}
-            />
-          </Pressable>
-
-          <Pressable
-            style={[
-              styles.actionMore,
-              {
-                borderColor: colors.border,
-                backgroundColor: colors.background,
-              },
-            ]}
-          >
-            <Feather
-              name="more-horizontal"
-              size={20}
-              color={colors.textPrimary}
-            />
-          </Pressable>
-        </View>
+        <ProfileActions
+          colors={colors}
+          isFavorite={isFavorite}
+          favToggling={favToggling}
+          onToggleFav={toggle}
+          setFavToggling={setFavToggling}
+          profissionalId={profissionalId}
+        />
 
         {/* Stats */}
         <View style={styles.statsRow}>
@@ -380,35 +389,7 @@ export default function ProfessionalProfileScreen() {
           {prof.biografia}
         </Text>
 
-        {/* Portfólio */}
-        {prof.portfolio.length > 0 && (
-          <>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-              Portfólio
-            </Text>
-            <View style={styles.portfolioGrid}>
-              {portfolioToShow.map((url: string, idx: number) => {
-                const isLast = idx === maxPortfolio - 1 && extraCount > 0;
-                return (
-                  <View
-                    key={url + idx}
-                    style={[
-                      styles.portfolioItem,
-                      { backgroundColor: colors.surface },
-                    ]}
-                  >
-                    <Image source={{ uri: url }} style={styles.portfolioImg} />
-                    {isLast && (
-                      <View style={styles.overlay}>
-                        <Text style={styles.overlayText}>+{extraCount}</Text>
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-          </>
-        )}
+        <ProfilePortfolio portfolio={prof.portfolio} totalPortfolio={prof.totalPortfolio} colors={colors} />
       </ScrollView>
 
       {/* Snackbar para feedback de favoritar/desfavoritar */}

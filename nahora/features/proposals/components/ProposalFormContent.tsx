@@ -81,6 +81,127 @@ function formatDateFromDate(d: Date): string {
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 
+// ── Extracted sub-component ──
+
+function ScheduleModal({
+  isModalOpen,
+  modalState,
+  colors,
+  turnoLabel,
+  turnoTimeHint,
+  onSelectDate,
+  onSelectStartTime,
+  onSelectEndTime,
+  onCloseModal,
+  onConfirmSlot,
+}: {
+  isModalOpen: boolean;
+  modalState: HorarioModalState;
+  colors: typeof Colors.light;
+  turnoLabel: string;
+  turnoTimeHint: string;
+  onSelectDate: (date: Date) => void;
+  onSelectStartTime: (time: Date) => void;
+  onSelectEndTime: (time: Date) => void;
+  onCloseModal: () => void;
+  onConfirmSlot: () => void;
+}) {
+  return (
+    <Modal visible={isModalOpen} transparent animationType="slide" onRequestClose={onCloseModal}>
+      <View style={styles.modalOverlay}>
+        <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
+          {modalState.step === "date" && (
+            <>
+              <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Selecione a data</Text>
+              <DateTimePicker
+                value={new Date()}
+                mode="date"
+                display={Platform.OS === "ios" ? "inline" : "default"}
+                minimumDate={today}
+                onChange={(_event, date) => { if (date) onSelectDate(date); }}
+              />
+              <View style={styles.modalActions}>
+                <Pressable style={[styles.modalCancelButton, { backgroundColor: colors.surface }]} onPress={onCloseModal}>
+                  <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
+          {modalState.step === "start_time" && (
+            <>
+              <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Horario de inicio</Text>
+              {turnoTimeHint !== "" && (
+                <Text style={[styles.modalTurnoHint, { color: colors.brand }]}>Turno: {turnoLabel} ({turnoTimeHint})</Text>
+              )}
+              <DateTimePicker
+                value={modalState.selectedDate ? new Date(modalState.selectedDate) : new Date()}
+                mode="time"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={(_event, time) => { if (time) onSelectStartTime(time); }}
+              />
+              <View style={styles.modalActions}>
+                <Pressable style={[styles.modalCancelButton, { backgroundColor: colors.surface }]} onPress={onCloseModal}>
+                  <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
+                </Pressable>
+                <View style={styles.modalButtonGap} />
+                <Pressable style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]} onPress={onCloseModal}>
+                  <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
+          {modalState.step === "end_time" && (
+            <>
+              <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Horario de termino</Text>
+              <DateTimePicker
+                value={modalState.selectedStart ? new Date(modalState.selectedStart) : new Date()}
+                mode="time"
+                display={Platform.OS === "ios" ? "spinner" : "default"}
+                onChange={(_event, time) => { if (time) onSelectEndTime(time); }}
+              />
+              <View style={styles.modalActions}>
+                <Pressable style={[styles.modalCancelButton, { backgroundColor: colors.surface }]} onPress={onCloseModal}>
+                  <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
+                </Pressable>
+                <View style={styles.modalButtonGap} />
+                <Pressable style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]} onPress={() => onCloseModal()}>
+                  <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
+          {modalState.step === "confirm" && (
+            <>
+              <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Confirmar horario</Text>
+              <View style={styles.confirmSummary}>
+                <Text style={[styles.confirmDate, { color: colors.textPrimary }]}>
+                  {modalState.selectedDate ? formatDateFromDate(modalState.selectedDate) : ""}
+                </Text>
+                <Text style={[styles.confirmTime, { color: colors.brand }]}>
+                  {modalState.selectedStart ? formatTimeFromDate(modalState.selectedStart) : ""} - {modalState.selectedEnd ? formatTimeFromDate(modalState.selectedEnd) : ""}
+                </Text>
+              </View>
+              <View style={styles.modalActions}>
+                <Pressable style={[styles.modalCancelButton, { backgroundColor: colors.surface }]} onPress={onCloseModal}>
+                  <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
+                </Pressable>
+                <View style={styles.modalButtonGap} />
+                <Pressable style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]} onPress={onCloseModal}>
+                  <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
+                </Pressable>
+                <View style={styles.modalButtonGap} />
+                <Pressable style={[styles.modalConfirmButton, { backgroundColor: colors.brand }]} onPress={onConfirmSlot}>
+                  <Text style={[styles.modalConfirmText, { color: colors.onBrand }]}>Confirmar</Text>
+                </Pressable>
+              </View>
+            </>
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 export function ProposalFormContent({
   pedido,
   isLoading,
@@ -329,161 +450,18 @@ export function ProposalFormContent({
         </Pressable>
       </View>
 
-      {/* DATE/TIME PICKER MODAL */}
-      <Modal
-        visible={isModalOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={onCloseModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
-            {/* Step: Date picker */}
-            {modalState.step === "date" && (
-              <>
-                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Selecione a data</Text>
-                <DateTimePicker
-                  value={new Date()}
-                  mode="date"
-                  display={Platform.OS === "ios" ? "inline" : "default"}
-                  minimumDate={today}
-                  onChange={(_event, date) => {
-                    if (date) onSelectDate(date);
-                  }}
-                />
-                <View style={styles.modalActions}>
-                  <Pressable
-                    style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
-                    onPress={onCloseModal}
-                  >
-                    <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
-                  </Pressable>
-                </View>
-              </>
-            )}
-
-            {/* Step: Start time */}
-            {modalState.step === "start_time" && (
-              <>
-                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Horario de inicio</Text>
-                {turnoTimeHint !== "" && (
-                  <Text style={[styles.modalTurnoHint, { color: colors.brand }]}>
-                    Turno: {turnoLabel} ({turnoTimeHint})
-                  </Text>
-                )}
-                <DateTimePicker
-                  value={
-                    modalState.selectedDate
-                      ? new Date(modalState.selectedDate)
-                      : new Date()
-                  }
-                  mode="time"
-                  display={Platform.OS === "ios" ? "spinner" : "default"}
-                  onChange={(_event, time) => {
-                    if (time) onSelectStartTime(time);
-                  }}
-                />
-                <View style={styles.modalActions}>
-                  <Pressable
-                    style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
-                    onPress={onCloseModal}
-                  >
-                    <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
-                  </Pressable>
-                  <View style={styles.modalButtonGap} />
-                  <Pressable
-                    style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]}
-                    onPress={onCloseModal}
-                  >
-                    <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
-                  </Pressable>
-                </View>
-              </>
-            )}
-
-            {/* Step: End time */}
-            {modalState.step === "end_time" && (
-              <>
-                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Horario de termino</Text>
-                <DateTimePicker
-                  value={
-                    modalState.selectedStart
-                      ? new Date(modalState.selectedStart)
-                      : new Date()
-                  }
-                  mode="time"
-                  display={Platform.OS === "ios" ? "spinner" : "default"}
-                  onChange={(_event, time) => {
-                    if (time) onSelectEndTime(time);
-                  }}
-                />
-                <View style={styles.modalActions}>
-                  <Pressable
-                    style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
-                    onPress={onCloseModal}
-                  >
-                    <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
-                  </Pressable>
-                  <View style={styles.modalButtonGap} />
-                  <Pressable
-                    style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]}
-                    onPress={() =>
-                      onCloseModal()
-                    }
-                  >
-                    <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
-                  </Pressable>
-                </View>
-              </>
-            )}
-
-            {/* Step: Confirm */}
-            {modalState.step === "confirm" && (
-              <>
-                <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Confirmar horario</Text>
-                <View style={styles.confirmSummary}>
-                  <Text style={[styles.confirmDate, { color: colors.textPrimary }]}>
-                    {modalState.selectedDate
-                      ? formatDateFromDate(modalState.selectedDate)
-                      : ""}
-                  </Text>
-                  <Text style={[styles.confirmTime, { color: colors.brand }]}>
-                    {modalState.selectedStart
-                      ? formatTimeFromDate(modalState.selectedStart)
-                      : ""}{" "}
-                    -{" "}
-                    {modalState.selectedEnd
-                      ? formatTimeFromDate(modalState.selectedEnd)
-                      : ""}
-                  </Text>
-                </View>
-                <View style={styles.modalActions}>
-                  <Pressable
-                    style={[styles.modalCancelButton, { backgroundColor: colors.surface }]}
-                    onPress={onCloseModal}
-                  >
-                    <Text style={[styles.modalCancelText, { color: colors.textSecondary }]}>Cancelar</Text>
-                  </Pressable>
-                  <View style={styles.modalButtonGap} />
-                  <Pressable
-                    style={[styles.modalSecondaryButton, { backgroundColor: colors.surface }]}
-                    onPress={onCloseModal}
-                  >
-                    <Text style={[styles.modalSecondaryText, { color: colors.textPrimary }]}>Voltar</Text>
-                  </Pressable>
-                  <View style={styles.modalButtonGap} />
-                  <Pressable
-                    style={[styles.modalConfirmButton, { backgroundColor: colors.brand }]}
-                    onPress={onConfirmSlot}
-                  >
-                    <Text style={[styles.modalConfirmText, { color: colors.onBrand }]}>Confirmar</Text>
-                  </Pressable>
-                </View>
-              </>
-            )}
-          </View>
-        </View>
-      </Modal>
+      <ScheduleModal
+        isModalOpen={isModalOpen}
+        modalState={modalState}
+        colors={colors}
+        turnoLabel={turnoLabel}
+        turnoTimeHint={turnoTimeHint}
+        onSelectDate={onSelectDate}
+        onSelectStartTime={onSelectStartTime}
+        onSelectEndTime={onSelectEndTime}
+        onCloseModal={onCloseModal}
+        onConfirmSlot={onConfirmSlot}
+      />
     </View>
   );
 }

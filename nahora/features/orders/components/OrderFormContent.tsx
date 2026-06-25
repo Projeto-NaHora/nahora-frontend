@@ -24,6 +24,179 @@ import {
   type CriarPedidoFormValues,
 } from "../types";
 
+// ── Extracted sub-components ──
+
+function OrderFormAddressSection({
+  control,
+  errors,
+  colors,
+  enderecoDiferente,
+  isBuscandoCep,
+}: {
+  control: Control<CriarPedidoFormValues>;
+  errors: FieldErrors<CriarPedidoFormValues>;
+  colors: typeof Colors.light;
+  enderecoDiferente: boolean;
+  isBuscandoCep: boolean;
+}) {
+  return (
+    <View style={[styles.addressToggleCard, { backgroundColor: colors.surface + "50", borderColor: colors.border }]}>
+      <Controller
+        control={control}
+        name="enderecoDiferente"
+        render={({ field: { onChange, value } }) => (
+          <Pressable style={styles.checkboxRow} onPress={() => onChange(!value)}>
+            <View style={[styles.checkbox, value ? { backgroundColor: colors.brand, borderColor: colors.brand } : { backgroundColor: colors.background, borderColor: colors.border }]}>
+              {value && <IconSymbol name="chevron.left" size={14} color="#fff" />}
+            </View>
+            <Text style={[styles.checkboxLabel, { color: colors.textPrimary }]}>Usar endereço diferente do meu{"\n"}endereço padrão</Text>
+          </Pressable>
+        )}
+      />
+      {enderecoDiferente && (
+        <View style={styles.enderecoSection}>
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>CEP</Text>
+            <View style={styles.cepRow}>
+              <Controller
+                control={control}
+                name="cep"
+                render={({ field: { onChange, onBlur, value } }) => {
+                  const digits = (value || "").replace(/\D/g, "");
+                  const display = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5, 8)}` : digits;
+                  return (
+                    <TextInput style={[styles.textInput, styles.cepInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="00000-000" placeholderTextColor={colors.placeholder} keyboardType="numeric" maxLength={9} editable={!isBuscandoCep} onBlur={onBlur} onChangeText={(text) => onChange(text.replace(/\D/g, ""))} value={display} />
+                  );
+                }}
+              />
+              {isBuscandoCep && <ActivityIndicator size="small" color={colors.brand} />}
+            </View>
+            {errors.cep?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.cep.message}</Text>}
+          </View>
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Logradouro</Text>
+            <Controller control={control} name="logradouro" render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput style={[styles.textInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="Rua..." placeholderTextColor={colors.placeholder} onBlur={onBlur} onChangeText={onChange} value={value} />
+            )} />
+            {errors.logradouro?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.logradouro.message}</Text>}
+          </View>
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Número</Text>
+            <Controller control={control} name="numero" render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput style={[styles.textInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="123" placeholderTextColor={colors.placeholder} onBlur={onBlur} onChangeText={onChange} value={value} />
+            )} />
+            {errors.numero?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.numero.message}</Text>}
+          </View>
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Complemento</Text>
+            <Controller control={control} name="complemento" render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput style={[styles.textInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="Apto, bloco..." placeholderTextColor={colors.placeholder} onBlur={onBlur} onChangeText={onChange} value={value} />
+            )} />
+          </View>
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Bairro</Text>
+            <Controller control={control} name="bairro" render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput style={[styles.textInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="Centro" placeholderTextColor={colors.placeholder} onBlur={onBlur} onChangeText={onChange} value={value} />
+            )} />
+            {errors.bairro?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.bairro.message}</Text>}
+          </View>
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Cidade</Text>
+            <Controller control={control} name="cidade" render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput style={[styles.textInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="São Paulo" placeholderTextColor={colors.placeholder} onBlur={onBlur} onChangeText={onChange} value={value} />
+            )} />
+            {errors.cidade?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.cidade.message}</Text>}
+          </View>
+          <View style={styles.fieldGroup}>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Estado</Text>
+            <Controller control={control} name="estado" render={({ field: { onChange, value } }) => (
+              <EstadoPicker value={value} onChange={onChange} />
+            )} />
+            {errors.estado?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.estado.message}</Text>}
+          </View>
+        </View>
+      )}
+    </View>
+  );
+}
+
+function OrderFormMediaSection({
+  colors,
+  mediaUris,
+  isUploadingMedia,
+  uploadError,
+  isSubmitting,
+  onPickFromCamera,
+  onPickFromGallery,
+  onRemoveMedia,
+}: {
+  colors: typeof Colors.light;
+  mediaUris: string[];
+  isUploadingMedia: boolean;
+  uploadError?: string | null;
+  isSubmitting: boolean;
+  onPickFromCamera: () => void;
+  onPickFromGallery: () => void;
+  onRemoveMedia: (index: number) => void;
+}) {
+  return (
+    <View style={styles.fieldGroup}>
+      <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Imagem/Vídeo (Opcional)</Text>
+      <View style={styles.mediaRow}>
+        <Pressable style={[styles.mediaButton, { backgroundColor: colors.surfaceAccent }]} onPress={onPickFromCamera} disabled={isSubmitting || isUploadingMedia}>
+          <IconSymbol name="camera.fill" size={22} color={colors.brand} />
+          <Text style={[styles.mediaButtonText, { color: colors.brand }]}>Câmera</Text>
+        </Pressable>
+        <Pressable style={[styles.mediaButton, { backgroundColor: colors.surfaceAccent }]} onPress={onPickFromGallery} disabled={isSubmitting || isUploadingMedia}>
+          <IconSymbol name="photo.on.rectangle" size={22} color={colors.brand} />
+          <Text style={[styles.mediaButtonText, { color: colors.brand }]}>Galeria</Text>
+        </Pressable>
+      </View>
+      {mediaUris.length > 0 && (
+        <View style={styles.mediaPreviewRow}>
+          {mediaUris.map((uri, index) => (
+            <View key={uri} style={styles.mediaPreviewItem}>
+              <Image source={{ uri }} style={styles.mediaPreviewImage} />
+              <Pressable style={[styles.mediaRemoveBadge, { backgroundColor: colors.error }]} onPress={() => onRemoveMedia(index)} disabled={isSubmitting || isUploadingMedia}>
+                <IconSymbol name="xmark" size={12} color="#fff" />
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      )}
+      {isUploadingMedia && <Text style={[styles.mediaStatusText, { color: colors.brand }]}>Enviando imagens...</Text>}
+      {uploadError && <Text style={[styles.mediaStatusText, { color: colors.error }]}>{uploadError}</Text>}
+    </View>
+  );
+}
+
+function OrderFormActionsRow({
+  colors,
+  isSubmitting,
+  isEditing,
+  onClear,
+  onSubmit,
+}: {
+  colors: typeof Colors.light;
+  isSubmitting: boolean;
+  isEditing: boolean;
+  onClear: () => void;
+  onSubmit: () => void;
+}) {
+  return (
+    <View style={styles.actionsRow}>
+      <Pressable style={[styles.actionButton, styles.actionOutline, { borderColor: colors.border }]} onPress={onClear}>
+        <Text style={[styles.actionButtonText, { color: colors.textSecondary }]}>Limpar</Text>
+      </Pressable>
+      <Pressable style={[styles.actionButton, { backgroundColor: colors.brand }, isSubmitting && styles.buttonDisabled]} onPress={onSubmit} disabled={isSubmitting}>
+        <Text style={[styles.actionButtonText, { color: colors.onBrand }]}>
+          {isSubmitting ? (isEditing ? "Salvando..." : "Criando...") : (isEditing ? "Salvar Alterações" : "Criar Pedido")}
+        </Text>
+      </Pressable>
+    </View>
+  );
+}
+
 type OrderFormContentProps = {
   control: Control<CriarPedidoFormValues>;
   isSubmitting: boolean;
@@ -369,288 +542,7 @@ export function OrderFormContent({
         )}
       </View>
 
-      {/* Endereço toggle */}
-      <View
-        style={[
-          styles.addressToggleCard,
-          {
-            backgroundColor: colors.surface + "50",
-            borderColor: colors.border,
-          },
-        ]}
-      >
-        {/* Checkbox toggle */}
-        <Controller
-          control={control}
-          name="enderecoDiferente"
-          render={({ field: { onChange, value } }) => (
-            <Pressable
-              style={styles.checkboxRow}
-              onPress={() => onChange(!value)}
-            >
-              <View
-                style={[
-                  styles.checkbox,
-                  value
-                    ? {
-                        backgroundColor: colors.brand,
-                        borderColor: colors.brand,
-                      }
-                    : {
-                        backgroundColor: colors.background,
-                        borderColor: colors.border,
-                      },
-                ]}
-              >
-                {value && (
-                  <IconSymbol name="chevron.left" size={14} color="#fff" />
-                )}
-              </View>
-              <Text
-                style={[styles.checkboxLabel, { color: colors.textPrimary }]}
-              >
-                Usar endereço diferente do meu{"\n"}endereço padrão
-              </Text>
-            </Pressable>
-          )}
-        />
-
-        {/* Endereço fields (shown if toggle is on) */}
-        {enderecoDiferente && (
-          <View style={styles.enderecoSection}>
-            {/* CEP */}
-            <View style={styles.fieldGroup}>
-              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
-                CEP
-              </Text>
-              <View style={styles.cepRow}>
-                <Controller
-                  control={control}
-                  name="cep"
-                  render={({ field: { onChange, onBlur, value } }) => {
-                    const digits = (value || "").replace(/\D/g, "");
-                    const display =
-                      digits.length > 5
-                        ? `${digits.slice(0, 5)}-${digits.slice(5, 8)}`
-                        : digits;
-
-                    return (
-                      <TextInput
-                        style={[
-                          styles.textInput,
-                          styles.cepInput,
-                          {
-                            backgroundColor: colors.surface,
-                            borderColor: colors.border,
-                            color: colors.textPrimary,
-                          },
-                        ]}
-                        placeholder="00000-000"
-                        placeholderTextColor={colors.placeholder}
-                        keyboardType="numeric"
-                        maxLength={9}
-                        editable={!isBuscandoCep}
-                        onBlur={onBlur}
-                        onChangeText={(text) =>
-                          onChange(text.replace(/\D/g, ""))
-                        }
-                        value={display}
-                      />
-                    );
-                  }}
-                />
-                {isBuscandoCep && (
-                  <ActivityIndicator size="small" color={colors.brand} />
-                )}
-              </View>
-              {errors.cep?.message && (
-                <Text style={[styles.fieldError, { color: colors.error }]}>
-                  {errors.cep.message}
-                </Text>
-              )}
-            </View>
-
-            {/* Logradouro */}
-            <View style={styles.fieldGroup}>
-              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
-                Logradouro
-              </Text>
-              <Controller
-                control={control}
-                name="logradouro"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={[
-                      styles.textInput,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
-                        color: colors.textPrimary,
-                      },
-                    ]}
-                    placeholder="Rua..."
-                    placeholderTextColor={colors.placeholder}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-              {errors.logradouro?.message && (
-                <Text style={[styles.fieldError, { color: colors.error }]}>
-                  {errors.logradouro.message}
-                </Text>
-              )}
-            </View>
-
-            {/* Número */}
-            <View style={styles.fieldGroup}>
-              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
-                Número
-              </Text>
-              <Controller
-                control={control}
-                name="numero"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={[
-                      styles.textInput,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
-                        color: colors.textPrimary,
-                      },
-                    ]}
-                    placeholder="123"
-                    placeholderTextColor={colors.placeholder}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-              {errors.numero?.message && (
-                <Text style={[styles.fieldError, { color: colors.error }]}>
-                  {errors.numero.message}
-                </Text>
-              )}
-            </View>
-
-            {/* Complemento */}
-            <View style={styles.fieldGroup}>
-              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
-                Complemento
-              </Text>
-              <Controller
-                control={control}
-                name="complemento"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={[
-                      styles.textInput,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
-                        color: colors.textPrimary,
-                      },
-                    ]}
-                    placeholder="Apto, bloco..."
-                    placeholderTextColor={colors.placeholder}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-            </View>
-
-            {/* Bairro */}
-            <View style={styles.fieldGroup}>
-              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
-                Bairro
-              </Text>
-              <Controller
-                control={control}
-                name="bairro"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={[
-                      styles.textInput,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
-                        color: colors.textPrimary,
-                      },
-                    ]}
-                    placeholder="Centro"
-                    placeholderTextColor={colors.placeholder}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-              {errors.bairro?.message && (
-                <Text style={[styles.fieldError, { color: colors.error }]}>
-                  {errors.bairro.message}
-                </Text>
-              )}
-            </View>
-
-            {/* Cidade */}
-            <View style={styles.fieldGroup}>
-              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
-                Cidade
-              </Text>
-              <Controller
-                control={control}
-                name="cidade"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={[
-                      styles.textInput,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
-                        color: colors.textPrimary,
-                      },
-                    ]}
-                    placeholder="São Paulo"
-                    placeholderTextColor={colors.placeholder}
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                  />
-                )}
-              />
-              {errors.cidade?.message && (
-                <Text style={[styles.fieldError, { color: colors.error }]}>
-                  {errors.cidade.message}
-                </Text>
-              )}
-            </View>
-
-            {/* Estado */}
-            <View style={styles.fieldGroup}>
-              <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
-                Estado
-              </Text>
-              <Controller
-                control={control}
-                name="estado"
-                render={({ field: { onChange, value } }) => (
-                  <EstadoPicker value={value} onChange={onChange} />
-                )}
-              />
-              {errors.estado?.message && (
-                <Text style={[styles.fieldError, { color: colors.error }]}>
-                  {errors.estado.message}
-                </Text>
-              )}
-            </View>
-          </View>
-        )}
-      </View>
+      <OrderFormAddressSection control={control} errors={errors} colors={colors} enderecoDiferente={enderecoDiferente} isBuscandoCep={isBuscandoCep} />
 
       {/* Descrição */}
       <View style={styles.fieldGroup}>
@@ -701,73 +593,16 @@ export function OrderFormContent({
         )}
       </View>
 
-      {/* Imagem/Vídeo (Opcional) */}
-      <View style={styles.fieldGroup}>
-        <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
-          Imagem/Vídeo (Opcional)
-        </Text>
-        <View style={styles.mediaRow}>
-          <Pressable
-            style={[styles.mediaButton, { backgroundColor: colors.surfaceAccent }]}
-            onPress={onPickFromCamera}
-            disabled={isSubmitting || isUploadingMedia}
-          >
-            <IconSymbol name="camera.fill" size={22} color={colors.brand} />
-            <Text style={[styles.mediaButtonText, { color: colors.brand }]}>
-              Câmera
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[styles.mediaButton, { backgroundColor: colors.surfaceAccent }]}
-            onPress={onPickFromGallery}
-            disabled={isSubmitting || isUploadingMedia}
-          >
-            <IconSymbol
-              name="photo.on.rectangle"
-              size={22}
-              color={colors.brand}
-            />
-            <Text style={[styles.mediaButtonText, { color: colors.brand }]}>
-              Galeria
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* Preview das mídias selecionadas */}
-        {mediaUris.length > 0 && (
-          <View style={styles.mediaPreviewRow}>
-            {mediaUris.map((uri, index) => (
-              <View key={uri} style={styles.mediaPreviewItem}>
-                <Image source={{ uri }} style={styles.mediaPreviewImage} />
-                <Pressable
-                  style={[
-                    styles.mediaRemoveBadge,
-                    { backgroundColor: colors.error },
-                  ]}
-                  onPress={() => onRemoveMedia(index)}
-                  disabled={isSubmitting || isUploadingMedia}
-                >
-                  <IconSymbol name="xmark" size={12} color="#fff" />
-                </Pressable>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Estado de upload */}
-        {isUploadingMedia && (
-          <Text style={[styles.mediaStatusText, { color: colors.brand }]}>
-            Enviando imagens...
-          </Text>
-        )}
-
-        {/* Erro de permissão/upload */}
-        {uploadError && (
-          <Text style={[styles.mediaStatusText, { color: colors.error }]}>
-            {uploadError}
-          </Text>
-        )}
-      </View>
+      <OrderFormMediaSection
+        colors={colors}
+        mediaUris={mediaUris}
+        isUploadingMedia={isUploadingMedia}
+        uploadError={uploadError}
+        isSubmitting={isSubmitting}
+        onPickFromCamera={onPickFromCamera}
+        onPickFromGallery={onPickFromGallery}
+        onRemoveMedia={onRemoveMedia}
+      />
 
       {/* Turno disponível */}
       <View style={styles.fieldGroup}>
@@ -847,42 +682,13 @@ export function OrderFormContent({
         </Text>
       ) : null}
 
-      {/* Action buttons */}
-      <View style={styles.actionsRow}>
-        <Pressable
-          style={[
-            styles.actionButton,
-            styles.actionOutline,
-            { borderColor: colors.border },
-          ]}
-          onPress={onClear}
-        >
-          <Text
-            style={[styles.actionButtonText, { color: colors.textSecondary }]}
-          >
-            Limpar
-          </Text>
-        </Pressable>
-        <Pressable
-          style={[
-            styles.actionButton,
-            { backgroundColor: colors.brand },
-            isSubmitting && styles.buttonDisabled,
-          ]}
-          onPress={onSubmit}
-          disabled={isSubmitting}
-        >
-          <Text style={[styles.actionButtonText, { color: colors.onBrand }]}>
-            {isSubmitting
-              ? isEditing
-                ? "Salvando..."
-                : "Criando..."
-              : isEditing
-                ? "Salvar Alterações"
-                : "Criar Pedido"}
-          </Text>
-        </Pressable>
-      </View>
+      <OrderFormActionsRow
+        colors={colors}
+        isSubmitting={isSubmitting}
+        isEditing={isEditing}
+        onClear={onClear}
+        onSubmit={onSubmit}
+      />
 
       {/* Privacy */}
       <Text style={[styles.privacyText, { color: colors.textSecondary }]}>

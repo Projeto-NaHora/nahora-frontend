@@ -10,6 +10,13 @@ import { useDisputaStatus } from "@/features/orders/hooks/useOrders";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
+const handleWithdraw = () => {
+  Alert.alert(
+    "Sucesso",
+    "O saldo foi liberado na sua carteira virtual para transferência.",
+  );
+};
+
 export default function ResolutionProviderScreen() {
   const router = useRouter();
   const { serviceId } = useLocalSearchParams<{ serviceId: string }>();
@@ -20,13 +27,6 @@ export default function ResolutionProviderScreen() {
   const handleGoHome = () => {
     router.dismissAll();
     router.replace("/(professional)/(services)");
-  };
-
-  const handleWithdraw = () => {
-    Alert.alert(
-      "Sucesso",
-      "O saldo foi liberado na sua carteira virtual para transferência.",
-    );
   };
 
   if (isLoading || !disputa?.decisao) {

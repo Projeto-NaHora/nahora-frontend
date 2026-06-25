@@ -1,7 +1,7 @@
 import React from "react";
 import { View,
   Text,
-  ScrollView,ActivityIndicator,
+  ScrollView, FlatList,ActivityIndicator,
   StyleSheet, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -29,6 +29,64 @@ function getPeriodo(iso: string): string {
   if (hora < 12) return "Manhã";
   if (hora < 18) return "Tarde";
   return "Noite";
+}
+
+
+// ── Extracted sub-component ──
+
+function OrderTimeline({
+  activeStage,
+  criadoEm,
+  colors,
+}: {
+  activeStage: number;
+  criadoEm?: string;
+  colors: typeof Colors.light;
+}) {
+  return (
+    <View style={[styles.card, { backgroundColor: colors.background, borderColor: colors.border + "CC" }]}>
+      <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Linha do tempo</Text>
+      {TIMELINE_OPEN.map((item, index) => {
+        const concluido = index < activeStage;
+        const atual = index === activeStage;
+
+        let dotColor = colors.border;
+        let dotBorder = colors.border;
+        if (concluido) {
+          dotColor = colors.success;
+          dotBorder = colors.success;
+        }
+        if (atual) {
+          dotColor = colors.brand;
+          dotBorder = colors.brand;
+        }
+
+        return (
+          <View key={item.label} style={styles.timelineRow}>
+            <View style={styles.timelineDotCol}>
+              <View style={[styles.timelineDot, { backgroundColor: dotColor, borderColor: dotBorder }]} />
+              {index < TIMELINE_OPEN.length - 1 && (
+                <View style={[styles.timelineLine, { backgroundColor: concluido ? colors.success : colors.border }]} />
+              )}
+            </View>
+            <View style={styles.timelineContent}>
+              <Text style={[styles.timelineLabel, { color: concluido || atual ? colors.textPrimary : colors.textSecondary }]}>
+                {item.label}
+              </Text>
+              {index === 0 && criadoEm ? (
+                <Text style={[styles.timelineSub, { color: colors.textSecondary }]}>
+                  {formatDate(criadoEm)} · {formatTime(criadoEm)}
+                </Text>
+              ) : null}
+              {"subtitle" in item && item.subtitle && atual ? (
+                <Text style={[styles.timelineSubActive, { color: colors.brand }]}>{item.subtitle}</Text>
+              ) : null}
+            </View>
+          </View>
+        );
+      })}
+    </View>
+  );
 }
 
 function formatEndereco(endereco: Pedido["endereco"]): string {
@@ -224,109 +282,24 @@ export function OrderDetailOpenContent({
             >
               FOTOS
             </Text>
-            <ScrollView
+            <FlatList
               horizontal
+              data={pedido.fotos}
+              keyExtractor={(uri) => uri}
               showsHorizontalScrollIndicator={false}
               style={styles.photosScroll}
-            >
-              {pedido.fotos.map((uri) => (
+              renderItem={({ item: uri }) => (
                 <Image
-                  key={uri}
                   source={{ uri }}
                   style={[styles.photoThumb, { backgroundColor: colors.surface }]}
                   resizeMode="cover"
                 />
-              ))}
-            </ScrollView>
+              )}
+            />
           </View>
         )}
 
-        {/* Timeline */}
-        <View
-          style={[
-            styles.card,
-            {
-              backgroundColor: colors.background,
-              borderColor: colors.border + "CC",
-            },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-            Linha do tempo
-          </Text>
-          {TIMELINE_OPEN.map((item, index) => {
-            const concluido = index < activeStage;
-            const atual = index === activeStage;
-
-            let dotColor = colors.border;
-            let dotBorder = colors.border;
-            if (concluido) {
-              dotColor = colors.success;
-              dotBorder = colors.success;
-            }
-            if (atual) {
-              dotColor = colors.brand;
-              dotBorder = colors.brand;
-            }
-
-            return (
-              <View key={item.label} style={styles.timelineRow}>
-                <View style={styles.timelineDotCol}>
-                  <View
-                    style={[
-                      styles.timelineDot,
-                      {
-                        backgroundColor: dotColor,
-                        borderColor: dotBorder,
-                      },
-                    ]}
-                  />
-                  {index < TIMELINE_OPEN.length - 1 && (
-                    <View
-                      style={[
-                        styles.timelineLine,
-                        {
-                          backgroundColor: concluido ? colors.success : colors.border,
-                        },
-                      ]}
-                    />
-                  )}
-                </View>
-                <View style={styles.timelineContent}>
-                  <Text
-                    style={[
-                      styles.timelineLabel,
-                      {
-                        color:
-                          concluido || atual
-                            ? colors.textPrimary
-                            : colors.textSecondary,
-                      },
-                    ]}
-                  >
-                    {item.label}
-                  </Text>
-                  {index === 0 && pedido.criadoEm ? (
-                    <Text
-                      style={[
-                        styles.timelineSub,
-                        { color: colors.textSecondary },
-                      ]}
-                    >
-                      {formatDate(pedido.criadoEm)} ·{" "}
-                      {formatTime(pedido.criadoEm)}
-                    </Text>
-                  ) : null}
-                  {"subtitle" in item && item.subtitle && atual ? (
-                    <Text style={[styles.timelineSubActive, { color: colors.brand }]}>
-                      {item.subtitle}
-                    </Text>
-                  ) : null}
-                </View>
-              </View>
-            );
-          })}
-        </View>
+        <OrderTimeline activeStage={activeStage} criadoEm={pedido.criadoEm} colors={colors} />
 
         {/* Action buttons row — hidden for CONCLUIDO */}
         {pedido.status !== "CONCLUIDO" && (

@@ -112,6 +112,121 @@ function detectExceptions(dayGroups: DayGroup[]): Set<string> {
   return exceptions;
 }
 
+// ── Extracted sub-components ──
+
+function CalendarCard({
+  calendarDays,
+  calendarMonth,
+  slotDates,
+  goToPrevMonth,
+  goToNextMonth,
+  theme,
+}: {
+  calendarDays: { cells: (number | null)[]; label: string };
+  calendarMonth: { year: number; month: number };
+  slotDates: Set<string>;
+  goToPrevMonth: () => void;
+  goToNextMonth: () => void;
+  theme: ReturnType<typeof useThemeColors>;
+}) {
+  return (
+    <View style={styles.calendarCardWrapper}>
+      <View style={[styles.calendarCard, { backgroundColor: theme.chat.surfaceLight }]}>
+        <View style={styles.monthSelector}>
+          <Pressable onPress={goToPrevMonth} style={styles.chevron}>
+            <Text style={[styles.chevronText, { color: theme.chat.mutedText }]}>‹</Text>
+          </Pressable>
+          <Text style={[styles.monthLabel, { color: theme.chat.darkText }]}>{calendarDays.label}</Text>
+          <Pressable onPress={goToNextMonth} style={styles.chevron}>
+            <Text style={[styles.chevronText, { color: theme.chat.darkText }]}>›</Text>
+          </Pressable>
+        </View>
+        <View style={styles.weekdayRow}>
+          {WEEKDAYS.map((wd) => (
+            <View key={wd} style={styles.weekdayCell}>
+              <Text style={[styles.weekdayText, { color: theme.chat.mutedText }]}>{wd}</Text>
+            </View>
+          ))}
+        </View>
+        <View style={styles.dayGrid}>
+          {calendarDays.cells.map((day, i) => {
+            if (day === null) return <View key={`empty-${i}`} style={styles.dayCell} />;
+            const dateKey = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            const hasSlot = slotDates.has(dateKey);
+            return (
+              <View key={dateKey} style={styles.dayCell}>
+                <View style={[styles.dayNumber, hasSlot && { backgroundColor: theme.chat.proposalBg, borderRadius: 8 }]}>
+                  <Text style={[styles.dayText, { color: hasSlot ? theme.chat.proposalText : theme.chat.darkText }, hasSlot && styles.dayTextBold]}>
+                    {day}
+                  </Text>
+                </View>
+                {hasSlot && <View style={[styles.dayDot, { backgroundColor: theme.chat.proposalText }]} />}
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function ProposalTimeline({
+  dayGroups,
+  exceptionDays,
+  theme,
+}: {
+  dayGroups: DayGroup[];
+  exceptionDays: Set<string>;
+  theme: ReturnType<typeof useThemeColors>;
+}) {
+  return (
+    <View style={styles.timeSlotSection}>
+      <Text style={[styles.timeSlotHeading, { color: theme.chat.darkText }]}>Resumo dos horários</Text>
+      <View style={styles.timeline}>
+        <View style={[styles.timelineBar, { borderColor: theme.chat.borderSubtle }]}>
+          {dayGroups.map((group, gi) => {
+            const dateKey = group.date.toISOString().slice(0, 10);
+            const isException = exceptionDays.has(dateKey);
+            return (
+              <View key={dateKey} style={styles.timelineGroup}>
+                <View
+                  style={[styles.timelineDot, { backgroundColor: isException ? theme.chat.proposalText : "#d1d5db", borderColor: theme.white }]}
+                />
+                <View style={styles.timelineContent}>
+                  <View style={styles.timelineDateRow}>
+                    <Text style={[styles.timelineDate, { color: isException ? theme.chat.proposalText : theme.chat.darkText }]}>
+                      {formatDateLong(group.date)}
+                    </Text>
+                    {isException && (
+                      <View style={[styles.exceptionBadge, { backgroundColor: theme.chat.proposalBg }]}>
+                        <Text style={[styles.exceptionBadgeText, { color: theme.chat.proposalText }]}>EXCEÇÃO</Text>
+                      </View>
+                    )}
+                  </View>
+                  {group.slots.map((slot, si) => {
+                    const time = formatSlotTime(slot);
+                    if (!time) return null;
+                    const slotIsException = isException || slot.excecao;
+                    return (
+                      <View
+                        key={si}
+                        style={[styles.timeChip, { backgroundColor: slotIsException ? theme.chat.proposalBg : theme.chat.surfaceLight, borderColor: slotIsException ? theme.chat.proposalBorder : theme.chat.borderSubtle }]}
+                      >
+                        <Text style={styles.timeChipIcon}>🕐</Text>
+                        <Text style={[styles.timeChipText, { color: slotIsException ? "#cd7b40" : theme.chat.darkText }]}>{time}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    </View>
+  );
+}
+
 function useThemeColors() {
   const theme = useColorScheme() ?? "light";
   return Colors[theme];
@@ -245,85 +360,14 @@ export function ProposalDetailContent({
           </Text>
         </View>
 
-        {/* Calendar card */}
-        <View style={styles.calendarCardWrapper}>
-          <View
-            style={[
-              styles.calendarCard,
-              { backgroundColor: theme.chat.surfaceLight },
-            ]}
-          >
-            {/* Month selector */}
-            <View style={styles.monthSelector}>
-              <Pressable onPress={goToPrevMonth} style={styles.chevron}>
-                <Text style={[styles.chevronText, { color: theme.chat.mutedText }]}>‹</Text>
-              </Pressable>
-              <Text style={[styles.monthLabel, { color: theme.chat.darkText }]}>
-                {calendarDays.label}
-              </Text>
-              <Pressable onPress={goToNextMonth} style={styles.chevron}>
-                <Text style={[styles.chevronText, { color: theme.chat.darkText }]}>›</Text>
-              </Pressable>
-            </View>
-
-            {/* Weekday labels */}
-            <View style={styles.weekdayRow}>
-              {WEEKDAYS.map((wd) => (
-                <View key={wd} style={styles.weekdayCell}>
-                  <Text style={[styles.weekdayText, { color: theme.chat.mutedText }]}>
-                    {wd}
-                  </Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Day grid */}
-            <View style={styles.dayGrid}>
-              {calendarDays.cells.map((day, i) => {
-                if (day === null) {
-                  return <View key={`empty-${i}`} style={styles.dayCell} />;
-                }
-                const dateKey = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                const hasSlot = slotDates.has(dateKey);
-                return (
-                  <View key={dateKey} style={styles.dayCell}>
-                    <View
-                      style={[
-                        styles.dayNumber,
-                        hasSlot && {
-                          backgroundColor: theme.chat.proposalBg,
-                          borderRadius: 8,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.dayText,
-                          {
-                            color: hasSlot
-                              ? theme.chat.proposalText
-                              : theme.chat.darkText,
-                          },
-                          hasSlot && styles.dayTextBold,
-                        ]}
-                      >
-                        {day}
-                      </Text>
-                    </View>
-                    {hasSlot && (
-                      <View
-                        style={[
-                          styles.dayDot,
-                          { backgroundColor: theme.chat.proposalText },
-                        ]}
-                      />
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        </View>
+        <CalendarCard
+          calendarDays={calendarDays}
+          calendarMonth={calendarMonth}
+          slotDates={slotDates}
+          goToPrevMonth={goToPrevMonth}
+          goToNextMonth={goToNextMonth}
+          theme={theme}
+        />
 
         {/* Divider */}
         <View
@@ -333,118 +377,7 @@ export function ProposalDetailContent({
           ]}
         />
 
-        {/* Time slots section */}
-        <View style={styles.timeSlotSection}>
-          <Text
-            style={[
-              styles.timeSlotHeading,
-              { color: theme.chat.darkText },
-            ]}
-          >
-            Resumo dos horários
-          </Text>
-
-          <View style={styles.timeline}>
-            <View
-              style={[styles.timelineBar, { borderColor: theme.chat.borderSubtle }]}
-            >
-              {dayGroups.map((group, gi) => {
-                const dateKey = group.date.toISOString().slice(0, 10);
-                const isException = exceptionDays.has(dateKey);
-
-                return (
-                  <View key={dateKey} style={styles.timelineGroup}>
-                    {/* Dot on the timeline */}
-                    <View
-                      style={[
-                        styles.timelineDot,
-                        {
-                          backgroundColor: isException
-                            ? theme.chat.proposalText
-                            : "#d1d5db",
-                          borderColor: theme.white,
-                        },
-                      ]}
-                    />
-
-                    {/* Content */}
-                    <View style={styles.timelineContent}>
-                      <View style={styles.timelineDateRow}>
-                        <Text
-                          style={[
-                            styles.timelineDate,
-                            {
-                              color: isException
-                                ? theme.chat.proposalText
-                                : theme.chat.darkText,
-                            },
-                          ]}
-                        >
-                          {formatDateLong(group.date)}
-                        </Text>
-                        {isException && (
-                          <View
-                            style={[
-                              styles.exceptionBadge,
-                              { backgroundColor: theme.chat.proposalBg },
-                            ]}
-                          >
-                            <Text
-                              style={[
-                                styles.exceptionBadgeText,
-                                { color: theme.chat.proposalText },
-                              ]}
-                            >
-                              EXCEÇÃO
-                            </Text>
-                          </View>
-                        )}
-                      </View>
-
-                      {group.slots.map((slot, si) => {
-                        const time = formatSlotTime(slot);
-                        if (!time) return null;
-                        const slotIsException =
-                          isException || slot.excecao;
-
-                        return (
-                          <View
-                            key={si}
-                            style={[
-                              styles.timeChip,
-                              {
-                                backgroundColor: slotIsException
-                                  ? theme.chat.proposalBg
-                                  : theme.chat.surfaceLight,
-                                borderColor: slotIsException
-                                  ? theme.chat.proposalBorder
-                                  : theme.chat.borderSubtle,
-                              },
-                            ]}
-                          >
-                            <Text style={styles.timeChipIcon}>🕐</Text>
-                            <Text
-                              style={[
-                                styles.timeChipText,
-                                {
-                                  color: slotIsException
-                                    ? "#cd7b40"
-                                    : theme.chat.darkText,
-                                },
-                              ]}
-                            >
-                              {time}
-                            </Text>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        </View>
+        <ProposalTimeline dayGroups={dayGroups} exceptionDays={exceptionDays} theme={theme} />
 
         {/* Divider */}
         <View
