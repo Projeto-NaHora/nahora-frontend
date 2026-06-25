@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useEffect } from "react";
+import { useReducer, useEffect } from "react";
 import type { EnderecoResponse, TipoEndereco } from "@/features/profile/types";
 import { buscarCep } from "@/services/cep";
 
@@ -106,7 +106,7 @@ export function useAddressForm(existingAddress?: EnderecoResponse) {
     }
   }, [existingAddress, state.loaded]);
 
-  const handleCepBlur = useCallback(async () => {
+  const handleCepBlur = async () => {
     const digits = state.cep.replace(/\D/g, "");
     if (digits.length !== 8) return;
 
@@ -126,7 +126,7 @@ export function useAddressForm(existingAddress?: EnderecoResponse) {
       // Silently ignore CEP lookup errors
     }
     dispatch({ type: "SET_CEP_BUSCANDO", value: false });
-  }, [state.cep]);
+  };
 
   const isValid =
     isCepComplete(state.cep) &&

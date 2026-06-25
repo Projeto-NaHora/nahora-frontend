@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -14,10 +14,10 @@ export default function IssueSuccessScreen() {
   const router = useRouter();
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
-  const handleGoHome = () => {
+  const handleGoHome = useCallback(() => {
     router.dismissAll();
     router.replace("/(client)/(home)");
-  };
+  }, [router]);
 
   // Bloqueia o botão físico de voltar do Android para não reabrir o formulário
   useEffect(() => {
