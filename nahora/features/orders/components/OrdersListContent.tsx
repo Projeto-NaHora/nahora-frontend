@@ -15,6 +15,20 @@ import FilterChips from "./FilterChips";
 import EmptyOrders from "./EmptyOrders";
 import type { Pedido, FiltroStatus } from "../types";
 
+function handleOrderPress(pedido: Pedido) {
+  if (pedido.status === "AGUARDANDO_VALIDACAO") {
+    router.push(`/(client)/(orders)/${pedido.id}/validation`);
+  } else if (pedido.status === "EM_ANDAMENTO") {
+    router.push(`/(client)/(orders)/${pedido.id}/active`);
+  } else {
+    router.push(`/(client)/(orders)/${pedido.id}`);
+  }
+}
+
+function handleNewOrder() {
+  router.push("/(client)/(orders)/new");
+}
+
 export default function OrdersListContent() {
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
@@ -24,20 +38,6 @@ export default function OrdersListContent() {
   const { data, isLoading, isValidating, error, mutate } = useOrders({
     status: filtro,
   });
-
-  const handleOrderPress = (pedido: Pedido) => {
-    if (pedido.status === "AGUARDANDO_VALIDACAO") {
-      router.push(`/(client)/(orders)/${pedido.id}/validation`);
-    } else if (pedido.status === "EM_ANDAMENTO") {
-      router.push(`/(client)/(orders)/${pedido.id}/active`);
-    } else {
-      router.push(`/(client)/(orders)/${pedido.id}`);
-    }
-  };
-
-  const handleNewOrder = () => {
-    router.push("/(client)/(orders)/new");
-  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -72,9 +72,9 @@ export default function OrdersListContent() {
       <FlatList
         data={data?.content ?? []}
         keyExtractor={(item) => String(item.id)}
+        contentInset={{ bottom: 120 + insets.bottom }}
         contentContainerStyle={{
           paddingHorizontal: 24,
-          paddingBottom: 120 + insets.bottom,
           gap: 16,
         }}
         showsVerticalScrollIndicator={false}

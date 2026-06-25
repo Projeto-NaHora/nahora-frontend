@@ -6,6 +6,61 @@ import { useAuthStore } from "@/store/authStore";
 import { profileService } from "@/features/profile/service";
 import { profileKeys } from "@/features/profile/hooks/useProfile";
 
+function isRemoteUrl(uri: string) {
+  return uri.startsWith("http");
+}
+
+async function saveProfile() {
+  const s = useEditProfileStore.getState();
+
+  const fotoUrl =
+    s.profilePhotoUri && !isRemoteUrl(s.profilePhotoUri)
+      ? await profileService.uploadFoto(s.profilePhotoUri, "PERFIL")
+      : (s.profilePhotoUri ?? undefined);
+
+  const portfolioUrls = await Promise.all(
+    s.portfolioPhotos.map((uri) =>
+      isRemoteUrl(uri) ? uri : profileService.uploadFoto(uri, "PORTIFOLIO"),
+    ),
+  );
+
+  const anos = s.experienceYears ? Number(s.experienceYears) : undefined;
+  const raio = s.raioAtuacaoKm ? Number(s.raioAtuacaoKm) : undefined;
+
+  const perfilAtualizado = await profileService.salvarPerfil({
+    nome: s.nome || undefined,
+    profissao: s.cargo || undefined,
+    anosExperiencia: anos && !Number.isNaN(anos) ? anos : undefined,
+    fotoPerfil: fotoUrl,
+    cep: s.cep || undefined,
+    logradouro: s.logradouro || undefined,
+    numero: s.numero || undefined,
+    complemento: s.complemento || undefined,
+    bairro: s.bairro || undefined,
+    cidade: s.cidade || undefined,
+    estado: s.estado || undefined,
+    raioAtuacaoKm: raio && !Number.isNaN(raio) ? raio : undefined,
+    bio: s.about || undefined,
+    especialidades: s.especialidades.length ? s.especialidades : undefined,
+    categorias: s.categorias.length ? s.categorias : undefined,
+    latitude: s.latitude ?? undefined,
+    longitude: s.longitude ?? undefined,
+    urlsFotosPortfolio: portfolioUrls.length ? portfolioUrls : undefined,
+  });
+
+  // Re-hidrata a store com os dados retornados pelo backend,
+  // garantindo que o portfolio reflita o estado persistido
+  if (perfilAtualizado) {
+    useEditProfileStore.getState().hydrate({
+      portfolioPhotos: perfilAtualizado.portfolio ?? portfolioUrls,
+      profilePhotoUri: perfilAtualizado.foto ?? perfilAtualizado.fotoPerfil ?? fotoUrl,
+    });
+  }
+
+  // Invalida o cache do SWR para forçar o refetch dos dados do perfil
+  await mutate(profileKeys.professionalProfile);
+}
+
 export function useEditProfileForm(opts?: { initialize?: boolean }) {
   const store = useEditProfileStore();
 
@@ -54,57 +109,6 @@ export function useEditProfileForm(opts?: { initialize?: boolean }) {
     };
   }, [opts?.initialize]);
 
-  const saveProfile = async () => {
-    const s = useEditProfileStore.getState();
-
-    const fotoUrl =
-      s.profilePhotoUri && !isRemoteUrl(s.profilePhotoUri)
-        ? await profileService.uploadFoto(s.profilePhotoUri, "PERFIL")
-        : (s.profilePhotoUri ?? undefined);
-
-    const portfolioUrls = await Promise.all(
-      s.portfolioPhotos.map((uri) =>
-        isRemoteUrl(uri) ? uri : profileService.uploadFoto(uri, "PORTIFOLIO"),
-      ),
-    );
-
-    const anos = s.experienceYears ? Number(s.experienceYears) : undefined;
-    const raio = s.raioAtuacaoKm ? Number(s.raioAtuacaoKm) : undefined;
-
-    const perfilAtualizado = await profileService.salvarPerfil({
-      nome: s.nome || undefined,
-      profissao: s.cargo || undefined,
-      anosExperiencia: anos && !Number.isNaN(anos) ? anos : undefined,
-      fotoPerfil: fotoUrl,
-      cep: s.cep || undefined,
-      logradouro: s.logradouro || undefined,
-      numero: s.numero || undefined,
-      complemento: s.complemento || undefined,
-      bairro: s.bairro || undefined,
-      cidade: s.cidade || undefined,
-      estado: s.estado || undefined,
-      raioAtuacaoKm: raio && !Number.isNaN(raio) ? raio : undefined,
-      bio: s.about || undefined,
-      especialidades: s.especialidades.length ? s.especialidades : undefined,
-      categorias: s.categorias.length ? s.categorias : undefined,
-      latitude: s.latitude ?? undefined,
-      longitude: s.longitude ?? undefined,
-      urlsFotosPortfolio: portfolioUrls.length ? portfolioUrls : undefined,
-    });
-
-    // Re-hidrata a store com os dados retornados pelo backend,
-    // garantindo que o portfolio reflita o estado persistido
-    if (perfilAtualizado) {
-      useEditProfileStore.getState().hydrate({
-        portfolioPhotos: perfilAtualizado.portfolio ?? portfolioUrls,
-        profilePhotoUri: perfilAtualizado.foto ?? perfilAtualizado.fotoPerfil ?? fotoUrl,
-      });
-    }
-
-    // Invalida o cache do SWR para forçar o refetch dos dados do perfil
-    await mutate(profileKeys.professionalProfile);
-  };
-
 
   return {
     nome: store.nome,
@@ -152,6 +156,3 @@ export function useEditProfileForm(opts?: { initialize?: boolean }) {
   };
 }
 
-function isRemoteUrl(uri: string) {
-  return uri.startsWith("http");
-}

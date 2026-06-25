@@ -114,6 +114,17 @@ export interface OrderDetailOpenContentProps {
   acceptedProposalId?: number;
 }
 
+function getActiveStage(status: string): number {
+  switch (status) {
+    case "ABERTO": return 1;
+    case "AGUARDANDO_PAGAMENTO": return 1;
+    case "EM_ANDAMENTO": return 2;
+    case "AGUARDANDO_VALIDACAO": return 2;
+    case "CONCLUIDO": return 4;
+    default: return -1;
+  }
+}
+
 export function OrderDetailOpenContent({
   pedido,
   isLoading,
@@ -156,17 +167,6 @@ export function OrderDetailOpenContent({
   // Map order status to active timeline stage.
   // Stages: 0=Pedido criado, 1=Avaliacao de propostas, 2=Servico em andamento, 3=Concluido
   // activeStage = -1 means nothing active (cancelled / disputed)
-  // activeStage = 4 means all stages complete
-  function getActiveStage(status: string): number {
-    switch (status) {
-      case "ABERTO": return 1;
-      case "AGUARDANDO_PAGAMENTO": return 1;
-      case "EM_ANDAMENTO": return 2;
-      case "AGUARDANDO_VALIDACAO": return 2;
-      case "CONCLUIDO": return 4;
-      default: return -1;
-    }
-  }
   const activeStage = getActiveStage(pedido.status);
 
   return (

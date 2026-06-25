@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from "react";
+import { useReducer } from "react";
 import type { EnderecoResponse, TipoEndereco } from "@/features/profile/types";
 import { buscarCep } from "@/services/cep";
 
@@ -54,6 +54,23 @@ const initialState: AddressFormState = {
   loaded: false,
 };
 
+function initFromAddress(addr?: EnderecoResponse): AddressFormState {
+  if (!addr) return initialState;
+  return {
+    tipo: addr.tipo,
+    cep: addr.cep,
+    logradouro: addr.logradouro ?? "",
+    numero: addr.numero ?? "",
+    complemento: addr.complemento ?? "",
+    bairro: addr.bairro ?? "",
+    cidade: addr.cidade ?? "",
+    uf: addr.uf ?? "",
+    padrao: addr.padrao ?? false,
+    cepBuscando: false,
+    loaded: true,
+  };
+}
+
 function addressFormReducer(
   state: AddressFormState,
   action: AddressFormAction,
@@ -97,14 +114,11 @@ function addressFormReducer(
 // ── Hook ────────────────────────────────────────────────────────────────────
 
 export function useAddressForm(existingAddress?: EnderecoResponse) {
-  const [state, dispatch] = useReducer(addressFormReducer, initialState);
-
-  // Single dispatch to initialize from existing address — no cascade
-  useEffect(() => {
-    if (existingAddress && !state.loaded) {
-      dispatch({ type: "INITIALIZE", address: existingAddress });
-    }
-  }, [existingAddress, state.loaded]);
+  const [state, dispatch] = useReducer(
+    addressFormReducer,
+    existingAddress,
+    initFromAddress,
+  );
 
   const handleCepBlur = async () => {
     const digits = state.cep.replace(/\D/g, "");

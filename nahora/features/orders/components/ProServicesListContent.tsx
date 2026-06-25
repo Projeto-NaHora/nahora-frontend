@@ -26,6 +26,21 @@ type Props = {
   onRefresh?: () => void;
 };
 
+function getStatusLabel(status: string): string {
+  switch (status) {
+    case "EM_ANDAMENTO":
+      return "EM ANDAMENTO";
+    case "AGUARDANDO_VALIDACAO":
+      return "AGUARDANDO APROVAÇÃO";
+    case "EM_DISPUTA":
+      return "EM DISPUTA";
+    case "CONCLUIDO":
+      return "CONCLUÍDO";
+    default:
+      return status;
+  }
+}
+
 export const ProServicesListContent: React.FC<Props> = ({
   pedidos,
   isLoading,
@@ -51,20 +66,6 @@ export const ProServicesListContent: React.FC<Props> = ({
     return pedido.status === "CONCLUIDO" || pedido.status === "CANCELADO";
   });
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "EM_ANDAMENTO":
-        return "EM ANDAMENTO";
-      case "AGUARDANDO_VALIDACAO":
-        return "AGUARDANDO APROVAÇÃO";
-      case "EM_DISPUTA":
-        return "EM DISPUTA";
-      case "CONCLUIDO":
-        return "CONCLUÍDO";
-      default:
-        return status;
-    }
-  };
 
   const renderItem = ({ item }: { item: any }) => {
     // Usando os dados exatos do PedidoCardDTO do seu Java

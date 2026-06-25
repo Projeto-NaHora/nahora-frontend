@@ -6,14 +6,15 @@ import { router } from "expo-router";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
+function handleNewOrder() {
+  router.push("/(client)/(orders)/new");
+}
+
 export default function OrdersHeader() {
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 
-  const handleNewOrder = () => {
-    router.push("/(client)/(orders)/new");
-  };
 
   return (
     <View

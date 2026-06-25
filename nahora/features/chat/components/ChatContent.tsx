@@ -20,6 +20,10 @@ interface Props {
   propostaId: number;
 }
 
+function keyExtractor(item: Mensagem | DateSeparatorEntry): string {
+  return "__type" in item ? `sep-${item.date}` : String(item.id);
+}
+
 export function ChatContent({ propostaId }: Props) {
   const router = useRouter();
   const colors = useChatColors();
@@ -57,9 +61,6 @@ export function ChatContent({ propostaId }: Props) {
       <MessageBubble mensagem={item} isOwn={item.remetenteId === userId} />
     );
   };
-
-  const keyExtractor = (item: Mensagem | DateSeparatorEntry) =>
-    "__type" in item ? `sep-${item.date}` : String(item.id);
 
   const handleScroll = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
     if (e.nativeEvent.contentOffset.y < 50 && hasMore && !isLoading) {
