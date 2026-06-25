@@ -219,8 +219,8 @@ export const OrderIssueContent: React.FC<Props> = ({
             showsHorizontalScrollIndicator={false}
             style={styles.photosList}
           >
-            {fotos.map((uri, index) => (
-              <View key={index} style={styles.photoThumbnailContainer}>
+            {fotos.map((uri) => (
+              <View key={uri} style={styles.photoThumbnailContainer}>
                 <Image source={{ uri }} style={styles.photoThumbnail} />
                 <TouchableOpacity
                   style={styles.removePhotoBtn}

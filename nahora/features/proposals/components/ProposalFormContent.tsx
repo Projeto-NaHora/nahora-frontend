@@ -269,7 +269,7 @@ export function ProposalFormContent({
               <View style={[styles.availabilityCard, { borderColor: colors.border, backgroundColor: colors.background }]}>
                 {horarios.map((slot, index) => (
                   <View
-                    key={index}
+                    key={`${slot.inicio}-${slot.fim}`}
                     style={[
                       styles.availabilityRow,
                       index < horarios.length - 1 &&

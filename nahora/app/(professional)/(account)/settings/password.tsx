@@ -240,7 +240,7 @@ export default function PasswordScreen() {
           {REQUIREMENTS.map((req, i) => {
             const met = req.met(form.senhaNova);
             return (
-              <View key={i} style={styles.reqRow}>
+              <View key={req.label} style={styles.reqRow}>
                 <View
                   style={[
                     styles.reqDot,

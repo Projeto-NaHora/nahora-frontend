@@ -146,9 +146,9 @@ export function ProfessionalOrderDetailContent({
             showsHorizontalScrollIndicator={false}
             style={{ marginTop: 12 }}
           >
-            {pedido.fotos.map((uri, index) => (
+            {pedido.fotos.map((uri) => (
               <Image
-                key={index}
+                key={uri}
                 source={{ uri }}
                 style={[styles.photoThumb, { backgroundColor: colors.surface }]}
                 resizeMode="cover"

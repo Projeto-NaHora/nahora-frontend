@@ -143,9 +143,9 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
               showsHorizontalScrollIndicator={false}
               style={{ marginTop: 8 }}
             >
-              {pedido.fotos.map((uri, index) => (
+              {pedido.fotos.map((uri) => (
                 <Image
-                  key={index}
+                  key={uri}
                   source={{ uri }}
                   style={[styles.photoThumb, { backgroundColor: colors.surface }]}
                   resizeMode="cover"
