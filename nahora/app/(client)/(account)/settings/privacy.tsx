@@ -14,7 +14,7 @@ import { router } from "expo-router";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors, Fonts } from "@/constants/theme";
-import { getApiErrorMessage } from "@/utils/apiError";
+import axios from "axios";
 import { profileService } from "@/features/profile/service";
 
 function Row({
@@ -22,13 +22,15 @@ function Row({
   title,
   subtitle,
   colors,
+  onPress,
 }: {
   icon: string;
   title: string;
   subtitle: string;
   colors: any;
+  onPress?: () => void;
 }) {
-  return (
+  const content = (
     <View style={styles.row}>
       <View style={[styles.iconCircle, { backgroundColor: "#f8f9fa" }]}>
         <IconSymbol name={icon as any} size={18} color="#8c8c8c" />
@@ -44,6 +46,19 @@ function Row({
       <IconSymbol name="chevron.right" size={20} color="#c4c4c4" />
     </View>
   );
+
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [pressed && styles.rowPressed]}
+      >
+        {content}
+      </Pressable>
+    );
+  }
+
+  return content;
 }
 
 export default function PrivacyScreen() {
@@ -51,8 +66,11 @@ export default function PrivacyScreen() {
   const colors = Colors[theme];
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const [deleteSenha, setDeleteSenha] = useState("");
   const [deleting, setDeleting] = useState(false);
+
+  const handleComingSoon = () => setShowComingSoon(true);
 
   const openDeleteModal = () => {
     setDeleteSenha("");
@@ -71,10 +89,19 @@ export default function PrivacyScreen() {
       Alert.alert("Conta excluída", "Sua conta foi excluída permanentemente.");
       router.replace("/(auth)/(login)");
     } catch (err: any) {
-      Alert.alert(
-        "Erro",
-        getApiErrorMessage(err, "Não foi possível excluir a conta."),
-      );
+      console.error("[excluirConta]", err?.response?.data);
+      const status = err?.response?.status;
+      let message = "Não foi possível excluir a conta.";
+      if (status === 400) {
+        message = "Senha incorreta.";
+      } else if (status === 409) {
+        message = err?.response?.data?.message || "Você possui pedidos em andamento. Conclua ou cancele todos antes de excluir sua conta.";
+      } else if (status === 500) {
+        message = "Erro interno do servidor. Tente novamente mais tarde ou entre em contato com o suporte.";
+      } else if (axios.isAxiosError(err)) {
+        message = err.response?.data?.message || message;
+      }
+      Alert.alert("Erro", message);
     }
     setDeleting(false);
   };
@@ -116,13 +143,13 @@ export default function PrivacyScreen() {
               { backgroundColor: colors.background, borderColor: "#eaeaea" },
             ]}
           >
-            <Row icon="location-on" title="Localização" subtitle="Necessário para encontrar profissionais próximos" colors={colors} />
+            <Row icon="location-on" title="Localização" subtitle="Necessário para encontrar profissionais próximos" colors={colors} onPress={handleComingSoon} />
             <View style={styles.divider} />
-            <Row icon="magnifyingglass" title="Câmera" subtitle="Para enviar fotos dos serviços" colors={colors} />
+            <Row icon="magnifyingglass" title="Câmera" subtitle="Para enviar fotos dos serviços" colors={colors} onPress={handleComingSoon} />
             <View style={styles.divider} />
-            <Row icon="doc.text.fill" title="Galeria" subtitle="Anexar imagens aos pedidos" colors={colors} />
+            <Row icon="doc.text.fill" title="Galeria" subtitle="Anexar imagens aos pedidos" colors={colors} onPress={handleComingSoon} />
             <View style={styles.divider} />
-            <Row icon="bell.fill" title="Notificações" subtitle="Alertas sobre propostas e serviços" colors={colors} />
+            <Row icon="bell.fill" title="Notificações" subtitle="Alertas sobre propostas e serviços" colors={colors} onPress={handleComingSoon} />
           </View>
         </View>
 
@@ -135,11 +162,11 @@ export default function PrivacyScreen() {
               { backgroundColor: colors.background, borderColor: "#eaeaea" },
             ]}
           >
-            <Row icon="doc.text.fill" title="Termos de Uso" subtitle="" colors={colors} />
+            <Row icon="doc.text.fill" title="Termos de Uso" subtitle="" colors={colors} onPress={handleComingSoon} />
             <View style={styles.divider} />
-            <Row icon="lock" title="Política de Privacidade" subtitle="" colors={colors} />
+            <Row icon="lock" title="Política de Privacidade" subtitle="" colors={colors} onPress={handleComingSoon} />
             <View style={styles.divider} />
-            <Row icon="doc.text.fill" title="Exportar meus dados" subtitle="" colors={colors} />
+            <Row icon="doc.text.fill" title="Exportar meus dados" subtitle="" colors={colors} onPress={handleComingSoon} />
           </View>
         </View>
 
@@ -271,6 +298,27 @@ export default function PrivacyScreen() {
             </View>
           </View>
         </View>
+      </Modal>
+
+      {/* Coming soon modal */}
+      <Modal visible={showComingSoon} transparent animationType="fade" onRequestClose={() => setShowComingSoon(false)} statusBarTranslucent>
+        <Pressable style={StyleSheet.absoluteFill} onPress={() => setShowComingSoon(false)}>
+          <View style={{flex:1, backgroundColor:'rgba(0,0,0,0.5)', justifyContent:'center', alignItems:'center', paddingHorizontal:32}}>
+            <Pressable onPress={() => {}} style={[styles.modalCard, {backgroundColor: colors.background}]}>
+              <View style={[styles.modalIconCircle, {backgroundColor: '#FFF2E5'}]}>
+                <IconSymbol name="clock.fill" size={36} color="#F26F21" />
+              </View>
+              <Text style={[styles.modalTitle, {color: colors.textPrimary}]}>Em breve</Text>
+              <Text style={[styles.modalDescription, {color: colors.textSecondary}]}>Esta funcionalidade estará disponível em uma próxima atualização.</Text>
+              <Pressable
+                onPress={() => setShowComingSoon(false)}
+                style={({pressed}) => [{backgroundColor: '#F26F21', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 48, alignItems: 'center'}, pressed && {opacity: 0.85}]}
+              >
+                <Text style={{color: '#FFFFFF', fontSize: 16, fontWeight: '700'}}>Ok</Text>
+              </Pressable>
+            </Pressable>
+          </View>
+        </Pressable>
       </Modal>
     </View>
   );
