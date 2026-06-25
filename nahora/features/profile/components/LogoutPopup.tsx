@@ -1,6 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import {
-  Animated,
   Modal,
   Pressable,
   StyleSheet,
@@ -25,32 +29,26 @@ export function LogoutPopup({
 }: LogoutPopupProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
-  const backdropRef = useRef<Animated.Value>(null);
-  const sheetRef = useRef<Animated.Value>(null);
-  const backdropOpacity = backdropRef.current ?? (backdropRef.current = new Animated.Value(0));
-  const sheetTranslateY = sheetRef.current ?? (sheetRef.current = new Animated.Value(600));
+  const backdropOpacity = useSharedValue(0);
+  const sheetTranslateY = useSharedValue(600);
 
   useEffect(() => {
     if (visible) {
-      Animated.parallel([
-        // Dissolve do backdrop: fade in de 0 → 0.4
-        Animated.timing(backdropOpacity, {
-          toValue: 0.4,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        // Slide-up da sheet
-        Animated.timing(sheetTranslateY, {
-          toValue: 0,
-          duration: 400,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      backdropOpacity.set(withTiming(0.4, { duration: 300 }));
+      sheetTranslateY.set(withTiming(0, { duration: 400 }));
     } else {
-      backdropOpacity.setValue(0);
-      sheetTranslateY.setValue(600);
+      backdropOpacity.set(0);
+      sheetTranslateY.set(600);
     }
-  }, [visible, backdropOpacity, sheetTranslateY]);
+  }, [visible]); // eslint-disable-line react-doctor/exhaustive-deps — shared values are stable
+
+  const animatedBackdropStyle = useAnimatedStyle(() => ({
+    opacity: backdropOpacity.value,
+  }));
+
+  const animatedSheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: sheetTranslateY.value }],
+  }));
 
   return (
     <Modal
@@ -62,7 +60,7 @@ export function LogoutPopup({
     >
       <View style={styles.overlay}>
         {/* Backdrop com fade-in (dissolve) */}
-        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+        <Animated.View style={[styles.backdrop, animatedBackdropStyle]}>
           <Pressable style={StyleSheet.absoluteFill} onPress={onCancel} />
         </Animated.View>
 
@@ -70,7 +68,8 @@ export function LogoutPopup({
         <Animated.View
           style={[
             styles.sheet,
-            { backgroundColor: colors.background, transform: [{ translateY: sheetTranslateY }] },
+            { backgroundColor: colors.background },
+            animatedSheetStyle,
           ]}
         >
           {/* Ícone */}

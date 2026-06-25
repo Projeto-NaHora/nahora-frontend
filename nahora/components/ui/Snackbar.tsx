@@ -1,6 +1,11 @@
 // components/ui/Snackbar.tsx
 import React, { useEffect, useRef } from "react";
-import { Animated, Text, StyleSheet, Pressable } from "react-native";
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+} from "react-native-reanimated";
+import { Text, StyleSheet, Pressable } from "react-native";
 
 interface SnackbarProps {
   visible: boolean;
@@ -17,47 +22,31 @@ export function Snackbar({
   duration = 3000,
   onDismiss,
 }: SnackbarProps) {
-  const translateY = useRef(new Animated.Value(100)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useSharedValue(100);
+  const opacity = useSharedValue(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Keep latest onDismiss callback without reading/writing refs during render
+  const onDismissRef = useRef(onDismiss);
+  useEffect(() => {
+    onDismissRef.current = onDismiss;
+  });
+
   const hide = () => {
-    Animated.parallel([
-      Animated.timing(translateY, {
-        toValue: 100,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(opacity, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onDismiss();
-    });
+    translateY.set(withTiming(100, { duration: 200 }));
+    opacity.set(withTiming(0, { duration: 200 }));
+    // Fire onDismiss after the hide animation finishes
+    setTimeout(() => onDismissRef.current(), 200);
   };
 
   useEffect(() => {
     if (visible) {
-      // Show
-      Animated.parallel([
-        Animated.timing(translateY, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity, {
-          toValue: 1,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      // Show: animate in
+      translateY.set(withTiming(0, { duration: 250 }));
+      opacity.set(withTiming(1, { duration: 250 }));
 
-      // Auto dismiss
-      timerRef.current = setTimeout(() => {
-        hide();
-      }, duration);
+      // Auto-dismiss
+      timerRef.current = setTimeout(hide, duration);
     } else {
       hide();
     }
@@ -65,19 +54,23 @@ export function Snackbar({
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current);
+        timerRef.current = null;
       }
     };
-  }, [visible, hide, duration]);
+    // react-doctor-disable-next-line react-doctor/exhaustive-deps — translateY.set/opacity.set are stable Reanimated methods; hide is Compiler-memoized
+  }, [visible, duration]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    opacity: opacity.value,
+  }));
 
   return (
     <Animated.View
       style={[
         styles.container,
         isError ? styles.error : styles.success,
-        {
-          transform: [{ translateY }],
-          opacity,
-        },
+        animatedStyle,
       ]}
       pointerEvents={visible ? "auto" : "none"}
     >
