@@ -1,15 +1,15 @@
 // features/notifications/hooks/useNotifications.ts
-import { useCallback, useMemo } from "react";
 import { Alert } from "react-native";
 import { useRouter } from "expo-router";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
+import { useSWRConfig } from "swr";
 
 import { notificationService } from "../service";
 import type { NotificacaoDTO, NotificacoesAgrupadas } from "../types";
 import { useNotifStore } from "@/store/notifStore";
 import { getApiErrorMessage } from "@/utils/apiError";
 
-export const notificationKeys = {
+const notificationKeys = {
   all: "notifications",
 } as const;
 
@@ -37,13 +37,18 @@ function groupByTime(notificacoes: NotificacaoDTO[]): NotificacoesAgrupadas[] {
     else grupos["Anteriores"].push(n);
   }
 
-  return Object.entries(grupos)
-    .filter(([, items]) => items.length > 0)
-    .map(([secao, notificacoes]) => ({ secao, notificacoes }));
+  return Object.entries(grupos).reduce<NotificacoesAgrupadas[]>((acc, [secao, notificacoes]) => {
+    if (notificacoes.length > 0) {
+      acc.push({ secao, notificacoes });
+    }
+    return acc;
+  }, []);
 }
+
 
 export function useNotifications() {
   const router = useRouter();
+  const { mutate } = useSWRConfig();
 
   const {
     data: notificacoes,
@@ -51,18 +56,11 @@ export function useNotifications() {
     error,
   } = useSWR(notificationKeys.all, () => notificationService.listar());
 
-  const agrupadas: NotificacoesAgrupadas[] = useMemo(
-    () => (notificacoes ? groupByTime(notificacoes) : []),
-    [notificacoes],
-  );
+  const agrupadas: NotificacoesAgrupadas[] = notificacoes ? groupByTime(notificacoes) : [];
 
-  const unreadCount = useMemo(
-    () => notificacoes?.filter((n) => !n.lida).length ?? 0,
-    [notificacoes],
-  );
+  const unreadCount = notificacoes?.filter((n) => !n.lida).length ?? 0;
 
-  const handlePress = useCallback(
-    async (notificacao: NotificacaoDTO) => {
+  const handlePress = async (notificacao: NotificacaoDTO) => {
       if (!notificacao.lida) {
         await notificationService.marcarLida(notificacao.id);
         mutate(notificationKeys.all);
@@ -79,19 +77,17 @@ export function useNotifications() {
       } else if (d.profissionalId) {
         router.push(`/(client)/(home)/${d.profissionalId}` as any);
       }
-    },
-    [router],
-  );
+    };
 
-  const handleClearAll = useCallback(async () => {
+  const handleClearAll = async () => {
     try {
       await notificationService.limparTodas();
       mutate(notificationKeys.all, []);
       useNotifStore.getState().clear();
-    } catch {
-      Alert.alert("Erro", getApiErrorMessage(null, "Não foi possível limpar as notificações."));
+    } catch (_) {
+      Alert.alert("Erro", getApiErrorMessage(_, "Não foi possível limpar as notificações."));
     }
-  }, []);
+  };
 
   return {
     notificacoes,
