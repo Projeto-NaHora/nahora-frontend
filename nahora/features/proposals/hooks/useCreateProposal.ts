@@ -200,9 +200,8 @@ export function useCreateProposal(
           });
         }
       }
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   const handleClear = () => {

@@ -82,9 +82,8 @@ export function useMidiasPicker() {
         "Erro ao fazer upload das imagens.",
       );
       setUploadError(message);
-      throw err;
-    } finally {
       setIsUploading(false);
+      throw err;
     }
   };
 

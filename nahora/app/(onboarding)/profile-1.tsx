@@ -164,9 +164,8 @@ export default function Profile1() {
       }
     } catch {
       // silently ignore CEP lookup errors
-    } finally {
-      setCepLoading(false);
     }
+    setCepLoading(false);
   };
 
   const handleContinue = async () => {

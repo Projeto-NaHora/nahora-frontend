@@ -61,9 +61,8 @@ export default function PixPaymentScreen() {
         err?.message ??
         "Erro ao simular pagamento";
       setError(message);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (

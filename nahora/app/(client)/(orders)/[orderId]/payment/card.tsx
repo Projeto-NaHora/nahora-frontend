@@ -55,9 +55,8 @@ export default function CardPaymentScreen() {
         err?.message ??
         "Erro ao processar pagamento";
       setCardError(message);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (

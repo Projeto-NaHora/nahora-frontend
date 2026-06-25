@@ -92,9 +92,8 @@ export default function ProvidersByCategoryScreen() {
       } catch (error) {
         console.error(">>> ERRO FATAL AO LER DADOS DA API:", error);
         setProfessionals([]);
-      } finally {
-        setIsLoading(false);
       }
+      setIsLoading(false);
     }
 
     fetchProfessionals();

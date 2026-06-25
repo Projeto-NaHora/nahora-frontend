@@ -47,14 +47,14 @@ export function useUploadDocuments() {
         selfieComDocumento: selfieResp.url,
       });
 
+      setIsUploading(false);
       return true;
     } catch (error) {
       const parsed = parseApiError(error);
       setErrorMessage(parsed.message);
       setErrorStatus(parsed.statusCode ?? null);
-      return false;
-    } finally {
       setIsUploading(false);
+      return false;
     }
   };
 

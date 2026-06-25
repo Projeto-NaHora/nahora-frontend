@@ -146,9 +146,8 @@ export default function PublicProfile1() {
       }
     } catch {
       // silently ignore
-    } finally {
-      setCepLoading(false);
     }
+    setCepLoading(false);
   };
 
   const handleContinue = async () => {

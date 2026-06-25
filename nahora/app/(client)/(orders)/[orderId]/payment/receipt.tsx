@@ -67,9 +67,8 @@ export default function ReceiptScreen() {
       if (err?.message !== "User did not share") {
         Alert.alert("Erro", "Não foi possível baixar o recibo.");
       }
-    } finally {
-      setDownloadingPdf(false);
     }
+    setDownloadingPdf(false);
   };
 
   return (

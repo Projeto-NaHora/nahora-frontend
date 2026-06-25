@@ -88,9 +88,8 @@ export function useCompleteProfessionalRegistration({ onSuccess }: Options) {
       const parsed = parseApiError(error);
       setErrorMessage(parsed.message);
       setErrorStatus(parsed.statusCode ?? null);
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   return {

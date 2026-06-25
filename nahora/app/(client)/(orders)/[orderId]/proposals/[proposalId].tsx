@@ -58,9 +58,8 @@ export default function DetalhePropostaScreen() {
               });
             } catch {
               Alert.alert("Erro", "Não foi possível aceitar a proposta.");
-            } finally {
-              setLoading(false);
             }
+            setLoading(false);
           },
         },
       ],
@@ -83,9 +82,8 @@ export default function DetalhePropostaScreen() {
               router.back();
             } catch {
               Alert.alert("Erro", "Não foi possível recusar a proposta.");
-            } finally {
-              setLoading(false);
             }
+            setLoading(false);
           },
         },
       ],

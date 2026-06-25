@@ -96,9 +96,8 @@ export default function PasswordScreen() {
         "Erro",
         getApiErrorMessage(err, "Não foi possível alterar a senha."),
       );
-    } finally {
-      setSaving(false);
     }
+    setSaving(false);
   };
 
   return (

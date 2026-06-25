@@ -30,9 +30,8 @@ export default function PedidoEmAndamentoScreen() {
       router.push(`/(client)/(chats)/${conversa.id}`);
     } catch (err) {
       Alert.alert("Erro", "Não foi possível abrir o chat deste serviço.");
-    } finally {
-      setIsOpeningChat(false);
     }
+    setIsOpeningChat(false);
   };
 
   const handleIssue = () => {

@@ -121,9 +121,8 @@ export default function PublicProfile3() {
         setShowSuccess(true);
       } catch {
         Alert.alert("Erro", "Não foi possível salvar as alterações.");
-      } finally {
-        setIsSubmitting(false);
       }
+      setIsSubmitting(false);
     };
   
     const handleSuccessDismiss = () => {

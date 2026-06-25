@@ -115,10 +115,10 @@ export function useLogin() {
         const parsed = parseApiError(error);
         setErrorMessage(parsed.message);
         setErrorStatus(parsed.statusCode ?? null);
-        } finally {
-          setIsLoading(false);
-        }
-      });
+      }
+      setIsLoading(false);
+
+  });
 
   return {
     form,
