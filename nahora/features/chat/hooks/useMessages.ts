@@ -46,7 +46,17 @@ export function useMessages(conversaId: number) {
   const hasMore = data ? !data.last : false;
 
   const appendIncoming = (msg: Mensagem) => {
-    if (seenIds.has(msg.id)) return;
+    if (seenIds.has(msg.id)) {
+      // Status update for already-received message (e.g., ENVIADA → ENTREGUE → LIDA)
+      setAllMessages((prev) => {
+        const idx = prev.findIndex((m) => m.id === msg.id);
+        if (idx === -1) return prev;
+        const updated = [...prev];
+        updated[idx] = { ...updated[idx], status: msg.status };
+        return updated;
+      });
+      return;
+    }
     seenIds.add(msg.id);
     setAllMessages((prev) => [...prev, msg]);
   };
