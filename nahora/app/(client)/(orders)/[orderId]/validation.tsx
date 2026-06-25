@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, Redirect } from "expo-router";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
 import { OrderDetailValidationContent } from "@/features/orders/components/OrderDetailValidationContent";
 
@@ -13,6 +13,11 @@ export default function PedidoAguardandoValidacaoScreen() {
 
   // Estado local de loading para os botões (evitar duplo clique)
   const [isConfirming, setIsConfirming] = useState(false);
+
+  // Redireciona se o pedido entrou em disputa
+  if (pedido?.status === "EM_DISPUTA") {
+    return <Redirect href={`/(client)/(orders)/${orderId}/issue/analysis`} />;
+  }
 
   const handleConfirm = () => {
     router.push(`/(client)/(orders)/${pedidoId}/complete`);

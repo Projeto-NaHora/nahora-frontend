@@ -32,13 +32,10 @@ export default function PedidoCompleteScreen() {
               // 1. Chama a API para fechar o pedido e liberar pagamento
               await orderService.confirmarConclusao(pedidoId);
 
-              // 2. Limpa a pilha de navegação (evita que o usuário volte para cá)
-              router.dismissAll();
-
-              // 3. Atualiza o cache do pedido para refletir o novo status
+              // 2. Invalida SWR cache do pedido para refletir novo status
               mutate(ordersKeys.detail(pedidoId));
 
-              // 4. Redireciona para a tela de avaliação
+              // 3. Redireciona para a tela de avaliação
               router.replace(`/(client)/(orders)/${pedidoId}/rating`);
             } catch (err) {
               Alert.alert(

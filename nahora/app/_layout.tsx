@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Stack, useRouter, useSegments, useRootNavigationState } from "expo-router";
 import { SWRConfig } from "swr";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -19,16 +19,15 @@ export default function RootLayout() {
   const segments = useSegments();
   const router = useRouter();
   const navigationState = useRootNavigationState();
-  const restoringRef = useRef(true);
+  const [isRestoring, setIsRestoring] = useState(true);
 
   useEffect(() => {
-    restoreSession().finally(() => { restoringRef.current = false; });
+    restoreSession().finally(() => { setIsRestoring(false); });
   }, [restoreSession]);
 
   useEffect(() => {
-    if (restoringRef.current) return;
+    if (isRestoring) return;
     if (!navigationState?.key) return;
-    if (!segments[0]) return;
 
     const inAuthGroup = segments[0] === "(auth)";
     const inClientGroup = segments[0] === "(client)";
@@ -77,6 +76,7 @@ export default function RootLayout() {
       console.warn("[AuthGuard] tipo desconhecido:", user.tipo);
     }
   }, [
+    isRestoring,
     user,
     accessToken,
     segments,
@@ -95,6 +95,7 @@ export default function RootLayout() {
         }}
       >
         <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(client)" />
           <Stack.Screen name="(professional)" />
