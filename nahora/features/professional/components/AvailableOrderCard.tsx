@@ -1,5 +1,5 @@
 // features/professional/components/AvailableOrderCard.tsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useReducer } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -32,18 +32,17 @@ function computeTimeAgo(iso: string): string {
 }
 
 function useRelativeTime(iso: string | undefined, intervalMs = 30000) {
-  const [label, setLabel] = useState(() => computeTimeAgo(iso ?? ""));
+  // Simple counter to force periodic re-renders — Compiler-safe
+  const [, tick] = useReducer((x: number) => x + 1, 0);
 
   useEffect(() => {
     if (!iso) return;
-    setLabel(computeTimeAgo(iso));
-    const timer = setInterval(() => {
-      setLabel(computeTimeAgo(iso));
-    }, intervalMs);
+    const timer = setInterval(() => tick(), intervalMs);
     return () => clearInterval(timer);
   }, [iso, intervalMs]);
 
-  return label;
+  // Derive the label during render — no state + effect mirroring needed
+  return computeTimeAgo(iso ?? "");
 }
 
 export function AvailableOrderCard({

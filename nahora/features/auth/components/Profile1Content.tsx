@@ -104,6 +104,15 @@ function ProfilePhotoSection({
   );
 }
 
+type AddressValidity = {
+  cep: boolean;
+  logradouro: boolean;
+  numero: boolean;
+  bairro: boolean;
+  cidade: boolean;
+  estado: boolean;
+};
+
 function ProfileAddressFields({
   colors,
   cep,
@@ -116,12 +125,7 @@ function ProfileAddressFields({
   cepLoading,
   touched,
   fieldBorder,
-  isCepValid,
-  isLogradouroValid,
-  isNumeroValid,
-  isBairroValid,
-  isCidadeValid,
-  isEstadoValid,
+  validity,
   onChangeCep,
   onChangeLogradouro,
   onChangeNumero,
@@ -144,12 +148,7 @@ function ProfileAddressFields({
   cepLoading: boolean;
   touched: TouchedFields;
   fieldBorder: (field: keyof TouchedFields, valid: boolean) => string;
-  isCepValid: boolean;
-  isLogradouroValid: boolean;
-  isNumeroValid: boolean;
-  isBairroValid: boolean;
-  isCidadeValid: boolean;
-  isEstadoValid: boolean;
+  validity: AddressValidity;
   onChangeCep: (value: string) => void;
   onChangeLogradouro: (value: string) => void;
   onChangeNumero: (value: string) => void;
@@ -178,7 +177,7 @@ function ProfileAddressFields({
             )}
           </View>
           <TextInput
-            style={[styles.input, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("cep", isCepValid) }]}
+            style={[styles.input, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("cep", validity.cep) }]}
             placeholder="00000-000"
             placeholderTextColor={colors.placeholder}
             value={formatCep(cep)}
@@ -188,7 +187,7 @@ function ProfileAddressFields({
             maxLength={9}
           />
         </View>
-        {touched.cep && !isCepValid && (
+        {touched.cep && !validity.cep && (
           <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>CEP deve ter 8 dígitos</Text>
         )}
       </View>
@@ -197,7 +196,7 @@ function ProfileAddressFields({
         <View style={styles.fieldGroupExpanded}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>Logradouro</Text>
           <TextInput
-            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("logradouro", isLogradouroValid) }]}
+            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("logradouro", validity.logradouro) }]}
             placeholder="Rua / Avenida"
             placeholderTextColor={colors.placeholder}
             value={logradouro}
@@ -208,7 +207,7 @@ function ProfileAddressFields({
         <View style={styles.fieldGroupNarrow}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>Número</Text>
           <TextInput
-            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("numero", isNumeroValid) }]}
+            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("numero", validity.numero) }]}
             placeholder="123"
             placeholderTextColor={colors.placeholder}
             value={numero}
@@ -234,7 +233,7 @@ function ProfileAddressFields({
         <View style={styles.fieldGroupHalf}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>Bairro</Text>
           <TextInput
-            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("bairro", isBairroValid) }]}
+            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("bairro", validity.bairro) }]}
             placeholder="Bairro"
             placeholderTextColor={colors.placeholder}
             value={bairro}
@@ -245,7 +244,7 @@ function ProfileAddressFields({
         <View style={styles.fieldGroupHalf}>
           <Text style={[styles.label, { color: colors.textPrimary }]}>Cidade</Text>
           <TextInput
-            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("cidade", isCidadeValid) }]}
+            style={[styles.inputSimple, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("cidade", validity.cidade) }]}
             placeholder="Cidade"
             placeholderTextColor={colors.placeholder}
             value={cidade}
@@ -258,7 +257,7 @@ function ProfileAddressFields({
       <View style={styles.fieldGroup}>
         <Text style={[styles.label, { color: colors.textPrimary }]}>Estado</Text>
         <TextInput
-          style={[styles.inputSimple, { width: 80 }, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("estado", isEstadoValid) }]}
+          style={[styles.inputSimple, { width: 80 }, { color: colors.textPrimary, backgroundColor: colors.surface, borderColor: fieldBorder("estado", validity.estado) }]}
           placeholder="UF"
           placeholderTextColor={colors.placeholder}
           value={estado}
@@ -267,7 +266,7 @@ function ProfileAddressFields({
           maxLength={2}
           autoCapitalize="characters"
         />
-        {touched.estado && !isEstadoValid && (
+        {touched.estado && !validity.estado && (
           <Text style={[styles.fieldError, { color: colors.error ?? "#dc2626" }]}>Use a sigla do estado (ex: SP)</Text>
         )}
       </View>
@@ -605,12 +604,14 @@ export function Profile1Content({
           cepLoading={cepLoading}
           touched={touched}
           fieldBorder={fieldBorder}
-          isCepValid={isCepValid}
-          isLogradouroValid={isLogradouroValid}
-          isNumeroValid={isNumeroValid}
-          isBairroValid={isBairroValid}
-          isCidadeValid={isCidadeValid}
-          isEstadoValid={isEstadoValid}
+          validity={{
+            cep: isCepValid,
+            logradouro: isLogradouroValid,
+            numero: isNumeroValid,
+            bairro: isBairroValid,
+            cidade: isCidadeValid,
+            estado: isEstadoValid,
+          }}
           onChangeCep={onChangeCep}
           onChangeLogradouro={onChangeLogradouro}
           onChangeNumero={onChangeNumero}

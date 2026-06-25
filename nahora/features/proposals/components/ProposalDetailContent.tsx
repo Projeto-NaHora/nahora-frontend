@@ -149,21 +149,28 @@ function CalendarCard({
           ))}
         </View>
         <View style={styles.dayGrid}>
-          {calendarDays.cells.map((day, i) => {
-            if (day === null) return <View key={`empty-${i}`} style={styles.dayCell} />;
-            const dateKey = `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-            const hasSlot = slotDates.has(dateKey);
-            return (
-              <View key={dateKey} style={styles.dayCell}>
-                <View style={[styles.dayNumber, hasSlot && { backgroundColor: theme.chat.proposalBg, borderRadius: 8 }]}>
-                  <Text style={[styles.dayText, { color: hasSlot ? theme.chat.proposalText : theme.chat.darkText }, hasSlot && styles.dayTextBold]}>
-                    {day}
-                  </Text>
+          {(() => {
+            const entries = calendarDays.cells.map((day, idx) => ({
+              key: day === null
+                ? `empty-${calendarMonth.year}-${calendarMonth.month}-${idx}`
+                : `${calendarMonth.year}-${String(calendarMonth.month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`,
+              day,
+            }));
+            return entries.map(({ key, day }) => {
+              if (day === null) return <View key={key} style={styles.dayCell} />;
+              const hasSlot = slotDates.has(key);
+              return (
+                <View key={key} style={styles.dayCell}>
+                  <View style={[styles.dayNumber, hasSlot && { backgroundColor: theme.chat.proposalBg, borderRadius: 8 }]}>
+                    <Text style={[styles.dayText, { color: hasSlot ? theme.chat.proposalText : theme.chat.darkText }, hasSlot && styles.dayTextBold]}>
+                      {day}
+                    </Text>
+                  </View>
+                  {hasSlot && <View style={[styles.dayDot, { backgroundColor: theme.chat.proposalText }]} />}
                 </View>
-                {hasSlot && <View style={[styles.dayDot, { backgroundColor: theme.chat.proposalText }]} />}
-              </View>
-            );
-          })}
+              );
+            });
+          })()}
         </View>
       </View>
     </View>

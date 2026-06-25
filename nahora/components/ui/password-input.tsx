@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Pressable, TextInput, View, type TextInputProps } from "react-native";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 
@@ -33,13 +33,9 @@ export function PasswordInput({
   iconColor = DEFAULT_ICON_COLOR,
   ...props
 }: PasswordInputProps) {
-  const [realValue, setRealValue] = useState(value ?? "");
+  const realValue = value ?? "";
   const [showPassword, setShowPassword] = useState(false);
 
-  // Sync from external (e.g. form.reset(), initial value)
-  useEffect(() => {
-    setRealValue(value ?? "");
-  }, [value]);
 
   const displayValue = showPassword
     ? realValue
@@ -51,13 +47,11 @@ export function PasswordInput({
       if (text.length < oldLen) {
         // Backspace / selection-delete → trim from end
         const newValue = realValue.slice(0, text.length);
-        setRealValue(newValue);
         onChangeText?.(newValue);
       } else if (text.length > oldLen) {
         // Typing or pasting at the end → append new characters
         const added = text.slice(oldLen);
         const newValue = realValue + added;
-        setRealValue(newValue);
         onChangeText?.(newValue);
       }
       // Same length  → in-place edit, safely ignored

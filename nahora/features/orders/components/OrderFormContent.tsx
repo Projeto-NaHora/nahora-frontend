@@ -197,19 +197,27 @@ function OrderFormActionsRow({
   );
 }
 
-type OrderFormContentProps = {
-  control: Control<CriarPedidoFormValues>;
+type OrderFormFlags = {
+  /** Se true, o formulário está sendo enviado */
   isSubmitting: boolean;
   /** Se true, está consultando o CEP na API ViaCEP */
   isBuscandoCep: boolean;
+  /** Se true, usar endereço diferente */
   enderecoDiferente: boolean;
+  /** Se true, está fazendo upload para o servidor */
+  isUploadingMedia: boolean;
+  /** Se true, exibe UI de edicao ao inves de criacao */
+  isEditing: boolean;
+};
+
+type OrderFormContentProps = {
+  control: Control<CriarPedidoFormValues>;
+  flags: OrderFormFlags;
   errorMessage: string | null;
   /** Erros de validação do react-hook-form (Zod + backend) */
   errors: FieldErrors<CriarPedidoFormValues>;
   /** URIs locais das mídias selecionadas (para preview) */
   mediaUris: string[];
-  /** Se true, está fazendo upload para o servidor */
-  isUploadingMedia: boolean;
   /** Mensagem de erro de permissão ou upload */
   uploadError: string | null;
   /** Abre a câmera */
@@ -220,8 +228,6 @@ type OrderFormContentProps = {
   onRemoveMedia: (index: number) => void;
   onSubmit: () => void;
   onClear: () => void;
-  /** Se true, exibe UI de edicao ao inves de criacao */
-  isEditing?: boolean;
 };
 
 /** Dropdown/picker for Tipo */
@@ -408,21 +414,18 @@ function EstadoPicker({
 
 export function OrderFormContent({
   control,
-  isSubmitting,
-  isBuscandoCep,
-  enderecoDiferente,
+  flags,
   errorMessage,
   errors,
   mediaUris,
-  isUploadingMedia,
   uploadError,
   onPickFromCamera,
   onPickFromGallery,
   onRemoveMedia,
   onSubmit,
   onClear,
-  isEditing = false,
 }: OrderFormContentProps) {
+  const { isSubmitting, isBuscandoCep, enderecoDiferente, isUploadingMedia, isEditing = false } = flags;
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
 

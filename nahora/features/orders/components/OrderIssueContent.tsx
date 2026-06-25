@@ -4,8 +4,8 @@ import { View,
   StyleSheet,ScrollView, FlatList,
   TextInput,
   ActivityIndicator,
-  Image,
   Alert, Pressable } from "react-native";
+import { Image } from "expo-image";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
@@ -217,7 +217,7 @@ export const OrderIssueContent: React.FC<Props> = ({
             showsHorizontalScrollIndicator={false}
             style={styles.photosList}
             renderItem={({ item: uri, index }) => (
-              <View key={uri} style={styles.photoThumbnailContainer}>
+              <View style={styles.photoThumbnailContainer}>
                 <Image source={{ uri }} style={styles.photoThumbnail} />
                 <Pressable
                   style={styles.removePhotoBtn}

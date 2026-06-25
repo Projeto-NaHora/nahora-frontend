@@ -16,24 +16,24 @@ import { loginSchema } from "../types";
 async function withRetry<T>(
   fn: () => Promise<T>,
   maxAttempts: number,
+  attempt = 1,
 ): Promise<T> {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      return await fn();
-    } catch (err: unknown) {
-      if (attempt >= maxAttempts) throw err;
+  try {
+    return await fn();
+  } catch (err: unknown) {
+    if (attempt >= maxAttempts) throw err;
 
-      // Only retry on network errors (no response) or server errors (5xx).
-      const status =
-        err && typeof err === "object" && "response" in err
-          ? (err as { response: { status: number } }).response?.status
-          : null;
+    // Only retry on network errors (no response) or server errors (5xx).
+    const status =
+      err && typeof err === "object" && "response" in err
+        ? (err as { response: { status: number } }).response?.status
+        : null;
 
-      if (status !== null && status < 500) throw err;
+    if (status !== null && status < 500) throw err;
 
-      const delay = Math.min(1000 * Math.pow(2, attempt - 1), 4000);
-      await new Promise((resolve) => setTimeout(resolve, delay));
-    }
+    const delay = Math.min(1000 * Math.pow(2, attempt - 1), 4000);
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    return withRetry(fn, maxAttempts, attempt + 1);
   }
 }
 

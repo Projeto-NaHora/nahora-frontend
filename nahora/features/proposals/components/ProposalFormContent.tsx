@@ -114,7 +114,7 @@ function ScheduleModal({
             <>
               <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Selecione a data</Text>
               <DateTimePicker
-                value={new Date()}
+                value={nowDate}
                 mode="date"
                 display={Platform.OS === "ios" ? "inline" : "default"}
                 minimumDate={today}
@@ -134,7 +134,7 @@ function ScheduleModal({
                 <Text style={[styles.modalTurnoHint, { color: colors.brand }]}>Turno: {turnoLabel} ({turnoTimeHint})</Text>
               )}
               <DateTimePicker
-                value={modalState.selectedDate ? new Date(modalState.selectedDate) : new Date()}
+                value={modalState.selectedDate ? new Date(modalState.selectedDate) : nowDate}
                 mode="time"
                 display={Platform.OS === "ios" ? "spinner" : "default"}
                 onChange={(_event, time) => { if (time) onSelectStartTime(time); }}
@@ -154,7 +154,7 @@ function ScheduleModal({
             <>
               <Text style={[styles.modalTitle, { color: colors.textPrimary }]}>Horario de termino</Text>
               <DateTimePicker
-                value={modalState.selectedStart ? new Date(modalState.selectedStart) : new Date()}
+                value={modalState.selectedStart ? new Date(modalState.selectedStart) : nowDate}
                 mode="time"
                 display={Platform.OS === "ios" ? "spinner" : "default"}
                 onChange={(_event, time) => { if (time) onSelectEndTime(time); }}
@@ -201,6 +201,8 @@ function ScheduleModal({
     </Modal>
   );
 }
+
+const nowDate = new Date();
 
 export function ProposalFormContent({
   pedido,

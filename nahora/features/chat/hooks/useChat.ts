@@ -57,8 +57,9 @@ export function useChat(
       }
     });
     return unsub;
-  }, [onEcho, onMessage]);
+  }, []); // dispatch & chatWsManager are stable
 
+  // react-doctor-disable-next-line react-doctor/exhaustive-deps — timeoutRef.current intentionally read at cleanup time for latest value
   useEffect(() => {
     if (!conversaId) return;
 

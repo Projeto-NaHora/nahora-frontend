@@ -61,13 +61,16 @@ function TestHarness({
   return (
     <OrderFormContent
       control={control}
-      isSubmitting={isSubmitting}
-      isBuscandoCep={isBuscandoCep}
-      enderecoDiferente={enderecoDiferente}
+      flags={{
+        isSubmitting,
+        isBuscandoCep,
+        enderecoDiferente,
+        isUploadingMedia,
+        isEditing: false,
+      }}
       errorMessage={errorMessage}
       errors={errors as any}
       mediaUris={mediaUris}
-      isUploadingMedia={isUploadingMedia}
       uploadError={uploadError}
       onPickFromCamera={onPickFromCamera}
       onPickFromGallery={onPickFromGallery}

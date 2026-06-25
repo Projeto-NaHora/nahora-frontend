@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useSWRConfig } from "swr";
@@ -121,15 +121,14 @@ export function useCreateOrderForm(editId?: number) {
   const {
     control,
     handleSubmit,
-    watch,
     setValue,
     setError,
     reset,
     formState: { errors },
   } = form;
 
-  const enderecoDiferente = watch("enderecoDiferente");
-  const cepValue = watch("cep");
+  const enderecoDiferente = useWatch({ control, name: "enderecoDiferente" });
+  const cepValue = useWatch({ control, name: "cep" });
 
   // Carrega pedido existente para edicao
   const editIdNum = editId ?? 0;
@@ -172,7 +171,6 @@ export function useCreateOrderForm(editId?: number) {
     if (digits.length !== 8) return;
 
     let cancelled = false;
-    setIsBuscandoCep(true);
 
     buscarCep(digits)
       .then((endereco) => {
@@ -200,6 +198,11 @@ export function useCreateOrderForm(editId?: number) {
       .finally(() => {
         if (!cancelled) setIsBuscandoCep(false);
       });
+
+    // Defer loading state to microtask — avoids synchronous setState in effect body
+    queueMicrotask(() => {
+      if (!cancelled) setIsBuscandoCep(true);
+    });
 
     return () => {
       cancelled = true;
@@ -323,9 +326,8 @@ export function useCreateOrderForm(editId?: number) {
           });
         }
       }
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   const handleClear = () => {

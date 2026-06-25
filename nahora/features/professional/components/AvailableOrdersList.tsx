@@ -83,9 +83,9 @@ export function AvailableOrdersList({ onPressPedido }: AvailableOrdersListProps)
       <FlatList
         data={pedidos}
         keyExtractor={(item) => String(item.id)}
+        contentInset={{ bottom: 40 + insets.bottom }}
         contentContainerStyle={{
           paddingHorizontal: 20,
-          paddingBottom: 40 + insets.bottom,
           gap: 12,
         }}
         showsVerticalScrollIndicator={false}

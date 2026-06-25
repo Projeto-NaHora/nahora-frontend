@@ -152,11 +152,11 @@ export const ProOrderDetailActiveContent: React.FC<Props> = ({
               ]}
             />
             <View
-              style={[
+              style={
                 isAguardando || isConcluido
                   ? { backgroundColor: colors.success, position: "absolute", left: 7, top: 18, bottom: -24, width: 2, zIndex: 1 }
-                  : { backgroundColor: colors.border, position: "absolute", left: 7, top: 18, bottom: -24, width: 2, zIndex: 1 },
-              ]}
+                  : { backgroundColor: colors.border, position: "absolute", left: 7, top: 18, bottom: -24, width: 2, zIndex: 1 }
+              }
             />
             <View style={styles.timelineTextContainer}>
               <Text
