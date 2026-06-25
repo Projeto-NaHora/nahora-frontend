@@ -2,6 +2,8 @@ import React from "react";
 import { View, Text,StyleSheet, Pressable } from "react-native";
 import { useChatColors } from "@/hooks/use-chat-colors";
 
+const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
 interface Props {
   valorProposta: number;
   statusProposta?: string;
@@ -27,10 +29,7 @@ export function ProposalBanner({
   if (statusProposta !== "PENDENTE" && statusProposta !== "ACEITA") return null;
 
   const label = STATUS_LABELS[statusProposta ?? ""] ?? "PROPOSTA EM ANDAMENTO";
-  const formattedValue = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(valorProposta);
+  const formattedValue = currencyFormatter.format(valorProposta);
 
   return (
     <View

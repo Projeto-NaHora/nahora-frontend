@@ -4,6 +4,8 @@ import { Image } from "expo-image";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors } from "@/constants/theme";
 
+const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
 interface PixQrCodeCardProps {
   qrCodeBase64: string;
   copiaCola: string;
@@ -25,10 +27,7 @@ export function PixQrCodeCard({
     }
   };
 
-  const formatted = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(valor);
+  const formatted = currencyFormatter.format(valor);
 
   return (
     <View>
