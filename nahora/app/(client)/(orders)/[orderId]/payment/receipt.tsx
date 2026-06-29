@@ -12,6 +12,10 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ReceiptCard } from "@/features/payments/components/ReceiptCard";
 import { paymentsService } from "@/features/payments/service";
+import { mutate } from "swr";
+import { ordersKeys } from "@/features/orders/types";
+
+
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
@@ -73,6 +77,18 @@ export default function ReceiptScreen() {
     }
   };
 
+  const handleGoToOrder = () => {
+    if (orderId) {
+      mutate(ordersKeys.detail(orderId), () => undefined, { revalidate: true });
+      mutate(ordersKeys.meusServicos);
+
+      // Volta para a raiz do pedido (o index.tsx dentro de [orderId])
+      router.replace(`/(client)/(orders)/${orderId}`);
+    } else {
+      router.replace("/(client)/(home)");
+    }
+  };
+
   const handleDownloadPdf = async () => {
     if (!orderId) {
       Alert.alert("Erro", "Pedido não identificado para gerar recibo.");
@@ -104,7 +120,7 @@ export default function ReceiptScreen() {
         <View style={styles.headerLeft} />
         <View style={styles.headerCenter} />
         <Pressable
-          onPress={() => router.replace("/(client)/(home)")}
+          onPress={handleGoToOrder}
           style={styles.closeButton}
         >
           <Text style={styles.closeIcon}>✕</Text>
@@ -154,7 +170,7 @@ export default function ReceiptScreen() {
 
       {/* Home link */}
       <View style={styles.homeLink}>
-        <Pressable onPress={() => router.replace("/(client)/(home)")}>
+        <Pressable onPress={handleGoToOrder}>
           <Text style={styles.homeLinkText}>Voltar para o Início</Text>
         </Pressable>
       </View>
