@@ -187,7 +187,7 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
             <View
               style={[
                 styles.timelineDot,
-                isEmDisputa ? { backgroundColor: "#EF4444" } : styles.dotOrange,
+                isEmDisputa ? { backgroundColor: "#EF4444" } : { backgroundColor: "#F97316" },
               ]}
             />
             <View style={styles.timelineLineInactive} />
@@ -242,6 +242,7 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
               <Pressable
                 style={[
                   styles.primaryButton,
+                  { backgroundColor: colors.brand },
                   isOpeningChat && { opacity: 0.7 },
                 ]}
                 onPress={onChat}
@@ -257,7 +258,7 @@ export const OrderDetailActiveContent: React.FC<Props> = ({
                       color="#FFFFFF"
                       style={{ marginRight: 8 }}
                     />
-                    <Text style={styles.primaryButtonText}>
+                    <Text style={[styles.primaryButtonText, { color: "#FFFFFFF" }]}>
                       Falar com profissional
                     </Text>
                   </>
