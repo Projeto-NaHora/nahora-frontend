@@ -1,11 +1,7 @@
-import { useEffect, useState, useCallback, useRef, useReducer } from "react";
+import { useEffect, useState, useRef, useReducer } from "react";
 import { chatWsManager } from "../stompClient";
 import type { ConnectionStatus } from "../stompClient";
 import type { Mensagem } from "../types";
-
-const IA_BLOCK_TIMEOUT = 3000;
-
-// ── Connection state reducer (one dispatch instead of 3 cascading setStates) ─
 
 interface ConnectionState {
   status: ConnectionStatus;
@@ -13,13 +9,13 @@ interface ConnectionState {
 }
 
 type ConnectionAction =
-  | { type: "SET_STATUS"; status: ConnectionStatus }
-  | { type: "SET_CONNECTED" }
-  | { type: "SET_DISCONNECTED"; error: string | null };
+    | { type: "SET_STATUS"; status: ConnectionStatus }
+    | { type: "SET_CONNECTED" }
+    | { type: "SET_DISCONNECTED"; error: string | null };
 
 function connectionReducer(
-  state: ConnectionState,
-  action: ConnectionAction,
+    state: ConnectionState,
+    action: ConnectionAction,
 ): ConnectionState {
   switch (action.type) {
     case "SET_STATUS":
@@ -32,18 +28,24 @@ function connectionReducer(
 }
 
 export function useChat(
-  conversaId: number,
-  onMessage?: (msg: Mensagem) => void,
-  onEcho?: (conteudo: string) => void,
+    conversaId: number,
+    onMessage?: (msg: Mensagem) => void,
+    onEcho?: (conteudo: string) => void,
 ) {
   const [conn, dispatch] = useReducer(connectionReducer, {
     status: chatWsManager.connectionStatus,
     error: chatWsManager.lastError,
   });
+
   const [isSending, setIsSending] = useState(false);
   const [iaBlocked, setIaBlocked] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastSentRef = useRef<string | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Refs sempre atualizados, sem forçar re-subscribe
+  const onMessageRef = useRef(onMessage);
+  const onEchoRef = useRef(onEcho);
+  useEffect(() => { onMessageRef.current = onMessage; }, [onMessage]);
+  useEffect(() => { onEchoRef.current = onEcho; }, [onEcho]);
 
   useEffect(() => {
     dispatch({ type: "SET_STATUS", status: chatWsManager.connectionStatus });
@@ -57,9 +59,8 @@ export function useChat(
       }
     });
     return unsub;
-  }, []); // dispatch & chatWsManager are stable
+  }, []);
 
-  // react-doctor-disable-next-line react-doctor/exhaustive-deps — timeoutRef.current intentionally read at cleanup time for latest value
   useEffect(() => {
     if (!conversaId) return;
 
@@ -68,62 +69,48 @@ export function useChat(
     }
 
     chatWsManager.subscribe(conversaId, (msg: Mensagem) => {
-      const isEcho =
-        lastSentRef.current &&
-        timeoutRef.current &&
-        msg.conteudo === lastSentRef.current;
+      setIsSending(false);
 
-      if (isEcho) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-        lastSentRef.current = null;
-        setIsSending(false);
-        // Notifica que o echo chegou → status pode transicionar para ENTREGUE
-        onEcho?.(msg.conteudo);
-        // Não chama onMessage para evitar duplicação (echo já representa
-        // a mensagem que entrará na lista com status ENVIADA do backend)
-        return;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
       }
 
-      onMessage?.(msg);
+      onMessageRef.current?.(msg);
+      onEchoRef.current?.(msg.conteudo);
     });
 
     return () => {
       chatWsManager.unsubscribe(conversaId);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
       }
     };
-  }, [conversaId, onEcho, onMessage]);
+  }, [conversaId]); // <- só depende do conversaId agora
 
   const sendMessage = (conteudo: string, anexoUrl?: string) => {
     if (!conversaId || !conteudo.trim()) return;
 
     setIsSending(true);
-    lastSentRef.current = conteudo;
 
-    timeoutRef.current = setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       setIsSending(false);
       setIaBlocked(true);
-      timeoutRef.current = null;
-      lastSentRef.current = null;
-    }, IA_BLOCK_TIMEOUT);
+      timerRef.current = null;
+    }, 3000);
 
     const sent = chatWsManager.send(conversaId, conteudo.trim(), anexoUrl);
     if (!sent) {
       setIsSending(false);
       setIaBlocked(true);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
       }
-      lastSentRef.current = null;
     }
   };
 
-  const isConnected =
-    conn.status === "CONNECTED";
+  const isConnected = conn.status === "CONNECTED";
 
   return {
     connectionStatus: conn.status,
