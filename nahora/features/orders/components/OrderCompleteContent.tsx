@@ -15,6 +15,7 @@ type Props = {
   onBack: () => void;
   onConfirm: () => void;
   isConfirming: boolean;
+  isDisputing?: boolean;
   onDispute: () => void;
 };
 
@@ -35,6 +36,7 @@ export const OrderCompleteContent: React.FC<Props> = ({
   onBack,
   onConfirm,
   isConfirming,
+  isDisputing,
   onDispute,
 }) => {
   const theme = useColorScheme() ?? "light";
@@ -134,9 +136,13 @@ export const OrderCompleteContent: React.FC<Props> = ({
         <Pressable
           style={styles.secondaryButton}
           onPress={onDispute}
-          disabled={isConfirming}
+          disabled={isConfirming || isDisputing}
         >
-          <Text style={styles.secondaryButtonText}>Contestar conclusão</Text>
+          {isDisputing ? (
+            <ActivityIndicator color="#DC2626" />
+          ) : (
+            <Text style={styles.secondaryButtonText}>Contestar conclusão</Text>
+          )}
         </Pressable>
       </View>
     </SafeAreaView>

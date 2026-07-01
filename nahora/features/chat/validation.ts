@@ -134,13 +134,15 @@ function contemPalavrao(texto: string): boolean {
   return PALAVROES_BLOQUEADOS.some((palavra) => {
     // Palavras com * são tratadas como curinga (ex.: "caralh*" casa "caralho", "caralhos")
     if (palavra.includes("*")) {
+      const palavraNormalizada = normalizarSemAcento(palavra);
       const regex = new RegExp(
-        palavra.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\\\*/g, "\\S*"),
+        palavraNormalizada.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\\\*/g, "\\S*"),
         "i",
       );
       return regex.test(normalizado);
     }
-    return normalizado.includes(palavra);
+    const palavraNormalizada = normalizarSemAcento(palavra);
+    return normalizado.includes(palavraNormalizada);
   });
 }
 

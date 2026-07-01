@@ -16,11 +16,16 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Colors, Fonts } from "@/constants/theme";
 import { getApiErrorMessage } from "@/utils/apiError";
 import { profileService } from "@/features/profile/service";
+import { useThemeStore } from "@/store/themeStore";
+import { useBiometria } from "@/hooks/useBiometria";
 import type { PreferenciasNotificacao } from "@/features/profile/types";
 
 export default function Screen() {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
+  const themeMode = useThemeStore((s) => s.mode);
+  const setThemeMode = useThemeStore((s) => s.setMode);
+  const { isAvailable: biometryAvailable, isEnabled: biometryEnabled, isChecking: biometryChecking, setEnabled: setBiometryEnabled } = useBiometria();
 
   const {
     data: prefs,
@@ -99,6 +104,48 @@ export default function Screen() {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
       >
+        {/* Aparência */}
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>APARÊNCIA</Text>
+          <View
+            style={[
+              styles.card,
+              {
+                backgroundColor: colors.background,
+                borderColor: "#eaeaea",
+              },
+            ]}
+          >
+            <ThemeRow
+              icon="sun.max.fill"
+              title="Claro"
+              subtitle="Tema claro permanente"
+              selected={themeMode === "light"}
+              onPress={() => setThemeMode("light")}
+              colors={colors}
+              isLast={false}
+            />
+            <ThemeRow
+              icon="moon.fill"
+              title="Escuro"
+              subtitle="Tema escuro permanente"
+              selected={themeMode === "dark"}
+              onPress={() => setThemeMode("dark")}
+              colors={colors}
+              isLast={false}
+            />
+            <ThemeRow
+              icon="gearshape.fill"
+              title="Sistema"
+              subtitle="Acompanha o tema do dispositivo"
+              selected={themeMode === "system"}
+              onPress={() => setThemeMode("system")}
+              colors={colors}
+              isLast
+            />
+          </View>
+        </View>
+
         {/* Notificações */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>NOTIFICAÇÕES DE PREFERÊNCIAS</Text>
@@ -187,12 +234,13 @@ export default function Screen() {
                   Autenticação Biométrica
                 </Text>
                 <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>
-                  Use Face ID para logar
+                  {biometryAvailable ? "Use Face ID / Touch ID para logar" : "Não disponível neste dispositivo"}
                 </Text>
               </View>
               <Switch
-                value={false}
-                disabled
+                value={biometryEnabled}
+                onValueChange={setBiometryEnabled}
+                disabled={!biometryAvailable || biometryChecking}
                 trackColor={{ false: "#d1d5db", true: "#e67215" }}
                 thumbColor="#ffffff"
               />
@@ -201,6 +249,53 @@ export default function Screen() {
         </View>
       </ScrollView>
     </View>
+  );
+}
+
+function ThemeRow({
+  icon,
+  title,
+  subtitle,
+  selected,
+  onPress,
+  colors,
+  isLast,
+}: {
+  icon: string;
+  title: string;
+  subtitle: string;
+  selected: boolean;
+  onPress: () => void;
+  colors: any;
+  isLast: boolean;
+}) {
+  return (
+    <>
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+      >
+        <View style={[styles.iconCircle, { backgroundColor: "#f8f9fa" }]}>
+          <IconSymbol name={icon as any} size={18} color="#8c8c8c" />
+        </View>
+        <View style={styles.rowContent}>
+          <Text style={[styles.rowTitle, { color: selected ? colors.brand : colors.textPrimary }]}>
+            {title}
+          </Text>
+          <Text style={[styles.rowSubtitle, { color: colors.textSecondary }]}>
+            {subtitle}
+          </Text>
+        </View>
+        {selected ? (
+          <IconSymbol name="checkmark" size={20} color={colors.brand} />
+        ) : (
+          <View style={{ width: 20 }} />
+        )}
+      </Pressable>
+      {!isLast && (
+        <View style={[styles.divider, { backgroundColor: "#eaeaea" }]} />
+      )}
+    </>
   );
 }
 

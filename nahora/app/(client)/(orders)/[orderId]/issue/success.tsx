@@ -5,12 +5,16 @@ import { View,
 import { Feather } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { mutate } from "swr";
+import { ordersKeys } from "@/features/orders/types";
 
 export default function IssueSuccessScreen() {
   const router = useRouter();
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
   const goHome = () => {
+    const id = Number(orderId);
+    mutate(ordersKeys.detail(id));
     router.dismissAll();
     router.replace("/(client)/(home)");
   };
@@ -18,6 +22,8 @@ export default function IssueSuccessScreen() {
   // Bloqueia o botão físico de voltar do Android para não reabrir o formulário
   useEffect(() => {
     const onBackPress = () => {
+      const id = Number(orderId);
+      mutate(ordersKeys.detail(id));
       router.dismissAll();
       router.replace("/(client)/(home)");
       return true;

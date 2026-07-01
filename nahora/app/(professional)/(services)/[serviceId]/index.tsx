@@ -228,6 +228,11 @@ export default function ProServiceDetailScreen() {
                 {pedido.avaliacaoNota}/5
               </Text>
             </View>
+            {(pedido as any).avaliacaoComentario ? (
+              <Text style={[styles.commentText, { color: colors.textSecondary }]}>
+                "{(pedido as any).avaliacaoComentario}"
+              </Text>
+            ) : null}
           </View>
         )}
       </ScrollView>
@@ -428,6 +433,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginLeft: 8,
+  },
+  commentText: {
+    fontSize: 14,
+    fontStyle: "italic",
+    marginTop: 8,
+    lineHeight: 20,
   },
 
   // Footer

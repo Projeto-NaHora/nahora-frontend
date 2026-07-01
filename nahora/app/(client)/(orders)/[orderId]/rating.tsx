@@ -1,8 +1,9 @@
 import React from "react";
-import { ActivityIndicator, View, StyleSheet } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { ActivityIndicator, View, StyleSheet, Alert } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { mutate } from "swr";
 import { useOrderDetail } from "@/features/orders/hooks/useOrders";
+import { ordersKeys } from "@/features/orders/types";
 import { avaliacaoService } from "@/features/ratings/service";
 import { RatingForm } from "@/features/ratings/components/RatingForm";
 
@@ -26,6 +27,7 @@ function formatDate(iso: string): string {
 export default function ClientRatingScreen() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
   const pedidoId = Number(orderId);
+  const router = useRouter();
 
   const { data: pedido, isLoading } = useOrderDetail(pedidoId);
 
@@ -50,8 +52,12 @@ export default function ClientRatingScreen() {
       data={""}
       papel="CLIENTE"
       onSubmit={async ({ nota, comentario, tags }) => {
-        await avaliacaoService.criar(pedidoId, { nota, comentario, tags });
-        await mutate(`avaliacao-pedido-${pedidoId}`);
+        await avaliacaoService.criar(pedidoId, {
+          nota,
+          comentario: comentario.trim() || undefined,
+          tags,
+        });
+        await mutate(ordersKeys.detail(pedidoId));
       }}
     />
   );

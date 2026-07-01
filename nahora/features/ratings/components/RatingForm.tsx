@@ -8,6 +8,7 @@ import { View,
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import axios from "axios";
 import type { TagAvaliacao } from "@/types/enums";
 import {
   TAGS_PARA_CLIENTE,
@@ -57,6 +58,7 @@ export function RatingForm({
   const [comentario, setComentario] = useState("");
   const [tagsSelecionadas, setTagsSelecionadas] = useState<TagAvaliacao[]>([]);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const tagsDisponiveis =
     papel === "PROFISSIONAL" ? TAGS_PARA_CLIENTE : TAGS_PARA_PROFISSIONAL;
@@ -72,6 +74,7 @@ export function RatingForm({
       : "/(client)/(orders)";
 
   const goHome = () => {
+    setSubmitStatus("idle");
     router.replace(homeRoute);
   };
 
@@ -89,13 +92,20 @@ export function RatingForm({
     try {
       await onSubmit({ nota, comentario, tags: tagsSelecionadas });
       setSubmitStatus("success");
-    } catch {
+    } catch (err) {
+      console.error("[RatingForm] Submit error:", (err as any)?.response?.data);
+      const message =
+        axios.isAxiosError(err) && err.response?.data?.message
+          ? err.response.data.message
+          : null;
+      setErrorMessage(message);
       setSubmitStatus("error");
     }
   };
 
   const handleRetry = () => {
     setSubmitStatus("idle");
+    setErrorMessage(null);
   };
 
   const desabilitado = submitStatus === "submitting";
@@ -273,8 +283,8 @@ export function RatingForm({
             </View>
             <Text style={[styles.modalTitle, { color: colors.text }]}>Ops, algo deu errado!</Text>
             <Text style={[styles.modalMessage, { color: colors.textSecondary }]}>
-              Não foi possível enviar sua avaliação. Verifique sua conexão e
-              tente novamente.
+              {errorMessage ??
+                "Não foi possível enviar sua avaliação. Verifique sua conexão e tente novamente."}
             </Text>
             <Pressable
               style={[styles.modalButton, { backgroundColor: colors.brand }]}

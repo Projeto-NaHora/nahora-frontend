@@ -27,7 +27,6 @@ jest.mock("@/features/orders/hooks/useCreateOrderForm", () => ({
       removeMedia: jest.fn(),
       uploadAll: jest.fn(),
     },
-    isEditing: false,
     onSubmit: jest.fn(),
     handleClear: jest.fn(),
   }),
@@ -40,7 +39,6 @@ jest.mock("@/features/orders/components/OrderFormContent", () => ({
 const mockBack = jest.fn();
 jest.mock("expo-router", () => ({
   useRouter: () => ({ back: mockBack, push: jest.fn() }),
-  useLocalSearchParams: () => ({}),
 }));
 
 describe("NewOrderScreen", () => {

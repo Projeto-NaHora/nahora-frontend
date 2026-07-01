@@ -1,7 +1,7 @@
 // features/orders/hooks/useOrders.ts
 import useSWR from "swr";
 import { disputaService, orderService } from "../service";
-import { STATUS_FILTER_MAP } from "../types";
+import { STATUS_FILTER_MAP, ordersKeys } from "../types";
 import type { FiltroStatus } from "../types";
 
 interface UseOrdersParams {
@@ -14,9 +14,7 @@ export function useOrders(params: UseOrdersParams = {}) {
   const { status = "TODOS", page = 0, size = 20 } = params;
   const statusParam = STATUS_FILTER_MAP[status];
 
-  const key = statusParam
-    ? `meus-pedidos?status=${statusParam}&page=${page}&size=${size}`
-    : `meus-pedidos?page=${page}&size=${size}`;
+  const key = ordersKeys.list(statusParam ?? undefined, page, size);
 
   return useSWR(key, () =>
     orderService.listarMeusPedidos(statusParam || undefined, page, size),
@@ -32,7 +30,7 @@ export const useAvailableOrders = () => {
 
 export const useDisputaStatus = (pedidoId: number | null) => {
   const { data, error, mutate, isLoading } = useSWR(
-    pedidoId ? `/disputas/pedido/${pedidoId}` : null,
+    pedidoId ? ordersKeys.disputa(pedidoId) : null,
     () => disputaService.buscarStatusPorPedido(pedidoId!),
   );
 
@@ -45,20 +43,22 @@ export const useDisputaStatus = (pedidoId: number | null) => {
 };
 
 export const useProOrders = () => {
-  // No SWR, passamos a chave (pode ser a rota) e o fetcher (a função que chama a API)
   const { data, error, mutate, isValidating } = useSWR(
-    "/pedidos/meus-servicos",
+    ordersKeys.meusServicos,
     () => orderService.listarMeusServicos(),
   );
 
   return {
     data,
-    isLoading: !data && !error, // Se não tem dados e não tem erro, está carregando
+    isLoading: !data && !error,
     isError: error,
     mutate,
   };
 };
 
 export function useOrderDetail(id: number) {
-  return useSWR(id ? `order-${id}` : null, () => orderService.buscarPorId(id));
+  return useSWR(
+    id ? ordersKeys.detail(id) : null,
+    () => orderService.buscarPorId(id),
+  );
 }

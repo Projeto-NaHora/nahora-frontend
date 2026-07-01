@@ -37,6 +37,7 @@ export interface Pedido {
   profissionalAtribuidoId?: number | null;
   profissionalAtribuidoNome?: string | null;
   avaliacaoNota?: number | null;
+  avaliacaoComentario?: string | null;
   pagamento?: PagamentoResumo | null;
 }
 
@@ -96,6 +97,17 @@ export interface CriarPedidoPayload {
   orcamentoEstimado?: number;
   /** ISO datetime string (LocalDateTime no backend) */
   dataDesejada: string;
+}
+
+/** Espelha com.nahora.dto.request.PedidoEditarRequest — campos editaveis */
+export interface EditarPedidoPayload {
+  descricao: string;
+  fotos?: string[];
+  dataDesejada: string;
+  categoria?: CategoriaServico;
+  urgencia?: Urgencia;
+  endereco?: EnderecoRequest;
+  enderecoId?: number;
 }
 
 /** Valores do formulario de criacao de pedido */
@@ -232,3 +244,6 @@ export const STATUS_FILTER_MAP: Record<FiltroStatus, string> = {
   EM_ANDAMENTO: "AGUARDANDO_PAGAMENTO,EM_ANDAMENTO,AGUARDANDO_VALIDACAO",
   CONCLUIDOS: "CONCLUIDO,CANCELADO,EM_DISPUTA",
 };
+
+// Re-export cache keys
+export { ordersKeys } from "./cacheKeys";

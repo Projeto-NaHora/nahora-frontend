@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import {
   ActivityIndicator,
+  FlatList,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
-  Modal,
-  FlatList,
 } from "react-native";
 import { Image } from "expo-image";
 import { Controller, type Control, type FieldErrors } from "react-hook-form";
@@ -26,7 +26,7 @@ import {
 
 // ── Extracted sub-components ──
 
-function OrderFormAddressSection({
+function OrderEditFormAddressSection({
   control,
   errors,
   colors,
@@ -40,79 +40,259 @@ function OrderFormAddressSection({
   isBuscandoCep: boolean;
 }) {
   return (
-    <View style={[styles.addressToggleCard, { backgroundColor: colors.surface + "50", borderColor: colors.border }]}>
+    <View
+      style={[
+        styles.addressToggleCard,
+        { backgroundColor: colors.surface + "50", borderColor: colors.border },
+      ]}
+    >
       <Controller
         control={control}
         name="enderecoDiferente"
         render={({ field: { onChange, value } }) => (
-          <Pressable style={styles.checkboxRow} onPress={() => onChange(!value)}>
-            <View style={[styles.checkbox, value ? { backgroundColor: colors.brand, borderColor: colors.brand } : { backgroundColor: colors.background, borderColor: colors.border }]}>
-              {value && <IconSymbol name="chevron.left" size={14} color="#fff" />}
+          <Pressable
+            style={styles.checkboxRow}
+            onPress={() => onChange(!value)}
+          >
+            <View
+              style={[
+                styles.checkbox,
+                value
+                  ? {
+                      backgroundColor: colors.brand,
+                      borderColor: colors.brand,
+                    }
+                  : {
+                      backgroundColor: colors.background,
+                      borderColor: colors.border,
+                    },
+              ]}
+            >
+              {value && (
+                <IconSymbol name="chevron.left" size={14} color="#fff" />
+              )}
             </View>
-            <Text style={[styles.checkboxLabel, { color: colors.textPrimary }]}>Usar endereço diferente do meu{"\n"}endereço padrão</Text>
+            <Text style={[styles.checkboxLabel, { color: colors.textPrimary }]}>
+              Usar endereço diferente do meu{"\n"}endereço padrão
+            </Text>
           </Pressable>
         )}
       />
       {enderecoDiferente && (
         <View style={styles.enderecoSection}>
           <View style={styles.fieldGroup}>
-            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>CEP</Text>
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+              CEP
+            </Text>
             <View style={styles.cepRow}>
               <Controller
                 control={control}
                 name="cep"
                 render={({ field: { onChange, onBlur, value } }) => {
                   const digits = (value || "").replace(/\D/g, "");
-                  const display = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5, 8)}` : digits;
+                  const display =
+                    digits.length > 5
+                      ? `${digits.slice(0, 5)}-${digits.slice(5, 8)}`
+                      : digits;
                   return (
-                    <TextInput style={[styles.textInput, styles.cepInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="00000-000" placeholderTextColor={colors.placeholder} keyboardType="numeric" maxLength={9} editable={!isBuscandoCep} onBlur={onBlur} onChangeText={(text) => onChange(text.replace(/\D/g, ""))} value={display} />
+                    <TextInput
+                      style={[
+                        styles.textInput,
+                        styles.cepInput,
+                        {
+                          backgroundColor: colors.surface,
+                          borderColor: colors.border,
+                          color: colors.textPrimary,
+                        },
+                      ]}
+                      placeholder="00000-000"
+                      placeholderTextColor={colors.placeholder}
+                      keyboardType="numeric"
+                      maxLength={9}
+                      editable={!isBuscandoCep}
+                      onBlur={onBlur}
+                      onChangeText={(text) => onChange(text.replace(/\D/g, ""))}
+                      value={display}
+                    />
                   );
                 }}
               />
-              {isBuscandoCep && <ActivityIndicator size="small" color={colors.brand} />}
+              {isBuscandoCep && (
+                <ActivityIndicator size="small" color={colors.brand} />
+              )}
             </View>
-            {errors.cep?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.cep.message}</Text>}
+            {errors.cep?.message && (
+              <Text style={[styles.fieldError, { color: colors.error }]}>
+                {errors.cep.message}
+              </Text>
+            )}
           </View>
           <View style={styles.fieldGroup}>
-            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Logradouro</Text>
-            <Controller control={control} name="logradouro" render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput style={[styles.textInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="Rua..." placeholderTextColor={colors.placeholder} onBlur={onBlur} onChangeText={onChange} value={value} />
-            )} />
-            {errors.logradouro?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.logradouro.message}</Text>}
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+              Logradouro
+            </Text>
+            <Controller
+              control={control}
+              name="logradouro"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: colors.border,
+                      color: colors.textPrimary,
+                    },
+                  ]}
+                  placeholder="Rua..."
+                  placeholderTextColor={colors.placeholder}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+            {errors.logradouro?.message && (
+              <Text style={[styles.fieldError, { color: colors.error }]}>
+                {errors.logradouro.message}
+              </Text>
+            )}
           </View>
           <View style={styles.fieldGroup}>
-            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Número</Text>
-            <Controller control={control} name="numero" render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput style={[styles.textInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="123" placeholderTextColor={colors.placeholder} onBlur={onBlur} onChangeText={onChange} value={value} />
-            )} />
-            {errors.numero?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.numero.message}</Text>}
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+              Número
+            </Text>
+            <Controller
+              control={control}
+              name="numero"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: colors.border,
+                      color: colors.textPrimary,
+                    },
+                  ]}
+                  placeholder="123"
+                  placeholderTextColor={colors.placeholder}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+            {errors.numero?.message && (
+              <Text style={[styles.fieldError, { color: colors.error }]}>
+                {errors.numero.message}
+              </Text>
+            )}
           </View>
           <View style={styles.fieldGroup}>
-            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Complemento</Text>
-            <Controller control={control} name="complemento" render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput style={[styles.textInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="Apto, bloco..." placeholderTextColor={colors.placeholder} onBlur={onBlur} onChangeText={onChange} value={value} />
-            )} />
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+              Complemento
+            </Text>
+            <Controller
+              control={control}
+              name="complemento"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: colors.border,
+                      color: colors.textPrimary,
+                    },
+                  ]}
+                  placeholder="Apto, bloco..."
+                  placeholderTextColor={colors.placeholder}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
           </View>
           <View style={styles.fieldGroup}>
-            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Bairro</Text>
-            <Controller control={control} name="bairro" render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput style={[styles.textInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="Centro" placeholderTextColor={colors.placeholder} onBlur={onBlur} onChangeText={onChange} value={value} />
-            )} />
-            {errors.bairro?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.bairro.message}</Text>}
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+              Bairro
+            </Text>
+            <Controller
+              control={control}
+              name="bairro"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: colors.border,
+                      color: colors.textPrimary,
+                    },
+                  ]}
+                  placeholder="Centro"
+                  placeholderTextColor={colors.placeholder}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+            {errors.bairro?.message && (
+              <Text style={[styles.fieldError, { color: colors.error }]}>
+                {errors.bairro.message}
+              </Text>
+            )}
           </View>
           <View style={styles.fieldGroup}>
-            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Cidade</Text>
-            <Controller control={control} name="cidade" render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput style={[styles.textInput, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.textPrimary }]} placeholder="São Paulo" placeholderTextColor={colors.placeholder} onBlur={onBlur} onChangeText={onChange} value={value} />
-            )} />
-            {errors.cidade?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.cidade.message}</Text>}
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+              Cidade
+            </Text>
+            <Controller
+              control={control}
+              name="cidade"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: colors.border,
+                      color: colors.textPrimary,
+                    },
+                  ]}
+                  placeholder="São Paulo"
+                  placeholderTextColor={colors.placeholder}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+            {errors.cidade?.message && (
+              <Text style={[styles.fieldError, { color: colors.error }]}>
+                {errors.cidade.message}
+              </Text>
+            )}
           </View>
           <View style={styles.fieldGroup}>
-            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Estado</Text>
-            <Controller control={control} name="estado" render={({ field: { onChange, value } }) => (
-              <EstadoPicker value={value} onChange={onChange} />
-            )} />
-            {errors.estado?.message && <Text style={[styles.fieldError, { color: colors.error }]}>{errors.estado.message}</Text>}
+            <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+              Estado
+            </Text>
+            <Controller
+              control={control}
+              name="estado"
+              render={({ field: { onChange, value } }) => (
+                <EstadoPicker value={value} onChange={onChange} />
+              )}
+            />
+            {errors.estado?.message && (
+              <Text style={[styles.fieldError, { color: colors.error }]}>
+                {errors.estado.message}
+              </Text>
+            )}
           </View>
         </View>
       )}
@@ -120,7 +300,7 @@ function OrderFormAddressSection({
   );
 }
 
-function OrderFormMediaSection({
+function OrderEditFormMediaSection({
   colors,
   mediaUris,
   existingUrls,
@@ -148,15 +328,39 @@ function OrderFormMediaSection({
 
   return (
     <View style={styles.fieldGroup}>
-      <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>Imagens do pedido</Text>
+      <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
+        Imagens do pedido
+      </Text>
       <View style={styles.mediaRow}>
-        <Pressable style={[styles.mediaButton, { backgroundColor: colors.surfaceAccent }]} onPress={onPickFromCamera} disabled={isSubmitting || isUploadingMedia}>
+        <Pressable
+          style={[
+            styles.mediaButton,
+            { backgroundColor: colors.surfaceAccent },
+          ]}
+          onPress={onPickFromCamera}
+          disabled={isSubmitting || isUploadingMedia}
+        >
           <IconSymbol name="camera.fill" size={22} color={colors.brand} />
-          <Text style={[styles.mediaButtonText, { color: colors.brand }]}>Câmera</Text>
+          <Text style={[styles.mediaButtonText, { color: colors.brand }]}>
+            Câmera
+          </Text>
         </Pressable>
-        <Pressable style={[styles.mediaButton, { backgroundColor: colors.surfaceAccent }]} onPress={onPickFromGallery} disabled={isSubmitting || isUploadingMedia}>
-          <IconSymbol name="photo.on.rectangle" size={22} color={colors.brand} />
-          <Text style={[styles.mediaButtonText, { color: colors.brand }]}>Galeria</Text>
+        <Pressable
+          style={[
+            styles.mediaButton,
+            { backgroundColor: colors.surfaceAccent },
+          ]}
+          onPress={onPickFromGallery}
+          disabled={isSubmitting || isUploadingMedia}
+        >
+          <IconSymbol
+            name="photo.on.rectangle"
+            size={22}
+            color={colors.brand}
+          />
+          <Text style={[styles.mediaButtonText, { color: colors.brand }]}>
+            Galeria
+          </Text>
         </Pressable>
       </View>
       {hasAnyMedia && (
@@ -165,93 +369,98 @@ function OrderFormMediaSection({
           {urls.map((url, index) => (
             <View key={`existing-${index}`} style={styles.mediaPreviewItem}>
               <Image source={{ uri: url }} style={styles.mediaPreviewImage} />
-              <Pressable style={[styles.mediaRemoveBadge, { backgroundColor: colors.brand }]} onPress={() => onRemoveExistingUrl(index)} disabled={isSubmitting || isUploadingMedia}>
+              <Pressable
+                style={[
+                  styles.mediaRemoveBadge,
+                  { backgroundColor: colors.brand },
+                ]}
+                onPress={() => onRemoveExistingUrl?.(index)}
+                disabled={isSubmitting || isUploadingMedia}
+              >
                 <IconSymbol name="xmark" size={12} color="#fff" />
               </Pressable>
             </View>
           ))}
           {/* URIs locais novas */}
           {mediaUris.map((uri, index) => (
-            <View key={`new-${index}`} style={[styles.mediaPreviewItem, styles.mediaPreviewItemNew]}>
+            <View
+              key={`new-${index}`}
+              style={[styles.mediaPreviewItem, styles.mediaPreviewItemNew]}
+            >
               <Image source={{ uri }} style={styles.mediaPreviewImage} />
-              <Pressable style={[styles.mediaRemoveBadge, { backgroundColor: colors.error }]} onPress={() => onRemoveMedia(index)} disabled={isSubmitting || isUploadingMedia}>
+              <Pressable
+                style={[
+                  styles.mediaRemoveBadge,
+                  { backgroundColor: colors.error },
+                ]}
+                onPress={() => onRemoveMedia(index)}
+                disabled={isSubmitting || isUploadingMedia}
+              >
                 <IconSymbol name="xmark" size={12} color="#fff" />
               </Pressable>
             </View>
           ))}
         </View>
       )}
-      {isUploadingMedia && <Text style={[styles.mediaStatusText, { color: colors.brand }]}>Enviando imagens...</Text>}
-      {uploadError && <Text style={[styles.mediaStatusText, { color: colors.error }]}>{uploadError}</Text>}
+      {isUploadingMedia && (
+        <Text style={[styles.mediaStatusText, { color: colors.brand }]}>
+          Enviando imagens...
+        </Text>
+      )}
+      {uploadError && (
+        <Text style={[styles.mediaStatusText, { color: colors.error }]}>
+          {uploadError}
+        </Text>
+      )}
     </View>
   );
 }
 
-function OrderFormActionsRow({
+function OrderEditFormActionsRow({
   colors,
   isSubmitting,
-  isEditing,
   onClear,
   onSubmit,
 }: {
   colors: typeof Colors.light;
   isSubmitting: boolean;
-  isEditing: boolean;
   onClear: () => void;
   onSubmit: () => void;
 }) {
   return (
     <View style={styles.actionsRow}>
-      <Pressable style={[styles.actionButton, styles.actionOutline, { borderColor: colors.border }]} onPress={onClear}>
-        <Text style={[styles.actionButtonText, { color: colors.textSecondary }]}>Limpar</Text>
+      <Pressable
+        style={[
+          styles.actionButton,
+          styles.actionOutline,
+          { borderColor: colors.border },
+        ]}
+        onPress={onClear}
+      >
+        <Text
+          style={[styles.actionButtonText, { color: colors.textSecondary }]}
+        >
+          Limpar
+        </Text>
       </Pressable>
-      <Pressable style={[styles.actionButton, { backgroundColor: colors.brand }, isSubmitting && styles.buttonDisabled]} onPress={onSubmit} disabled={isSubmitting}>
+      <Pressable
+        style={[
+          styles.actionButton,
+          { backgroundColor: colors.brand },
+          isSubmitting && styles.buttonDisabled,
+        ]}
+        onPress={onSubmit}
+        disabled={isSubmitting}
+      >
         <Text style={[styles.actionButtonText, { color: colors.onBrand }]}>
-          {isSubmitting ? (isEditing ? "Salvando..." : "Criando...") : (isEditing ? "Salvar Alterações" : "Criar Pedido")}
+          {isSubmitting ? "Salvando..." : "Salvar Alterações"}
         </Text>
       </Pressable>
     </View>
   );
 }
 
-type OrderFormFlags = {
-  /** Se true, o formulário está sendo enviado */
-  isSubmitting: boolean;
-  /** Se true, está consultando o CEP na API ViaCEP */
-  isBuscandoCep: boolean;
-  /** Se true, usar endereço diferente */
-  enderecoDiferente: boolean;
-  /** Se true, está fazendo upload para o servidor */
-  isUploadingMedia: boolean;
-  /** Se true, exibe UI de edicao ao inves de criacao */
-  isEditing: boolean;
-};
-
-type OrderFormContentProps = {
-  control: Control<CriarPedidoFormValues>;
-  flags: OrderFormFlags;
-  errorMessage: string | null;
-  /** Erros de validação do react-hook-form (Zod + backend) */
-  errors: FieldErrors<CriarPedidoFormValues>;
-  /** URIs locais das mídias selecionadas (para preview) */
-  mediaUris: string[];
-  /** Mensagem de erro de permissão ou upload */
-  uploadError: string | null;
-  /** Abre a câmera */
-  onPickFromCamera: () => void;
-  /** Abre a galeria */
-  onPickFromGallery: () => void;
-  /** Remove mídia NOVA pelo índice */
-  onRemoveMedia: (index: number) => void;
-  /** URLs remotas já salvas no pedido (modo edição) */
-  existingUrls?: string[];
-  /** Remove URL existente pelo índice */
-  onRemoveExistingUrl?: (index: number) => void;
-  onSubmit: () => void;
-  onClear: () => void;
-};
-
-/** Dropdown/picker for Tipo */
+/** Dropdown/picker for Tipo (categoria) */
 function CategoriaPicker({
   value,
   onChange,
@@ -327,8 +536,12 @@ function CategoriaPicker({
                   <Text
                     style={[
                       styles.modalItemText,
-                      { color: colors.textPrimary },
-                      key === value && { color: colors.brand },
+                      {
+                        color:
+                          key === value
+                            ? colors.brand
+                            : colors.textPrimary,
+                      },
                     ]}
                   >
                     {label}
@@ -343,7 +556,7 @@ function CategoriaPicker({
   );
 }
 
-/** Dropdown/picker para Estado (UF) */
+/** Dropdown/picker for Estado (UF) */
 function EstadoPicker({
   value,
   onChange,
@@ -375,7 +588,7 @@ function EstadoPicker({
               : { color: colors.placeholder },
           ]}
         >
-          {value || "UF"}
+          {value || "SP"}
         </Text>
         <IconSymbol
           name="chevron.down"
@@ -417,8 +630,12 @@ function EstadoPicker({
                   <Text
                     style={[
                       styles.modalItemText,
-                      { color: colors.textPrimary },
-                      item.value === value && { color: colors.brand },
+                      {
+                        color:
+                          item.value === value
+                            ? colors.brand
+                            : colors.textPrimary,
+                      },
                     ]}
                   >
                     {item.label}
@@ -433,52 +650,94 @@ function EstadoPicker({
   );
 }
 
-export function OrderFormContent({
+// ── Props ──
+
+type OrderEditFormFlags = {
+  /** Se true, o formulário está sendo enviado */
+  isSubmitting: boolean;
+  /** Se true, está consultando o CEP na API ViaCEP */
+  isBuscandoCep: boolean;
+  /** Se true, usar endereço diferente */
+  enderecoDiferente: boolean;
+  /** Se true, está fazendo upload para o servidor */
+  isUploadingMedia: boolean;
+};
+
+type OrderEditFormContentProps = {
+  control: Control<CriarPedidoFormValues>;
+  flags: OrderEditFormFlags;
+  errorMessage: string | null;
+  /** Erros de validação do react-hook-form (Zod + backend) */
+  errors: FieldErrors<CriarPedidoFormValues>;
+  /** URIs locais das mídias selecionadas (para preview) */
+  mediaUris: string[];
+  /** Mensagem de erro de permissão ou upload */
+  uploadError: string | null;
+  /** Abre a câmera */
+  onPickFromCamera: () => void;
+  /** Abre a galeria */
+  onPickFromGallery: () => void;
+  /** Remove mídia NOVA pelo índice */
+  onRemoveMedia: (index: number) => void;
+  /** URLs remotas já salvas no pedido (modo edição) */
+  existingUrls?: string[];
+  /** Remove URL existente pelo índice */
+  onRemoveExistingUrl?: (index: number) => void;
+  onSubmit: () => void;
+  onClear: () => void;
+};
+
+// ── Main Component ──
+
+export function OrderEditFormContent({
   control,
   flags,
   errorMessage,
   errors,
   mediaUris,
-  existingUrls,
   uploadError,
   onPickFromCamera,
   onPickFromGallery,
   onRemoveMedia,
+  existingUrls,
   onRemoveExistingUrl,
   onSubmit,
   onClear,
-}: OrderFormContentProps) {
-  const { isSubmitting, isBuscandoCep, enderecoDiferente, isUploadingMedia, isEditing = false } = flags;
+}: OrderEditFormContentProps) {
   const theme = useColorScheme() ?? "light";
   const colors = Colors[theme];
+
+  const {
+    isSubmitting,
+    isBuscandoCep,
+    enderecoDiferente,
+    isUploadingMedia,
+  } = flags;
 
   return (
     <ScrollView
       style={styles.scroll}
       contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
-      {/* Header title */}
+      {/* Header section */}
       <View style={styles.headerSection}>
         <Text style={[styles.mainTitle, { color: colors.textPrimary }]}>
-          {isEditing ? "Editar Pedido" : "Cadastro Pedido"}
+          Edição de pedido
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          {isEditing
-            ? "Atualize as informações do seu pedido"
-            : "Preencha as informações do seu pedido"}
+          Preencha as informações do seu pedido
         </Text>
       </View>
 
-      {/* Tipo */}
+      {/* Tipo / Categoria */}
       <View style={styles.fieldGroup}>
         <View style={styles.fieldLabelRow}>
           <Text style={[styles.fieldLabel, { color: colors.textPrimary }]}>
             Tipo
           </Text>
           <IconSymbol
-            name="chevron.down"
+            name="square.and.pencil"
             size={16}
             color={colors.textSecondary}
           />
@@ -549,7 +808,9 @@ export function OrderFormContent({
                       style={[
                         styles.turnoLabel,
                         {
-                          color: selected ? colors.brand : colors.textSecondary,
+                          color: selected
+                            ? colors.brand
+                            : colors.textSecondary,
                         },
                       ]}
                     >
@@ -568,7 +829,13 @@ export function OrderFormContent({
         )}
       </View>
 
-      <OrderFormAddressSection control={control} errors={errors} colors={colors} enderecoDiferente={enderecoDiferente} isBuscandoCep={isBuscandoCep} />
+      <OrderEditFormAddressSection
+        control={control}
+        errors={errors}
+        colors={colors}
+        enderecoDiferente={enderecoDiferente}
+        isBuscandoCep={isBuscandoCep}
+      />
 
       {/* Descrição */}
       <View style={styles.fieldGroup}>
@@ -606,7 +873,9 @@ export function OrderFormContent({
                 onChangeText={onChange}
                 value={value}
               />
-              <Text style={[styles.charCounter, { color: colors.textSecondary }]}>
+              <Text
+                style={[styles.charCounter, { color: colors.textSecondary }]}
+              >
                 {(value ?? "").length}/500
               </Text>
             </>
@@ -619,7 +888,7 @@ export function OrderFormContent({
         )}
       </View>
 
-      <OrderFormMediaSection
+      <OrderEditFormMediaSection
         colors={colors}
         mediaUris={mediaUris}
         existingUrls={existingUrls}
@@ -684,7 +953,9 @@ export function OrderFormContent({
                       style={[
                         styles.turnoLabel,
                         {
-                          color: selected ? colors.brand : colors.textSecondary,
+                          color: selected
+                            ? colors.brand
+                            : colors.textSecondary,
                         },
                       ]}
                     >
@@ -710,10 +981,9 @@ export function OrderFormContent({
         </Text>
       ) : null}
 
-      <OrderFormActionsRow
+      <OrderEditFormActionsRow
         colors={colors}
         isSubmitting={isSubmitting}
-        isEditing={isEditing}
         onClear={onClear}
         onSubmit={onSubmit}
       />

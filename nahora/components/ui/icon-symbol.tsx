@@ -39,6 +39,10 @@ const MAPPING = {
   star: "star-border",
   "bell.fill": "notifications",
   "envelope.fill": "email",
+  checkmark: "check",
+  "sun.max.fill": "light-mode",
+  "moon.fill": "dark-mode",
+  "gearshape.fill": "settings",
 } as Partial<Record<SymbolViewProps["name"], MaterialIconName>>;
 
 // ── Unified component ──
